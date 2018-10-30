@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.logging.log4j.Logger;
+import org.kie.api.KieBase;
 
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Sets;
@@ -30,9 +31,11 @@ import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.message.QBulkMessage;
 import life.genny.qwanda.message.QDataBaseEntityMessage;
 import life.genny.qwanda.message.QEventMessage;
+import life.genny.qwandautils.GennyCacheInterface;
 import life.genny.qwandautils.GennySettings;
 import life.genny.qwandautils.JsonUtils;
-import life.genny.qwandautils.QwandaUtils;;
+import life.genny.qwandautils.QwandaUtils;
+
 
 public class VertxUtils {
 
@@ -41,7 +44,7 @@ public class VertxUtils {
 
 	static boolean cachedEnabled = true;
 	
-	static public EventBusInterface eb = new EventBusVertx();
+	static public EventBusInterface eb;
 	
 	static final String DEFAULT_TOKEN = "DUMMY";
 	static final String[] DEFAULT_FILTER_ARRAY = { "PRI_FIRSTNAME", "PRI_LASTNAME", "PRI_MOBILE",
@@ -53,6 +56,16 @@ public class VertxUtils {
 		DIRECT, TRIGGER;
 
 	}
+	
+	public static GennyCacheInterface cacheInterface = null;
+	
+	public static void init(EventBusInterface eventBusInterface, GennyCacheInterface gennyCacheInterface)
+	{
+			eb = eventBusInterface;
+			cacheInterface = gennyCacheInterface;
+
+	}
+
 
 	static Map<String, String> localCache = new ConcurrentHashMap<String, String>();
 	static Map<String, MessageProducer<JsonObject>> localMessageProducerCache = new ConcurrentHashMap<String, MessageProducer<JsonObject>>();
@@ -130,7 +143,7 @@ public class VertxUtils {
 		if (GennySettings.isDdtHost) {
 			String ret = null;
 			try {
-				ret = (String) DistMap.getDistBE().get(key);
+				ret = (String) cacheInterface.readCache(key, token);
 			} catch (Exception e) {
 				log.error("Cache is  null");
 			}
@@ -160,13 +173,10 @@ public class VertxUtils {
 	}
 
 	static public JsonObject writeCachedJson(final String key, final String value, final String token) {
-		if (GennySettings.isDdtHost) {
+		if ((GennySettings.isDdtHost)) {
 
-			if (value == null) {
-				DistMap.getDistBE().delete(key);
-			} else {
-				DistMap.getDistBE().put(key, value);
-			}
+			cacheInterface.writeCache(key, value,token,0L);
+			
 
 		} else {
 			try {
@@ -185,11 +195,8 @@ public class VertxUtils {
 	static public JsonObject writeCachedJson(final String key, final String value, final String token, long ttl_seconds) {
 		if (GennySettings.isDdtHost) {
 
-			if (value == null) {
-				DistMap.getDistBE().delete(key);
-			} else {
-				DistMap.getDistBE().putTransient(key, value, ttl_seconds,TimeUnit.SECONDS);
-			}
+			cacheInterface.writeCache(key, value, token,ttl_seconds);
+
 
 		} else {
 			try {
@@ -207,7 +214,7 @@ public class VertxUtils {
 	
 	static public void clearDDT()
 	{
-		DistMap.clear();
+		cacheInterface.clear();
 	}
 
 	static public BaseEntity readFromDDT(final String code, final boolean withAttributes, final String token) {
@@ -455,12 +462,13 @@ public class VertxUtils {
 			Map<String, BaseEntity> uniquePeople, final String[] filterAttributes) {
 		ArrayList<BaseEntity> bes = new ArrayList<BaseEntity>();
 		for (BaseEntity be : msg.getItems()) {
-			if (!uniquePeople.containsKey(be.getCode())) {
+			if (uniquePeople != null && be.getCode() != null && !uniquePeople.containsKey(be.getCode())) {
 				
 				be = privacyFilter(user, be, filterAttributes);
 				uniquePeople.put(be.getCode(), be);
 				bes.add(be);
-			}else {
+			} 
+			else {
 				/* Avoid sending the attributes again for the same BaseEntity, so sending without attributes */
 				BaseEntity slimBaseEntity = new BaseEntity(be.getCode(), be.getName());
 				/* Setting the links again but Adam don't want it to be send as it increasing the size of BE.

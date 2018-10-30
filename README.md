@@ -1,2 +1,2 @@
-# genny-verticle-rules
-Common Rules GennyVerticle
+# genny-verticle
+Vertx Common Code

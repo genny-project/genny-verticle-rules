@@ -34,6 +34,7 @@ import life.genny.qwandautils.QwandaUtils;
 import life.genny.security.SecureResources;
 
 
+
 public class RulesUtils {
 
 	protected static final Logger log = org.apache.logging.log4j.LogManager
@@ -181,7 +182,7 @@ public class RulesUtils {
 	
 		
 		// check if already in cache
-		String serviceToken = VertxUtils.getObject(realm, "CACHE", "SERVICE_TOKEN", String.class);
+	//	String serviceToken = VertxUtils.getObject(realm, "CACHE", "SERVICE_TOKEN", String.class);
 //TODO check expiry date 
 		//		if (serviceToken != null) {
 //			println("Fetching Service Token for "+realm+" from cache :"+StringUtils.abbreviateMiddle(serviceToken, "...", 20));
@@ -192,13 +193,11 @@ public class RulesUtils {
 
 		String jsonFile = realm + ".json";
 		
-		if (SecureResources.getKeycloakJsonMap().isEmpty()) {
-			println("Nothing in the KeycloakJsonMap!");
-		}
 
 		String keycloakJson = SecureResources.getKeycloakJsonMap().get(jsonFile);
 		if (keycloakJson == null) {
 			println("No keycloakMap for " + realm+" ... fixing");
+			SecureResources.readFilenamesFromDirectory(GennySettings.realmDir);
 			String gennyKeycloakJson = SecureResources.getKeycloakJsonMap().get("genny.json");
 			if (GennySettings.devMode) {
 				SecureResources.getKeycloakJsonMap().put(jsonFile, gennyKeycloakJson);
@@ -248,7 +247,7 @@ public class RulesUtils {
 			if (token == null) {
 				println(RulesUtils.ANSI_RED+"Token is Null -> Check that keycloak for realm ("+realm+") has service user password set properly to "+password+RulesUtils.ANSI_RESET);
 			} else {
-				VertxUtils.putObject(realm,"CACHE", "SERVICE_TOKEN", token);
+			//	VertxUtils.putObject(realm,"CACHE", "SERVICE_TOKEN", token);  // TODO
 			}
 			return token;
 

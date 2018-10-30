@@ -21,9 +21,8 @@ public interface EventBusInterface {
 			.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
 
 
-	public void publish(BaseEntity user, String channel, Object payload, final String[] filterAttributes) ;
 	
-	static public Object privacyFilter(BaseEntity user, Object payload, final String[] filterAttributes) {
+	public static Object privacyFilter(BaseEntity user, Object payload, final String[] filterAttributes) {
 		if (payload instanceof QDataBaseEntityMessage) {
 			return JsonUtils.toJson(privacyFilter(user, (QDataBaseEntityMessage) payload,new HashMap<String, BaseEntity>(), filterAttributes));
 		} else if (payload instanceof QBulkMessage) {
@@ -34,7 +33,7 @@ public interface EventBusInterface {
 
 
 	
-	static public QDataBaseEntityMessage privacyFilter(BaseEntity user, QDataBaseEntityMessage msg,
+	public static QDataBaseEntityMessage privacyFilter(BaseEntity user, QDataBaseEntityMessage msg,
 			Map<String, BaseEntity> uniquePeople, final String[] filterAttributes) {
 		ArrayList<BaseEntity> bes = new ArrayList<BaseEntity>();
 		for (BaseEntity be : msg.getItems()) {
@@ -58,7 +57,7 @@ public interface EventBusInterface {
 		return msg;
 	}
 	
-	static public QBulkMessage privacyFilter(BaseEntity user,QBulkMessage msg, final String[] filterAttributes) {
+	public static QBulkMessage privacyFilter(BaseEntity user,QBulkMessage msg, final String[] filterAttributes) {
 		Map<String, BaseEntity> uniqueBes = new HashMap<String, BaseEntity>();
 		for (QDataBaseEntityMessage beMsg : msg.getMessages()) {
 			beMsg = privacyFilter(user,beMsg, uniqueBes,filterAttributes);
@@ -66,14 +65,14 @@ public interface EventBusInterface {
 		return msg;
 }
 
-	static public BaseEntity privacyFilter(BaseEntity user, BaseEntity be) {
+	public static BaseEntity privacyFilter(BaseEntity user, BaseEntity be) {
 		final String[] filterStrArray = { "PRI_FIRSTNAME", "PRI_LASTNAME", "PRI_MOBILE", "PRI_DRIVER", "PRI_OWNER",
 				"PRI_IMAGE_URL", "PRI_CODE", "PRI_NAME", "PRI_USERNAME", "PRI_DRIVER_RATING" };
 
 		return privacyFilter(user, be, filterStrArray);
 	}
 
-	static public BaseEntity privacyFilter(BaseEntity user, BaseEntity be, final String[] filterAttributes) {
+	public static BaseEntity privacyFilter(BaseEntity user, BaseEntity be, final String[] filterAttributes) {
 		Set<EntityAttribute> allowedAttributes = new HashSet<EntityAttribute>();
 		for (EntityAttribute entityAttribute : be.getBaseEntityAttributes()) {
 			// System.out.println("ATTRIBUTE:"+entityAttribute.getAttributeCode()+(entityAttribute.getPrivacyFlag()?"PRIVACYFLAG=TRUE":"PRIVACYFLAG=FALSE"));
@@ -120,4 +119,5 @@ public interface EventBusInterface {
 	}
 
 
+	public void publish(BaseEntity user, String channel, Object payload, final String[] filterAttributes) ;
 }

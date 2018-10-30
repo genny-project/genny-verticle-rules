@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
 import io.vertx.core.json.JsonObject;
@@ -536,9 +538,14 @@ public class BaseEntityUtils {
 		}
 	}
 
-	public BaseEntity getParent(final String targetCode, final String linkCode) {
-		List<BaseEntity> parents = this.getParents(targetCode, linkCode);
-		if (parents != null && parents.size() > 0) {
+	public BaseEntity getParent(String targetCode, String linkCode) {
+		return this.getParent(targetCode, linkCode, null);
+	}
+
+	public BaseEntity getParent(String targetCode, String linkCode, String prefix) {
+		
+		List<BaseEntity> parents = this.getParents(targetCode, linkCode, prefix);
+		if(parents != null && !parents.isEmpty()) {
 			return parents.get(0);
 		}
 
@@ -546,6 +553,11 @@ public class BaseEntityUtils {
 	}
 
 	public List<BaseEntity> getParents(final String targetCode, final String linkCode) {
+		return this.getParents(targetCode, linkCode, null);
+	}
+
+	public List<BaseEntity> getParents(String targetCode, String linkCode, String prefix) {
+		
 		List<BaseEntity> parents = null;
 		long sTime = System.nanoTime();
 		try {
@@ -561,7 +573,15 @@ public class BaseEntityUtils {
 
 					BaseEntity linkedBe = getBaseEntityByCode(lnk.getSourceCode());
 					if (linkedBe != null) {
-						parents.add(linkedBe);
+
+						if(prefix == null) {
+							parents.add(linkedBe);
+						}
+						else {
+							if(linkedBe.getCode().startsWith(prefix)) {
+								parents.add(linkedBe);
+							}
+						}
 					}
 				}
 
@@ -900,6 +920,28 @@ public class BaseEntityUtils {
 
 		String attributeCode = "STA_" + userCode;
 		this.updateBaseEntityAttribute(userCode, beCode, attributeCode, status);
+
+		/* new status for v3 */
+		switch(status) {
+			case "green":
+			case "red":
+			case "orange": 
+			case "yellow": {
+
+				BaseEntity be = this.getBaseEntityByCode(beCode);
+				if(be != null) {
+					
+					String attributeCodeStatus = "STA_" + status.toUpperCase();
+					String existingValueArray = be.getValue(attributeCodeStatus, "[]");
+					JsonParser jsonParser = new JsonParser();
+					JsonArray existingValues = jsonParser.parse(existingValueArray).getAsJsonArray();
+					existingValues.add(userCode);
+					this.saveAnswer(new Answer(beCode, beCode, attributeCodeStatus, JsonUtils.toJson(existingValues)));
+				}
+			}
+			default:  {
+			}
+		}
 	}
 
 	public void updateBaseEntityStatus(BaseEntity be, List<String> userCodes, String status) {

@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,6 +12,7 @@ import io.vertx.core.json.DecodeException;
 import io.vertx.rxjava.core.Future;
 import io.vertx.rxjava.core.Vertx;
 import life.genny.qwandautils.GennySettings;
+
 
 public class SecureResources {
 	
@@ -23,13 +23,13 @@ public class SecureResources {
    */
   public static Map<String, String> getKeycloakJsonMap() {
 		if (keycloakJsonMap==null || keycloakJsonMap.isEmpty()) {
-			readFilenamesFromDirectory(GennySettings.realmDir,keycloakJsonMap);
+			readFilenamesFromDirectory(GennySettings.realmDir);
 		}
 
     return keycloakJsonMap;
   }
 
-  private static Map<String, String> keycloakJsonMap = new ConcurrentHashMap<String, String>();
+  public static Map<String, String> keycloakJsonMap = new ConcurrentHashMap<String, String>();
   private static String hostIP =
       System.getenv("HOSTIP") != null ? System.getenv("HOSTIP") : "127.0.0.1";
 
@@ -77,8 +77,7 @@ public class SecureResources {
     return fut;
   }
 
-  private static void readFilenamesFromDirectory(final String rootFilePath,
-      final Map<String, String> keycloakJsonMap) {
+  public static void readFilenamesFromDirectory(final String rootFilePath) {
     final File folder = new File(rootFilePath);
     final File[] listOfFiles = folder.listFiles();
 
@@ -98,7 +97,7 @@ public class SecureResources {
 
       } else if (listOfFiles[i].isDirectory()) {
         System.out.println("Directory " + listOfFiles[i].getName());
-        readFilenamesFromDirectory(listOfFiles[i].getName(), keycloakJsonMap);
+        readFilenamesFromDirectory(listOfFiles[i].getName());
       }
     }
   }
@@ -113,5 +112,12 @@ public class SecureResources {
     in.close();
 
     return ret;
+  }
+  
+  public static void clear()
+  {
+	  if (keycloakJsonMap != null) {
+		  keycloakJsonMap.clear();
+	  }
   }
 }

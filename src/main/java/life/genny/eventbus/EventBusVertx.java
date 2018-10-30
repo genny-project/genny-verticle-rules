@@ -7,11 +7,11 @@ import life.genny.qwanda.entity.BaseEntity;
 
 public class EventBusVertx  implements EventBusInterface
 {
-	EventBus eventBus = CurrentVtxCtx.getCurrentCtx().getClusterVtx().eventBus();
+	EventBus eventBus = null;
 	
 	public EventBusVertx ()
 	{
-		
+		eventBus = CurrentVtxCtx.getCurrentCtx().getClusterVtx().eventBus();
 	}
 	
 	public EventBusVertx(EventBus eventBus)
