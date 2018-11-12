@@ -50,17 +50,15 @@ public class ClusterConfig {
 			eb.setHost(GennySettings.defaultLocalIP);
 
 		} else {
-			System.out.println("NOT IN DEV MODE , MYIP=[" + GennySettings.myIP + "]"+" and setlocalipto"+GennySettings.defaultLocalIP+" hostip="+GennySettings.hostIP);
+			System.out.println("NOT IN DEV MODE , MYIP=[" + GennySettings.myIP + "]");
 			if (!GennySettings.defaultLocalIP.equalsIgnoreCase(GennySettings.hostIP)) {
 				System.out.println("Production Mode");
 				if (GennySettings.hostIP != null) {
 					eb.setPort(portEBCluster).setHost(GennySettings.myIP);
 				}
 			} else {
-				System.out.println("Local Docker Mode with defaultLocalIP="+GennySettings.defaultLocalIP+" and setHostto"+GennySettings.hostIP);
+				System.out.println("Local Docker Mode");
 				eb.setPort(portEBCluster);
-				eb.setClusterPublicHost(GennySettings.defaultLocalIP);
-			//	eb.setHost(System.getenv("HOSTNAME"));
 				eb.setHost(GennySettings.myIP);
 			}
 		}

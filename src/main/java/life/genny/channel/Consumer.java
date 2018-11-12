@@ -142,7 +142,6 @@ public class Consumer {
 		setFromCmds(eb.consumer("cmds").toObservable());
 		setFromData(eb.consumer("data").toObservable());
 		setFromServices(eb.consumer("services").toObservable());
-		setFromData(eb.consumer("data").toObservable());
 		setFromEvents(eb.consumer("events").toObservable());
 		setFromSocial(eb.consumer("social").toObservable());
 		setFromMessages(eb.consumer("messages").toObservable());

@@ -80,15 +80,14 @@ public class SecureResources {
   public static void readFilenamesFromDirectory(final String rootFilePath) {
     final File folder = new File(rootFilePath);
     final File[] listOfFiles = folder.listFiles();
-
+    if (listOfFiles != null) {
     for (int i = 0; i < listOfFiles.length; i++) {
       if (listOfFiles[i].isFile()) {
         System.out.println("File " + listOfFiles[i].getName());
         try {
           String keycloakJsonText = getFileAsText(listOfFiles[i]);
           // Handle case where dev is in place with localhost
-          final String localIP = System.getenv("HOSTIP");
-          keycloakJsonText = keycloakJsonText.replaceAll("localhost", localIP);
+          keycloakJsonText = keycloakJsonText.replaceAll("localhost", GennySettings.hostIP);
           keycloakJsonMap.put(listOfFiles[i].getName(), keycloakJsonText);
         } catch (final IOException e) {
           // TODO Auto-generated catch block
@@ -99,6 +98,9 @@ public class SecureResources {
         System.out.println("Directory " + listOfFiles[i].getName());
         readFilenamesFromDirectory(listOfFiles[i].getName());
       }
+    }
+    } else {
+    	System.out.println("No realm files");
     }
   }
 

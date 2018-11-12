@@ -48,9 +48,8 @@
   <classpathentry kind="var" path="M2_REPO/commons-lang/commons-lang/2.6/commons-lang-2.6.jar"/>
   <classpathentry kind="var" path="M2_REPO/io/vertx/vertx-dropwizard-metrics/3.5.1/vertx-dropwizard-metrics-3.5.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/io/dropwizard/metrics/metrics-core/4.0.2/metrics-core-4.0.2.jar"/>
-  <classpathentry kind="var" path="M2_REPO/life/genny/qwanda-utils/1.0.64/qwanda-utils-1.0.64.jar" sourcepath="M2_REPO/life/genny/qwanda-utils/1.0.64/qwanda-utils-1.0.64-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/life/genny/qwanda-utils/1.0.65/qwanda-utils-1.0.65.jar" sourcepath="M2_REPO/life/genny/qwanda-utils/1.0.65/qwanda-utils-1.0.65-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/javamoney/moneta/1.1/moneta-1.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/commons-io/commons-io/2.5/commons-io-2.5.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/eclipse/jgit/org.eclipse.jgit/4.8.0.201706111038-r/org.eclipse.jgit-4.8.0.201706111038-r.jar"/>
   <classpathentry kind="var" path="M2_REPO/com/jcraft/jsch/0.1.54/jsch-0.1.54.jar"/>
   <classpathentry kind="var" path="M2_REPO/com/googlecode/javaewah/JavaEWAH/1.1.6/JavaEWAH-1.1.6.jar"/>
@@ -59,7 +58,7 @@
   <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.2/commons-logging-1.2.jar"/>
   <classpathentry kind="var" path="M2_REPO/commons-codec/commons-codec/1.10/commons-codec-1.10.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-api/1.7.7/slf4j-api-1.7.7.jar"/>
-  <classpathentry kind="var" path="M2_REPO/life/genny/qwanda/1.0.64/qwanda-1.0.64.jar" sourcepath="M2_REPO/life/genny/qwanda/1.0.64/qwanda-1.0.64-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/life/genny/qwanda/1.0.65/qwanda-1.0.65.jar" sourcepath="M2_REPO/life/genny/qwanda/1.0.65/qwanda-1.0.65-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/zalando/jackson-datatype-money/1.0.0/jackson-datatype-money-1.0.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/com/google/code/gson/gson/2.8.2/gson-2.8.2.jar" sourcepath="M2_REPO/com/google/code/gson/gson/2.8.2/gson-2.8.2-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/hsqldb/hsqldb/2.4.0/hsqldb-2.4.0.jar"/>
@@ -93,6 +92,7 @@
   <classpathentry kind="var" path="M2_REPO/org/scannotation/scannotation/1.0.3/scannotation-1.0.3.jar"/>
   <classpathentry kind="var" path="M2_REPO/javassist/javassist/3.12.1.GA/javassist-3.12.1.GA.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/jboss/spec/javax/annotation/jboss-annotations-api_1.1_spec/1.0.1.Final/jboss-annotations-api_1.1_spec-1.0.1.Final.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-io/commons-io/2.1/commons-io-2.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/net/jcip/jcip-annotations/1.0/jcip-annotations-1.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/jboss/resteasy/resteasy-jaxb-provider/3.0.4.Final/resteasy-jaxb-provider-3.0.4.Final.jar"/>
   <classpathentry kind="var" path="M2_REPO/com/sun/xml/bind/jaxb-impl/2.2.7/jaxb-impl-2.2.7.jar"/>
@@ -258,7 +258,7 @@
   <classpathentry kind="var" path="M2_REPO/org/kie/kie-api/7.1.0.Final/kie-api-7.1.0.Final.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/uberfire/uberfire-maven-support/1.1.0.Final/uberfire-maven-support-1.1.0.Final.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/drools/drools-decisiontables/7.1.0.Final/drools-decisiontables-7.1.0.Final.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/drools/drools-core/7.1.0.Final/drools-core-7.1.0.Final.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/drools/drools-core/7.1.0.Final/drools-core-7.1.0.Final.jar" sourcepath="M2_REPO/org/drools/drools-core/7.1.0.Final/drools-core-7.1.0.Final-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/mvel/mvel2/2.3.0.Final/mvel2-2.3.0.Final.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/kie/kie-internal/7.1.0.Final/kie-internal-7.1.0.Final.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/drools/drools-compiler/7.1.0.Final/drools-compiler-7.1.0.Final.jar"/>

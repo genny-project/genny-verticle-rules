@@ -61,6 +61,9 @@ public class VertxUtils {
 	
 	public static void init(EventBusInterface eventBusInterface, GennyCacheInterface gennyCacheInterface)
 	{
+		if (gennyCacheInterface == null) {
+			log.error("NULL CACHEINTERFACE SUPPLUED IN INIT");
+		}
 			eb = eventBusInterface;
 			cacheInterface = gennyCacheInterface;
 

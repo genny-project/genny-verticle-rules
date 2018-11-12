@@ -229,7 +229,7 @@ public class RulesUtils {
 		println("key:"+key+":"+initVector+":"+encryptedPassword);
 		password = GennySettings.dynamicPassword(jsonRealm);
 
-		println("password="+password);
+		println("password=["+password+"]");
 
 		// Now ask the bridge for the keycloak to use
 		String keycloakurl = realmJson.getString("auth-server-url").substring(0,
@@ -240,7 +240,7 @@ public class RulesUtils {
 		try {
 			println("jsonRealm= "+jsonRealm+", dynamicRealm() : " + dynamicRealm + "\n" + "realm : " + realm + "\n" + "secret : " + secret + "\n"
 					+ "keycloakurl: " + keycloakurl + "\n" + "key : " + key + "\n" + "initVector : " + initVector + "\n"
-					+ "enc pw : " + encryptedPassword + "\n" + "password : " + password + "\n");
+					+ "enc pw : " + encryptedPassword + "\n" + "password : [" + password + "]\n");
 
 			String token = KeycloakUtils.getToken(keycloakurl, dynamicRealm, dynamicRealm, secret, "service", password);
 			println("token = " + StringUtils.abbreviateMiddle(token, "...", 20));

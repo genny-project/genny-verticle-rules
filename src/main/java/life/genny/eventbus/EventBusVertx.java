@@ -35,17 +35,16 @@ public class EventBusVertx  implements EventBusInterface
 		case "webdata":
 			payload = EventBusInterface.privacyFilter(user, payload,filterAttributes);
 			Producer.getToWebData().write(payload).end();
-			;
 			break;
 		case "cmds":
 			payload = EventBusInterface.privacyFilter(user, payload,filterAttributes);
-			Producer.getToWebCmds().write(payload);
+			Producer.getToWebCmds().send(payload);
 			break;
 		case "services":
 			Producer.getToServices().write(payload);
 			break;
 		case "messages":
-			Producer.getToMessages().write(payload);
+			Producer.getToMessages().send(payload);
 			break;
 		default:
 			log.error("Channel does not exist: " + channel);
