@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -12,6 +13,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.StringUtils;
@@ -194,7 +196,16 @@ public class RulesUtils {
 			JSONObject decodedServiceToken = KeycloakUtils.getDecodedToken(serviceToken);
 			long expiryTime = decodedServiceToken.getLong("exp");
 			long nowTime = LocalDateTime.now().atZone(ZoneOffset.UTC).toEpochSecond();
-			println("JWT Expiry Time = "+expiryTime+"  and now Time (UMT) = "+nowTime);
+			long duration = nowTime - expiryTime;
+			LocalDateTime expiryDateTime =
+				       LocalDateTime.ofInstant(Instant.ofEpochSecond(expiryTime),
+				                               TimeZone.getDefault().toZoneId());  
+			
+			LocalDateTime nowDateTime =
+				       LocalDateTime.ofInstant(Instant.ofEpochSecond(nowTime),
+				                               TimeZone.getDefault().toZoneId());  
+			
+			println("JWT Expiry Time = "+expiryTime+" ("+expiryDateTime.toString()+") and now Time (UMT) = "+nowTime + " ("+nowDateTime.toString()+")  diff = "+duration+" sec");
 			if (nowTime > expiryTime) {
 				serviceToken = null;
 			} else {
