@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -13,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -182,12 +186,21 @@ public class RulesUtils {
 	
 		
 		// check if already in cache
-	//	String serviceToken = VertxUtils.getObject(realm, "CACHE", "SERVICE_TOKEN", String.class);
+		String serviceToken = VertxUtils.getObject(realm, "CACHE", "SERVICE_TOKEN", String.class);
 //TODO check expiry date 
-		//		if (serviceToken != null) {
-//			println("Fetching Service Token for "+realm+" from cache :"+StringUtils.abbreviateMiddle(serviceToken, "...", 20));
-//			return serviceToken;
-//		}
+		if (serviceToken != null) {
+			println("Fetching Service Token for "+realm+" from cache :"+StringUtils.abbreviateMiddle(serviceToken, "...", 20));
+			// check expiry date
+			JSONObject decodedServiceToken = KeycloakUtils.getDecodedToken(serviceToken);
+			long expiryTime = decodedServiceToken.getLong("exp");
+			long nowTime = LocalDateTime.now().atZone(ZoneOffset.UTC).toEpochSecond();
+			println("JWT Expiry Time = "+expiryTime+"  and now Time (UMT) = "+nowTime);
+			if (nowTime > expiryTime) {
+				serviceToken = null;
+			} else {
+				return serviceToken;
+			}
+		}
 		
 		println("Generating Service Token for "+realm);
 
@@ -247,7 +260,7 @@ public class RulesUtils {
 			if (token == null) {
 				println(RulesUtils.ANSI_RED+"Token is Null -> Check that keycloak for realm ("+realm+") has service user password set properly to "+password+RulesUtils.ANSI_RESET);
 			} else {
-			//	VertxUtils.putObject(realm,"CACHE", "SERVICE_TOKEN", token);  // TODO
+				VertxUtils.putObject(realm,"CACHE", "SERVICE_TOKEN", token);  // TODO
 			}
 			return token;
 
