@@ -20,50 +20,57 @@ public interface EventBusInterface {
 	static final Logger log = org.apache.logging.log4j.LogManager
 			.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
 
-
-	
 	public static Object privacyFilter(BaseEntity user, Object payload, final String[] filterAttributes) {
 		if (payload instanceof QDataBaseEntityMessage) {
-			return JsonUtils.toJson(privacyFilter(user, (QDataBaseEntityMessage) payload,new HashMap<String, BaseEntity>(), filterAttributes));
+			return JsonUtils.toJson(privacyFilter(user, (QDataBaseEntityMessage) payload,
+					new HashMap<String, BaseEntity>(), filterAttributes));
 		} else if (payload instanceof QBulkMessage) {
-			return JsonUtils.toJson(privacyFilter(user, (QBulkMessage) payload,filterAttributes));
+			return JsonUtils.toJson(privacyFilter(user, (QBulkMessage) payload, filterAttributes));
 		} else
 			return payload;
 	}
 
-
-	
 	public static QDataBaseEntityMessage privacyFilter(BaseEntity user, QDataBaseEntityMessage msg,
 			Map<String, BaseEntity> uniquePeople, final String[] filterAttributes) {
 		ArrayList<BaseEntity> bes = new ArrayList<BaseEntity>();
-		for (BaseEntity be : msg.getItems()) {
-			if (!uniquePeople.containsKey(be.getCode())) {
-				
-				be = privacyFilter(user, be, filterAttributes);
-				uniquePeople.put(be.getCode(), be);
-				bes.add(be);
-			}else {
-				/* Avoid sending the attributes again for the same BaseEntity, so sending without attributes */
-				BaseEntity slimBaseEntity = new BaseEntity(be.getCode(), be.getName());
-				/* Setting the links again but Adam don't want it to be send as it increasing the size of BE.
-				 * Frontend should create links based on the parentCode of baseEntity not the links. This requires work in the frontend.
-				 * But currently the GRP_NEW_ITEMS are being sent without any links so it doesn't show any internships.
-				 */
-				slimBaseEntity.setLinks(be.getLinks());
-				bes.add(slimBaseEntity);
+		if (uniquePeople != null) {
+			for (BaseEntity be : msg.getItems()) {
+				if (be != null) {
+					if (!uniquePeople.containsKey(be.getCode())) {
+
+						be = privacyFilter(user, be, filterAttributes);
+						uniquePeople.put(be.getCode(), be);
+						bes.add(be);
+					} else {
+						/*
+						 * Avoid sending the attributes again for the same BaseEntity, so sending
+						 * without attributes
+						 */
+						BaseEntity slimBaseEntity = new BaseEntity(be.getCode(), be.getName());
+						/*
+						 * Setting the links again but Adam don't want it to be send as it increasing
+						 * the size of BE. Frontend should create links based on the parentCode of
+						 * baseEntity not the links. This requires work in the frontend. But currently
+						 * the GRP_NEW_ITEMS are being sent without any links so it doesn't show any
+						 * internships.
+						 */
+						slimBaseEntity.setLinks(be.getLinks());
+						bes.add(slimBaseEntity);
+					}
+				}
 			}
+			msg.setItems(bes.toArray(new BaseEntity[bes.size()]));
 		}
-		msg.setItems(bes.toArray(new BaseEntity[bes.size()]));
 		return msg;
 	}
-	
-	public static QBulkMessage privacyFilter(BaseEntity user,QBulkMessage msg, final String[] filterAttributes) {
+
+	public static QBulkMessage privacyFilter(BaseEntity user, QBulkMessage msg, final String[] filterAttributes) {
 		Map<String, BaseEntity> uniqueBes = new HashMap<String, BaseEntity>();
 		for (QDataBaseEntityMessage beMsg : msg.getMessages()) {
-			beMsg = privacyFilter(user,beMsg, uniqueBes,filterAttributes);
+			beMsg = privacyFilter(user, beMsg, uniqueBes, filterAttributes);
 		}
 		return msg;
-}
+	}
 
 	public static BaseEntity privacyFilter(BaseEntity user, BaseEntity be) {
 		final String[] filterStrArray = { "PRI_FIRSTNAME", "PRI_LASTNAME", "PRI_MOBILE", "PRI_DRIVER", "PRI_OWNER",
@@ -80,7 +87,6 @@ public interface EventBusInterface {
 				String attributeCode = entityAttribute.getAttributeCode();
 
 				if (Arrays.stream(filterAttributes).anyMatch(x -> x.equals(attributeCode))) {
-
 
 					allowedAttributes.add(entityAttribute);
 				} else {
@@ -118,6 +124,5 @@ public interface EventBusInterface {
 		return isContainsValue;
 	}
 
-
-	public void publish(BaseEntity user, String channel, Object payload, final String[] filterAttributes) ;
+	public void publish(BaseEntity user, String channel, Object payload, final String[] filterAttributes);
 }
