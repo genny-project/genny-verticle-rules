@@ -197,12 +197,13 @@ public class VertxUtils {
 	
 	static public JsonObject writeCachedJson(final String key, final String value, final String token, long ttl_seconds) {
 		if (GennySettings.isDdtHost || (!GennySettings.isCacheServer)) {
-
+			log.info("WRITING TO CACHE! "+key);
 			cacheInterface.writeCache(key, value, token,ttl_seconds);
 
 
 		} else {
 			try {
+				log.info("WRITING TO CACHE USING API! "+key);
 				QwandaUtils.apiPostEntity(GennySettings.ddtUrl + "/write", value, token);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
