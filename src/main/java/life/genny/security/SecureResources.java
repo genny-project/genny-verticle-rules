@@ -23,7 +23,7 @@ public class SecureResources {
    */
   public static Map<String, String> getKeycloakJsonMap() {
 		if (keycloakJsonMap==null || keycloakJsonMap.isEmpty()) {
-			readFilenamesFromDirectory(GennySettings.realmDir);
+			readFilenamesFromDirectory(GennySettings.REALM_DIR);
 		}
 
     return keycloakJsonMap;
@@ -57,7 +57,7 @@ public class SecureResources {
                 keycloakJsonMap.put(fileStr, keycloakJsonText);
             //    if (GennySettings.devMode) {
                 if ("genny.json".equalsIgnoreCase(fileStr)) {
-                	keycloakJsonMap.put(GennySettings.mainrealm+".json", keycloakJsonText);
+                	keycloakJsonMap.put(GennySettings.MAIN_REALM+".json", keycloakJsonText);
                 }
             //    }
                 System.out.println("Keycloak json file:"+fileStr+":"+keycloakJsonText);

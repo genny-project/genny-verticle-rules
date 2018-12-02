@@ -65,7 +65,7 @@ public class QuestionUtils {
 		String json;
 		try {
 
-			json = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/" + sourceCode + "/asks2/"
+			json = QwandaUtils.apiGet(GennySettings.QWANDA_SERVICE_URL + "/qwanda/baseentitys/" + sourceCode + "/asks2/"
 					+ questionCode + "/" + targetCode, token);
 			if(json != null) {
 				return JsonUtils.fromJson(json, QDataAskMessage.class);

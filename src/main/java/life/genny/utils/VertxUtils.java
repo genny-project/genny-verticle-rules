@@ -140,7 +140,7 @@ public class VertxUtils {
 	static public JsonObject readCachedJson(final String key, final String token) {
 		JsonObject result = null;
 
-		if (GennySettings.isDdtHost) {
+		if (GennySettings.IS_DDT_HOST) {
 			String ret = null;
 			try {
 				ret = (String) cacheInterface.readCache(key, token);
@@ -156,7 +156,7 @@ public class VertxUtils {
 		} else {
 			String resultStr = null;
 			try {
-				resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/" + key, token);
+				resultStr = QwandaUtils.apiGet(GennySettings.DDT_URL + "/read/" + key, token);
 				result = new JsonObject(resultStr);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -173,14 +173,14 @@ public class VertxUtils {
 	}
 
 	static public JsonObject writeCachedJson(final String key, final String value, final String token) {
-		if ((GennySettings.isDdtHost)) {
+		if ((GennySettings.IS_DDT_HOST)) {
 
 			cacheInterface.writeCache(key, value,token,0L);
 			
 
 		} else {
 			try {
-				QwandaUtils.apiPostEntity(GennySettings.ddtUrl + "/write", value, token);
+				QwandaUtils.apiPostEntity(GennySettings.DDT_URL + "/write", value, token);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -193,14 +193,14 @@ public class VertxUtils {
 	}
 	
 	static public JsonObject writeCachedJson(final String key, final String value, final String token, long ttl_seconds) {
-		if (GennySettings.isDdtHost) {
+		if (GennySettings.IS_DDT_HOST) {
 
 			cacheInterface.writeCache(key, value, token,ttl_seconds);
 
 
 		} else {
 			try {
-				QwandaUtils.apiPostEntity(GennySettings.ddtUrl + "/write", value, token);
+				QwandaUtils.apiPostEntity(GennySettings.DDT_URL + "/write", value, token);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

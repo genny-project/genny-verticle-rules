@@ -1446,7 +1446,7 @@ public class BaseEntityUtils {
 		// Put the QBulkMessage into the PontoonDDT
 
 		// then create the QBulkPullMessage
-		pullMsg.setPullUrl(GennySettings.pontoonUrl + "/" + uuid);
+		pullMsg.setPullUrl(GennySettings.PONTOON_URL + "/" + uuid);
 		return pullMsg;
 
 	}
@@ -1461,7 +1461,7 @@ public class BaseEntityUtils {
 		DistMap.getDistPontoonBE().put(uuid, msg, 2, TimeUnit.MINUTES);
 
 		// then create the QBulkPullMessage
-		pullMsg.setPullUrl(GennySettings.pontoonUrl + "/pull/" + uuid);
+		pullMsg.setPullUrl(GennySettings.PONTOON_URL + "/pull/" + uuid);
 		return pullMsg;
 
 	}

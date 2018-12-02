@@ -58,21 +58,21 @@ public class RulesUtils {
 
 	public static String executeRuleLogger(final String status, final String module, final String topColour,
 			final String bottomColour) {
-		String moduleLogger =  (GennySettings.devMode ? "" : bottomColour) + status + " ::  " + module
-				+ (GennySettings.devMode ? "" : ANSI_RESET);
+		String moduleLogger =  (GennySettings.DEV_MODE ? "" : bottomColour) + status + " ::  " + module
+				+ (GennySettings.DEV_MODE ? "" : ANSI_RESET);
 		return moduleLogger;
 	}
 
 	public static String terminateRuleLogger(String module) {
-		return executeRuleLogger("<<<<<<<<<< END RULE", module, ANSI_YELLOW, ANSI_GREEN) + "\n" + (GennySettings.devMode ? "" : ANSI_YELLOW)
-					+ (GennySettings.devMode ? "" : ANSI_RESET);
+		return executeRuleLogger("<<<<<<<<<< END RULE", module, ANSI_YELLOW, ANSI_GREEN) + "\n" + (GennySettings.DEV_MODE ? "" : ANSI_YELLOW)
+					+ (GennySettings.DEV_MODE ? "" : ANSI_RESET);
 
 	}
 
 	public static String headerRuleLogger(String module) {
 		return
-				 executeRuleLogger(">>>>>>>>>> START RULE", module, ANSI_RED, ANSI_GREEN)  + (GennySettings.devMode ? "" : ANSI_RED)
-				+ (GennySettings.devMode ? "" : ANSI_RESET);
+				 executeRuleLogger(">>>>>>>>>> START RULE", module, ANSI_RED, ANSI_GREEN)  + (GennySettings.DEV_MODE ? "" : ANSI_RED)
+				+ (GennySettings.DEV_MODE ? "" : ANSI_RESET);
 	}
 
 	public static void header(final String module) {
@@ -96,10 +96,10 @@ public class RulesUtils {
 
 	public static void println(final Object obj, final String colour) {
 		Date date = new Date();
-		if (GennySettings.devMode) {
+		if (GennySettings.DEV_MODE) {
 			System.out.println(date+": "+obj);
 		} else {
-			System.out.println((GennySettings.devMode ? "" : colour) + date+": " + obj + (GennySettings.devMode ? "" : ANSI_RESET));
+			System.out.println((GennySettings.DEV_MODE ? "" : colour) + date+": " + obj + (GennySettings.DEV_MODE ? "" : ANSI_RESET));
 		}
 
 	}
@@ -110,7 +110,7 @@ public class RulesUtils {
 
 	public static String getLayoutCacheURL(String realm, final String path) {
 		
-		String host = GennySettings.layoutCacheUrl; 
+		String host = GennySettings.LAYOUT_CACHE_URL; 
 
 		return String.format("%s/%s", host, path);
 	}
@@ -197,13 +197,13 @@ public class RulesUtils {
 		String keycloakJson = SecureResources.getKeycloakJsonMap().get(jsonFile);
 		if (keycloakJson == null) {
 			println("No keycloakMap for " + realm+" ... fixing");
-			SecureResources.readFilenamesFromDirectory(GennySettings.realmDir);
+			SecureResources.readFilenamesFromDirectory(GennySettings.REALM_DIR);
 			String gennyKeycloakJson = SecureResources.getKeycloakJsonMap().get("genny.json");
-			if (GennySettings.devMode) {
+			if (GennySettings.DEV_MODE) {
 				SecureResources.getKeycloakJsonMap().put(jsonFile, gennyKeycloakJson);
 				keycloakJson = gennyKeycloakJson;
 			} else {
-				if ("10.123.123.123".equalsIgnoreCase(GennySettings.hostIP)) {
+				if ("10.123.123.123".equalsIgnoreCase(GennySettings.HOSTIP)) {
 					println("gennyKeycloakJson="+gennyKeycloakJson);
 					// Running in local docker mode
 					SecureResources.getKeycloakJsonMap().put(jsonFile, gennyKeycloakJson);
@@ -881,7 +881,7 @@ public class RulesUtils {
 
 			} else {
 				println("LOADING ATTRIBUTES FROM API");
-				String jsonString = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl + "/qwanda/attributes", token);
+				String jsonString = QwandaUtils.apiGet(GennySettings.QWANDA_SERVICE_URL + "/qwanda/attributes", token);
 				VertxUtils.writeCachedJson("attributes", jsonString);
 				attributesMsg = JsonUtils.fromJson(jsonString, QDataAttributeMessage.class);
 				Attribute[] attributeArray = attributesMsg.getItems();
@@ -917,7 +917,7 @@ public class RulesUtils {
 	public static String getChildren(final String sourceCode, final String linkCode, final String linkValue, String token) {
 
 		try {
-			String beJson = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl + "/qwanda/entityentitys/" + sourceCode
+			String beJson = QwandaUtils.apiGet(GennySettings.QWANDA_SERVICE_URL + "/qwanda/entityentitys/" + sourceCode
 					+ "/linkcodes/" + linkCode + "/children/" + linkValue, token);
 			Link[] linkArray = RulesUtils.fromJson(beJson, Link[].class);
 			if (linkArray.length > 0) {

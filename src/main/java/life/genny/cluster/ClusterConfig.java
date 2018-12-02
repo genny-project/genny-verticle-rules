@@ -44,24 +44,24 @@ public class ClusterConfig {
 		eb.setReconnectAttempts(20);
 		eb.setReconnectInterval(5);
 
-		if (GennySettings.devMode) {
-			System.out.println("IN DEV MODE on "+GennySettings.defaultLocalIP);
-			eb.setClusterPublicHost(GennySettings.defaultLocalIP);
-			eb.setHost(GennySettings.defaultLocalIP);
+		if (GennySettings.DEV_MODE) {
+			System.out.println("IN DEV MODE on "+GennySettings.DEFAULT_LOCAL_IP);
+			eb.setClusterPublicHost(GennySettings.DEFAULT_LOCAL_IP);
+			eb.setHost(GennySettings.DEFAULT_LOCAL_IP);
 
 		} else {
-			System.out.println("NOT IN DEV MODE , MYIP=[" + GennySettings.myIP + "]"+" and setlocalipto"+GennySettings.defaultLocalIP+" hostip="+GennySettings.hostIP);
-			if (!GennySettings.defaultLocalIP.equalsIgnoreCase(GennySettings.hostIP)) {
+			System.out.println("NOT IN DEV MODE , MYIP=[" + GennySettings.MYIP + "]"+" and setlocalipto"+GennySettings.DEFAULT_LOCAL_IP+" hostip="+GennySettings.HOSTIP);
+			if (!GennySettings.DEFAULT_LOCAL_IP.equalsIgnoreCase(GennySettings.HOSTIP)) {
 				System.out.println("Production Mode");
-				if (GennySettings.hostIP != null) {
-					eb.setPort(portEBCluster).setHost(GennySettings.myIP);
+				if (GennySettings.HOSTIP != null) {
+					eb.setPort(portEBCluster).setHost(GennySettings.MYIP);
 				}
 			} else {
-				System.out.println("Local Docker Mode with defaultLocalIP="+GennySettings.defaultLocalIP+" and setHostto"+GennySettings.hostIP);
+				System.out.println("Local Docker Mode with defaultLocalIP="+GennySettings.DEFAULT_LOCAL_IP+" and setHostto"+GennySettings.HOSTIP);
 				eb.setPort(portEBCluster);
-				eb.setClusterPublicHost(GennySettings.defaultLocalIP);
+				eb.setClusterPublicHost(GennySettings.DEFAULT_LOCAL_IP);
 			//	eb.setHost(System.getenv("HOSTNAME"));
-				eb.setHost(GennySettings.myIP);
+				eb.setHost(GennySettings.MYIP);
 			}
 		}
 		return eb;
@@ -73,8 +73,8 @@ public class ClusterConfig {
 	 */
 	public static VertxOptions configCluster() {
 		HazelcastInstance haInst = hazelcastInstance();
-		if (GennySettings.isDdtHost) {
-			DistMap.registerDataStructure(haInst, GennySettings.mainrealm); // TODO, get all realms
+		if (GennySettings.IS_DDT_HOST) {
+			DistMap.registerDataStructure(haInst, GennySettings.MAIN_REALM); // TODO, get all realms
 		}
 		final VertxOptions options = new VertxOptions();
 		final ClusterManager mgr = new HazelcastClusterManager(haInst);
@@ -83,7 +83,7 @@ public class ClusterConfig {
 		options.setClustered(true);
 		options.setClusterManager(mgr);
 
-		if (GennySettings.devMode) {
+		if (GennySettings.DEV_MODE) {
 			options.setMaxEventLoopExecuteTime(1000000000L * 600); // TODO, this is really for debugging
 			options.setBlockedThreadCheckInterval(1000000000L * 600);
 			options.setMaxWorkerExecuteTime(1000000000L * 600);
@@ -146,8 +146,8 @@ public class ClusterConfig {
 
 	public static HazelcastInstance hazelcastInstance() {
 		Config cfg = new Config();
-		cfg.getGroupConfig().setName(GennySettings.username);
-		cfg.getGroupConfig().setPassword(GennySettings.username);
+		cfg.getGroupConfig().setName(GennySettings.USERNAME);
+		cfg.getGroupConfig().setPassword(GennySettings.USERNAME);
 
 		cfg.setProperties(getProperties());
 		cfg.addMultiMapConfig(getMultiMapCfg());

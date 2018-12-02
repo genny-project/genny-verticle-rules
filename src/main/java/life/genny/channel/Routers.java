@@ -34,13 +34,13 @@ public class Routers {
 	}
 
 	public static void activate(final Vertx vertx) {
-		System.out.println("Activating cache Routes on port "+GennySettings.cacheApiPort+" given ["+GennySettings.cacheApiPort+"]");
+		System.out.println("Activating cache Routes on port "+GennySettings.CACHE_API_PORT+" given ["+GennySettings.CACHE_API_PORT+"]");
 		HttpServerOptions serverOptions = new HttpServerOptions();
 		  serverOptions.setUsePooledBuffers(true);
 		  serverOptions.setCompressionSupported(true);
 		  serverOptions.setCompressionLevel(3);
 		  serverOptions.setUseAlpn(true);
-		vertx.createHttpServer(/* serverOptions*/).requestHandler(router::accept).listen(Integer.parseInt(GennySettings.cacheApiPort));
+		vertx.createHttpServer(/* serverOptions*/).requestHandler(router::accept).listen(Integer.parseInt(GennySettings.CACHE_API_PORT));
 	}
 
 }
