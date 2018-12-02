@@ -23,6 +23,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 
 import io.vertx.core.json.JsonObject;
@@ -91,6 +92,68 @@ public class BaseEntityUtils {
 		return newBaseEntity;
 	}
 
+	public List<BaseEntity> getBaseEntityFromSelectionAttribute(BaseEntity be, String attributeCode) {
+
+		List<BaseEntity> bes = new ArrayList<>();
+
+		String attributeValue = be.getValue(attributeCode, null);
+		if (attributeValue != null) {
+			if (!attributeValue.isEmpty() && !attributeValue.equals(" ")) {
+				/*
+				 * first we try to serialise the attriute into a JsonArray in case this is a
+				 * multi-selection attribute
+				 */
+				try {
+
+					// JsonArray attributeValues = new JsonArray(attributeValue);
+
+					JsonParser parser = new JsonParser();
+					JsonElement tradeElement = parser.parse(attributeValue);
+					JsonArray attributeValues = tradeElement.getAsJsonArray();
+
+					/* we loop through the attribute values */
+					for (int i = 0; i < attributeValues.size(); i++) {
+
+						String beCode = attributeValues.get(i).getAsString();
+						
+						/* we try to fetch the base entity */
+						if(beCode != null) {
+							
+							BaseEntity baseEntity = this.getBaseEntityByCode(beCode);
+							if (baseEntity != null) {
+								
+								/* we add the base entity to the list */
+								bes.add(baseEntity);
+							}
+						}
+					}
+
+					/* we return the list */
+					return bes;
+
+				} catch (Exception e) {
+					/*
+					 * serialisation did not work - we can assume this is a single selection
+					 * attribute
+					 */
+
+					/* we fetch the BaseEntity */
+					BaseEntity baseEntity = this.getBaseEntityByCode(attributeValue);
+
+					/* we return a list containing only this base entity */
+					if (baseEntity != null) {
+						bes.add(baseEntity);
+					}
+
+					/* we return */
+					return bes;
+				}
+			}
+		}
+
+		return bes;
+	}
+
 	/* ================================ */
 	/* old code */
 
@@ -153,7 +216,8 @@ public class BaseEntityUtils {
 
 		if (be != null) {
 
-			if (!(be.getCode().startsWith("SBE_") || be.getCode().startsWith("RAW_"))) { // don't bother with search be or raw attributes
+			if (!(be.getCode().startsWith("SBE_") || be.getCode().startsWith("RAW_"))) { // don't bother with search be
+																							// or raw attributes
 				for (EntityAttribute ea : be.getBaseEntityAttributes()) {
 					if (ea != null) {
 						Attribute attribute = RulesUtils.attributeMap.get(ea.getAttributeCode());
@@ -166,7 +230,7 @@ public class BaseEntityUtils {
 								ea.setAttribute(attribute);
 							} else {
 								System.out.println("Cannot get Attribute - " + ea.getAttributeCode());
-								
+
 								Attribute dummy = new AttributeText(ea.getAttributeCode(), ea.getAttributeCode());
 								ea.setAttribute(dummy);
 
@@ -192,12 +256,12 @@ public class BaseEntityUtils {
 
 	public void saveAnswers(List<Answer> answers, final boolean changeEvent) {
 
-		if (answers.size()==1) {
+		if (answers.size() == 1) {
 			if (answers.get(0).getAttributeCode().equals("PRI_CONTAINER_SIZE_REQUESTED")) {
 				log.info("PRI_CONTAINER_SIZE_REQUESTED");
 			}
 		}
-		
+
 		if (!changeEvent) {
 			for (Answer answer : answers) {
 				answer.setChangeEvent(false);
@@ -453,7 +517,8 @@ public class BaseEntityUtils {
 		return this.moveBaseEntity(baseEntityCode, sourceCode, targetCode, linkCode, "LINK");
 	}
 
-	public String moveBaseEntity(String baseEntityCode, String sourceCode, String targetCode, String linkCode, final String linkValue) {
+	public String moveBaseEntity(String baseEntityCode, String sourceCode, String targetCode, String linkCode,
+			final String linkValue) {
 
 		Link link = new Link(sourceCode, baseEntityCode, linkCode, linkValue);
 
@@ -543,9 +608,9 @@ public class BaseEntityUtils {
 	}
 
 	public BaseEntity getParent(String targetCode, String linkCode, String prefix) {
-		
+
 		List<BaseEntity> parents = this.getParents(targetCode, linkCode, prefix);
-		if(parents != null && !parents.isEmpty()) {
+		if (parents != null && !parents.isEmpty()) {
 			return parents.get(0);
 		}
 
@@ -557,7 +622,7 @@ public class BaseEntityUtils {
 	}
 
 	public List<BaseEntity> getParents(String targetCode, String linkCode, String prefix) {
-		
+
 		List<BaseEntity> parents = null;
 		long sTime = System.nanoTime();
 		try {
@@ -574,11 +639,10 @@ public class BaseEntityUtils {
 					BaseEntity linkedBe = getBaseEntityByCode(lnk.getSourceCode());
 					if (linkedBe != null) {
 
-						if(prefix == null) {
+						if (prefix == null) {
 							parents.add(linkedBe);
-						}
-						else {
-							if(linkedBe.getCode().startsWith(prefix)) {
+						} else {
+							if (linkedBe.getCode().startsWith(prefix)) {
 								parents.add(linkedBe);
 							}
 						}
@@ -907,7 +971,7 @@ public class BaseEntityUtils {
 	}
 
 	public void updateBaseEntityStatus(String beCode, String status) {
-		
+
 		String attributeCode = "STA_STATUS";
 		this.updateBaseEntityAttribute(beCode, beCode, attributeCode, status);
 	}
@@ -922,25 +986,25 @@ public class BaseEntityUtils {
 		this.updateBaseEntityAttribute(userCode, beCode, attributeCode, status);
 
 		/* new status for v3 */
-		switch(status) {
-			case "green":
-			case "red":
-			case "orange": 
-			case "yellow": {
+		switch (status) {
+		case "green":
+		case "red":
+		case "orange":
+		case "yellow": {
 
-				BaseEntity be = this.getBaseEntityByCode(beCode);
-				if(be != null) {
-					
-					String attributeCodeStatus = "STA_" + status.toUpperCase();
-					String existingValueArray = be.getValue(attributeCodeStatus, "[]");
-					JsonParser jsonParser = new JsonParser();
-					JsonArray existingValues = jsonParser.parse(existingValueArray).getAsJsonArray();
-					existingValues.add(userCode);
-					this.saveAnswer(new Answer(beCode, beCode, attributeCodeStatus, JsonUtils.toJson(existingValues)));
-				}
+			BaseEntity be = this.getBaseEntityByCode(beCode);
+			if (be != null) {
+
+				String attributeCodeStatus = "STA_" + status.toUpperCase();
+				String existingValueArray = be.getValue(attributeCodeStatus, "[]");
+				JsonParser jsonParser = new JsonParser();
+				JsonArray existingValues = jsonParser.parse(existingValueArray).getAsJsonArray();
+				existingValues.add(userCode);
+				this.saveAnswer(new Answer(beCode, beCode, attributeCodeStatus, JsonUtils.toJson(existingValues)));
 			}
-			default:  {
-			}
+		}
+		default: {
+		}
 		}
 	}
 

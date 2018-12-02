@@ -196,7 +196,7 @@ public class RulesUtils {
 			JSONObject decodedServiceToken = KeycloakUtils.getDecodedToken(serviceToken);
 			long expiryTime = decodedServiceToken.getLong("exp");
 			long nowTime = LocalDateTime.now().atZone(ZoneOffset.UTC).toEpochSecond();
-			long duration = nowTime - expiryTime;
+			long duration = expiryTime - nowTime;
 			LocalDateTime expiryDateTime =
 				       LocalDateTime.ofInstant(Instant.ofEpochSecond(expiryTime),
 				                               TimeZone.getDefault().toZoneId());  
@@ -205,8 +205,9 @@ public class RulesUtils {
 				       LocalDateTime.ofInstant(Instant.ofEpochSecond(nowTime),
 				                               TimeZone.getDefault().toZoneId());  
 			
-			println("JWT Expiry Time = "+expiryTime+" ("+expiryDateTime.toString()+") and now Time (UMT) = "+nowTime + " ("+nowDateTime.toString()+")  diff = "+duration+" sec");
-			if (nowTime > expiryTime) {
+			println("JWT Expiry Time = "+expiryTime+" ("+expiryDateTime.toString()+") and now Time (UMT) = "+nowTime + " ("+nowDateTime.toString()+")  diff (secs to expiry) = "+duration+" sec");
+			if (nowDateTime.isAfter(expiryDateTime)) {
+				log.info("Service Token Expired! - generate new one!");
 				serviceToken = null;
 			} else {
 				return serviceToken;
@@ -227,7 +228,7 @@ public class RulesUtils {
 				SecureResources.getKeycloakJsonMap().put(jsonFile, gennyKeycloakJson);
 				keycloakJson = gennyKeycloakJson;
 			} else {
-				if ("10.123.123.123".equalsIgnoreCase(GennySettings.hostIP)) {
+				if (GennySettings.defaultLocalIP.equalsIgnoreCase(GennySettings.hostIP)) {
 					println("gennyKeycloakJson="+gennyKeycloakJson);
 					// Running in local docker mode
 					SecureResources.getKeycloakJsonMap().put(jsonFile, gennyKeycloakJson);
