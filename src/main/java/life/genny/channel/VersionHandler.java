@@ -28,7 +28,10 @@ public class VersionHandler {
 	          versionString = GitUtils.getGitVersionString(projectDependencies);
 	        } catch (IOException e) {
 	            log.error("Error reading GitVersion.properties", e);
+	        } catch (NullPointerException ne) {
+	        	log.error("Error reading GitVersion.properties", ne);
 	        }
+	    
 	        routingContext.response().putHeader("Content-Type", "application/json");
 	        routingContext.response().end(versionString);  
 	      });
