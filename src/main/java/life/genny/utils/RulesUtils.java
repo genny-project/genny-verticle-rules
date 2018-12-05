@@ -39,8 +39,6 @@ import life.genny.qwandautils.KeycloakUtils;
 import life.genny.qwandautils.QwandaUtils;
 import life.genny.security.SecureResources;
 
-
-
 public class RulesUtils {
 
 	protected static final Logger log = org.apache.logging.log4j.LogManager
@@ -58,27 +56,25 @@ public class RulesUtils {
 	public static final String ANSI_WHITE = "\u001B[37m";
 	public static final String ANSI_BOLD = "\u001b[1m";
 
-
 	static public Map<String, Attribute> attributeMap = new ConcurrentHashMap<String, Attribute>();
 	static public QDataAttributeMessage attributesMsg = null;
 
 	public static String executeRuleLogger(final String status, final String module, final String topColour,
 			final String bottomColour) {
-		String moduleLogger =  (GennySettings.devMode ? "" : bottomColour) + status + " ::  " + module
+		String moduleLogger = (GennySettings.devMode ? "" : bottomColour) + status + " ::  " + module
 				+ (GennySettings.devMode ? "" : ANSI_RESET);
 		return moduleLogger;
 	}
 
 	public static String terminateRuleLogger(String module) {
-		return executeRuleLogger("<<<<<<<<<< END RULE", module, ANSI_YELLOW, ANSI_GREEN) + "\n" + (GennySettings.devMode ? "" : ANSI_YELLOW)
-					+ (GennySettings.devMode ? "" : ANSI_RESET);
+		return executeRuleLogger("<<<<<<<<<< END RULE", module, ANSI_YELLOW, ANSI_GREEN) + "\n"
+				+ (GennySettings.devMode ? "" : ANSI_YELLOW) + (GennySettings.devMode ? "" : ANSI_RESET);
 
 	}
 
 	public static String headerRuleLogger(String module) {
-		return
-				 executeRuleLogger(">>>>>>>>>> START RULE", module, ANSI_RED, ANSI_GREEN)  + (GennySettings.devMode ? "" : ANSI_RED)
-				+ (GennySettings.devMode ? "" : ANSI_RESET);
+		return executeRuleLogger(">>>>>>>>>> START RULE", module, ANSI_RED, ANSI_GREEN)
+				+ (GennySettings.devMode ? "" : ANSI_RED) + (GennySettings.devMode ? "" : ANSI_RESET);
 	}
 
 	public static void header(final String module) {
@@ -103,9 +99,10 @@ public class RulesUtils {
 	public static void println(final Object obj, final String colour) {
 		Date date = new Date();
 		if (GennySettings.devMode) {
-			System.out.println(date+": "+obj);
+			System.out.println(date + ": " + obj);
 		} else {
-			System.out.println((GennySettings.devMode ? "" : colour) + date+": " + obj + (GennySettings.devMode ? "" : ANSI_RESET));
+			System.out.println((GennySettings.devMode ? "" : colour) + date + ": " + obj
+					+ (GennySettings.devMode ? "" : ANSI_RESET));
 		}
 
 	}
@@ -115,8 +112,8 @@ public class RulesUtils {
 	}
 
 	public static String getLayoutCacheURL(String realm, final String path) {
-		
-		String host = GennySettings.layoutCacheUrl; 
+
+		String host = GennySettings.layoutCacheUrl;
 
 		return String.format("%s/%s", host, path);
 	}
@@ -130,50 +127,48 @@ public class RulesUtils {
 
 	public static String getLayout(String realm, String path) {
 
-  	String jsonStr = "";
-  	String finalPath = "";
-  	try {
+		String jsonStr = "";
+		String finalPath = "";
+		try {
 
-  		if(path.startsWith("/") == false && realm.endsWith("/") == false) {
-  			finalPath = realm + "/" + path;
-  		}
-  		else {
-  			finalPath = realm + path;
-  		}
+			if (path.startsWith("/") == false && realm.endsWith("/") == false) {
+				finalPath = realm + "/" + path;
+			} else {
+				finalPath = realm + path;
+			}
 
-  		String url = getLayoutCacheURL(realm, finalPath);
-  		println("Trying to load url.....");
-  		println(url);
+			String url = getLayoutCacheURL(realm, finalPath);
+			println("Trying to load url.....");
+			println(url);
 
-  		/* we make a GET request */
-  		jsonStr = QwandaUtils.apiGet(url, null);
+			/* we make a GET request */
+			jsonStr = QwandaUtils.apiGet(url, null);
 
-  		if(jsonStr != null) {
+			if (jsonStr != null) {
 
-  			/* we serialise the layout into a JsonObject */
-  			JsonObject layoutObject = new JsonObject(jsonStr);
-  			if(layoutObject != null) {
+				/* we serialise the layout into a JsonObject */
+				JsonObject layoutObject = new JsonObject(jsonStr);
+				if (layoutObject != null) {
 
-  				/* we check if an error happened when grabbing the layout */
-  				if((layoutObject.containsKey("Error") || layoutObject.containsKey("error")) && realm.equals("genny") == false) {
+					/* we check if an error happened when grabbing the layout */
+					if ((layoutObject.containsKey("Error") || layoutObject.containsKey("error"))
+							&& realm.equals("genny") == false) {
 
-  					/* we try to grab the layout using the genny realm */
-  					return RulesUtils.getLayout("genny", path);
-  				}
-  				else {
+						/* we try to grab the layout using the genny realm */
+						return RulesUtils.getLayout("genny", path);
+					} else {
 
-  					/* otherwise we return the layout */
-  					return jsonStr;
-  				}
-  			}
-  		}
-  	}
-  	catch(Exception e) {
-  		System.out.println(jsonStr);
-  		return jsonStr;
-  	}
+						/* otherwise we return the layout */
+						return jsonStr;
+					}
+				}
+			}
+		} catch (Exception e) {
+			System.out.println(jsonStr);
+			return jsonStr;
+		}
 
-  	return null;
+		return null;
 	}
 
 	public static JsonObject createDataAnswerObj(Answer answer, String token) {
@@ -185,27 +180,26 @@ public class RulesUtils {
 	}
 
 	public static String generateServiceToken(String realm) {
-	
-		
+
 		// check if already in cache
 		String serviceToken = VertxUtils.getObject(realm, "CACHE", "SERVICE_TOKEN", String.class);
-//TODO check expiry date 
+		// TODO check expiry date
 		if (serviceToken != null) {
-			println("Fetching Service Token for "+realm+" from cache :"+StringUtils.abbreviateMiddle(serviceToken, "...", 20));
+			println("Fetching Service Token for " + realm + " from cache :"
+					+ StringUtils.abbreviateMiddle(serviceToken, "...", 20));
 			// check expiry date
 			JSONObject decodedServiceToken = KeycloakUtils.getDecodedToken(serviceToken);
 			long expiryTime = decodedServiceToken.getLong("exp");
 			long nowTime = LocalDateTime.now().atZone(ZoneOffset.UTC).toEpochSecond();
 			long duration = expiryTime - nowTime;
-			LocalDateTime expiryDateTime =
-				       LocalDateTime.ofInstant(Instant.ofEpochSecond(expiryTime),
-				                               TimeZone.getDefault().toZoneId());  
-			
-			LocalDateTime nowDateTime =
-				       LocalDateTime.ofInstant(Instant.ofEpochSecond(nowTime),
-				                               TimeZone.getDefault().toZoneId());  
-			
-			println("JWT Expiry Time = "+expiryTime+" ("+expiryDateTime.toString()+") and now Time (UMT) = "+nowTime + " ("+nowDateTime.toString()+")  diff (secs to expiry) = "+duration+" sec");
+			LocalDateTime expiryDateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(expiryTime),
+					TimeZone.getDefault().toZoneId());
+
+			LocalDateTime nowDateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(nowTime),
+					TimeZone.getDefault().toZoneId());
+
+			println("JWT Expiry Time = " + expiryTime + " (" + expiryDateTime.toString() + ") and now Time (UMT) = "
+					+ nowTime + " (" + nowDateTime.toString() + ")  diff (secs to expiry) = " + duration + " sec");
 			if (nowDateTime.isAfter(expiryDateTime)) {
 				log.info("Service Token Expired! - generate new one!");
 				serviceToken = null;
@@ -213,15 +207,14 @@ public class RulesUtils {
 				return serviceToken;
 			}
 		}
-		
-		println("Generating Service Token for "+realm);
+
+		println("Generating Service Token for " + realm);
 
 		String jsonFile = realm + ".json";
-		
 
 		String keycloakJson = SecureResources.getKeycloakJsonMap().get(jsonFile);
 		if (keycloakJson == null) {
-			println("No keycloakMap for " + realm+" ... fixing");
+			println("No keycloakMap for " + realm + " ... fixing");
 			SecureResources.readFilenamesFromDirectory(GennySettings.realmDir);
 			String gennyKeycloakJson = SecureResources.getKeycloakJsonMap().get("genny.json");
 			if (GennySettings.devMode) {
@@ -229,32 +222,32 @@ public class RulesUtils {
 				keycloakJson = gennyKeycloakJson;
 			} else {
 				if (GennySettings.defaultLocalIP.equalsIgnoreCase(GennySettings.hostIP)) {
-					println("gennyKeycloakJson="+gennyKeycloakJson);
+					println("gennyKeycloakJson=" + gennyKeycloakJson);
 					// Running in local docker mode
 					SecureResources.getKeycloakJsonMap().put(jsonFile, gennyKeycloakJson);
 					keycloakJson = gennyKeycloakJson;
-					println("No keycloak Json file available for realm - "+realm+" , so using genny instead ..");
+					println("No keycloak Json file available for realm - " + realm + " , so using genny instead ..");
 				} else {
-					println("Error - No keycloak Json file available for realm - "+realm);
+					println("Error - No keycloak Json file available for realm - " + realm);
 				}
 			}
 		}
-		println("keycloak.json="+keycloakJson);
+		println("keycloak.json=" + keycloakJson);
 		JsonObject realmJson = new JsonObject(keycloakJson);
 		JsonObject secretJson = realmJson.getJsonObject("credentials");
 		String secret = secretJson.getString("secret");
 		String jsonRealm = realmJson.getString("realm");
-		
+
 		String key = GennySettings.dynamicKey(jsonRealm);
 		String initVector = GennySettings.dynamicInitVector(jsonRealm);
 		String encryptedPassword = GennySettings.dynamicEncryptedPassword(jsonRealm);
-		String password= null;
+		String password = null;
 		String dynamicRealm = GennySettings.dynamicRealm(jsonRealm);
-		
-		println("key:"+key+":"+initVector+":"+encryptedPassword);
+
+		println("key:" + key + ":" + initVector + ":" + encryptedPassword);
 		password = GennySettings.dynamicPassword(jsonRealm);
 
-		println("password=["+password+"]");
+		println("password=[" + password + "]");
 
 		// Now ask the bridge for the keycloak to use
 		String keycloakurl = realmJson.getString("auth-server-url").substring(0,
@@ -263,16 +256,18 @@ public class RulesUtils {
 		println(keycloakurl);
 
 		try {
-			println("jsonRealm= "+jsonRealm+", dynamicRealm() : " + dynamicRealm + "\n" + "realm : " + realm + "\n" + "secret : " + secret + "\n"
-					+ "keycloakurl: " + keycloakurl + "\n" + "key : " + key + "\n" + "initVector : " + initVector + "\n"
-					+ "enc pw : " + encryptedPassword + "\n" + "password : [" + password + "]\n");
+			println("jsonRealm= " + jsonRealm + ", dynamicRealm() : " + dynamicRealm + "\n" + "realm : " + realm + "\n"
+					+ "secret : " + secret + "\n" + "keycloakurl: " + keycloakurl + "\n" + "key : " + key + "\n"
+					+ "initVector : " + initVector + "\n" + "enc pw : " + encryptedPassword + "\n" + "password : ["
+					+ password + "]\n");
 
 			String token = KeycloakUtils.getToken(keycloakurl, dynamicRealm, dynamicRealm, secret, "service", password);
 			println("token = " + StringUtils.abbreviateMiddle(token, "...", 20));
 			if (token == null) {
-				println(RulesUtils.ANSI_RED+"Token is Null -> Check that keycloak for realm ("+realm+") has service user password set properly to "+password+RulesUtils.ANSI_RESET);
+				println(RulesUtils.ANSI_RED + "Token is Null -> Check that keycloak for realm (" + realm
+						+ ") has service user password set properly to " + password + RulesUtils.ANSI_RESET);
 			} else {
-				VertxUtils.putObject(realm,"CACHE", "SERVICE_TOKEN", token);  // TODO
+				VertxUtils.putObject(realm, "CACHE", "SERVICE_TOKEN", token); // TODO
 			}
 			return token;
 
@@ -351,7 +346,7 @@ public class RulesUtils {
 	public static String getBaseEntityJsonByAttributeAndValue(final String qwandaServiceUrl,
 			Map<String, Object> decodedToken, final String token, final String attributeCode, final String value) {
 
-		return getBaseEntityJsonByAttributeAndValue(qwandaServiceUrl, decodedToken, token, attributeCode,value,1);
+		return getBaseEntityJsonByAttributeAndValue(qwandaServiceUrl, decodedToken, token, attributeCode, value, 1);
 
 	}
 
@@ -363,12 +358,13 @@ public class RulesUtils {
 	 * @return baseEntity user for the decodedToken passed
 	 */
 	public static String getBaseEntityJsonByAttributeAndValue(final String qwandaServiceUrl,
-			Map<String, Object> decodedToken, final String token, final String attributeCode, final String value, final Integer pageSize) {
+			Map<String, Object> decodedToken, final String token, final String attributeCode, final String value,
+			final Integer pageSize) {
 
 		try {
 			String beJson = null;
-			beJson = QwandaUtils.apiGet(
-					qwandaServiceUrl + "/qwanda/baseentitys/test2?pageSize="+pageSize+"&" + attributeCode + "=" + value, token);
+			beJson = QwandaUtils.apiGet(qwandaServiceUrl + "/qwanda/baseentitys/test2?pageSize=" + pageSize + "&"
+					+ attributeCode + "=" + value, token);
 			// println("BE"+beJson);
 			return beJson;
 
@@ -390,11 +386,11 @@ public class RulesUtils {
 			Map<String, Object> decodedToken, final String token, final String attributeCode, final String value) {
 
 		String beJson = getBaseEntityJsonByAttributeAndValue(qwandaServiceUrl, decodedToken, token, attributeCode,
-				value,1000);
+				value, 1000);
 		if (StringUtils.isBlank(beJson)) {
 			return new ArrayList<BaseEntity>();
 		}
-		
+
 		QDataBaseEntityMessage be = fromJson(beJson, QDataBaseEntityMessage.class);
 
 		List<BaseEntity> items = null;
@@ -402,7 +398,7 @@ public class RulesUtils {
 		try {
 			items = new ArrayList<BaseEntity>(Arrays.asList(be.getItems()));
 		} catch (Exception e) {
-			println("Warning: items is null: (json="+beJson+")");
+			println("Warning: items is null: (json=" + beJson + ")");
 		}
 
 		return items;
@@ -422,7 +418,7 @@ public class RulesUtils {
 		List<BaseEntity> items = getBaseEntitysByAttributeAndValue(qwandaServiceUrl, decodedToken, token, attributeCode,
 				value);
 
-		if ((items != null) && (items.size() > 0 ) ) {
+		if ((items != null) && (items.size() > 0)) {
 			if (!items.isEmpty())
 				return items.get(0);
 		}
@@ -649,8 +645,8 @@ public class RulesUtils {
 
 		String beJson = getBaseEntitysJsonByParentAndLinkCode(qwandaServiceUrl, decodedToken, token, parentCode,
 				linkCode, pageStart, pageSize);
-		
-		QDataBaseEntityMessage msg  = null;
+
+		QDataBaseEntityMessage msg = null;
 		if (StringUtils.isBlank(beJson)) {
 			BaseEntity[] beArray = new BaseEntity[0];
 			msg = new QDataBaseEntityMessage(beArray);
@@ -659,14 +655,15 @@ public class RulesUtils {
 			msg = JsonUtils.fromJson(beJson, QDataBaseEntityMessage.class);
 		}
 		if (msg == null) {
-			log.error("No BaseEntitys found for parentCode:"+parentCode+" and linkCode:"+linkCode);
+			log.error("No BaseEntitys found for parentCode:" + parentCode + " and linkCode:" + linkCode);
 			return new BaseEntity[0];
 		}
 		return msg.getItems();
 
 	}
-	/** added because of bug /
+
 	/**
+	 * added because of bug / /**
 	 *
 	 * @param qwandaServiceUrl
 	 * @param decodedToken
@@ -754,16 +751,16 @@ public class RulesUtils {
 	}
 
 	/**
-	*
-	* @param qwandaServiceUrl
-	* @param decodedToken
-	* @param token
-	* @param parentCode
-	* @param linkCode
-	* @param pageStart
-	* @param pageSize
-	* @return baseEntitys
-	*/
+	 *
+	 * @param qwandaServiceUrl
+	 * @param decodedToken
+	 * @param token
+	 * @param parentCode
+	 * @param linkCode
+	 * @param pageStart
+	 * @param pageSize
+	 * @return baseEntitys
+	 */
 
 	/* added because of bug */
 	public static List<BaseEntity> getBaseEntitysByParentAndLinkCodeWithAttributes2(final String qwandaServiceUrl,
@@ -891,20 +888,28 @@ public class RulesUtils {
 
 	public static QDataAttributeMessage loadAllAttributesIntoCache(final String token) {
 		try {
-
+			boolean cacheWorked = false;
 			JsonObject json = VertxUtils.readCachedJson("attributes");
 			if ("ok".equals(json.getString("status"))) {
 				println("LOADING ATTRIBUTES FROM CACHE!");
-				// VertxUtils.writeCachedJson("attributes", json.getString("value"));
-				attributesMsg = JsonUtils.fromJson(json.getString("value"), QDataAttributeMessage.class);
-				Attribute[] attributeArray = attributesMsg.getItems();
+				String value = json.getString("value");
+				if (!StringUtils.isBlank(value)) {
+					// VertxUtils.writeCachedJson("attributes", json.getString("value"));
+					attributesMsg = JsonUtils.fromJson(value, QDataAttributeMessage.class);
+					Attribute[] attributeArray = attributesMsg.getItems();
 
-				for (Attribute attribute : attributeArray) {
-					attributeMap.put(attribute.getCode(), attribute);
+					for (Attribute attribute : attributeArray) {
+						attributeMap.put(attribute.getCode(), attribute);
+					}
+					cacheWorked = true;
+					println("All the attributes have been loaded in " + attributeMap.size() + " attributes");
+				} else {
+					println("The attributes json is empty!"); // TODO should throw exception
 				}
-				println("All the attributes have been loaded in "+attributeMap.size()+" attributes");
 
-			} else {
+			} 
+			
+			if (!cacheWorked){
 				println("LOADING ATTRIBUTES FROM API");
 				String jsonString = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl + "/qwanda/attributes", token);
 				VertxUtils.writeCachedJson("attributes", jsonString);
@@ -914,7 +919,7 @@ public class RulesUtils {
 				for (Attribute attribute : attributeArray) {
 					attributeMap.put(attribute.getCode(), attribute);
 				}
-				println("All the attributes have been loaded from api in"+attributeMap.size()+" attributes");
+				println("All the attributes have been loaded from api in" + attributeMap.size() + " attributes");
 
 			}
 
@@ -925,12 +930,11 @@ public class RulesUtils {
 		return null;
 	}
 
-
 	public static Attribute getAttribute(final String attributeCode, final String token) {
 		Attribute ret = attributeMap.get(attributeCode);
 		if (ret == null) {
-			if (attributeCode.startsWith("SRT_")||attributeCode.startsWith("RAW_")) {
-				ret = new AttributeText(attributeCode,attributeCode);
+			if (attributeCode.startsWith("SRT_") || attributeCode.startsWith("RAW_")) {
+				ret = new AttributeText(attributeCode, attributeCode);
 			} else {
 				loadAllAttributesIntoCache(token);
 				ret = attributeMap.get(attributeCode);
@@ -938,8 +942,9 @@ public class RulesUtils {
 		}
 		return ret;
 	}
-	
-	public static String getChildren(final String sourceCode, final String linkCode, final String linkValue, String token) {
+
+	public static String getChildren(final String sourceCode, final String linkCode, final String linkValue,
+			String token) {
 
 		try {
 			String beJson = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl + "/qwanda/entityentitys/" + sourceCode
@@ -958,20 +963,21 @@ public class RulesUtils {
 		return null;
 	}
 
-	public static BaseEntity duplicateBaseEntity(BaseEntity oldBe, String prefix, String name, String qwandaUrl, String token) {
-		
+	public static BaseEntity duplicateBaseEntity(BaseEntity oldBe, String prefix, String name, String qwandaUrl,
+			String token) {
+
 		BaseEntity newBe = new BaseEntity(QwandaUtils.getUniqueId(prefix, oldBe.getCode()), name);
 
-		println("Size of oldBe Links   ::   "+oldBe.getLinks().size());
-		println("Size of oldBe Attributes   ::   "+oldBe.getBaseEntityAttributes().size());
+		println("Size of oldBe Links   ::   " + oldBe.getLinks().size());
+		println("Size of oldBe Attributes   ::   " + oldBe.getBaseEntityAttributes().size());
 
-		for(EntityEntity ee : oldBe.getLinks()) {
+		for (EntityEntity ee : oldBe.getLinks()) {
 			ee.getLink().setSourceCode(newBe.getCode());
 		}
 		newBe.setLinks(oldBe.getLinks());
 
-		//newBe.setBaseEntityAttributes(oldBe.getBaseEntityAttributes());
-		println("New BE before hitting api  ::   "+ newBe);
+		// newBe.setBaseEntityAttributes(oldBe.getBaseEntityAttributes());
+		println("New BE before hitting api  ::   " + newBe);
 
 		String jsonBE = JsonUtils.toJson(newBe);
 		try {
