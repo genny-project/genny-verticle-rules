@@ -144,9 +144,10 @@ public class VertxUtils {
 	static public JsonObject readCachedJson(final String key, final String token) {
 		JsonObject result = null;
 
-		if (!(GennySettings.devMode  && eb instanceof WildflyCacheInterface)/*|| (!GennySettings.isCacheServer)*/) {
+		if (!(GennySettings.devMode  && cacheInterface instanceof WildflyCacheInterface)/*|| (!GennySettings.isCacheServer)*/) {
 			String ret = null;
 			try {
+				log.info("READING DIRECTLY FROM CACHE!");
 				ret = (String) cacheInterface.readCache(key, token);
 			} catch (Exception e) {
 				log.error("Cache is  null");
@@ -160,6 +161,7 @@ public class VertxUtils {
 		} else {
 			String resultStr = null;
 			try {
+				log.info("READING  FROM CACHE API!");
 				resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/" + key, token);
 				result = new JsonObject(resultStr);
 			} catch (IOException e) {
@@ -177,7 +179,7 @@ public class VertxUtils {
 	}
 
 	static public JsonObject writeCachedJson(final String key, final String value, final String token) {
-		if (!(GennySettings.devMode && eb instanceof WildflyCacheInterface)) {
+		if (!(GennySettings.devMode && cacheInterface instanceof WildflyCacheInterface)) {
 
 			cacheInterface.writeCache(key, value,token,0L);
 			
@@ -197,7 +199,7 @@ public class VertxUtils {
 	}
 	
 	static public JsonObject writeCachedJson(final String key, final String value, final String token, long ttl_seconds) {
-		if (!(GennySettings.devMode  && eb instanceof WildflyCacheInterface)/*|| (!GennySettings.isCacheServer)*/) {
+		if (!(GennySettings.devMode  && cacheInterface instanceof WildflyCacheInterface)/*|| (!GennySettings.isCacheServer)*/) {
 			log.info("WRITING TO CACHE! "+key);
 			cacheInterface.writeCache(key, value, token,ttl_seconds);
 
