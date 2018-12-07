@@ -26,6 +26,7 @@ import io.vertx.rxjava.core.eventbus.MessageProducer;
 import life.genny.channel.DistMap;
 import life.genny.eventbus.EventBusInterface;
 import life.genny.eventbus.EventBusVertx;
+import life.genny.eventbus.WildflyCacheInterface;
 import life.genny.qwanda.attribute.EntityAttribute;
 import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.message.QBulkMessage;
@@ -143,7 +144,7 @@ public class VertxUtils {
 	static public JsonObject readCachedJson(final String key, final String token) {
 		JsonObject result = null;
 
-		if (GennySettings.isDdtHost /*|| (!GennySettings.isCacheServer)*/) {
+		if (!GennySettings.devMode /*|| (!GennySettings.isCacheServer)*/) {
 			String ret = null;
 			try {
 				ret = (String) cacheInterface.readCache(key, token);
@@ -176,7 +177,7 @@ public class VertxUtils {
 	}
 
 	static public JsonObject writeCachedJson(final String key, final String value, final String token) {
-		if ((GennySettings.isDdtHost) /*|| (!GennySettings.isCacheServer)*/) {
+		if (!(GennySettings.devMode && eb instanceof WildflyCacheInterface)) {
 
 			cacheInterface.writeCache(key, value,token,0L);
 			
@@ -196,7 +197,7 @@ public class VertxUtils {
 	}
 	
 	static public JsonObject writeCachedJson(final String key, final String value, final String token, long ttl_seconds) {
-		if (GennySettings.isDdtHost /*|| (!GennySettings.isCacheServer)*/) {
+		if (!GennySettings.devMode /*|| (!GennySettings.isCacheServer)*/) {
 			log.info("WRITING TO CACHE! "+key);
 			cacheInterface.writeCache(key, value, token,ttl_seconds);
 

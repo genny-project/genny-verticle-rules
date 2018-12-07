@@ -896,6 +896,7 @@ public class RulesUtils {
 				if (!StringUtils.isBlank(value)) {
 					// VertxUtils.writeCachedJson("attributes", json.getString("value"));
 					attributesMsg = JsonUtils.fromJson(value, QDataAttributeMessage.class);
+					if ((attributesMsg == null)&&(attributesMsg.getItems().length>0)) {
 					Attribute[] attributeArray = attributesMsg.getItems();
 
 					for (Attribute attribute : attributeArray) {
@@ -903,6 +904,9 @@ public class RulesUtils {
 					}
 					cacheWorked = true;
 					println("All the attributes have been loaded in " + attributeMap.size() + " attributes");
+					} else {
+						println("attributes json Message value not valid ->["+value+"]");
+					}
 				} else {
 					println("The attributes json is empty!"); // TODO should throw exception
 				}

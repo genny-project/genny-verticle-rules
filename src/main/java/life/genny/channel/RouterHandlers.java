@@ -80,14 +80,14 @@ public class RouterHandlers {
 		          // a JsonObject wraps a map and it exposes type-aware getters
 		          String param2 = wifiPayload.getString("json");
 		          QDataBaseEntityMessage msg = JsonUtils.fromJson(param2,QDataBaseEntityMessage.class);
-		          System.out.println("Writing a batch of "+msg.getItems().length+" to cache");
+		          log.info("Writing a batch of "+msg.getItems().length+" to cache");
 		          long start = System.nanoTime();
 		          for (BaseEntity be : msg.getItems()) {
 		        	  VertxUtils.writeCachedJson(be.getCode(), JsonUtils.toJson(be));
 		          }
 		          long end = System.nanoTime();
 		          double dif = (end - start)/1e6;
-		          System.out.println("Finished writing to cache in "+dif+"ms");
+		          log.info("Finished writing to cache in "+dif+"ms");
 		                  JsonObject ret = new JsonObject().put("status", "ok");
 		                  context.request().response().headers().set("Content-Type", "application/json");
 		                  context.request().response().end(ret.encode());

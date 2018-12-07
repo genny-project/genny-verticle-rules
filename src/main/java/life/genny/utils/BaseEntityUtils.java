@@ -1091,7 +1091,7 @@ public class BaseEntityUtils {
 					}
 
 					if (answer.getAttribute() == null || cachedBe == null) {
-						System.out.println("Null Attribute or null BE");
+						System.out.println("Null Attribute or null BE , targetCode=["+answer.getTargetCode()+"]");
 					} else {
 						cachedBe.addAnswer(answer);
 					}
@@ -1105,6 +1105,7 @@ public class BaseEntityUtils {
 			 * else cachedBe.addAnswer(answer);
 			 * VertxUtils.writeCachedJson(answer.getTargetCode(),
 			 * JsonUtils.toJson(cachedBe));
+			 * 
 			 */
 		} catch (BadDataException e) {
 			e.printStackTrace();

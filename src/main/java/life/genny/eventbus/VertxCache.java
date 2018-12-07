@@ -1,11 +1,18 @@
 package life.genny.eventbus;
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import life.genny.channel.DistMap;
 import life.genny.qwandautils.GennyCacheInterface;
 
 public class VertxCache implements GennyCacheInterface {
+	
+	private static final Logger logger = LoggerFactory
+			.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
+
 
 	@Override
 	public Object readCache(String key, String token) {
@@ -17,6 +24,10 @@ public class VertxCache implements GennyCacheInterface {
 		if (value == null) {
 			DistMap.getDistBE().delete(key);
 		} else {
+			if (key == null) {
+				logger.error("Null Key provided! with value=["+value+"]");
+				
+			}
 			DistMap.getDistBE().put(key, value, ttl_seconds,TimeUnit.SECONDS);
 		}
 
