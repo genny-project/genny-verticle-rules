@@ -144,7 +144,7 @@ public class VertxUtils {
 	static public JsonObject readCachedJson(final String key, final String token) {
 		JsonObject result = null;
 
-		if (!GennySettings.devMode  && eb instanceof WildflyCacheInterface/*|| (!GennySettings.isCacheServer)*/) {
+		if (!(GennySettings.devMode  && eb instanceof WildflyCacheInterface)/*|| (!GennySettings.isCacheServer)*/) {
 			String ret = null;
 			try {
 				ret = (String) cacheInterface.readCache(key, token);
@@ -197,7 +197,7 @@ public class VertxUtils {
 	}
 	
 	static public JsonObject writeCachedJson(final String key, final String value, final String token, long ttl_seconds) {
-		if (!GennySettings.devMode  && eb instanceof WildflyCacheInterface/*|| (!GennySettings.isCacheServer)*/) {
+		if (!(GennySettings.devMode  && eb instanceof WildflyCacheInterface)/*|| (!GennySettings.isCacheServer)*/) {
 			log.info("WRITING TO CACHE! "+key);
 			cacheInterface.writeCache(key, value, token,ttl_seconds);
 
