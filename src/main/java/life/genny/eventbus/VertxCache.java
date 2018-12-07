@@ -27,8 +27,9 @@ public class VertxCache implements GennyCacheInterface {
 			if (key == null) {
 				logger.error("Null Key provided! with value=["+value+"]");
 				
+			} else {
+				DistMap.getDistBE().put(key, value, ttl_seconds,TimeUnit.SECONDS);
 			}
-			DistMap.getDistBE().put(key, value, ttl_seconds,TimeUnit.SECONDS);
 		}
 
 	}
