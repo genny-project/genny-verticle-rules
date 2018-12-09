@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.logging.log4j.Logger;
@@ -231,7 +232,7 @@ public class VertxUtils {
 			be = JsonUtils.fromJson(json.getString("value"), BaseEntity.class);
 		} else {
 			// fetch normally
-			System.out.println("Cache MISS for " + code);
+			System.out.println("Cache MISS for " + code+" with attributes");
 			try {
 				if (withAttributes) {
 					be = QwandaUtils.getBaseEntityByCodeWithAttributes(code, token);
@@ -551,6 +552,20 @@ public class VertxUtils {
 		return isContainsValue;
 	}
 
-
+	public static String apiPostEntity(final String postUrl, final String entityString, final String authToken, final Consumer<String> callback)
+			throws IOException {
+		{
+			String responseString = "ok";
+			
+			return responseString;
+		}
+	}
+	
+	public static String apiPostEntity(final String postUrl, final String entityString, final String authToken)
+			throws IOException {
+		{
+			return apiPostEntity(postUrl, entityString, authToken, null);
+		}
+	}
 	
 }

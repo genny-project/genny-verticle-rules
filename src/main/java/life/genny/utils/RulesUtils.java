@@ -895,8 +895,11 @@ public class RulesUtils {
 				String value = json.getString("value");
 				if (!StringUtils.isBlank(value)) {
 					// VertxUtils.writeCachedJson("attributes", json.getString("value"));
-					attributesMsg = JsonUtils.fromJson(value, QDataAttributeMessage.class);
-					if ((attributesMsg == null)&&(attributesMsg.getItems().length>0)) {
+					JsonObject valueJson = new JsonObject(value);
+					String jsonValues = valueJson.getString("json");
+					attributesMsg = JsonUtils.fromJson(jsonValues, QDataAttributeMessage.class);
+					
+					if ((attributesMsg != null)&&(attributesMsg.getItems().length>0)) {
 					Attribute[] attributeArray = attributesMsg.getItems();
 
 					for (Attribute attribute : attributeArray) {
@@ -916,15 +919,21 @@ public class RulesUtils {
 			if (!cacheWorked){
 				println("LOADING ATTRIBUTES FROM API");
 				String jsonString = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl + "/qwanda/attributes", token);
+				if (!StringUtils.isBlank(jsonString)) {
 				VertxUtils.writeCachedJson("attributes", jsonString);
-				attributesMsg = JsonUtils.fromJson(jsonString, QDataAttributeMessage.class);
+				JsonObject valueJson = new JsonObject(jsonString);
+				String jsonValues = valueJson.getString("json");
+
+				attributesMsg = JsonUtils.fromJson(jsonValues, QDataAttributeMessage.class);
 				Attribute[] attributeArray = attributesMsg.getItems();
 
 				for (Attribute attribute : attributeArray) {
 					attributeMap.put(attribute.getCode(), attribute);
 				}
 				println("All the attributes have been loaded from api in" + attributeMap.size() + " attributes");
-
+				} else {
+					log.error("NO ATTRIBUTES LOADED FROM API");
+				}
 			}
 
 			return attributesMsg;

@@ -363,7 +363,7 @@ public class BaseEntityUtils {
 			}
 
 		} catch (Exception e) {
-			System.out.println("Failed to read cache for " + code);
+			System.out.println("Failed to read cache for search " + code);
 		}
 
 		return be;
@@ -386,7 +386,7 @@ public class BaseEntityUtils {
 				this.addAttributes(be);
 			}
 		} catch (Exception e) {
-			System.out.println("Failed to read cache for " + code);
+			System.out.println("Failed to read cache for baseentity " + code);
 		}
 
 		return be;

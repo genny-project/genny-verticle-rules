@@ -21,6 +21,9 @@ public class VertxCache implements GennyCacheInterface {
 
 	@Override
 	public void writeCache(String key, String value, String token,long ttl_seconds) {
+		if (key == null) {
+			throw new IllegalArgumentException("Key is null");
+		}
 		if (value == null) {
 			DistMap.getDistBE().delete(key);
 		} else {
