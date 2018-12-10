@@ -100,8 +100,8 @@ public class VertxUtils {
 		T item = null;
 		JsonObject json = readCachedJson(realm + ":" + keyPrefix + ":" + key, token);
 		if (json.getString("status").equalsIgnoreCase("ok")) {
-			String data = json.getString("value");
-			item = (T) JsonUtils.fromJson(data, clazz);
+			JsonObject data = json.getJsonObject("value");
+			item = (T) JsonUtils.fromJson(data.toString(), clazz);
 			return item;
 		} else {
 			return null;
@@ -118,8 +118,8 @@ public class VertxUtils {
 		T item = null;
 		JsonObject json = readCachedJson(realm + ":" + keyPrefix + ":" + key, token);
 		if (json.getString("status").equalsIgnoreCase("ok")) {
-			String data = json.getString("value");
-			item = (T) JsonUtils.fromJson(data, clazz);
+			JsonObject data = json.getJsonObject("value");
+			item = (T) JsonUtils.fromJson(data.toString(), clazz);
 			return item;
 		} else {
 			return null; 
@@ -155,7 +155,7 @@ public class VertxUtils {
 				//TODO : HACK. The worst
 				ret = ret.replaceAll("\\\"", "\"");
 				ret = ret.replaceAll("\\n", "\n");
-				log.info("VERTX READ CACHED JSON FIXED STRING !"+ret);
+			//	log.info("VERTX READ CACHED JSON FIXED STRING !"+ret);
 				retj = new JsonObject(ret);
 
 			} catch (Exception e) {
@@ -227,9 +227,9 @@ public class VertxUtils {
 		BaseEntity be = null;
 		JsonObject json = readCachedJson(code);
 		if ("ok".equals(json.getString("status"))) {
-			log.info("Read from DDT and is OK "+json);
+			//log.info("Read from DDT and is OK "+json);
 			JsonObject jo = json.getJsonObject("value");
-			log.info("Read from DDT2 and is OK "+jo);
+			//log.info("Read from DDT2 and is OK "+jo);
 			be = JsonUtils.fromJson(jo.toString(), BaseEntity.class);
 			if (be.getCode()==null) {
 				log.error("readFromDDT baseEntity has null code! json is ["+json.getString("value")+"]");
@@ -241,7 +241,7 @@ public class VertxUtils {
 				if (withAttributes) {
 					be = QwandaUtils.getBaseEntityByCodeWithAttributes(code, token);
 					String savedJson = JsonUtils.toJson(be);
-					log.info("WRITING TO CACHE AFTER API "+savedJson);
+				//	log.info("WRITING TO CACHE AFTER API "+savedJson);
 				//	writeCachedJson(code, savedJson,token);
 				} else {
 					be = QwandaUtils.getBaseEntityByCode(code, token);

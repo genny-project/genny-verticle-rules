@@ -32,7 +32,7 @@ public class VertxCache implements GennyCacheInterface {
 				
 			} else {
 				if (value.contains("SBE_NEW_ITEMS")) {
-					logger.info("Write Cache value=["+value+"]");
+					//logger.info("Write Cache value=["+value+"]");
 				}
 				DistMap.getDistBE().put(key, value, ttl_seconds,TimeUnit.SECONDS);
 			}
