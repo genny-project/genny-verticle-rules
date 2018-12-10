@@ -242,7 +242,7 @@ public class VertxUtils {
 					be = QwandaUtils.getBaseEntityByCodeWithAttributes(code, token);
 					String savedJson = JsonUtils.toJson(be);
 					log.info("WRITING TO CACHE AFTER API "+savedJson);
-					writeCachedJson(code, savedJson,token);
+				//	writeCachedJson(code, savedJson,token);
 				} else {
 					be = QwandaUtils.getBaseEntityByCode(code, token);
 				}

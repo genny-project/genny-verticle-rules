@@ -892,12 +892,10 @@ public class RulesUtils {
 			JsonObject json = VertxUtils.readCachedJson("attributes");
 			if ("ok".equals(json.getString("status"))) {
 				println("LOADING ATTRIBUTES FROM CACHE!");
-				String value = json.getString("value");
-				if (!StringUtils.isBlank(value)) {
-					// VertxUtils.writeCachedJson("attributes", json.getString("value"));
-					JsonObject valueJson = new JsonObject(value);
-					String jsonValues = valueJson.getString("json");
-					attributesMsg = JsonUtils.fromJson(jsonValues, QDataAttributeMessage.class);
+				JsonObject value = json.getJsonObject("value");
+				if (!value.isEmpty()) {
+
+					attributesMsg = JsonUtils.fromJson(value.toString(), QDataAttributeMessage.class);
 					
 					if ((attributesMsg != null)&&(attributesMsg.getItems().length>0)) {
 					Attribute[] attributeArray = attributesMsg.getItems();
@@ -921,10 +919,8 @@ public class RulesUtils {
 				String jsonString = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl + "/qwanda/attributes", token);
 				if (!StringUtils.isBlank(jsonString)) {
 				VertxUtils.writeCachedJson("attributes", jsonString);
-				JsonObject valueJson = new JsonObject(jsonString);
-				String jsonValues = valueJson.getString("json");
-
-				attributesMsg = JsonUtils.fromJson(jsonValues, QDataAttributeMessage.class);
+				
+				attributesMsg = JsonUtils.fromJson(jsonString, QDataAttributeMessage.class);
 				Attribute[] attributeArray = attributesMsg.getItems();
 
 				for (Attribute attribute : attributeArray) {
