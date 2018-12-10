@@ -70,7 +70,7 @@ public class VertxUtils {
 			cacheInterface = gennyCacheInterface;
 
 	}
-
+	
 
 	static Map<String, String> localCache = new ConcurrentHashMap<String, String>();
 	static Map<String, MessageProducer<JsonObject>> localMessageProducerCache = new ConcurrentHashMap<String, MessageProducer<JsonObject>>();
@@ -101,8 +101,14 @@ public class VertxUtils {
 		JsonObject json = readCachedJson(realm + ":" + keyPrefix + ":" + key, token);
 		if (json.getString("status").equalsIgnoreCase("ok")) {
 			JsonObject data = json.getJsonObject("value");
-			item = (T) JsonUtils.fromJson(data.toString(), clazz);
-			return item;
+			if (data == null) {
+				log.error("BAD DATA IS NULL IN GETOBJECT , json = "+json);
+				return null;
+			} else {
+				item = (T) JsonUtils.fromJson(data.toString(), clazz);
+				return item;
+			}
+			
 		} else {
 			return null;
 		}
@@ -119,8 +125,13 @@ public class VertxUtils {
 		JsonObject json = readCachedJson(realm + ":" + keyPrefix + ":" + key, token);
 		if (json.getString("status").equalsIgnoreCase("ok")) {
 			JsonObject data = json.getJsonObject("value");
-			item = (T) JsonUtils.fromJson(data.toString(), clazz);
-			return item;
+			if (data == null) {
+				log.error("BAD DATA IS NULL IN GETOBJECT , json = "+json);
+				return null;
+			} else {
+				item = (T) JsonUtils.fromJson(data.toString(), clazz);
+				return item;
+			}
 		} else {
 			return null; 
 		}
@@ -149,17 +160,18 @@ public class VertxUtils {
 			String ret = null;
 			JsonObject retj = null;
 			try {
-				log.info("VERTX READING DIRECTLY FROM CACHE!");
+				log.info("VERTX READING DIRECTLY FROM CACHE! USING "+(GennySettings.isCacheServer?" LOCAL DDT":"CLIENT "));
 				ret = (String) cacheInterface.readCache(key, token);
-				
-				//TODO : HACK. The worst
-				ret = ret.replaceAll("\\\"", "\"");
-				ret = ret.replaceAll("\\n", "\n");
+				if (ret != null) {
+					//TODO : HACK. The worst
+					ret = ret.replaceAll("\\\"", "\"");
+					ret = ret.replaceAll("\\n", "\n");
+				}
 			//	log.info("VERTX READ CACHED JSON FIXED STRING !"+ret);
 				retj = new JsonObject(ret);
 
 			} catch (Exception e) {
-				log.error("Cache is  null");
+				log.error("Cache is  null "+e.getLocalizedMessage());
 			}
 
 			if (ret != null) {
@@ -195,7 +207,7 @@ public class VertxUtils {
 	
 	static public JsonObject writeCachedJson(final String key, String value, final String token, long ttl_seconds) {
 		if (!(GennySettings.devMode  && cacheInterface instanceof WildflyCacheInterface)/*|| (!GennySettings.isCacheServer)*/) {
-			log.info("WRITING TO CACHE! "+key);
+			log.info("WRITING USING "+(GennySettings.isCacheServer?" LOCAL DDT":"CLIENT ")+"  "+key);
 			// TODO: HACK
 			value = value.replaceAll("\\\"", "\"");
 			value = value.replaceAll("\\n", "\n");
