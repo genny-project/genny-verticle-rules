@@ -363,7 +363,7 @@ public class BaseEntityUtils {
 			}
 
 		} catch (Exception e) {
-			System.out.println("Failed to read cache for search " + code);
+			log.error("Failed to read cache for search " + code);
 		}
 
 		return be;
@@ -378,15 +378,15 @@ public class BaseEntityUtils {
 		BaseEntity be = null;
 
 		try {
-
+			log.info("Fetching BaseEntityByCode, code="+code);
 			be = VertxUtils.readFromDDT(code, withAttributes, this.token);
 			if (be == null) {
-				System.out.println("ERROR - be (" + code + ") fetched is NULL ");
+				log.info("ERROR - be (" + code + ") fetched is NULL ");
 			} else {
 				this.addAttributes(be);
 			}
 		} catch (Exception e) {
-			System.out.println("Failed to read cache for baseentity " + code);
+			log.info("Failed to read cache for baseentity " + code);
 		}
 
 		return be;
@@ -1132,6 +1132,7 @@ public class BaseEntityUtils {
 			if (firstanswer.getTargetCode() == null) {
 				throw new NullPointerException("firstanswer getTargetCode cannot be null for updateCacheBaseEntity");
 			}
+			log.info("firstAnswer.targetCode="+firstanswer.getTargetCode());
 			cachedBe = this.getBaseEntityByCode(firstanswer.getTargetCode());
 		} else {
 			return null;

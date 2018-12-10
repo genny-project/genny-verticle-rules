@@ -31,6 +31,9 @@ public class VertxCache implements GennyCacheInterface {
 				logger.error("Null Key provided! with value=["+value+"]");
 				
 			} else {
+				if (value.contains("SBE_NEW_ITEMS")) {
+					logger.info("Write Cache value=["+value+"]");
+				}
 				DistMap.getDistBE().put(key, value, ttl_seconds,TimeUnit.SECONDS);
 			}
 		}

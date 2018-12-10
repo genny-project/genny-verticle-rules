@@ -147,22 +147,30 @@ public class VertxUtils {
 
 		if (!(GennySettings.devMode  && cacheInterface instanceof WildflyCacheInterface)/*|| (!GennySettings.isCacheServer)*/) {
 			String ret = null;
+			JsonObject retj = null;
 			try {
-				log.info("READING DIRECTLY FROM CACHE!");
+				log.info("VERTX READING DIRECTLY FROM CACHE!");
 				ret = (String) cacheInterface.readCache(key, token);
+				
+				//TODO : HACK. The worst
+				ret = ret.replaceAll("\\\"", "\"");
+				ret = ret.replaceAll("\\n", "\n");
+				log.info("VERTX READ CACHED JSON FIXED STRING !"+ret);
+				retj = new JsonObject(ret);
+
 			} catch (Exception e) {
 				log.error("Cache is  null");
 			}
 
 			if (ret != null) {
-				result = new JsonObject().put("status", "ok").put("value", ret);
+				result = new JsonObject().put("status", "ok").put("value", retj);
 			} else { 
 				result = new JsonObject().put("status", "error").put("value", ret);
 			}
 		} else {
 			String resultStr = null;
 			try {
-				log.info("READING  FROM CACHE API!");
+				log.info("VERTX READING  FROM CACHE API!");
 				resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/" + key, token);
 				result = new JsonObject(resultStr);
 			} catch (IOException e) {
@@ -180,28 +188,18 @@ public class VertxUtils {
 	}
 
 	static public JsonObject writeCachedJson(final String key, final String value, final String token) {
-		if (!(GennySettings.devMode && cacheInterface instanceof WildflyCacheInterface)) {
 
-			cacheInterface.writeCache(key, value,token,0L);
-			
-
-		} else {
-			try {
-				QwandaUtils.apiPostEntity(GennySettings.ddtUrl + "/write", value, token);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-		JsonObject ok = new JsonObject().put("status", "ok");
-		return ok;
+		return writeCachedJson(key, value, token, 0L);
 
 	}
 	
-	static public JsonObject writeCachedJson(final String key, final String value, final String token, long ttl_seconds) {
+	static public JsonObject writeCachedJson(final String key, String value, final String token, long ttl_seconds) {
 		if (!(GennySettings.devMode  && cacheInterface instanceof WildflyCacheInterface)/*|| (!GennySettings.isCacheServer)*/) {
 			log.info("WRITING TO CACHE! "+key);
+			// TODO: HACK
+			value = value.replaceAll("\\\"", "\"");
+			value = value.replaceAll("\\n", "\n");
+
 			cacheInterface.writeCache(key, value, token,ttl_seconds);
 
 
@@ -229,13 +227,22 @@ public class VertxUtils {
 		BaseEntity be = null;
 		JsonObject json = readCachedJson(code);
 		if ("ok".equals(json.getString("status"))) {
-			be = JsonUtils.fromJson(json.getString("value"), BaseEntity.class);
+			log.info("Read from DDT and is OK "+json);
+			JsonObject jo = json.getJsonObject("value");
+			log.info("Read from DDT2 and is OK "+jo);
+			be = JsonUtils.fromJson(jo.toString(), BaseEntity.class);
+			if (be.getCode()==null) {
+				log.error("readFromDDT baseEntity has null code! json is ["+json.getString("value")+"]");
+			}
 		} else {
 			// fetch normally
-			System.out.println("Cache MISS for " + code+" with attributes");
+			log.info("Cache MISS for " + code+" with attributes");
 			try {
 				if (withAttributes) {
 					be = QwandaUtils.getBaseEntityByCodeWithAttributes(code, token);
+					String savedJson = JsonUtils.toJson(be);
+					log.info("WRITING TO CACHE AFTER API "+savedJson);
+					writeCachedJson(code, savedJson,token);
 				} else {
 					be = QwandaUtils.getBaseEntityByCode(code, token);
 				}
@@ -245,9 +252,6 @@ public class VertxUtils {
 				log.error("BE " + code + " is NOT IN CACHE OR DB " + e.getLocalizedMessage());
 				return null;
 
-			}
-			if ((cachedEnabled) || (System.getenv("GENNY_DEV") != null)) {
-				writeCachedJson(code, JsonUtils.toJson(be));
 			}
 		}
 		return be;
@@ -259,40 +263,7 @@ public class VertxUtils {
 		// if ("PER_SHARONCROW66_AT_GMAILCOM".equals(code)) {
 		// System.out.println("DEBUG");
 		// }
-		BaseEntity be = null;
-		if (cacheDisabled && (!code.startsWith("SBE_"))) {
-
-			try {
-				be = QwandaUtils.getBaseEntityByCode(code, token); // getBaseEntityByCodeWithAttributes
-			} catch (Exception e) {
-				// Okay, this is bad. Usually the code is not in the database but in keycloak
-				// So lets leave it to the rules to sort out... (new user)
-				log.error("BE " + code + " is NOT IN CACHE OR DB " + e.getLocalizedMessage());
-				return null;
-
-			}
-		}
-
-		JsonObject json = readCachedJson(code);
-		if ("ok".equals(json.getString("status"))) {
-			be = JsonUtils.fromJson(json.getString("value"), BaseEntity.class);
-		} else {
-			// fetch normally
-			System.out.println("Cache MISS for " + code);
-			try {
-				be = QwandaUtils.getBaseEntityByCode(code, token); // getBaseEntityByCodeWithAttributes
-			} catch (Exception e) {
-				// Okay, this is bad. Usually the code is not in the database but in keycloak
-				// So lets leave it to the rules to sort out... (new user)
-				log.error("BE " + code + " is NOT IN CACHE OR DB " + e.getLocalizedMessage());
-				return null;
-
-			}
-			if ((cachedEnabled) || (System.getenv("GENNY_DEV") != null)) {
-				writeCachedJson(code, JsonUtils.toJson(be));
-			}
-		}
-		return be;
+		return readFromDDT(code, true,token);
 }
 
 	static public void subscribeAdmin(final String realm, final String adminUserCode) {

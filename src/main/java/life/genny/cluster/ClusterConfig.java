@@ -87,9 +87,8 @@ public class ClusterConfig {
 	        }else{
 	            haInst = getHazelcastClientInstance();
 	        }
-			if (GennySettings.isDdtHost) {
-				DistMap.registerDataStructure(haInst, GennySettings.mainrealm); // TODO, get all realms
-			}
+			DistMap.registerDataStructure(haInst, GennySettings.mainrealm); // TODO, get all realms
+
 			final VertxOptions options = new VertxOptions();
 			final ClusterManager mgr = new HazelcastClusterManager(haInstServer);
 			options.setClusterManager(mgr);
