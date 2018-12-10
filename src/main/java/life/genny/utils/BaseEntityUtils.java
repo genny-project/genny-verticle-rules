@@ -1040,6 +1040,9 @@ public class BaseEntityUtils {
 		String ret = null;
 		try {
 			if (se != null) {
+				if (!se.hasCode()) {
+					log.error("ERROR! searchEntity se has no code!");
+				}
 				if (se.getId() == null) {
 					BaseEntity existing = VertxUtils.readFromDDT(se.getCode(), this.realm);
 					if (existing != null) {
@@ -1065,6 +1068,9 @@ public class BaseEntityUtils {
 	}
 
 	public void saveBaseEntityAttributes(BaseEntity be) {
+		if ((be == null)||(be.getCode()==null) ) {
+			throw new NullPointerException("Cannot save be because be is null or be.getCode is null");
+		}
 		List<Answer> answers = new ArrayList<Answer>();
 
 		for (EntityAttribute ea : be.getBaseEntityAttributes()) {
@@ -1115,17 +1121,29 @@ public class BaseEntityUtils {
 
 	public BaseEntity updateCachedBaseEntity(List<Answer> answers) {
 		Answer firstanswer = null;
-		if (answers != null) {
-			if (!answers.isEmpty()) {
+		if ((answers != null)&&(!answers.isEmpty())) {
 				firstanswer = answers.get(0);
-			}
+		} else {
+			throw new NullPointerException("Answers cannot be null or empty for updateCacheBaseEntity");
 		}
 		BaseEntity cachedBe = null;
 
 		if (firstanswer != null) {
+			if (firstanswer.getTargetCode() == null) {
+				throw new NullPointerException("firstanswer getTargetCode cannot be null for updateCacheBaseEntity");
+			}
 			cachedBe = this.getBaseEntityByCode(firstanswer.getTargetCode());
 		} else {
 			return null;
+		}
+		
+		if (cachedBe != null) {
+			if ((cachedBe == null ) || (cachedBe.getCode()==null)) {
+				throw new NullPointerException("cachedBe.getCode cannot be null for updateCacheBaseEntity , targetCode="+firstanswer.getTargetCode()+" cacheBe=["+cachedBe);
+			}
+		} else {
+			throw new NullPointerException("cachedBe cannot be null for updateCacheBaseEntity , targetCode="+firstanswer.getTargetCode());
+
 		}
 
 		for (Answer answer : answers) {
@@ -1151,9 +1169,8 @@ public class BaseEntityUtils {
 			}
 		}
 
-		if (cachedBe != null) {
 			VertxUtils.writeCachedJson(cachedBe.getCode(), JsonUtils.toJson(cachedBe));
-		}
+
 
 		return cachedBe;
 	}
@@ -1347,18 +1364,23 @@ public class BaseEntityUtils {
 			String precode = layout.getPath().replaceAll("[^a-zA-Z0-9]", "").toUpperCase();
 			String layoutCode = ("LAY_" + realm + "_" + precode).toUpperCase();
 
-			System.out.println("Layout - Handling " + layoutCode);
+			log.info("Layout - Handling " + layoutCode);
 			try {
-				beLayout = QwandaUtils.getBaseEntityByCode(layoutCode, serviceToken);
+				// Check if in cache first to save time.
+				beLayout = VertxUtils.readFromDDT(layoutCode, serviceToken);
+				if (beLayout==null) {
+					beLayout = QwandaUtils.getBaseEntityByCode(layoutCode, serviceToken);
+					VertxUtils.writeCachedJson(layoutCode, JsonUtils.toJson(beLayout), serviceToken);
+				}
 
 			} catch (IOException e) {
-				System.out.println(e.getMessage());
+				log.error(e.getMessage());
 			}
 
 			/* if the base entity does not exist, we create it */
 			if (beLayout == null) {
 
-				System.out.println("Layout - Creating base entity " + layoutCode);
+				log.info("Layout - Creating base entity " + layoutCode);
 
 				/* otherwise we create it */
 				beLayout = this.create(layoutCode, layout.getName());
@@ -1373,7 +1395,7 @@ public class BaseEntityUtils {
 				 */
 				String beModifiedTime = beLayout.getValue("PRI_LAYOUT_MODIFIED_DATE", null);
 
-				System.out.println("Reloading layout: " + layoutCode);
+				log.info("Reloading layout: " + layoutCode);
 
 				/* if the modified time is not the same, we update the layout BE */
 
