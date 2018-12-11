@@ -892,29 +892,14 @@ public class RulesUtils {
 			JsonObject json = VertxUtils.readCachedJson("attributes");
 			if ("ok".equals(json.getString("status"))) {
 				println("LOADING ATTRIBUTES FROM CACHE!");
-				JsonObject value = json.getJsonObject("value");
-				if (!value.isEmpty()) {
-
-					attributesMsg = JsonUtils.fromJson(value.toString(), QDataAttributeMessage.class);
-					
-					if ((attributesMsg != null)&&(attributesMsg.getItems().length>0)) {
-					Attribute[] attributeArray = attributesMsg.getItems();
-
-					for (Attribute attribute : attributeArray) {
-						attributeMap.put(attribute.getCode(), attribute);
-					}
-					cacheWorked = true;
-					println("All the attributes have been loaded in " + attributeMap.size() + " attributes");
-					} else {
-						println("attributes json Message value not valid ->["+value+"]");
-					}
-				} else {
-					println("The attributes json is empty!"); // TODO should throw exception
-				}
-
-			} 
-			
-			if (!cacheWorked){
+				attributesMsg = JsonUtils.fromJson(json.getString("value"), QDataAttributeMessage.class);
+                Attribute[] attributeArray = attributesMsg.getItems();
+                
+                for (Attribute attribute : attributeArray) {
+                  attributeMap.put(attribute.getCode(), attribute);
+                }
+                println("All the attributes have been loaded in "+attributeMap.size()+" attributes");
+			} else {
 				println("LOADING ATTRIBUTES FROM API");
 				String jsonString = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl + "/qwanda/attributes", token);
 				if (!StringUtils.isBlank(jsonString)) {

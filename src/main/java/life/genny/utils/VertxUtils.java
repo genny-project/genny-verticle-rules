@@ -100,15 +100,9 @@ public class VertxUtils {
 		T item = null;
 		JsonObject json = readCachedJson(realm + ":" + keyPrefix + ":" + key, token);
 		if (json.getString("status").equalsIgnoreCase("ok")) {
-			JsonObject data = json.getJsonObject("value");
-			if (data == null) {
-				log.error("BAD DATA IS NULL IN GETOBJECT , json = "+json);
-				return null;
-			} else {
-				item = (T) JsonUtils.fromJson(data.toString(), clazz);
-				return item;
-			}
-			
+		  String data = json.getString("value");
+		  item = (T) JsonUtils.fromJson(data, clazz);
+          return item;
 		} else {
 			return null;
 		}
@@ -124,14 +118,9 @@ public class VertxUtils {
 		T item = null;
 		JsonObject json = readCachedJson(realm + ":" + keyPrefix + ":" + key, token);
 		if (json.getString("status").equalsIgnoreCase("ok")) {
-			JsonObject data = json.getJsonObject("value");
-			if (data == null) {
-				log.error("BAD DATA IS NULL IN GETOBJECT , json = "+json);
-				return null;
-			} else {
-				item = (T) JsonUtils.fromJson(data.toString(), clazz);
-				return item;
-			}
+		  String data = json.getString("value");
+          item = (T) JsonUtils.fromJson(data, clazz);
+          return item;
 		} else {
 			return null; 
 		}
@@ -162,20 +151,12 @@ public class VertxUtils {
 			try {
 				log.info("VERTX READING DIRECTLY FROM CACHE! USING "+(GennySettings.isCacheServer?" LOCAL DDT":"CLIENT "));
 				ret = (String) cacheInterface.readCache(key, token);
-				if (ret != null) {
-					//TODO : HACK. The worst
-					ret = ret.replaceAll("\\\"", "\"");
-					ret = ret.replaceAll("\\n", "\n");
-				}
-			//	log.info("VERTX READ CACHED JSON FIXED STRING !"+ret);
-				retj = new JsonObject(ret);
-
 			} catch (Exception e) {
-				log.error("Cache is  null "+e.getLocalizedMessage());
-			}
-
+	                log.error("Cache is  null");
+	                e.printStackTrace();
+	            }
 			if (ret != null) {
-				result = new JsonObject().put("status", "ok").put("value", retj);
+				result = new JsonObject().put("status", "ok").put("value", ret);
 			} else { 
 				result = new JsonObject().put("status", "error").put("value", ret);
 			}
@@ -200,17 +181,28 @@ public class VertxUtils {
 	}
 
 	static public JsonObject writeCachedJson(final String key, final String value, final String token) {
+	  if (!(GennySettings.devMode  && cacheInterface instanceof WildflyCacheInterface)/*|| (!GennySettings.isCacheServer)*/) {
 
-		return writeCachedJson(key, value, token, 0L);
+          cacheInterface.writeCache(key, value,token,0L);
+          
 
-	}
+      } else {
+          try {
+              QwandaUtils.apiPostEntity(GennySettings.ddtUrl + "/write", value, token);
+          } catch (IOException e) {
+              // TODO Auto-generated catch block
+              e.printStackTrace();
+          }
+      }
+
+      JsonObject ok = new JsonObject().put("status", "ok");
+      return ok;
+
+  }
 	
 	static public JsonObject writeCachedJson(final String key, String value, final String token, long ttl_seconds) {
 		if (!(GennySettings.devMode  && cacheInterface instanceof WildflyCacheInterface)/*|| (!GennySettings.isCacheServer)*/) {
 			log.info("WRITING USING "+(GennySettings.isCacheServer?" LOCAL DDT":"CLIENT ")+"  "+key);
-			// TODO: HACK
-			value = value.replaceAll("\\\"", "\"");
-			value = value.replaceAll("\\n", "\n");
 
 			cacheInterface.writeCache(key, value, token,ttl_seconds);
 
@@ -239,11 +231,8 @@ public class VertxUtils {
 		BaseEntity be = null;
 		JsonObject json = readCachedJson(code);
 		if ("ok".equals(json.getString("status"))) {
-			//log.info("Read from DDT and is OK "+json);
-			JsonObject jo = json.getJsonObject("value");
-			//log.info("Read from DDT2 and is OK "+jo);
-			be = JsonUtils.fromJson(jo.toString(), BaseEntity.class);
-			if (be.getCode()==null) {
+		    be = JsonUtils.fromJson(json.getString("value"), BaseEntity.class);
+			if (be != null && be.getCode()==null) {
 				log.error("readFromDDT baseEntity has null code! json is ["+json.getString("value")+"]");
 			}
 		} else {
@@ -252,9 +241,6 @@ public class VertxUtils {
 			try {
 				if (withAttributes) {
 					be = QwandaUtils.getBaseEntityByCodeWithAttributes(code, token);
-					String savedJson = JsonUtils.toJson(be);
-				//	log.info("WRITING TO CACHE AFTER API "+savedJson);
-				//	writeCachedJson(code, savedJson,token);
 				} else {
 					be = QwandaUtils.getBaseEntityByCode(code, token);
 				}
@@ -265,6 +251,9 @@ public class VertxUtils {
 				return null;
 
 			}
+			if ((cachedEnabled) || (System.getenv("GENNY_DEV") != null)) {
+              writeCachedJson(code, JsonUtils.toJson(be));
+          }
 		}
 		return be;
 	}
@@ -275,7 +264,7 @@ public class VertxUtils {
 		// if ("PER_SHARONCROW66_AT_GMAILCOM".equals(code)) {
 		// System.out.println("DEBUG");
 		// }
-		return readFromDDT(code, true,token);
+		return readFromDDT(code, false,token);
 }
 
 	static public void subscribeAdmin(final String realm, final String adminUserCode) {
