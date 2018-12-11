@@ -181,38 +181,22 @@ public class VertxUtils {
 	}
 
 	static public JsonObject writeCachedJson(final String key, final String value, final String token) {
-	  if (!(GennySettings.devMode  && cacheInterface instanceof WildflyCacheInterface)/*|| (!GennySettings.isCacheServer)*/) {
-
-          cacheInterface.writeCache(key, value,token,0L);
-          
-
-      } else {
-          try {
-              QwandaUtils.apiPostEntity(GennySettings.ddtUrl + "/write", value, token);
-          } catch (IOException e) {
-              // TODO Auto-generated catch block
-              e.printStackTrace();
-          }
-      }
-
-      JsonObject ok = new JsonObject().put("status", "ok");
-      return ok;
-
-  }
+	  return writeCachedJson(key, value, token, 0L);
+	}
 	
 	static public JsonObject writeCachedJson(final String key, String value, final String token, long ttl_seconds) {
 		if (!(GennySettings.devMode  && cacheInterface instanceof WildflyCacheInterface)/*|| (!GennySettings.isCacheServer)*/) {
 			log.info("WRITING USING "+(GennySettings.isCacheServer?" LOCAL DDT":"CLIENT ")+"  "+key);
 
 			cacheInterface.writeCache(key, value, token,ttl_seconds);
-
-
 		} else {
 			try {
 				log.info("WRITING TO CACHE USING API! "+key);
-				QwandaUtils.apiPostEntity(GennySettings.ddtUrl + "/write", value, token);
+				JsonObject json = new JsonObject();
+		        json.put("key", key);
+		        json.put("json", value);
+		        QwandaUtils.apiPostEntity(GennySettings.ddtUrl + "/write", json.toString(), token);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
