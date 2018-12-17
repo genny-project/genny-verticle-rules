@@ -149,7 +149,7 @@ public class VertxUtils {
 			String ret = null;
 			JsonObject retj = null;
 			try {
-				log.info("VERTX READING DIRECTLY FROM CACHE! USING "+(GennySettings.isCacheServer?" LOCAL DDT":"CLIENT "));
+				//log.info("VERTX READING DIRECTLY FROM CACHE! USING "+(GennySettings.isCacheServer?" LOCAL DDT":"CLIENT "));
 				ret = (String) cacheInterface.readCache(key, token);
 			} catch (Exception e) {
 	                log.error("Cache is  null");
@@ -163,7 +163,7 @@ public class VertxUtils {
 		} else {
 			String resultStr = null;
 			try {
-				log.info("VERTX READING  FROM CACHE API!");
+				//log.info("VERTX READING  FROM CACHE API!");
 				resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/" + key, token);
 				result = new JsonObject(resultStr);
 			} catch (IOException e) {
@@ -191,7 +191,7 @@ public class VertxUtils {
 			cacheInterface.writeCache(key, value, token,ttl_seconds);
 		} else {
 			try {
-				log.info("WRITING TO CACHE USING API! "+key);
+				//log.info("WRITING TO CACHE USING API! "+key);
 				JsonObject json = new JsonObject();
 		        json.put("key", key);
 		        json.put("json", value);
