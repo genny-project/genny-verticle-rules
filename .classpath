@@ -48,7 +48,7 @@
   <classpathentry kind="var" path="M2_REPO/commons-lang/commons-lang/2.6/commons-lang-2.6.jar" sourcepath="M2_REPO/commons-lang/commons-lang/2.6/commons-lang-2.6-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/io/vertx/vertx-dropwizard-metrics/3.5.1/vertx-dropwizard-metrics-3.5.1.jar" sourcepath="M2_REPO/io/vertx/vertx-dropwizard-metrics/3.5.1/vertx-dropwizard-metrics-3.5.1-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/io/dropwizard/metrics/metrics-core/4.0.2/metrics-core-4.0.2.jar" sourcepath="M2_REPO/io/dropwizard/metrics/metrics-core/4.0.2/metrics-core-4.0.2-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/life/genny/qwanda-utils/1.0.65/qwanda-utils-1.0.65.jar" sourcepath="M2_REPO/life/genny/qwanda-utils/1.0.65/qwanda-utils-1.0.65-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/life/genny/qwanda-utils/2.0.0/qwanda-utils-2.0.0.jar" sourcepath="M2_REPO/life/genny/qwanda-utils/2.0.0/qwanda-utils-2.0.0-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/javamoney/moneta/1.1/moneta-1.1.jar" sourcepath="M2_REPO/org/javamoney/moneta/1.1/moneta-1.1-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/eclipse/jgit/org.eclipse.jgit/4.8.0.201706111038-r/org.eclipse.jgit-4.8.0.201706111038-r.jar" sourcepath="M2_REPO/org/eclipse/jgit/org.eclipse.jgit/4.8.0.201706111038-r/org.eclipse.jgit-4.8.0.201706111038-r-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/com/jcraft/jsch/0.1.54/jsch-0.1.54.jar" sourcepath="M2_REPO/com/jcraft/jsch/0.1.54/jsch-0.1.54-sources.jar"/>
@@ -58,7 +58,7 @@
   <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.2/commons-logging-1.2.jar" sourcepath="M2_REPO/commons-logging/commons-logging/1.2/commons-logging-1.2-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/commons-codec/commons-codec/1.10/commons-codec-1.10.jar" sourcepath="M2_REPO/commons-codec/commons-codec/1.10/commons-codec-1.10-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-api/1.7.7/slf4j-api-1.7.7.jar" sourcepath="M2_REPO/org/slf4j/slf4j-api/1.7.7/slf4j-api-1.7.7-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/life/genny/qwanda/1.0.65/qwanda-1.0.65.jar" sourcepath="M2_REPO/life/genny/qwanda/1.0.65/qwanda-1.0.65-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/life/genny/qwanda/2.0.0/qwanda-2.0.0.jar" sourcepath="M2_REPO/life/genny/qwanda/2.0.0/qwanda-2.0.0-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/zalando/jackson-datatype-money/1.0.0/jackson-datatype-money-1.0.0.jar" sourcepath="M2_REPO/org/zalando/jackson-datatype-money/1.0.0/jackson-datatype-money-1.0.0-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/com/google/code/gson/gson/2.8.2/gson-2.8.2.jar" sourcepath="M2_REPO/com/google/code/gson/gson/2.8.2/gson-2.8.2-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/hsqldb/hsqldb/2.4.0/hsqldb-2.4.0.jar" sourcepath="M2_REPO/org/hsqldb/hsqldb/2.4.0/hsqldb-2.4.0-sources.jar"/>
