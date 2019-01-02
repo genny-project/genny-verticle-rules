@@ -43,7 +43,7 @@ public class SecureResources {
       // Load in keycloakJsons
       // readFilenamesFromDirectory("./realm", keycloakJsonMap);
       // update afterwrads
-      final List<String> filesList = Vertx.currentContext().owner().fileSystem().readDirBlocking("./realm");
+      final List<String> filesList = Vertx.currentContext().owner().fileSystem().readDirBlocking("./realm/" + System.getenv("PROJECT_REALM"));
 
       for (final String dirFileStr : filesList) {
         final String fileStr = new File(dirFileStr).getName();;
@@ -56,9 +56,9 @@ public class SecureResources {
                     d.result().toString().replaceAll("localhost", hostIP);
                 keycloakJsonMap.put(fileStr, keycloakJsonText);
             //    if (GennySettings.devMode) {
-                if ("genny.json".equalsIgnoreCase(fileStr)) {
+                //if ("genny.json".equalsIgnoreCase(fileStr)) {
                 	keycloakJsonMap.put(GennySettings.mainrealm+".json", keycloakJsonText);
-                }
+                //}
             //    }
                 System.out.println("Keycloak json file:"+fileStr+":"+keycloakJsonText);
 
