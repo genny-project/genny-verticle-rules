@@ -190,7 +190,7 @@ public class RulesUtils {
 			// check expiry date
 			JSONObject decodedServiceToken = KeycloakUtils.getDecodedToken(serviceToken);
 			long expiryTime = decodedServiceToken.getLong("exp");
-			long nowTime = LocalDateTime.now().atZone(ZoneOffset.UTC).toEpochSecond();
+			long nowTime = LocalDateTime.now().atZone(TimeZone.getDefault().toZoneId()).toEpochSecond();
 			long duration = expiryTime - nowTime;
 			LocalDateTime expiryDateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(expiryTime),
 					TimeZone.getDefault().toZoneId());
