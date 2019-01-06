@@ -186,12 +186,12 @@ public class VertxUtils {
 	
 	static public JsonObject writeCachedJson(final String key, String value, final String token, long ttl_seconds) {
 		if (!(GennySettings.devMode  && cacheInterface instanceof WildflyCacheInterface)/*|| (!GennySettings.isCacheServer)*/) {
-			//log.info("WRITING USING "+(GennySettings.isCacheServer?" LOCAL DDT":"CLIENT ")+"  "+key);
+			log.info("WRITING USING "+(GennySettings.isCacheServer?" LOCAL DDT":"CLIENT ")+"  "+key);
 
 			cacheInterface.writeCache(key, value, token,ttl_seconds);
 		} else {
 			try {
-				//log.info("WRITING TO CACHE USING API! "+key);
+				log.info("WRITING TO CACHE USING API! "+key);
 				JsonObject json = new JsonObject();
 		        json.put("key", key);
 		        json.put("json", value);

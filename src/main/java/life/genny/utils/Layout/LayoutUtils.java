@@ -45,6 +45,12 @@ import life.genny.qwanda.message.QCmdViewMessageAction;
 
 public class LayoutUtils {
 
+	/**
+	 * Stores logger object.
+	 */
+	protected static final Logger log = org.apache.logging.log4j.LogManager
+			.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
+
 	private Map<String, Object> decodedMapToken;
 	private String token;
 	private String realm;
@@ -67,12 +73,12 @@ public class LayoutUtils {
 		String token = this.token;
 
 		if (realmCode == null) {
-			System.out.println("No realm code was provided. Not getting layouts. ");
+			log.error("No realm code was provided. Not getting layouts. ");
 			return null;
 		}
 
 		if (token == null) {
-			System.out.println("No token was provided. Not getting layouts.");
+			log.error("No token was provided. Not getting layouts.");
 			return null;
 		}
 
@@ -100,7 +106,7 @@ public class LayoutUtils {
 		String pathToLayout = subpath; 
 
 		String subLayoutMap = RulesUtils.getLayout(realmCode, pathToLayout);
-		System.out.println("Downloading layouts: " + pathToLayout);
+		log.info("Downloading layouts: " + pathToLayout);
 
 		if (subLayoutMap != null) {
 
@@ -134,7 +140,7 @@ public class LayoutUtils {
 							} else {
 
 								/* if we have found a folder we recursively download the data inside of it */
-								System.out.println("Found subfolder: " + file_path);
+								log.info("Found subfolder: " + file_path);
 								layouts.addAll(this.processLayouts(realmCode, file_path));
 							}
 						}
@@ -157,7 +163,7 @@ public class LayoutUtils {
 			try {
 				content = QwandaUtils.apiGet(layout.getDownloadUrl(), null);
 			} catch (Exception e) {
-				System.out.println("Error downloading: " + layout.getDownloadUrl());
+				log.error("Error downloading: " + layout.getDownloadUrl());
 			}
 		}
 
@@ -254,7 +260,7 @@ public class LayoutUtils {
     						vd = gson.fromJson(jsonElement, LayoutViewData.class);
     						
 					} else {
-						System.out.println("split view additional data value is of not LayoutViewData/LinkedTreeMap type");
+						log.error("split view additional data value is of not LayoutViewData/LinkedTreeMap type");
 					}
 					
 					if(vd != null) {

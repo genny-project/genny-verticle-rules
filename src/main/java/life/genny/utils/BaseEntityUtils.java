@@ -1371,7 +1371,9 @@ public class BaseEntityUtils {
 				beLayout = VertxUtils.readFromDDT(layoutCode, serviceToken);
 				if (beLayout==null) {
 					beLayout = QwandaUtils.getBaseEntityByCode(layoutCode, serviceToken);
-					VertxUtils.writeCachedJson(layoutCode, JsonUtils.toJson(beLayout), serviceToken);
+					if (beLayout != null) {
+						VertxUtils.writeCachedJson(layoutCode, JsonUtils.toJson(beLayout), serviceToken);
+					}
 				}
 
 			} catch (IOException e) {
@@ -1395,17 +1397,22 @@ public class BaseEntityUtils {
 				 * we get the modified time stored in the BE and we compare it to the layout one
 				 */
 				String beModifiedTime = beLayout.getValue("PRI_LAYOUT_MODIFIED_DATE", null);
-
+				
+				log.info("*** match layout mod date ["+layout.getModifiedDate()+"] with be layout ["+beModifiedTime);
 				log.info("Reloading layout: " + layoutCode);
 
 				/* if the modified time is not the same, we update the layout BE */
-
 				/* setting layout attributes */
 				List<Answer> answers = new ArrayList<>();
 
 				/* download the content of the layout */
 				String content = LayoutUtils.downloadLayoutContent(layout);
 
+				log.info("layout.getData().hashcode()="+layout.getData().trim().hashCode());
+				log.info("beLayout.findEntityAttribute(\"PRI_LAYOUT_DATA\").get().getAsString().trim().hashcode()="+beLayout.findEntityAttribute("PRI_LAYOUT_DATA").get().getAsString().trim().hashCode());
+				if (!layout.getData().trim().equals(beLayout.findEntityAttribute("PRI_LAYOUT_DATA").get().getAsString().trim())) {
+
+				
 				Answer newAnswerContent = new Answer(beLayout.getCode(), beLayout.getCode(), "PRI_LAYOUT_DATA",
 						content);
 
@@ -1432,6 +1439,9 @@ public class BaseEntityUtils {
 
 				/* create link between GRP_LAYOUTS and this new LAY_XX base entity */
 				this.createLink("GRP_LAYOUTS", beLayout.getCode(), "LNK_CORE", "LAYOUT", 1.0);
+				} else {
+					log.info("Already have same layout data - not saving ");
+				}
 			}
 
 			return beLayout;
