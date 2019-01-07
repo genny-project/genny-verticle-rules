@@ -1409,8 +1409,14 @@ public class BaseEntityUtils {
 				String content = LayoutUtils.downloadLayoutContent(layout);
 
 				log.info("layout.getData().hashcode()="+layout.getData().trim().hashCode());
-				log.info("beLayout.findEntityAttribute(\"PRI_LAYOUT_DATA\").get().getAsString().trim().hashcode()="+beLayout.findEntityAttribute("PRI_LAYOUT_DATA").get().getAsString().trim().hashCode());
-				if (!layout.getData().trim().equals(beLayout.findEntityAttribute("PRI_LAYOUT_DATA").get().getAsString().trim())) {
+				Optional<EntityAttribute> primaryLayoutData = beLayout.findEntityAttribute("PRI_LAYOUT_DATA");
+				String beData = null;
+				if(primaryLayoutData.isPresent()) {
+					log.info("beLayout.findEntityAttribute(\"PRI_LAYOUT_DATA\").get().getAsString().trim().hashcode()="+beLayout.findEntityAttribute("PRI_LAYOUT_DATA").get().getAsString().trim().hashCode());
+					beData = beLayout.findEntityAttribute("PRI_LAYOUT_DATA").get().getAsString().trim();
+				} 
+				
+				if (!layout.getData().trim().equals(beData)) {
 
 				
 				Answer newAnswerContent = new Answer(beLayout.getCode(), beLayout.getCode(), "PRI_LAYOUT_DATA",
