@@ -404,11 +404,25 @@ public class VertxUtils {
 	}
 
 	
-	static public void publish(BaseEntity user, String channel, Object payload, final String[] filterAttributes) {
+	static public JsonObject publish(BaseEntity user, String channel, Object payload, final String[] filterAttributes) {
 		
+		if (!(GennySettings.devMode  && cacheInterface instanceof WildflyCacheInterface)/*|| (!GennySettings.isCacheServer)*/) {
+			eb.publish(user, channel, payload, filterAttributes);
+		} else {
+			try {
+				log.info("WRITING TO EVENTBUS USING API! ");
+				String jsonMsg = JsonUtils.toJson(payload);
+				String bridgeApi = System.getenv("REACT_APP_VERTX_SERVICE_API");
+				JsonObject jsonJson = new JsonObject(jsonMsg);
+				QwandaUtils.apiPostEntity(bridgeApi, jsonMsg, jsonJson.getString("token"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 
-		
-		eb.publish(user, channel, payload, filterAttributes);
+		JsonObject ok = new JsonObject().put("status", "ok");
+		return ok;
+
 	}
 
 	static public Object privacyFilter(BaseEntity user, Object payload, final String[] filterAttributes) {
