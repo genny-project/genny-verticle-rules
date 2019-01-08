@@ -229,7 +229,7 @@ public class BaseEntityUtils {
 							if (attribute != null) {
 								ea.setAttribute(attribute);
 							} else {
-								System.out.println("Cannot get Attribute - " + ea.getAttributeCode());
+								log.error("Cannot get Attribute - " + ea.getAttributeCode());
 
 								Attribute dummy = new AttributeText(ea.getAttributeCode(), ea.getAttributeCode());
 								ea.setAttribute(dummy);
@@ -528,7 +528,7 @@ public class BaseEntityUtils {
 			QwandaUtils.apiPostEntity(qwandaServiceUrl + "/qwanda/baseentitys/move/" + targetCode,
 					JsonUtils.toJson(link), this.token);
 		} catch (IOException e) {
-			System.out.println(e.getMessage());
+			log.error(e.getMessage());
 		}
 
 		return null;
@@ -930,15 +930,15 @@ public class BaseEntityUtils {
 
 	/* clones links of oldBe to newBe from supplied arraylist linkValues */
 	public BaseEntity copyLinks(final BaseEntity oldBe, final BaseEntity newBe, final String[] linkValues) {
-		System.out.println("linkvalues   ::   " + Arrays.toString(linkValues));
+		log.info("linkvalues   ::   " + Arrays.toString(linkValues));
 		for (EntityEntity ee : oldBe.getLinks()) {
-			System.out.println("old be linkValue   ::   " + ee.getLink().getLinkValue());
+			log.info("old be linkValue   ::   " + ee.getLink().getLinkValue());
 			for (String linkValue : linkValues) {
-				System.out.println("a linkvalue   ::   " + linkValue);
+				log.info("a linkvalue   ::   " + linkValue);
 				if (ee.getLink().getLinkValue().equals(linkValue)) {
 					createLink(newBe.getCode(), ee.getLink().getTargetCode(), ee.getLink().getAttributeCode(),
 							ee.getLink().getLinkValue(), ee.getLink().getWeight());
-					System.out.println("creating link for   ::   " + linkValue);
+					log.info("creating link for   ::   " + linkValue);
 				}
 			}
 		}
@@ -950,17 +950,17 @@ public class BaseEntityUtils {
 	 * arraylist linkValues
 	 */
 	public BaseEntity copyLinksExcept(final BaseEntity oldBe, final BaseEntity newBe, final String[] linkValues) {
-		System.out.println("linkvalues   ::   " + Arrays.toString(linkValues));
+		log.info("linkvalues   ::   " + Arrays.toString(linkValues));
 		for (EntityEntity ee : oldBe.getLinks()) {
-			System.out.println("old be linkValue   ::   " + ee.getLink().getLinkValue());
+			log.info("old be linkValue   ::   " + ee.getLink().getLinkValue());
 			for (String linkValue : linkValues) {
-				System.out.println("a linkvalue   ::   " + linkValue);
+				log.info("a linkvalue   ::   " + linkValue);
 				if (ee.getLink().getLinkValue().equals(linkValue)) {
 					continue;
 				}
 				createLink(newBe.getCode(), ee.getLink().getTargetCode(), ee.getLink().getAttributeCode(),
 						ee.getLink().getLinkValue(), ee.getLink().getWeight());
-				System.out.println("creating link for   ::   " + linkValue);
+				log.info("creating link for   ::   " + linkValue);
 			}
 		}
 		return getBaseEntityByCode(newBe.getCode());
@@ -1097,7 +1097,7 @@ public class BaseEntityUtils {
 					}
 
 					if (answer.getAttribute() == null || cachedBe == null) {
-						System.out.println("Null Attribute or null BE , targetCode=["+answer.getTargetCode()+"]");
+						log.info("Null Attribute or null BE , targetCode=["+answer.getTargetCode()+"]");
 					} else {
 						cachedBe.addAnswer(answer);
 					}
@@ -1107,7 +1107,7 @@ public class BaseEntityUtils {
 
 			/*
 			 * answer.setAttribute(RulesUtils.attributeMap.get(answer.getAttributeCode()));
-			 * if (answer.getAttribute() == null) { System.out.println("Null Attribute"); }
+			 * if (answer.getAttribute() == null) { log.info("Null Attribute"); }
 			 * else cachedBe.addAnswer(answer);
 			 * VertxUtils.writeCachedJson(answer.getTargetCode(),
 			 * JsonUtils.toJson(cachedBe));
@@ -1224,7 +1224,7 @@ public class BaseEntityUtils {
 
 	public Link updateLink(String groupCode, String targetCode, String linkCode, Double weight) {
 
-		System.out.println("UPDATING LINK between " + groupCode + "and" + targetCode);
+		log.info("UPDATING LINK between " + groupCode + "and" + targetCode);
 		Link link = new Link(groupCode, targetCode, linkCode);
 		link.setWeight(weight);
 		try {
@@ -1248,13 +1248,13 @@ public class BaseEntityUtils {
 	public Map<String, String> getMapOfAllAttributesValuesForBaseEntity(String beCode) {
 
 		BaseEntity be = this.getBaseEntityByCode(beCode);
-		System.out.println("The load is ::" + be);
+		log.info("The load is ::" + be);
 		Set<EntityAttribute> eaSet = be.getBaseEntityAttributes();
-		System.out.println("The set of attributes are  :: " + eaSet);
+		log.info("The set of attributes are  :: " + eaSet);
 		Map<String, String> attributeValueMap = new HashMap<String, String>();
 		for (EntityAttribute ea : eaSet) {
 			String attributeCode = ea.getAttributeCode();
-			System.out.println("The attribute code  is  :: " + attributeCode);
+			log.info("The attribute code  is  :: " + attributeCode);
 			String value = ea.getAsLoopString();
 			attributeValueMap.put(attributeCode, value);
 		}
@@ -1398,8 +1398,7 @@ public class BaseEntityUtils {
 				 */
 				String beModifiedTime = beLayout.getValue("PRI_LAYOUT_MODIFIED_DATE", null);
 				
-				log.info("*** match layout mod date ["+layout.getModifiedDate()+"] with be layout ["+beModifiedTime);
-				log.info("Reloading layout: " + layoutCode);
+				log.debug("*** match layout mod date ["+layout.getModifiedDate()+"] with be layout ["+beModifiedTime);
 
 				/* if the modified time is not the same, we update the layout BE */
 				/* setting layout attributes */
@@ -1408,15 +1407,16 @@ public class BaseEntityUtils {
 				/* download the content of the layout */
 				String content = LayoutUtils.downloadLayoutContent(layout);
 
-				log.info("layout.getData().hashcode()="+layout.getData().trim().hashCode());
+				log.debug("layout.getData().hashcode()="+layout.getData().trim().hashCode());
 				Optional<EntityAttribute> primaryLayoutData = beLayout.findEntityAttribute("PRI_LAYOUT_DATA");
 				String beData = null;
 				if(primaryLayoutData.isPresent()) {
-					log.info("beLayout.findEntityAttribute(\"PRI_LAYOUT_DATA\").get().getAsString().trim().hashcode()="+beLayout.findEntityAttribute("PRI_LAYOUT_DATA").get().getAsString().trim().hashCode());
+					log.debug("beLayout.findEntityAttribute(\"PRI_LAYOUT_DATA\").get().getAsString().trim().hashcode()="+beLayout.findEntityAttribute("PRI_LAYOUT_DATA").get().getAsString().trim().hashCode());
 					beData = beLayout.findEntityAttribute("PRI_LAYOUT_DATA").get().getAsString().trim();
 				} 
 				
 				if (!layout.getData().trim().equals(beData)) {
+					log.info("Resaving layout: " + layoutCode);
 
 				
 				Answer newAnswerContent = new Answer(beLayout.getCode(), beLayout.getCode(), "PRI_LAYOUT_DATA",

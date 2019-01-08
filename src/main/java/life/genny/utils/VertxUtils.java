@@ -177,7 +177,7 @@ public class VertxUtils {
 	}
 
 	static public JsonObject writeCachedJson(final String key, final String value) {
-		return writeCachedJson(key, value, "DUMMY");
+		return writeCachedJson(key, value, DEFAULT_TOKEN);
 	}
 
 	static public JsonObject writeCachedJson(final String key, final String value, final String token) {
@@ -186,12 +186,12 @@ public class VertxUtils {
 	
 	static public JsonObject writeCachedJson(final String key, String value, final String token, long ttl_seconds) {
 		if (!(GennySettings.devMode  && cacheInterface instanceof WildflyCacheInterface)/*|| (!GennySettings.isCacheServer)*/) {
-			log.info("WRITING USING "+(GennySettings.isCacheServer?" LOCAL DDT":"CLIENT ")+"  "+key);
+			//log.debug("WRITING USING "+(GennySettings.isCacheServer?" LOCAL DDT":"CLIENT ")+"  "+key);
 
 			cacheInterface.writeCache(key, value, token,ttl_seconds);
 		} else {
 			try {
-				log.info("WRITING TO CACHE USING API! "+key);
+				log.debug("WRITING TO CACHE USING API! "+key);
 				JsonObject json = new JsonObject();
 		        json.put("key", key);
 		        json.put("json", value);
@@ -410,10 +410,13 @@ public class VertxUtils {
 			eb.publish(user, channel, payload, filterAttributes);
 		} else {
 			try {
-				log.info("WRITING TO EVENTBUS USING API! ");
-				String jsonMsg = JsonUtils.toJson(payload);
+				
+				String jsonMsg = (String)payload;
 				String bridgeApi = System.getenv("REACT_APP_VERTX_SERVICE_API");
+				log.debug("WRITING TO EVENTBUS USING API! "+bridgeApi);
 				JsonObject jsonJson = new JsonObject(jsonMsg);
+				//log.info("token="+jsonJson.getString("token"));
+				//log.info("jsonMsg="+jsonMsg);
 				QwandaUtils.apiPostEntity(bridgeApi, jsonMsg, jsonJson.getString("token"));
 			} catch (IOException e) {
 				e.printStackTrace();
