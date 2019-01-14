@@ -181,33 +181,6 @@ public class RulesUtils {
 
 	public static String generateServiceToken(String realm) {
 
-		// check if already in cache
-		String serviceToken = VertxUtils.getObject(realm, "CACHE", "SERVICE_TOKEN", String.class);
-		// TODO check expiry date
-		if (serviceToken != null) {
-		//	println("Fetching Service Token for " + realm + " from cache :"
-		//			+ StringUtils.abbreviateMiddle(serviceToken, "...", 20));
-			// check expiry date
-			JSONObject decodedServiceToken = KeycloakUtils.getDecodedToken(serviceToken);
-			long expiryTime = decodedServiceToken.getLong("exp");
-			long nowTime = LocalDateTime.now().atZone(TimeZone.getDefault().toZoneId()).toEpochSecond();
-			long duration = expiryTime - nowTime;
-			LocalDateTime expiryDateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(expiryTime),
-					TimeZone.getDefault().toZoneId());
-
-			LocalDateTime nowDateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(nowTime),
-					TimeZone.getDefault().toZoneId());
-
-		//	println("JWT Expiry Time = " + expiryTime + " (" + expiryDateTime.toString() + ") and now Time (UMT) = "
-		//			+ nowTime + " (" + nowDateTime.toString() + ")  diff (secs to expiry) = " + duration + " sec");
-			if (nowDateTime.isAfter(expiryDateTime)) {
-				log.info("Service Token Expired! - generate new one!");
-				serviceToken = null;
-			} else {
-				return serviceToken;
-			}
-		}
-
 		println("Generating Service Token for " + realm);
 
 		String jsonFile = realm + ".json";
