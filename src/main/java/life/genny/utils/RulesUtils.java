@@ -180,93 +180,62 @@ public class RulesUtils {
 	}
 
 	public static String generateServiceToken(String realm) {
-
-		// check if already in cache
-		String serviceToken = VertxUtils.getObject(realm, "CACHE", "SERVICE_TOKEN", String.class);
-		// TODO check expiry date
-		if (serviceToken != null) {
-		//	println("Fetching Service Token for " + realm + " from cache :"
-		//			+ StringUtils.abbreviateMiddle(serviceToken, "...", 20));
-			// check expiry date
-			JSONObject decodedServiceToken = KeycloakUtils.getDecodedToken(serviceToken);
-			long expiryTime = decodedServiceToken.getLong("exp");
-			long nowTime = LocalDateTime.now().atZone(TimeZone.getDefault().toZoneId()).toEpochSecond();
-			long duration = expiryTime - nowTime;
-			LocalDateTime expiryDateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(expiryTime),
-					TimeZone.getDefault().toZoneId());
-
-			LocalDateTime nowDateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(nowTime),
-					TimeZone.getDefault().toZoneId());
-
-		//	println("JWT Expiry Time = " + expiryTime + " (" + expiryDateTime.toString() + ") and now Time (UMT) = "
-		//			+ nowTime + " (" + nowDateTime.toString() + ")  diff (secs to expiry) = " + duration + " sec");
-			if (nowDateTime.isAfter(expiryDateTime)) {
-				log.info("Service Token Expired! - generate new one!");
-				serviceToken = null;
-			} else {
-				return serviceToken;
-			}
-		}
-
-		println("Generating Service Token for " + realm);
-
-		String jsonFile = realm + ".json";
-
+        
+		println("Generating Service Token for "+realm);
+		String jsonFile = realm + ".json";        
 		String keycloakJson = SecureResources.getKeycloakJsonMap().get(jsonFile);
 		if (keycloakJson == null) {
-			println("No keycloakMap for " + realm + " ... fixing");
+			println("No keycloakMap for " + realm+" ... fixing");
 			SecureResources.readFilenamesFromDirectory(GennySettings.realmDir);
 			String gennyKeycloakJson = SecureResources.getKeycloakJsonMap().get("genny.json");
 			if (GennySettings.devMode) {
-				SecureResources.getKeycloakJsonMap().put(jsonFile, gennyKeycloakJson);
-				keycloakJson = gennyKeycloakJson;
-			} else {
-				if (GennySettings.defaultLocalIP.equalsIgnoreCase(GennySettings.hostIP)) {
-					println("gennyKeycloakJson=" + gennyKeycloakJson);
-					// Running in local docker mode
 					SecureResources.getKeycloakJsonMap().put(jsonFile, gennyKeycloakJson);
 					keycloakJson = gennyKeycloakJson;
-					println("No keycloak Json file available for realm - " + realm + " , so using genny instead ..");
-				} else {
-					println("Error - No keycloak Json file available for realm - " + realm);
-				}
+			} else {
+					if (GennySettings.defaultLocalIP.equalsIgnoreCase(GennySettings.hostIP)) {
+							println("gennyKeycloakJson="+gennyKeycloakJson);
+							// Running in local docker mode
+							SecureResources.getKeycloakJsonMap().put(jsonFile, gennyKeycloakJson);
+							keycloakJson = gennyKeycloakJson;
+							println("No keycloak Json file available for realm - "+realm+" , so using genny instead ..");
+					} else {
+							println("Error - No keycloak Json file available for realm - "+realm);
+					}
 			}
 		}
-		println("keycloak.json=" + keycloakJson);
+		println("keycloak.json="+keycloakJson);
 		JsonObject realmJson = new JsonObject(keycloakJson);
 		JsonObject secretJson = realmJson.getJsonObject("credentials");
 		String secret = secretJson.getString("secret");
 		String jsonRealm = realmJson.getString("realm");
-
+		
 		String key = GennySettings.dynamicKey(jsonRealm);
 		String initVector = GennySettings.dynamicInitVector(jsonRealm);
 		String encryptedPassword = GennySettings.dynamicEncryptedPassword(jsonRealm);
-		String password = null;
+		String password= null;
 		String dynamicRealm = GennySettings.dynamicRealm(jsonRealm);
-
-		println("key:" + key + ":" + initVector + ":" + encryptedPassword);
+		
+		println("key:"+key+":"+initVector+":"+encryptedPassword);
 		password = GennySettings.dynamicPassword(jsonRealm);
-
-		println("password=[" + password + "]");
-
+		println("password=["+password+"]");
 		// Now ask the bridge for the keycloak to use
 		String keycloakurl = realmJson.getString("auth-server-url").substring(0,
-				realmJson.getString("auth-server-url").length() - ("/auth".length()));
-
+						realmJson.getString("auth-server-url").length() - ("/auth".length()));
 		println(keycloakurl);
-
 		try {
-			println("jsonRealm= " + jsonRealm + ", dynamicRealm() : " + dynamicRealm + "\n" + "realm : " + realm + "\n"
-					+ "secret : " + secret + "\n" + "keycloakurl: " + keycloakurl + "\n" + "key : " + key + "\n"
-					+ "initVector : " + initVector + "\n" + "enc pw : " + encryptedPassword + "\n" + "password : ["
-					+ password + "]\n");
+			println("jsonRealm= "+jsonRealm+", dynamicRealm() : " + dynamicRealm + "\n" + "realm : " + realm + "\n" + "secret : " + secret + "\n"
+							+ "keycloakurl: " + keycloakurl + "\n" + "key : " + key + "\n" + "initVector : " + initVector + "\n"
+							+ "enc pw : " + encryptedPassword + "\n" + "password : [" + password + "]\n");
+
+			/* we get the refresh token from the cache */
+			String cached_refresh_token = VertxUtils.getObject(realm, "CACHE", "SERVICE_TOKEN_REFRESH", String.class); 
 
 			/* we get a secure token payload containing a refresh token and an access token */
-			JsonObject secureTokenPayload = KeycloakUtils.getSecureTokenPayload(keycloakurl, dynamicRealm, dynamicRealm, secret, "service", password);
+			JsonObject secureTokenPayload = KeycloakUtils.getSecureTokenPayload(keycloakurl, dynamicRealm, dynamicRealm, secret, "service", password, cached_refresh_token);
 
 			/* we get the access token and the refresh token */
 			String access_token = secureTokenPayload.getString("access_token");
-			String refresh_token = secureTokenPayload.getString("access_token");
+			String refresh_token = secureTokenPayload.getString("refresh_token");
 
 			/* we print it out */
 			println("access_token = " + StringUtils.abbreviateMiddle(access_token, "...", 20));
@@ -284,13 +253,11 @@ public class RulesUtils {
 				VertxUtils.putObject(realm, "CACHE", "SERVICE_TOKEN", access_token); // TODO
 				VertxUtils.putObject(realm, "CACHE", "SERVICE_TOKEN_REFRESH", refresh_token); // TODO
 			}
-
 			return access_token;
 
 		} catch (Exception e) {
-			println(e);
+				println(e);
 		}
-
 		return null;
 	}
 
