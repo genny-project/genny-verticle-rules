@@ -181,6 +181,33 @@ public class RulesUtils {
 
 	public static String generateServiceToken(String realm) {
 
+		// check if already in cache
+		String serviceToken = VertxUtils.getObject(realm, "CACHE", "SERVICE_TOKEN", String.class);
+		// TODO check expiry date
+		if (serviceToken != null) {
+		//	println("Fetching Service Token for " + realm + " from cache :"
+		//			+ StringUtils.abbreviateMiddle(serviceToken, "...", 20));
+			// check expiry date
+			JSONObject decodedServiceToken = KeycloakUtils.getDecodedToken(serviceToken);
+			long expiryTime = decodedServiceToken.getLong("exp");
+			long nowTime = LocalDateTime.now().atZone(TimeZone.getDefault().toZoneId()).toEpochSecond();
+			long duration = expiryTime - nowTime;
+			LocalDateTime expiryDateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(expiryTime),
+					TimeZone.getDefault().toZoneId());
+
+			LocalDateTime nowDateTime = LocalDateTime.ofInstant(Instant.ofEpochSecond(nowTime),
+					TimeZone.getDefault().toZoneId());
+
+		//	println("JWT Expiry Time = " + expiryTime + " (" + expiryDateTime.toString() + ") and now Time (UMT) = "
+		//			+ nowTime + " (" + nowDateTime.toString() + ")  diff (secs to expiry) = " + duration + " sec");
+			if (nowDateTime.isAfter(expiryDateTime)) {
+				log.info("Service Token Expired! - generate new one!");
+				serviceToken = null;
+			} else {
+				return serviceToken;
+			}
+		}
+
 		println("Generating Service Token for " + realm);
 
 		String jsonFile = realm + ".json";
@@ -234,15 +261,31 @@ public class RulesUtils {
 					+ "initVector : " + initVector + "\n" + "enc pw : " + encryptedPassword + "\n" + "password : ["
 					+ password + "]\n");
 
-			String token = KeycloakUtils.getToken(keycloakurl, dynamicRealm, dynamicRealm, secret, "service", password);
-			println("token = " + StringUtils.abbreviateMiddle(token, "...", 20));
-			if (token == null) {
+			/* we get a secure token payload containing a refresh token and an access token */
+			JsonObject secureTokenPayload = KeycloakUtils.getSecureTokenPayload(keycloakurl, dynamicRealm, dynamicRealm, secret, "service", password);
+
+			/* we get the access token and the refresh token */
+			String access_token = secureTokenPayload.getString("access_token");
+			String refresh_token = secureTokenPayload.getString("access_token");
+
+			/* we print it out */
+			println("access_token = " + StringUtils.abbreviateMiddle(access_token, "...", 20));
+
+			/* if we don't have an access token */
+			if (access_token == null) {
+
+				/* we print out the error */
 				println(RulesUtils.ANSI_RED + "Token is Null -> Check that keycloak for realm (" + realm
 						+ ") has service user password set properly to " + password + RulesUtils.ANSI_RESET);
-			} else {
-				VertxUtils.putObject(realm, "CACHE", "SERVICE_TOKEN", token); // TODO
 			}
-			return token;
+			
+			/* if we have an access token, we store it in the cache as well as the refresh token */
+			else {
+				VertxUtils.putObject(realm, "CACHE", "SERVICE_TOKEN", access_token); // TODO
+				VertxUtils.putObject(realm, "CACHE", "SERVICE_TOKEN_REFRESH", refresh_token); // TODO
+			}
+
+			return access_token;
 
 		} catch (Exception e) {
 			println(e);
