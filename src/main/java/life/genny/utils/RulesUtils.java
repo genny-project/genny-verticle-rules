@@ -180,7 +180,36 @@ public class RulesUtils {
 	}
 
 	public static String generateServiceToken(String realm) {
-        
+
+		/* we get the service token currently stored in the cache */
+		String serviceToken = VertxUtils.getObject(realm, "CACHE", "SERVICE_TOKEN", String.class);
+
+		/* if we have got a service token cached */
+		if (serviceToken != null) {
+
+			/* we decode it */
+			JSONObject decodedServiceToken = KeycloakUtils.getDecodedToken(serviceToken);
+
+			/* we get the expiry timestamp */
+			long expiryTime = decodedServiceToken.getLong("exp");
+
+			/* we get the current time */
+			long nowTime = LocalDateTime.now().atZone(TimeZone.getDefault().toZoneId()).toEpochSecond();
+
+			/* we calculate the differencr */ 
+			long duration = expiryTime - nowTime;
+
+			/* if the difference is negative it means the expiry time is less than the nowTime 
+				 if the difference < 180000, it means the token will expire in 3 hours
+			*/
+			if(duration >= 10800) {
+
+				/* if the token is NOTn about to expire (> 3 hours), we reuse it */
+				return serviceToken;
+			}
+		}
+
+		/* otherwise we renew it */
 		println("Generating Service Token for "+realm);
 		String jsonFile = realm + ".json";        
 		String keycloakJson = SecureResources.getKeycloakJsonMap().get(jsonFile);
@@ -252,7 +281,11 @@ public class RulesUtils {
 			else {
 				VertxUtils.putObject(realm, "CACHE", "SERVICE_TOKEN", access_token); // TODO
 				VertxUtils.putObject(realm, "CACHE", "SERVICE_TOKEN_REFRESH", refresh_token); // TODO
+				
+				/* we pause just to be certain the tokens have been cached. not great but vertxutils is causing issues. */ 
+				Thread.sleep(5000);
 			}
+						
 			return access_token;
 
 		} catch (Exception e) {
