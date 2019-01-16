@@ -200,9 +200,11 @@ public class RulesUtils {
 			long duration = expiryTime - nowTime;
 
 			/* if the difference is negative it means the expiry time is less than the nowTime 
-				 if the difference < 180000, it means the token will expire in 3 hours
+				 if the difference < ACCESS_TOKEN_EXPIRY_LIMIT_SECONDS, it means the token will expire in 3 hours
 			*/
-			if(duration >= 10800) {
+			if(duration > GennySettings.ACCESS_TOKEN_EXPIRY_LIMIT_SECONDS) {
+
+				System.out.println("======= USING CACHED ACCESS TOKEN ========");
 
 				/* if the token is NOTn about to expire (> 3 hours), we reuse it */
 				return serviceToken;
@@ -281,9 +283,6 @@ public class RulesUtils {
 			else {
 				VertxUtils.putObject(realm, "CACHE", "SERVICE_TOKEN", access_token); // TODO
 				VertxUtils.putObject(realm, "CACHE", "SERVICE_TOKEN_REFRESH", refresh_token); // TODO
-				
-				/* we pause just to be certain the tokens have been cached. not great but vertxutils is causing issues. */ 
-				Thread.sleep(5000);
 			}
 						
 			return access_token;
