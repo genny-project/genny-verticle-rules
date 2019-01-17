@@ -2,7 +2,10 @@
 <projectDescription>
   <name>genny-verticle-rules</name>
   <comment>NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
-  <projects/>
+  <projects>
+    <project>qwanda-utils</project>
+    <project>qwanda</project>
+  </projects>
   <buildSpec>
     <buildCommand>
       <name>org.eclipse.wst.common.project.facet.core.builder</name>
@@ -15,9 +18,6 @@
     </buildCommand>
     <buildCommand>
       <name>org.jboss.tools.jst.web.kb.kbbuilder</name>
-    </buildCommand>
-    <buildCommand>
-      <name>org.jboss.tools.cdi.core.cdibuilder</name>
     </buildCommand>
     <buildCommand>
       <name>org.eclipse.wst.validation.validationbuilder</name>
@@ -38,6 +38,5 @@
     <nature>org.hibernate.eclipse.console.hibernateNature</nature>
     <nature>org.eclipse.wst.common.project.facet.core.nature</nature>
     <nature>org.jboss.tools.jst.web.kb.kbnature</nature>
-    <nature>org.jboss.tools.cdi.core.cdinature</nature>
   </natures>
 </projectDescription>
