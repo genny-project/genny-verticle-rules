@@ -134,6 +134,9 @@ public class LayoutUtils {
 							String download_url = sublayoutData.getString("path");
 							String file_path = download_url.replace(realmCode + "/", "");
 
+							System.out.println("-----------------------------------");
+							System.out.println(file_path);
+
 							/* if we have found a file we serialize it */
 							if (file_path.endsWith(".json")) {
 								layouts.add(this.serializeLayout(realmCode, sublayoutData));
@@ -184,7 +187,7 @@ public class LayoutUtils {
 
 		/* format the path of the layout to be an valid URI */
 		if (newLayout.getPath() != null) {
-			newLayout.setPath(newLayout.getPath().replace((realmCode + "//"), "/").replaceAll("index.json", "")
+			newLayout.setPath(newLayout.getPath().replace((realmCode + "//"), "/").replace(realmCode, "").replaceAll("index.json", "")
 					.replace(".json", "").replace("sublayouts/", "").replaceAll("//", ""));
 		}
 
