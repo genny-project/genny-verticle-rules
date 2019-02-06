@@ -184,9 +184,12 @@ public class LayoutUtils {
 
 		/* format the path of the layout to be an valid URI */
 		if (newLayout.getPath() != null) {
-			newLayout.setPath(newLayout.getPath().replace((realmCode + "//"), "/").replaceAll("index.json", "")
+			newLayout.setPath(newLayout.getPath().replace((realmCode + "//"), "/").replace(realmCode, "").replaceAll("index.json", "")
 					.replace(".json", "").replace("sublayouts/", "").replaceAll("//", ""));
 		}
+
+		/* patch the url */
+		newLayout.setDownloadUrl(newLayout.getDownloadUrl().replace(realmCode + "//", realmCode + "/"));
 
 		/* download content of the layout */
 		newLayout.setData(LayoutUtils.downloadLayoutContent(newLayout));

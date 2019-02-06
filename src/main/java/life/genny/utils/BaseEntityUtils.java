@@ -1362,7 +1362,7 @@ public class BaseEntityUtils {
 			// beLayout =
 			// RulesUtils.getBaseEntityByAttributeAndValue(RulesUtils.qwandaServiceUrl,
 			// this.decodedTokenMap, this.token, "PRI_LAYOUT_URI", layout.getPath());
-			String precode = layout.getPath().replaceAll("[^a-zA-Z0-9]", "").toUpperCase();
+			String precode = String.valueOf(layout.getPath().replaceAll("[^a-zA-Z0-9]", "").toUpperCase().hashCode());
 			String layoutCode = ("LAY_" + realm + "_" + precode).toUpperCase();
 
 			log.info("Layout - Handling " + layoutCode);
@@ -1391,6 +1391,14 @@ public class BaseEntityUtils {
 
 			if (beLayout != null) {
 
+				log.info("Layout - Creating base entity " + layoutCode);
+
+				/* otherwise we create it */
+				beLayout = this.create(layoutCode, layout.getName());
+			}
+
+			if (beLayout != null) {
+
 				this.addAttributes(beLayout);
 
 				/*
@@ -1408,6 +1416,8 @@ public class BaseEntityUtils {
 				String content = LayoutUtils.downloadLayoutContent(layout);
 
 				log.debug("layout.getData().hashcode()="+layout.getData().trim().hashCode());
+				log.debug("content.hashcode()="+content.trim().hashCode());
+
 				Optional<EntityAttribute> primaryLayoutData = beLayout.findEntityAttribute("PRI_LAYOUT_DATA");
 				String beData = null;
 				if(primaryLayoutData.isPresent()) {
@@ -1415,7 +1425,9 @@ public class BaseEntityUtils {
 					beData = beLayout.findEntityAttribute("PRI_LAYOUT_DATA").get().getAsString().trim();
 				} 
 				
-				if (!layout.getData().trim().equals(beData)) {
+				if (true/*!layout.getData().trim().equals(beData)*/
+						
+						) {
 					log.info("Resaving layout: " + layoutCode);
 
 				
