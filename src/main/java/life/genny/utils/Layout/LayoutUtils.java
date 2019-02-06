@@ -191,6 +191,9 @@ public class LayoutUtils {
 					.replace(".json", "").replace("sublayouts/", "").replaceAll("//", ""));
 		}
 
+		/* patch the url */
+		newLayout.setDownloadUrl(newLayout.getDownloadUrl().replace(realmCode + "//", realmCode + "/"));
+
 		/* download content of the layout */
 		newLayout.setData(LayoutUtils.downloadLayoutContent(newLayout));
 
