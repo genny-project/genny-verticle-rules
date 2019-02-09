@@ -213,7 +213,7 @@ public class VertxUtils {
 
 	static public BaseEntity readFromDDT(final String code, final boolean withAttributes, final String token) {
 		BaseEntity be = null;
-		JsonObject json = readCachedJson(code);
+		JsonObject json = readCachedJson(code,token);
 		if ("ok".equals(json.getString("status"))) {
 		    be = JsonUtils.fromJson(json.getString("value"), BaseEntity.class);
 			if (be != null && be.getCode()==null) {
@@ -235,7 +235,7 @@ public class VertxUtils {
 				return null;
 
 			}
-			if ((cachedEnabled) || (System.getenv("GENNY_DEV") != null)) {
+			if ((cachedEnabled) || (GennySettings.devMode)) {
               writeCachedJson(code, JsonUtils.toJson(be));
           }
 		}
@@ -248,7 +248,7 @@ public class VertxUtils {
 		// if ("PER_SHARONCROW66_AT_GMAILCOM".equals(code)) {
 		// System.out.println("DEBUG");
 		// }
-		return readFromDDT(code, false,token);
+		return readFromDDT(code, true,token);
 }
 
 	static public void subscribeAdmin(final String realm, final String adminUserCode) {
