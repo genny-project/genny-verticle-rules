@@ -134,6 +134,9 @@ public class LayoutUtils {
 							String download_url = sublayoutData.getString("path");
 							String file_path = download_url.replace(realmCode + "/", "");
 
+							System.out.println("-----------------------------------");
+							System.out.println(file_path);
+
 							/* if we have found a file we serialize it */
 							if (file_path.endsWith(".json")) {
 								layouts.add(this.serializeLayout(realmCode, sublayoutData));

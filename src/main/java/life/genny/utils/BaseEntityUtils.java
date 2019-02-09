@@ -1416,21 +1416,23 @@ public class BaseEntityUtils {
 				String content = LayoutUtils.downloadLayoutContent(layout);
 
 				log.debug("layout.getData().hashcode()="+layout.getData().trim().hashCode());
+
 				log.debug("content.hashcode()="+content.trim().hashCode());
+
 
 				Optional<EntityAttribute> primaryLayoutData = beLayout.findEntityAttribute("PRI_LAYOUT_DATA");
 				String beData = null;
 				if(primaryLayoutData.isPresent()) {
 					log.debug("beLayout.findEntityAttribute(\"PRI_LAYOUT_DATA\").get().getAsString().trim().hashcode()="+beLayout.findEntityAttribute("PRI_LAYOUT_DATA").get().getAsString().trim().hashCode());
 					beData = beLayout.findEntityAttribute("PRI_LAYOUT_DATA").get().getAsString().trim();
-				} 
+				}
 				
 				if (true/*!layout.getData().trim().equals(beData)*/
 						
 						) {
 					log.info("Resaving layout: " + layoutCode);
 
-				
+
 				Answer newAnswerContent = new Answer(beLayout.getCode(), beLayout.getCode(), "PRI_LAYOUT_DATA",
 						content);
 
