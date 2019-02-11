@@ -1391,6 +1391,14 @@ public class BaseEntityUtils {
 
 			if (beLayout != null) {
 
+				log.info("Layout - Creating base entity " + layoutCode);
+
+				/* otherwise we create it */
+				beLayout = this.create(layoutCode, layout.getName());
+			}
+
+			if (beLayout != null) {
+
 				this.addAttributes(beLayout);
 
 				/*
@@ -1408,7 +1416,10 @@ public class BaseEntityUtils {
 				String content = LayoutUtils.downloadLayoutContent(layout);
 
 				log.debug("layout.getData().hashcode()="+layout.getData().trim().hashCode());
-				
+
+				log.debug("content.hashcode()="+content.trim().hashCode());
+
+
 				Optional<EntityAttribute> primaryLayoutData = beLayout.findEntityAttribute("PRI_LAYOUT_DATA");
 				String beData = null;
 				if(primaryLayoutData.isPresent()) {
@@ -1416,9 +1427,11 @@ public class BaseEntityUtils {
 					beData = beLayout.findEntityAttribute("PRI_LAYOUT_DATA").get().getAsString().trim();
 				}
 				
-				if (!layout.getData().trim().equals(beData)) {
-					
-				log.info("Resaving layout: " + layoutCode);
+				if (true/*!layout.getData().trim().equals(beData)*/
+						
+						) {
+					log.info("Resaving layout: " + layoutCode);
+
 
 				Answer newAnswerContent = new Answer(beLayout.getCode(), beLayout.getCode(), "PRI_LAYOUT_DATA",
 						content);

@@ -99,9 +99,9 @@ public class RulesUtils {
 	public static void println(final Object obj, final String colour) {
 		Date date = new Date();
 		if (GennySettings.devMode) {
-			System.out.println(date + ": " + obj);
+			log.info(date + ": " + obj);
 		} else {
-			System.out.println((GennySettings.devMode ? "" : colour) + date + ": " + obj
+			log.info((GennySettings.devMode ? "" : colour) + date + ": " + obj
 					+ (GennySettings.devMode ? "" : ANSI_RESET));
 		}
 
@@ -164,7 +164,7 @@ public class RulesUtils {
 				}
 			}
 		} catch (Exception e) {
-			System.out.println(jsonStr);
+			log.info(jsonStr);
 			return jsonStr;
 		}
 
@@ -204,7 +204,7 @@ public class RulesUtils {
 			*/
 			if(duration > GennySettings.ACCESS_TOKEN_EXPIRY_LIMIT_SECONDS) {
 
-				System.out.println("======= USING CACHED ACCESS TOKEN ========");
+				log.info("======= USING CACHED ACCESS TOKEN ========");
 
 				/* if the token is NOTn about to expire (> 3 hours), we reuse it */
 				return serviceToken;
@@ -612,7 +612,7 @@ public class RulesUtils {
 
 		try {
 			String beJson = null;
-			System.out.println("stakeholderCode is :: " + stakeholderCode);
+			log.info("stakeholderCode is :: " + stakeholderCode);
 			beJson = QwandaUtils.apiGet(qwandaServiceUrl + "/qwanda/baseentitys/" + parentCode + "/linkcodes/"
 					+ linkCode + "/attributes/" + stakeholderCode, token);
 			return beJson;
