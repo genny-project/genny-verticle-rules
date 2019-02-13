@@ -71,6 +71,11 @@ public class BaseEntityUtils {
 		this.cacheUtil.setBaseEntityUtils(this);
 	}
 
+	private String getRealm()
+	{
+		return realm;
+	}
+	
 	/* =============== refactoring =============== */
 
 	public BaseEntity create(final String uniqueCode, final String bePrefix, final String name) {
@@ -87,8 +92,9 @@ public class BaseEntityUtils {
 
 		BaseEntity newBaseEntity = QwandaUtils.createBaseEntityByCode(baseEntityCode, name, qwandaServiceUrl,
 				this.token);
+		
 		this.addAttributes(newBaseEntity);
-		VertxUtils.writeCachedJson(newBaseEntity.getCode(), JsonUtils.toJson(newBaseEntity));
+		VertxUtils.writeCachedJson(newBaseEntity.getRealm(),newBaseEntity.getCode(), JsonUtils.toJson(newBaseEntity));
 		return newBaseEntity;
 	}
 
@@ -165,7 +171,7 @@ public class BaseEntityUtils {
 			role = QwandaUtils.createBaseEntityByCode(code, name, qwandaServiceUrl, this.token);
 			this.addAttributes(role);
 
-			VertxUtils.writeCachedJson(role.getCode(), JsonUtils.toJson(role));
+			VertxUtils.writeCachedJson(role.getRealm(),role.getCode(), JsonUtils.toJson(role));
 		}
 
 		for (String capabilityCode : capabilityCodes) {
@@ -350,7 +356,7 @@ public class BaseEntityUtils {
 
 		try {
 
-			JsonObject cachedJsonObject = VertxUtils.readCachedJson(code);
+			JsonObject cachedJsonObject = VertxUtils.readCachedJson(getRealm(),code);
 			if (cachedJsonObject != null) {
 
 				String seJson = JsonUtils.toJson(cachedJsonObject);
@@ -379,7 +385,7 @@ public class BaseEntityUtils {
 
 		try {
 			log.info("Fetching BaseEntityByCode, code="+code);
-			be = VertxUtils.readFromDDT(code, withAttributes, this.token);
+			be = VertxUtils.readFromDDT(getRealm(),code, withAttributes, this.token);
 			if (be == null) {
 				log.info("ERROR - be (" + code + ") fetched is NULL ");
 			} else {
@@ -1027,7 +1033,7 @@ public class BaseEntityUtils {
 
 	public String updateBaseEntity(BaseEntity be) {
 		try {
-			VertxUtils.writeCachedJson(be.getCode(), JsonUtils.toJson(be));
+			VertxUtils.writeCachedJson(getRealm(),be.getCode(), JsonUtils.toJson(be));
 			return QwandaUtils.apiPutEntity(this.qwandaServiceUrl + "/qwanda/baseentitys", JsonUtils.toJson(be),
 					this.token);
 		} catch (Exception e) {
@@ -1044,12 +1050,12 @@ public class BaseEntityUtils {
 					log.error("ERROR! searchEntity se has no code!");
 				}
 				if (se.getId() == null) {
-					BaseEntity existing = VertxUtils.readFromDDT(se.getCode(), this.realm);
+					BaseEntity existing = VertxUtils.readFromDDT(getRealm(),se.getCode(), this.realm);
 					if (existing != null) {
 						se.setId(existing.getId());
 					}
 				}
-				VertxUtils.writeCachedJson(se.getCode(), JsonUtils.toJson(se));
+				VertxUtils.writeCachedJson(getRealm(),se.getCode(), JsonUtils.toJson(se));
 				if (se.getId() != null) {
 					ret = QwandaUtils.apiPutEntity(this.qwandaServiceUrl + "/qwanda/baseentitys", JsonUtils.toJson(se),
 							this.token);
@@ -1101,7 +1107,7 @@ public class BaseEntityUtils {
 					} else {
 						cachedBe.addAnswer(answer);
 					}
-					VertxUtils.writeCachedJson(answer.getTargetCode(), JsonUtils.toJson(cachedBe));
+					VertxUtils.writeCachedJson(getRealm(),answer.getTargetCode(), JsonUtils.toJson(cachedBe));
 				}
 			}
 
@@ -1170,7 +1176,7 @@ public class BaseEntityUtils {
 			}
 		}
 
-			VertxUtils.writeCachedJson(cachedBe.getCode(), JsonUtils.toJson(cachedBe));
+			VertxUtils.writeCachedJson(getRealm(),cachedBe.getCode(), JsonUtils.toJson(cachedBe));
 
 
 		return cachedBe;
@@ -1368,7 +1374,7 @@ public class BaseEntityUtils {
 			log.info("Layout - Handling " + layoutCode);
 			try {
 				// Check if in cache first to save time.
-				beLayout = VertxUtils.readFromDDT(layoutCode, serviceToken);
+				beLayout = VertxUtils.readFromDDT(getRealm(),layoutCode, serviceToken);
 				if (beLayout==null) {
 					beLayout = QwandaUtils.getBaseEntityByCode(layoutCode, serviceToken);
 					if (beLayout != null) {
@@ -1556,7 +1562,7 @@ public class BaseEntityUtils {
 			return null;
 	}
 
-	static public QBulkPullMessage createQBulkPullMessage(QBulkMessage msg) {
+	public QBulkPullMessage createQBulkPullMessage(QBulkMessage msg) {
 
 		UUID uuid = UUID.randomUUID();
 		QBulkPullMessage pullMsg = new QBulkPullMessage(uuid.toString());
@@ -1569,14 +1575,14 @@ public class BaseEntityUtils {
 
 	}
 
-	static public QBulkPullMessage createQBulkPullMessage(JsonObject msg) {
+	public QBulkPullMessage createQBulkPullMessage(JsonObject msg) {
 
 		UUID uuid = UUID.randomUUID();
 
 		QBulkPullMessage pullMsg = new QBulkPullMessage(uuid.toString());
 
 		// Put the QBulkMessage into the PontoonDDT
-		DistMap.getDistPontoonBE().put(uuid, msg, 2, TimeUnit.MINUTES);
+		DistMap.getDistPontoonBE(getRealm()).put(uuid, msg, 2, TimeUnit.MINUTES);
 
 		// then create the QBulkPullMessage
 		pullMsg.setPullUrl(GennySettings.pontoonUrl + "/pull/" + uuid);

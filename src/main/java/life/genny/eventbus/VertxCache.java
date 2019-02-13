@@ -17,15 +17,15 @@ public class VertxCache implements GennyCacheInterface {
 
 
 	@Override
-	public Object readCache(String key, String token) {
+	public Object readCache(final String realm, final String key, final String token) {
 //		JSONObject decodedTokenJson = KeycloakUtils.getDecodedToken(token);
 //		String realm = decodedTokenJson.getString("azp");
 
-		return DistMap.getDistBE().get(key);
+		return DistMap.getMapBaseEntitys(realm).get(key);
 	}
 
 	@Override
-	public void writeCache(String key, String value, String token,long ttl_seconds) {
+	public void writeCache(final String realm, final String key, final String value, final String token,long ttl_seconds) {
 	//	JSONObject decodedTokenJson = KeycloakUtils.getDecodedToken(token);
 	//	String realm = decodedTokenJson.getString("azp");
 
@@ -33,7 +33,7 @@ public class VertxCache implements GennyCacheInterface {
 			throw new IllegalArgumentException("Key is null");
 		}
 		if (value == null) {
-			DistMap.getDistBE().delete(key);
+			DistMap.getMapBaseEntitys(realm).delete(key);
 		} else {
 			if (key == null) {
 				logger.error("Null Key provided! with value=["+value+"]");
@@ -42,16 +42,16 @@ public class VertxCache implements GennyCacheInterface {
 				if (value.contains("SBE_NEW_ITEMS")) {
 					//logger.info("Write Cache value=["+value+"]");
 				}
-				DistMap.getDistBE().put(key, value, ttl_seconds,TimeUnit.SECONDS);
+				DistMap.getMapBaseEntitys(realm).put(key, value, ttl_seconds,TimeUnit.SECONDS);
 			}
 		}
 
 	}
 
 	@Override
-	public void clear() {
+	public void clear(final String realm) {
 
-		DistMap.clear();
+		DistMap.clear(realm);
 		
 	}
 
