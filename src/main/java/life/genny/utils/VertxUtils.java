@@ -135,22 +135,23 @@ public class VertxUtils {
 		String data = JsonUtils.toJson(obj);
 		data = data.replaceAll("\\\"", "\"");
 		data = data.replaceAll("\\n", "\n");
-		writeCachedJson(realm + ":" + keyPrefix + ":" + key, data, token);
+		writeCachedJson(realm ,keyPrefix + ":" + key, data, token);
 	}
 
-	static public JsonObject readCachedJson(final String key) {
-		return readCachedJson(key, DEFAULT_TOKEN);
+	static public JsonObject readCachedJson(final String realm, final String key) {
+		return readCachedJson(realm, key, DEFAULT_TOKEN);
 	}
 
-	static public JsonObject readCachedJson(final String key, final String token) {
+	static public JsonObject readCachedJson(final String realm, final String key, final String token) {
 		JsonObject result = null;
 
+		
 		if (!(GennySettings.devMode  && cacheInterface instanceof WildflyCacheInterface)/*|| (!GennySettings.isCacheServer)*/) {
 			String ret = null;
 			JsonObject retj = null;
 			try {
 				//log.info("VERTX READING DIRECTLY FROM CACHE! USING "+(GennySettings.isCacheServer?" LOCAL DDT":"CLIENT "));
-				ret = (String) cacheInterface.readCache(key, token);
+				ret = (String) cacheInterface.readCache(realm, key, token);
 			} catch (Exception e) {
 	                log.error("Cache is  null");
 	                e.printStackTrace();
@@ -176,19 +177,19 @@ public class VertxUtils {
 		return result;
 	}
 
-	static public JsonObject writeCachedJson(final String key, final String value) {
-		return writeCachedJson(key, value, DEFAULT_TOKEN);
+	static public JsonObject writeCachedJson(final String realm, final String key, final String value) {
+		return writeCachedJson(realm, key, value, DEFAULT_TOKEN);
 	}
 
-	static public JsonObject writeCachedJson(final String key, final String value, final String token) {
-	  return writeCachedJson(key, value, token, 0L);
+	static public JsonObject writeCachedJson(final String realm, final String key, final String value, final String token) {
+	  return writeCachedJson(realm, key, value, token, 0L);
 	}
 	
-	static public JsonObject writeCachedJson(final String key, String value, final String token, long ttl_seconds) {
+	static public JsonObject writeCachedJson(final String realm, final String key, String value, final String token, long ttl_seconds) {
 		if (!(GennySettings.devMode  && cacheInterface instanceof WildflyCacheInterface)/*|| (!GennySettings.isCacheServer)*/) {
 			//log.debug("WRITING USING "+(GennySettings.isCacheServer?" LOCAL DDT":"CLIENT ")+"  "+key);
 
-			cacheInterface.writeCache(key, value, token,ttl_seconds);
+			cacheInterface.writeCache(realm, key, value, token,ttl_seconds);
 		} else {
 			try {
 				log.debug("WRITING TO CACHE USING API! "+key);
@@ -204,7 +205,7 @@ public class VertxUtils {
 		JsonObject ok = new JsonObject().put("status", "ok");
 		return ok;
 
-	}
+}
 	
 	static public void clearDDT()
 	{
