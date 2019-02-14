@@ -11,6 +11,7 @@ import io.vertx.rxjava.ext.web.RoutingContext;
 import io.vertx.rxjava.ext.web.handler.CorsHandler;
 import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.message.QDataBaseEntityMessage;
+import life.genny.qwandautils.GennySettings;
 import life.genny.qwandautils.JsonUtils;
 import life.genny.utils.VertxUtils;
 
@@ -47,9 +48,9 @@ public class RouterHandlers {
 		      else {
 		          // a JsonObject wraps a map and it exposes type-aware getters
 		          String param1 = wifiPayload.getString("key");
-		          System.out.println("CACHE KEY:"+param1);
+		          log.info("CACHE KEY:"+param1);
 		          String param2 = wifiPayload.getString("json");
-		          VertxUtils.writeCachedJson(param1, param2);
+		          VertxUtils.writeCachedJson(GennySettings.dynamicRealm(),param1, param2);
 		         
 		                  JsonObject ret = new JsonObject().put("status", "ok");
 		                  context.request().response().headers().set("Content-Type", "application/json");
@@ -83,7 +84,7 @@ public class RouterHandlers {
 		          log.info("Writing a batch of "+msg.getItems().length+" to cache");
 		          long start = System.nanoTime();
 		          for (BaseEntity be : msg.getItems()) {
-		        	  VertxUtils.writeCachedJson(be.getCode(), JsonUtils.toJson(be));
+		        	  VertxUtils.writeCachedJson(GennySettings.dynamicRealm(),be.getCode(), JsonUtils.toJson(be));
 		          }
 		          long end = System.nanoTime();
 		          double dif = (end - start)/1e6;
@@ -104,7 +105,7 @@ public class RouterHandlers {
 		    final HttpServerRequest req = context.request();
 		    String param1 = req.getParam("param1");
 
-		    JsonObject json = VertxUtils.readCachedJson(param1);
+		    JsonObject json = VertxUtils.readCachedJson(GennySettings.dynamicRealm(),param1);
 		      if (json.getString("status").equals("error")) {
 		        JsonObject err = new JsonObject().put("status", "error");
 		        req.response().headers().set("Content-Type", "application/json");
@@ -119,7 +120,7 @@ public class RouterHandlers {
 		  public static void apiClearGetHandler(final RoutingContext context) {
 			    final HttpServerRequest req = context.request();
 
-			    VertxUtils.clearDDT();
+			    VertxUtils.clearDDT(GennySettings.dynamicRealm());
 				            req.response().headers().set("Content-Type", "application/json");
 			            req.response().end();
 
