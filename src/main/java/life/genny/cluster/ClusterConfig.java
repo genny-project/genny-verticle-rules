@@ -87,7 +87,7 @@ public class ClusterConfig {
 	        }else{
 	            haInst = getHazelcastClientInstance();
 	        }
-			DistMap.registerDataStructure(haInst, GennySettings.mainrealm); // TODO, get all realms
+			DistMap.registerDataStructure(haInst); // TODO, get all realms
 
 			final VertxOptions options = new VertxOptions();
 			final ClusterManager mgr = new HazelcastClusterManager(haInstServer);

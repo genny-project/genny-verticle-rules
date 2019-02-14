@@ -207,22 +207,24 @@ public class VertxUtils {
 
 }
 	
-	static public void clearDDT()
+	static public void clearDDT(final String realm)
 	{
-		cacheInterface.clear();
+		cacheInterface.clear(realm);
 	}
 
-	static public BaseEntity readFromDDT(final String code, final boolean withAttributes, final String token) {
+	static public BaseEntity readFromDDT(final String realm, final String code, final boolean withAttributes, final String token) {
 		BaseEntity be = null;
-		JsonObject json = readCachedJson(code,token);
+
+		JsonObject json = readCachedJson(realm, code,token);
+
 		if ("ok".equals(json.getString("status"))) {
 		    be = JsonUtils.fromJson(json.getString("value"), BaseEntity.class);
 			if (be != null && be.getCode()==null) {
-				log.error("readFromDDT baseEntity has null code! json is ["+json.getString("value")+"]");
+				log.error("readFromDDT baseEntity for realm "+realm+" has null code! json is ["+json.getString("value")+"]");
 			}
 		} else {
 			// fetch normally
-			log.info("Cache MISS for " + code+" with attributes");
+			log.info("Cache MISS for " + code+" with attributes in realm  "+realm);
 			try {
 				if (withAttributes) {
 					be = QwandaUtils.getBaseEntityByCodeWithAttributes(code, token);
@@ -232,12 +234,14 @@ public class VertxUtils {
 			} catch (Exception e) {
 				// Okay, this is bad. Usually the code is not in the database but in keycloak
 				// So lets leave it to the rules to sort out... (new user)
-				log.error("BE " + code + " is NOT IN CACHE OR DB " + e.getLocalizedMessage());
+				log.error("BE " + code + " for realm "+realm+" is NOT IN CACHE OR DB " + e.getLocalizedMessage());
 				return null;
 
 			}
 			if ((cachedEnabled) || (GennySettings.devMode)) {
-              writeCachedJson(code, JsonUtils.toJson(be));
+
+              writeCachedJson(realm, code, JsonUtils.toJson(be));
+
           }
 		}
 		return be;
@@ -245,11 +249,13 @@ public class VertxUtils {
 
 	static boolean cacheDisabled = System.getenv("NO_CACHE") != null ? true : false;
 
-	static public BaseEntity readFromDDT(final String code, final String token) {
+	static public BaseEntity readFromDDT(final String realm, final String code, final String token) {
 		// if ("PER_SHARONCROW66_AT_GMAILCOM".equals(code)) {
 		// System.out.println("DEBUG");
 		// }
-		return readFromDDT(code, true,token);
+
+		return readFromDDT(realm, code, true,token);
+
 }
 
 	static public void subscribeAdmin(final String realm, final String adminUserCode) {

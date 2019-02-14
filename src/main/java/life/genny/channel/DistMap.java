@@ -6,59 +6,53 @@ import life.genny.cluster.ClusterConfig;
 
 public class DistMap {
    
-  private static IMap distBE;
-  private static IMap distPontoonBE;  
+  private static HazelcastInstance instance;	
+  
+
+  public static IMap getMapBaseEntitys(final String realm) {
+	    return  instance.getMap(realm);
+	  }
+
+	
+ 
 
   /**
    * @return the distBE
    */
-  public static IMap getDistBE() {
-    return distBE;
+  public static IMap getDistBE(final String realm) {
+    return getMapBaseEntitys(realm);
   }
 
-  /**
-   * @param distBE the distBE to set
-   */
-  public static void setDistBE(IMap distBE) {
  
-    DistMap.distBE = distBE;
-  }
   
   /**
    * @return the distPontoonBE
    */
-  public static IMap getDistPontoonBE() {
-    return distPontoonBE;
+  public static IMap getDistPontoonBE(final String realm) {
+	  return getMapBaseEntitys("PONTOON:"+realm);
   }
 
-  /**
-   * @param distBE the distPontoonBE to set
-   */
-  public static void setDistPontoonBE(IMap distPontoonBE) {
  
-    DistMap.distPontoonBE = distPontoonBE;
-  }
   
-  public static void registerDataStructure(HazelcastInstance haInst, final String realm) {
-    setDistBE(haInst.getMap(realm));
-    setDistPontoonBE(haInst.getMap("pontoon:"+realm));
-    
+  public static void registerDataStructure(HazelcastInstance haInst) {
+	instance = haInst;
+     
   }
 
-  public static void clear()
+  public static void clear(final String realm)
   {
-	  DistMap.distBE.clear();
-	  DistMap.distPontoonBE.clear();
+	  clearDistBE(realm);
+	  clearDistPontoonBE(realm);
   }
   
-  public static void clearDistBE()
+  public static void clearDistBE(final String realm)
   {
-	  DistMap.distBE.clear();
+	  DistMap.getMapBaseEntitys(realm).clear();
   }
   
-  public static void clearDistPontoonBE()
+  public static void clearDistPontoonBE(final String realm)
   {
-	  DistMap.distPontoonBE.clear();
+	  DistMap.getMapBaseEntitys("PONTOON:"+realm).clear();
   }
   
 }

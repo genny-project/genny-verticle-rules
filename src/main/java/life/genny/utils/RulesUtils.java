@@ -308,8 +308,9 @@ public class RulesUtils {
 		String username = (String) decodedToken.get("preferred_username");
 		String uname = QwandaUtils.getNormalisedUsername(username);
 		String code = "PER_" + uname.toUpperCase();
+		String realm = (String) decodedToken.get("aud"); 
 		// CHEAT TODO
-		BaseEntity be = VertxUtils.readFromDDT(code, token);
+		BaseEntity be = VertxUtils.readFromDDT(realm,code, token);
 		return be;
 	}
 
@@ -455,8 +456,10 @@ public class RulesUtils {
 		// String beJson = getBaseEntityJsonByCode(qwandaServiceUrl, decodedToken,
 		// token, code, true);
 		// BaseEntity be = fromJson(beJson, BaseEntity.class);
+		
+		final String realm = (String) decodedToken.get("aud");
 
-		BaseEntity be = VertxUtils.readFromDDT(code, token);
+		BaseEntity be = VertxUtils.readFromDDT(realm,code, token);
 
 		return be;
 	}
@@ -471,13 +474,7 @@ public class RulesUtils {
 	public static BaseEntity getBaseEntityByCode(final String qwandaServiceUrl, Map<String, Object> decodedToken,
 			final String token, final String code, Boolean includeAttributes) {
 
-		// String beJson = getBaseEntityJsonByCode(qwandaServiceUrl, decodedToken,
-		// token, code, includeAttributes);
-		// BaseEntity be = fromJson(beJson, BaseEntity.class);
-
-		BaseEntity be = VertxUtils.readFromDDT(code, token);
-
-		return be;
+		return getBaseEntityByCode(qwandaServiceUrl, decodedToken, token, code);
 	}
 
 	public static <T> T fromJson(final String json, Class clazz) {
@@ -904,7 +901,9 @@ public class RulesUtils {
 	public static QDataAttributeMessage loadAllAttributesIntoCache(final String token) {
 		try {
 			boolean cacheWorked = false;
-			JsonObject json = VertxUtils.readCachedJson("attributes");
+			final String realm = KeycloakUtils.getRealmFromToken(token);
+
+			JsonObject json = VertxUtils.readCachedJson(realm,"attributes",token);
 			if ("ok".equals(json.getString("status"))) {
 				println("LOADING ATTRIBUTES FROM CACHE!");
 				attributesMsg = JsonUtils.fromJson(json.getString("value"), QDataAttributeMessage.class);
@@ -918,7 +917,7 @@ public class RulesUtils {
 				println("LOADING ATTRIBUTES FROM API");
 				String jsonString = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl + "/qwanda/attributes", token);
 				if (!StringUtils.isBlank(jsonString)) {
-				VertxUtils.writeCachedJson("attributes", jsonString);
+				VertxUtils.writeCachedJson(realm, "attributes", jsonString, token);
 				
 				attributesMsg = JsonUtils.fromJson(jsonString, QDataAttributeMessage.class);
 				Attribute[] attributeArray = attributesMsg.getItems();
