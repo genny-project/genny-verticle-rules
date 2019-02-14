@@ -17,17 +17,7 @@ public class VertxCache implements GennyCacheInterface {
 
 
 	@Override
-<<<<<<< HEAD
-	public Object readCache(String key, String token) {
-//		JSONObject decodedTokenJson = KeycloakUtils.getDecodedToken(token);
-//		String realm = decodedTokenJson.getString("azp");
 
-		return DistMap.getDistBE().get(key);
-	}
-
-	@Override
-	public void writeCache(String key, String value, String token,long ttl_seconds) {
-=======
 	public Object readCache(final String realm, final String key, final String token) {
 //		JSONObject decodedTokenJson = KeycloakUtils.getDecodedToken(token);
 //		String realm = decodedTokenJson.getString("azp");
@@ -37,7 +27,7 @@ public class VertxCache implements GennyCacheInterface {
 
 	@Override
 	public void writeCache(final String realm, final String key, final String value, final String token,long ttl_seconds) {
->>>>>>> remotes/origin/GEN-1451
+
 	//	JSONObject decodedTokenJson = KeycloakUtils.getDecodedToken(token);
 	//	String realm = decodedTokenJson.getString("azp");
 
@@ -61,15 +51,10 @@ public class VertxCache implements GennyCacheInterface {
 	}
 
 	@Override
-<<<<<<< HEAD
-	public void clear() {
-
-		DistMap.clear();
-=======
 	public void clear(final String realm) {
 
 		DistMap.clear(realm);
->>>>>>> remotes/origin/GEN-1451
+
 		
 	}
 
