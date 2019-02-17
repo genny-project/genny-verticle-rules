@@ -186,7 +186,7 @@ public class VertxUtils {
 	}
 	
 	static public JsonObject writeCachedJson(final String realm, final String key, String value, final String token, long ttl_seconds) {
-		if (!(GennySettings.devMode  && cacheInterface instanceof WildflyCacheInterface)/*|| (!GennySettings.isCacheServer)*/) {
+		if (!GennySettings.forceCacheApi) {
 			//log.debug("WRITING USING "+(GennySettings.isCacheServer?" LOCAL DDT":"CLIENT ")+"  "+key);
 
 			cacheInterface.writeCache(realm, key, value, token,ttl_seconds);
@@ -238,7 +238,7 @@ public class VertxUtils {
 				return null;
 
 			}
-			if ((cachedEnabled) || (GennySettings.devMode)) {
+			if (GennySettings.forceCacheApi) {
 
               writeCachedJson(realm, code, JsonUtils.toJson(be));
 
@@ -251,7 +251,7 @@ public class VertxUtils {
 
 	static public BaseEntity readFromDDT(final String realm, final String code, final String token) {
 		// if ("PER_SHARONCROW66_AT_GMAILCOM".equals(code)) {
-		// System.out.println("DEBUG");
+		// log.info("DEBUG");
 		// }
 
 		return readFromDDT(realm, code, true,token);
@@ -394,7 +394,7 @@ public class VertxUtils {
 	}
 
 	public static void putMessageProducer(String sessionState, MessageProducer<JsonObject> toSessionChannel) {
-		System.out.println("Registering SessionChannel to "+sessionState);
+		log.info("Registering SessionChannel to "+sessionState);
 		localMessageProducerCache.put(sessionState, toSessionChannel);
 
 	}
@@ -413,18 +413,18 @@ public class VertxUtils {
 	
 	static public JsonObject publish(BaseEntity user, String channel, Object payload, final String[] filterAttributes) {
 		
-		if (!(GennySettings.devMode  && cacheInterface instanceof WildflyCacheInterface)/*|| (!GennySettings.isCacheServer)*/) {
+		if (!GennySettings.forceEventBusApi) {
 			eb.publish(user, channel, payload, filterAttributes);
 		} else {
 			try {
 				
 				String jsonMsg = (String)payload;
-				String bridgeApi = System.getenv("REACT_APP_VERTX_SERVICE_API");
-				log.debug("WRITING TO EVENTBUS USING API! "+bridgeApi);
+	
+				log.info("WRITING TO EVENTBUS USING API! "+GennySettings.bridgeServiceUrl);
 				JsonObject jsonJson = new JsonObject(jsonMsg);
 				//log.info("token="+jsonJson.getString("token"));
 				//log.info("jsonMsg="+jsonMsg);
-				QwandaUtils.apiPostEntity(bridgeApi, jsonMsg, jsonJson.getString("token"));
+				QwandaUtils.apiPostEntity(GennySettings.bridgeServiceUrl, jsonMsg, jsonJson.getString("token"));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -489,7 +489,7 @@ public class VertxUtils {
 	static public BaseEntity privacyFilter(BaseEntity user, BaseEntity be, final String[] filterAttributes) {
 		Set<EntityAttribute> allowedAttributes = new HashSet<EntityAttribute>();
 		for (EntityAttribute entityAttribute : be.getBaseEntityAttributes()) {
-			// System.out.println("ATTRIBUTE:"+entityAttribute.getAttributeCode()+(entityAttribute.getPrivacyFlag()?"PRIVACYFLAG=TRUE":"PRIVACYFLAG=FALSE"));
+			// log.info("ATTRIBUTE:"+entityAttribute.getAttributeCode()+(entityAttribute.getPrivacyFlag()?"PRIVACYFLAG=TRUE":"PRIVACYFLAG=FALSE"));
 			if ((be.getCode().startsWith("PER_")) && (!be.getCode().equals(user.getCode()))) {
 				String attributeCode = entityAttribute.getAttributeCode();
 
