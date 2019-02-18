@@ -142,11 +142,12 @@ public class VertxUtils {
 		return readCachedJson(realm, key, DEFAULT_TOKEN);
 	}
 
-	static public JsonObject readCachedJson(final String realm, final String key, final String token) {
+	static public JsonObject readCachedJson(String realm, final String key, final String token) {
 		JsonObject result = null;
-
+		// HACK TODO
+		realm = "genny";
 		
-		if (!(GennySettings.devMode  && cacheInterface instanceof WildflyCacheInterface)/*|| (!GennySettings.isCacheServer)*/) {
+		if (!GennySettings.forceCacheApi) {
 			String ret = null;
 			JsonObject retj = null;
 			try {
@@ -185,7 +186,9 @@ public class VertxUtils {
 	  return writeCachedJson(realm, key, value, token, 0L);
 	}
 	
-	static public JsonObject writeCachedJson(final String realm, final String key, String value, final String token, long ttl_seconds) {
+	static public JsonObject writeCachedJson(String realm, final String key, String value, final String token, long ttl_seconds) {
+		// HACK TODO
+		realm = "genny";
 		if (!GennySettings.forceCacheApi) {
 			//log.debug("WRITING USING "+(GennySettings.isCacheServer?" LOCAL DDT":"CLIENT ")+"  "+key);
 
@@ -207,14 +210,19 @@ public class VertxUtils {
 
 }
 	
-	static public void clearDDT(final String realm)
+	static public void clearDDT(String realm)
 	{
+		// HACK TODO
+		realm = "genny";
 		cacheInterface.clear(realm);
 	}
 
-	static public BaseEntity readFromDDT(final String realm, final String code, final boolean withAttributes, final String token) {
+	static public BaseEntity readFromDDT(String realm, final String code, final boolean withAttributes, final String token) {
 		BaseEntity be = null;
 
+		// HACK TODO
+		realm = "genny";
+		
 		JsonObject json = readCachedJson(realm, code,token);
 
 		if ("ok".equals(json.getString("status"))) {
@@ -238,11 +246,8 @@ public class VertxUtils {
 				return null;
 
 			}
-			if (GennySettings.forceCacheApi) {
+             writeCachedJson(realm, code, JsonUtils.toJson(be));
 
-              writeCachedJson(realm, code, JsonUtils.toJson(be));
-
-          }
 		}
 		return be;
 	}
