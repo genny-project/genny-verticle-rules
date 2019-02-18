@@ -1433,7 +1433,7 @@ public class BaseEntityUtils {
 					beData = beLayout.findEntityAttribute("PRI_LAYOUT_DATA").get().getAsString().trim();
 				}
 				
-				if (true/*!layout.getData().trim().equals(beData)*/
+				if (!layout.getData().trim().equals(beData)
 						
 						) {
 					log.info("Resaving layout: " + layoutCode);
