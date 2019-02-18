@@ -98,7 +98,7 @@ public class VertxUtils {
 	static public <T> T getObject(final String realm, final String keyPrefix, final String key, final Class clazz,
 			final String token) {
 		T item = null;
-		JsonObject json = readCachedJson(realm + ":" + keyPrefix + ":" + key, token);
+		JsonObject json = readCachedJson(realm,keyPrefix + ":" + key, token);
 		if (json.getString("status").equalsIgnoreCase("ok")) {
 		  String data = json.getString("value");
 		  item = (T) JsonUtils.fromJson(data, clazz);
@@ -116,7 +116,7 @@ public class VertxUtils {
 	static public <T> T getObject(final String realm, final String keyPrefix, final String key, final Type clazz,
 			final String token) {
 		T item = null;
-		JsonObject json = readCachedJson(realm + ":" + keyPrefix + ":" + key, token);
+		JsonObject json = readCachedJson(realm,keyPrefix + ":" + key, token);
 		if (json.getString("status").equalsIgnoreCase("ok")) {
 		  String data = json.getString("value");
           item = (T) JsonUtils.fromJson(data, clazz);

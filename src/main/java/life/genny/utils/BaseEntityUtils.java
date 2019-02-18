@@ -1433,7 +1433,7 @@ public class BaseEntityUtils {
 					beData = beLayout.findEntityAttribute("PRI_LAYOUT_DATA").get().getAsString().trim();
 				}
 				
-				if (!layout.getData().trim().equals(beData)
+				if (!GennySettings.disableLayoutLoading && (!layout.getData().trim().equals(beData))
 						
 						) {
 					log.info("Resaving layout: " + layoutCode);

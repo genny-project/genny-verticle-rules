@@ -100,12 +100,33 @@ public class RouterHandlers {
 		    
 
 }
+	
+	  public static void apiMapGetHandlerRealm(final RoutingContext context) {
+		    final HttpServerRequest req = context.request();
+		    String param1 = req.getParam("param1");
+		    String realm = req.getParam("realm");
+		    JsonObject json = null;
+		    
+		    json = VertxUtils.readCachedJson(realm,param1);
+		      if (json.getString("status").equals("error")) {
+		        JsonObject err = new JsonObject().put("status", "error");
+		        req.response().headers().set("Content-Type", "application/json");
+		        req.response().end(err.encode());
+		      } else {
+		            req.response().headers().set("Content-Type", "application/json");
+		            req.response().end(json.encode());
+		          }
+
+		  }
+
 	 
 		  public static void apiMapGetHandler(final RoutingContext context) {
 		    final HttpServerRequest req = context.request();
 		    String param1 = req.getParam("param1");
 
-		    JsonObject json = VertxUtils.readCachedJson(GennySettings.dynamicRealm(),param1);
+		    JsonObject json = null;
+		    
+		    json = VertxUtils.readCachedJson(GennySettings.dynamicRealm(),param1);
 		      if (json.getString("status").equals("error")) {
 		        JsonObject err = new JsonObject().put("status", "error");
 		        req.response().headers().set("Content-Type", "application/json");
