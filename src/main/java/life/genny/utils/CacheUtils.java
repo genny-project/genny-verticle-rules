@@ -13,6 +13,7 @@ import life.genny.qwanda.entity.SearchEntity;
 import life.genny.qwanda.message.QBulkMessage;
 import life.genny.qwanda.message.QDataBaseEntityMessage;
 import life.genny.qwandautils.JsonUtils;
+import life.genny.qwandautils.KeycloakUtils;
 import life.genny.qwandautils.QwandaUtils;
 
 
@@ -236,7 +237,7 @@ public class CacheUtils {
 			if(targetEntity != null) {
 
 				String json = JsonUtils.toJson(targetEntity);
-				VertxUtils.writeCachedJson(targetCode, json);
+				VertxUtils.writeCachedJson(this.realm,targetCode, json);
 			}
 		}
 		catch (IOException e) {
@@ -469,7 +470,7 @@ public class CacheUtils {
 					List<QDataBaseEntityMessage> messages = new ArrayList<>();
 					messages.addAll(Arrays.asList(currentItemMessages.getMessages()));
 
-					BaseEntity parentMessage = VertxUtils.readFromDDT(message.getCode(), true, token);
+					BaseEntity parentMessage = VertxUtils.readFromDDT(realm,message.getCode(), true, token);
 					QDataBaseEntityMessage currentMessageParent = new QDataBaseEntityMessage(parentMessage);
 					messages.add(currentMessageParent);
 
@@ -623,7 +624,7 @@ public class CacheUtils {
 					for (int i = 0; i < message.getItems().length; i++) {
 
 						BaseEntity item = message.getItems()[i];
-						BaseEntity be = VertxUtils.readFromDDT(item.getCode(), true, token);
+						BaseEntity be = VertxUtils.readFromDDT(this.realm,item.getCode(), true, token);
 						String itemCode = be.getCode();
 
 						/* if the BE is a user */
@@ -696,7 +697,7 @@ public class CacheUtils {
 
 							if(begCode != null) {
 
-								BaseEntity beg = VertxUtils.readFromDDT(begCode, true, token);
+								BaseEntity beg = VertxUtils.readFromDDT(this.realm,begCode, true, token);
 
 								if(beg != null) {
 
@@ -781,13 +782,15 @@ public class CacheUtils {
 		}
 
 		List<BaseEntity> result = new ArrayList<BaseEntity>();
+		
+		final String realm = KeycloakUtils.getRealmFromToken(token);
 
-		BaseEntity parent = VertxUtils.readFromDDT(beCode, token);
+		BaseEntity parent = VertxUtils.readFromDDT(realm, beCode, token);
 		result.add(parent);
 
 		for (EntityEntity ee : parent.getLinks()) {
 			String childCode = ee.getLink().getTargetCode();
-			BaseEntity child = VertxUtils.readFromDDT(childCode, token);
+			BaseEntity child = VertxUtils.readFromDDT(realm, childCode, token);
 			result.add(child);
 		}
 
@@ -800,14 +803,16 @@ public class CacheUtils {
 			return null; // exit point;
 		}
 
+		final String realm = KeycloakUtils.getRealmFromToken(token);
+
 		List<BaseEntity> result = new ArrayList<BaseEntity>();
 
-		BaseEntity parent = VertxUtils.readFromDDT(beCode, token);
+		BaseEntity parent = VertxUtils.readFromDDT(realm,beCode, token);
 
 		if (parent != null) {
 			for (EntityEntity ee : parent.getLinks()) {
 				String childCode = ee.getLink().getTargetCode();
-				BaseEntity child = VertxUtils.readFromDDT(childCode, token);
+				BaseEntity child = VertxUtils.readFromDDT(realm, childCode, token);
 				result.add(child);
 			}
 		}
