@@ -47,19 +47,19 @@ public class ClusterConfig {
 		eb.setReconnectInterval(5);
 
 		if (GennySettings.devMode) {
-			System.out.println("IN DEV MODE on "+GennySettings.defaultLocalIP);
+			log.info("IN DEV MODE on "+GennySettings.defaultLocalIP);
 			eb.setClusterPublicHost(GennySettings.defaultLocalIP);
 			eb.setHost(GennySettings.defaultLocalIP);
 
 		} else {
-			System.out.println("NOT IN DEV MODE , MYIP=[" + GennySettings.myIP + "]");
+			log.info("NOT IN DEV MODE , MYIP=[" + GennySettings.myIP + "]");
 			if (!GennySettings.defaultLocalIP.equalsIgnoreCase(GennySettings.hostIP)) {
-				System.out.println("Production Mode");
+				log.info("Production Mode");
 				if (GennySettings.hostIP != null) {
 					eb.setPort(portEBCluster).setHost(GennySettings.myIP);
 				}
 			} else {
-				System.out.println("Local Docker Mode");
+				log.info("Local Docker Mode");
 				eb.setPort(portEBCluster);
 				eb.setHost(GennySettings.myIP);
 			}

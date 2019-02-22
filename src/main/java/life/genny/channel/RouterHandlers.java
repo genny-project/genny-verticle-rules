@@ -2,6 +2,7 @@ package life.genny.channel;
 
 import java.lang.invoke.MethodHandles;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 
 import io.vertx.core.http.HttpMethod;
@@ -126,6 +127,8 @@ public class RouterHandlers {
 
 		    JsonObject json = null;
 		    
+		    if (StringUtils.isBlank(param1)) {
+		    	param1 = param1.toUpperCase();
 		    json = VertxUtils.readCachedJson(GennySettings.dynamicRealm(),param1);
 		      if (json.getString("status").equals("error")) {
 		        JsonObject err = new JsonObject().put("status", "error");
@@ -136,6 +139,9 @@ public class RouterHandlers {
 		            req.response().end(json.encode());
 		          }
 
+		    }
+		    req.response().headers().set("Content-Type", "application/json");
+		    req.response().end();
 		  }
 
 		  public static void apiClearGetHandler(final RoutingContext context) {
