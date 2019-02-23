@@ -139,9 +139,10 @@ public class RouterHandlers {
 		            req.response().end(json.encode());
 		          }
 
+		    } else {
+		    	req.response().headers().set("Content-Type", "application/json");
+		    	req.response().end();
 		    }
-		    req.response().headers().set("Content-Type", "application/json");
-		    req.response().end();
 		  }
 
 		  public static void apiClearGetHandler(final RoutingContext context) {
