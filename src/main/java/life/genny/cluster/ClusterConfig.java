@@ -101,9 +101,11 @@ public class ClusterConfig {
 				options.setBlockedThreadCheckInterval(1000000000L * 600);
 				options.setMaxWorkerExecuteTime(1000000000L * 600);
 			} else {
-				options.setBlockedThreadCheckInterval(1000);
-				options.setMaxEventLoopExecuteTime(2000000000L);
+				options.setBlockedThreadCheckInterval(100000L);
+				options.setMaxEventLoopExecuteTime(200000000L);
 				options.setMaxWorkerExecuteTime(60000000000L);
+
+
 			}
 
 			options.setEventLoopPoolSize(16);

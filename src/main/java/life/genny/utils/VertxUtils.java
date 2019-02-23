@@ -167,10 +167,15 @@ public class VertxUtils {
 			try {
 				//log.info("VERTX READING  FROM CACHE API!");
 				resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/" + key, token);
-				result = new JsonObject(resultStr);
+				if (resultStr != null) {
+					result = new JsonObject().put("status", "ok").put("value", resultStr);
+				} else { 
+					result = new JsonObject().put("status", "error").put("value", resultStr);
+				}
+
+//				result = new JsonObject(resultStr);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("Could not read "+key+" from cache");
 			}
 
 		}

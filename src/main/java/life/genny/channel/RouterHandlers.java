@@ -127,7 +127,7 @@ public class RouterHandlers {
 
 		    JsonObject json = null;
 		    
-		    if (StringUtils.isBlank(param1)) {
+		    if (!StringUtils.isBlank(param1)) {
 		    	param1 = param1.toUpperCase();
 		    json = VertxUtils.readCachedJson(GennySettings.dynamicRealm(),param1);
 		      if (json.getString("status").equals("error")) {
