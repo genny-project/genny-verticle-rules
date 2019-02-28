@@ -415,7 +415,7 @@ public class LayoutUtils {
 			Link newLink = new Link(frameCode, questionGroupCode, "LNK_ASK", position.toString());
 
 			/* we create the entity entity */
-			EntityQuestion newEntityLink = new EntityQuestion();
+			EntityQuestion newEntityLink = new EntityQuestion(newLink);
 
 			/* we create the set */
 			Set<EntityQuestion> entityQuestions = new HashSet<>();
