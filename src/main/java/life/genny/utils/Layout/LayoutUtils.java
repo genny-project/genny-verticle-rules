@@ -8,7 +8,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -24,6 +26,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import life.genny.qwanda.Answer;
 import life.genny.qwanda.Layout;
+import life.genny.qwanda.Link;
 import life.genny.qwanda.attribute.Attribute;
 import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.message.QBulkMessage;
@@ -33,6 +36,8 @@ import life.genny.qwandautils.QwandaUtils;
 import life.genny.utils.BaseEntityUtils;
 import life.genny.utils.RulesUtils;
 import life.genny.utils.VertxUtils;
+import life.genny.utils.CacheUtils;
+import life.genny.utils.Layout.LayoutPosition;
 
 import life.genny.qwanda.message.QCmdLayoutMessage;
 import life.genny.qwanda.message.QCmdMessage;
@@ -42,6 +47,8 @@ import life.genny.qwanda.message.QCmdViewMessage;
 import life.genny.qwanda.message.QCmdViewTableMessage;
 import life.genny.qwanda.message.QCmdTableMessage;
 import life.genny.qwanda.message.QCmdViewMessageAction;
+
+import life.genny.qwanda.entity.EntityQuestion;
 
 public class LayoutUtils {
 
@@ -133,9 +140,6 @@ public class LayoutUtils {
 							/* we get the download_url of the current file */
 							String download_url = sublayoutData.getString("path");
 							String file_path = download_url.replace(realmCode + "/", "");
-
-							System.out.println("-----------------------------------");
-							System.out.println(file_path);
 
 							/* if we have found a file we serialize it */
 							if (file_path.endsWith(".json")) {
@@ -394,5 +398,39 @@ public class LayoutUtils {
 			return viewCmd;
 		}
 		}
+	}
+
+	public QDataBaseEntityMessage showQuestionsInFrame(String frameCode, String questionGroupCode, LayoutPosition position) {
+
+		/* create base entity message */
+		QDataBaseEntityMessage message = new QDataBaseEntityMessage();
+
+		/* first we get the frame base entity */
+		BaseEntity frame = CacheUtils.getBaseEntity(frameCode, this.token);
+
+		/* if the base entity exists */
+		if(frame != null) {
+
+			/* we create the link */
+			Link newLink = new Link(frameCode, questionGroupCode, "LNK_ASK", position.toString());
+
+			/* we create the entity entity */
+			EntityQuestion newEntityLink = new EntityQuestion();
+
+			/* we create the set */
+			Set<EntityQuestion> entityQuestions = new HashSet<>();
+
+			/* we add the question to the set */
+			entityQuestions.add(newEntityLink);
+
+			/* add this link to the base entity */
+			frame.setQuestions(entityQuestions);
+
+			/* add the base entity to the message */
+			message.add(frame);
+		}
+
+		/* return the message */
+		return message;
 	}
 }
