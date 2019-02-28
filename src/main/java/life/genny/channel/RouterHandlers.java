@@ -4,9 +4,11 @@ import java.lang.invoke.MethodHandles;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONException;
 
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
+import io.vertx.rxjava.core.MultiMap;
 import io.vertx.rxjava.core.http.HttpServerRequest;
 import io.vertx.rxjava.ext.web.RoutingContext;
 import io.vertx.rxjava.ext.web.handler.CorsHandler;
@@ -14,6 +16,7 @@ import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.message.QDataBaseEntityMessage;
 import life.genny.qwandautils.GennySettings;
 import life.genny.qwandautils.JsonUtils;
+import life.genny.qwandautils.KeycloakUtils;
 import life.genny.utils.VertxUtils;
 
 
@@ -35,9 +38,12 @@ public class RouterHandlers {
 
 	 public static void apiMapPutHandler(final RoutingContext context) {
 		    
-		    
+	    
 		    //handle the body here and assign it to wifiPayload to process the data 
 		    final HttpServerRequest req = context.request().bodyHandler(boddy -> {
+		    	String realm = GennySettings.mainrealm;
+				String token = context.request().getParam("token");
+
 		   //   log.info(boddy.toJsonObject());
 		    	  JsonObject wifiPayload = boddy.toJsonObject();
 		      if (wifiPayload == null) {
@@ -49,9 +55,22 @@ public class RouterHandlers {
 		      else {
 		          // a JsonObject wraps a map and it exposes type-aware getters
 		          String param1 = wifiPayload.getString("key");
-		          log.info("CACHE KEY:"+param1);
+					if (token == null) {
+						MultiMap headerMap = context.request().headers();
+						token = headerMap.get("Authorization");
+						if (token == null) {
+							log.error("NULL TOKEN!");
+						} else {
+							token = token.substring(7); // To remove initial [Bearer ]
+						}
+					} 
+					
+				
+					realm = KeycloakUtils.getDecodedToken(token).getString("azp");
+
+		         
 		          String param2 = wifiPayload.getString("json");
-		          VertxUtils.writeCachedJson(GennySettings.dynamicRealm(),param1, param2);
+		          VertxUtils.writeCachedJson(realm,param1, param2);
 		         
 		                  JsonObject ret = new JsonObject().put("status", "ok");
 		                  context.request().response().headers().set("Content-Type", "application/json");
@@ -70,6 +89,9 @@ public class RouterHandlers {
 		    
 		    //handle the body here and assign it to wifiPayload to process the data 
 		    final HttpServerRequest req = context.request().bodyHandler(boddy -> {
+		    	String realm = GennySettings.mainrealm;
+				String token = context.request().getParam("token");
+
 		   //   log.info(boddy.toJsonObject());
 		    	  JsonObject wifiPayload = boddy.toJsonObject();
 		      if (wifiPayload == null) {
@@ -83,6 +105,17 @@ public class RouterHandlers {
 		          String param2 = wifiPayload.getString("json");
 		          QDataBaseEntityMessage msg = JsonUtils.fromJson(param2,QDataBaseEntityMessage.class);
 		          log.info("Writing a batch of "+msg.getItems().length+" to cache");
+					if (token == null) {
+						MultiMap headerMap = context.request().headers();
+						token = headerMap.get("Authorization");
+						if (token == null) {
+							log.error("NULL TOKEN!");
+						} else {
+							token = token.substring(7); // To remove initial [Bearer ]
+						}
+					} 
+					realm = KeycloakUtils.getDecodedToken(token).getString("azp");
+
 		          long start = System.nanoTime();
 		          for (BaseEntity be : msg.getItems()) {
 		        	  VertxUtils.writeCachedJson(GennySettings.dynamicRealm(),be.getCode(), JsonUtils.toJson(be));
@@ -124,12 +157,33 @@ public class RouterHandlers {
 		  public static void apiMapGetHandler(final RoutingContext context) {
 		    final HttpServerRequest req = context.request();
 		    String param1 = req.getParam("param1");
+	    	String realm = GennySettings.mainrealm;
+			String token = context.request().getParam("token");
+
 
 		    JsonObject json = null;
 		    
 		    if (!StringUtils.isBlank(param1)) {
 		    	param1 = param1.toUpperCase();
-		    json = VertxUtils.readCachedJson(GennySettings.dynamicRealm(),param1);
+				if (token == null) {
+					MultiMap headerMap = context.request().headers();
+					token = headerMap.get("Authorization");
+					if (token == null) {
+						log.error("NULL TOKEN!");
+					} else {
+						token = token.substring(7); // To remove initial [Bearer ]
+					}
+					
+				} 
+				try {
+					 log.info("Cache read token = "+token);
+					realm = KeycloakUtils.getDecodedToken(token).getString("azp");
+				} catch (JSONException  | NullPointerException e) {  // TODO, should always be a token ....
+					log.error("token not decoded:["+token+"]");
+					realm = GennySettings.mainrealm;
+				}
+
+		    json = VertxUtils.readCachedJson(realm,param1);
 		      if (json.getString("status").equals("error")) {
 		        JsonObject err = new JsonObject().put("status", "error");
 		        req.response().headers().set("Content-Type", "application/json");
