@@ -775,6 +775,18 @@ public class CacheUtils {
 		return ret;
 	}
 
+	public static BaseEntity getBaseEntity(String beCode, String token) {
+
+		/* get realm from token */
+		final String realm = KeycloakUtils.getRealmFromToken(token);
+
+		/* get base entity */
+		BaseEntity parent = VertxUtils.readFromDDT(realm, beCode, token);
+
+		/* return parent */
+		return parent;
+	}
+
 	public static List<BaseEntity> getBaseEntityWithChildren(String beCode, Integer level, String token) {
 
 		if (level == 0) {
