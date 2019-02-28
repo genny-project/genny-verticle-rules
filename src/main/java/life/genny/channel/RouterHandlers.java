@@ -38,7 +38,7 @@ public class RouterHandlers {
 		    
 		    //handle the body here and assign it to wifiPayload to process the data 
 		    final HttpServerRequest req = context.request().bodyHandler(boddy -> {
-		   //   System.out.println(boddy.toJsonObject());
+		   //   log.info(boddy.toJsonObject());
 		    	  JsonObject wifiPayload = boddy.toJsonObject();
 		      if (wifiPayload == null) {
 		    	  context.request().response().headers().set("Content-Type", "application/json");
@@ -70,7 +70,7 @@ public class RouterHandlers {
 		    
 		    //handle the body here and assign it to wifiPayload to process the data 
 		    final HttpServerRequest req = context.request().bodyHandler(boddy -> {
-		   //   System.out.println(boddy.toJsonObject());
+		   //   log.info(boddy.toJsonObject());
 		    	  JsonObject wifiPayload = boddy.toJsonObject();
 		      if (wifiPayload == null) {
 		    	  context.request().response().headers().set("Content-Type", "application/json");

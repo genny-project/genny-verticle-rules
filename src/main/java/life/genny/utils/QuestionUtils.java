@@ -72,10 +72,10 @@ public class QuestionUtils {
 			}			
 		} 
 		catch (ClientProtocolException e) {
-			System.out.println(e.getMessage());
+			log.info(e.getMessage());
 		} 
 		catch (IOException e) {
-			System.out.println(e.getMessage());
+			log.info(e.getMessage());
 		}
 
 		return null;
@@ -153,7 +153,7 @@ public class QuestionUtils {
 
 		}
 		catch (Exception e) {
-			System.out.println("Ask questions exception: ");
+			log.info("Ask questions exception: ");
 			e.printStackTrace();
 			return null;
 		}
@@ -168,7 +168,7 @@ public class QuestionUtils {
 					Ask[] childAskArr = ask.getChildAsks();
 					if(childAskArr != null && childAskArr.length > 0) {
 						for(Ask childAsk : childAskArr) {
-							System.out.println("child ask code :: "+childAsk.getAttributeCode() + ", child ask name :: "+childAsk.getName());
+							log.info("child ask code :: "+childAsk.getAttributeCode() + ", child ask name :: "+childAsk.getName());
 							if(childAsk.getAttributeCode().equals(questionAttributeCode)) {
 								if(customTemporaryQuestion != null) {
 									childAsk.getQuestion().setName(customTemporaryQuestion);
