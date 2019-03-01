@@ -66,9 +66,19 @@ public class RouterHandlers {
 					} 
 					
 				
-					realm = KeycloakUtils.getDecodedToken(token).getString("azp");
+					try {
+						realm = KeycloakUtils.getDecodedToken(token).getString("azp");
+					} catch (JSONException  | NullPointerException e) {  // TODO, should always be a token ....
+						realm = GennySettings.mainrealm;
+						log.error("token not decoded:["+token+"] using realm "+realm+" and key "+param1);
+						
+					}
 
-		         
+					// TODO hack
+					if ("genny".equalsIgnoreCase(realm)) {
+						realm = GennySettings.mainrealm;
+					}
+	         
 		          String param2 = wifiPayload.getString("json");
 		          VertxUtils.writeCachedJson(realm,param1, param2);
 		         
@@ -114,11 +124,23 @@ public class RouterHandlers {
 							token = token.substring(7); // To remove initial [Bearer ]
 						}
 					} 
-					realm = KeycloakUtils.getDecodedToken(token).getString("azp");
+					try {
+						realm = KeycloakUtils.getDecodedToken(token).getString("azp");
+					} catch (JSONException  | NullPointerException e) {  // TODO, should always be a token ....
+						realm = GennySettings.mainrealm;
+						log.error("token not decoded:["+token+"] using realm "+realm);
+						
+					}
 
+					// TODO hack
+					if ("genny".equalsIgnoreCase(realm)) {
+						realm = GennySettings.mainrealm;
+					}
+	
+					
 		          long start = System.nanoTime();
 		          for (BaseEntity be : msg.getItems()) {
-		        	  VertxUtils.writeCachedJson(GennySettings.dynamicRealm(),be.getCode(), JsonUtils.toJson(be));
+		        	  VertxUtils.writeCachedJson(realm,be.getCode(), JsonUtils.toJson(be));
 		          }
 		          long end = System.nanoTime();
 		          double dif = (end - start)/1e6;
@@ -179,10 +201,16 @@ public class RouterHandlers {
 					 log.info("Cache read token = "+token);
 					realm = KeycloakUtils.getDecodedToken(token).getString("azp");
 				} catch (JSONException  | NullPointerException e) {  // TODO, should always be a token ....
-					log.error("token not decoded:["+token+"]");
 					realm = GennySettings.mainrealm;
+					log.error("token not decoded:["+token+"] using realm "+realm+" and parm "+param1);
+					
 				}
 
+				// TODO hack
+				if ("genny".equalsIgnoreCase(realm)) {
+					realm = GennySettings.mainrealm;
+				}
+				
 		    json = VertxUtils.readCachedJson(realm,param1);
 		      if (json.getString("status").equals("error")) {
 		        JsonObject err = new JsonObject().put("status", "error");
