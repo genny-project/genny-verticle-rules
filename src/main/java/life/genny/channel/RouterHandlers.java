@@ -159,7 +159,7 @@ public class RouterHandlers {
 	
 	  public static void apiMapGetHandlerRealm(final RoutingContext context) {
 		    final HttpServerRequest req = context.request();
-		    String param1 = req.getParam("param1");
+		    String param1 = req.getParam("param1").toUpperCase();
 		    String realm = req.getParam("realm");
 		    JsonObject json = null;
 		    
