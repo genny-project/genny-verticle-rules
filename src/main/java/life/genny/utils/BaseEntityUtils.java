@@ -1420,10 +1420,12 @@ public class BaseEntityUtils {
 
 				/* download the content of the layout */
 				String content = LayoutUtils.downloadLayoutContent(layout);
+				int existingLayoutHashcode=layout.getData().trim().hashCode();
+				int contentHashcode = content.trim().hashCode();
 
-				log.debug("layout.getData().hashcode()="+layout.getData().trim().hashCode());
+				log.debug("layout.getData().hashcode()="+existingLayoutHashcode);
 
-				log.debug("content.hashcode()="+content.trim().hashCode());
+				log.debug("content.hashcode()="+contentHashcode);
 
 
 				Optional<EntityAttribute> primaryLayoutData = beLayout.findEntityAttribute("PRI_LAYOUT_DATA");
@@ -1433,9 +1435,9 @@ public class BaseEntityUtils {
 					beData = beLayout.findEntityAttribute("PRI_LAYOUT_DATA").get().getAsString().trim();
 				}
 				
-				if (!GennySettings.disableLayoutLoading && (!layout.getData().trim().equals(beData))
+				if (true/*!GennySettings.disableLayoutLoading && (existingLayoutHashcode != contentHashcode)*/)
 						
-						) {
+						 {
 					log.info("Resaving layout: " + layoutCode);
 
 
@@ -1461,7 +1463,7 @@ public class BaseEntityUtils {
 						layout.getModifiedDate());
 				answers.add(newAnswer4);
 
-				this.saveAnswers(answers);
+				this.saveAnswers(answers,false);  // No change events required
 
 				/* create link between GRP_LAYOUTS and this new LAY_XX base entity */
 				this.createLink("GRP_LAYOUTS", beLayout.getCode(), "LNK_CORE", "LAYOUT", 1.0);
