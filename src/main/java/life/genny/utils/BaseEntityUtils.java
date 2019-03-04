@@ -1435,7 +1435,7 @@ public class BaseEntityUtils {
 					beData = beLayout.findEntityAttribute("PRI_LAYOUT_DATA").get().getAsString().trim();
 				}
 				
-				if (!GennySettings.disableLayoutLoading && (existingLayoutHashcode != contentHashcode))
+				if (!GennySettings.disableLayoutLoading && (true /*existingLayoutHashcode != contentHashcode*/))
 						
 						 {
 					log.info("Resaving layout: " + layoutCode);
@@ -1444,7 +1444,7 @@ public class BaseEntityUtils {
 				Answer newAnswerContent = new Answer(beLayout.getCode(), beLayout.getCode(), "PRI_LAYOUT_DATA",
 						content);
 
-				newAnswerContent.setChangeEvent(true);
+				newAnswerContent.setChangeEvent(false);
 				answers.add(newAnswerContent);
 
 				Answer newAnswer = new Answer(beLayout.getCode(), beLayout.getCode(), "PRI_LAYOUT_URI",
