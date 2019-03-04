@@ -169,6 +169,9 @@ public class RouterHandlers {
 		        req.response().headers().set("Content-Type", "application/json");
 		        req.response().end(err.encode());
 		      } else {
+		    	    JsonObject valueJson = new JsonObject(json.getString("value"));
+		    	    json.put("value", valueJson);
+
 		            req.response().headers().set("Content-Type", "application/json");
 		            req.response().end(json.encode());
 		          }
@@ -217,6 +220,8 @@ public class RouterHandlers {
 		        req.response().headers().set("Content-Type", "application/json");
 		        req.response().end(err.encode());
 		      } else {
+		    	    JsonObject valueJson = new JsonObject(json.getString("value"));
+		    	    json.put("value", valueJson);
 		            req.response().headers().set("Content-Type", "application/json");
 		            req.response().end(json.encode());
 		          }

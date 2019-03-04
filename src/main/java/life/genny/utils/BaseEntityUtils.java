@@ -1374,7 +1374,7 @@ public class BaseEntityUtils {
 			log.info("Layout - Handling " + layoutCode);
 			try {
 				// Check if in cache first to save time.
-				beLayout = VertxUtils.readFromDDT(getRealm(),layoutCode, serviceToken);
+				beLayout = VertxUtils.readFromDDT(realm,layoutCode, serviceToken);
 				if (beLayout==null) {
 					beLayout = QwandaUtils.getBaseEntityByCode(layoutCode, serviceToken);
 					if (beLayout != null) {
