@@ -1372,19 +1372,19 @@ public class BaseEntityUtils {
 			String layoutCode = ("LAY_" + realm + "_" + precode).toUpperCase();
 
 			log.info("Layout - Handling " + layoutCode);
-			try {
+//			try {
 				// Check if in cache first to save time.
 				beLayout = VertxUtils.readFromDDT(realm,layoutCode, serviceToken);
-				if (beLayout==null) {
-					beLayout = QwandaUtils.getBaseEntityByCode(layoutCode, serviceToken);
-					if (beLayout != null) {
-						VertxUtils.writeCachedJson(layoutCode, JsonUtils.toJson(beLayout), serviceToken);
-					}
-				}
+//				if (beLayout==null) {
+//					beLayout = QwandaUtils.getBaseEntityByCode(layoutCode, serviceToken);
+//					if (beLayout != null) {
+//						VertxUtils.writeCachedJson(layoutCode, JsonUtils.toJson(beLayout), serviceToken);
+//					}
+//				}
 
-			} catch (IOException e) {
-				log.error(e.getMessage());
-			}
+//			} catch (IOException e) {
+//				log.error(e.getMessage());
+//			}
 
 			/* if the base entity does not exist, we create it */
 			if (beLayout == null) {
@@ -1395,13 +1395,13 @@ public class BaseEntityUtils {
 				beLayout = this.create(layoutCode, layout.getName());
 			}
 
-			if (beLayout != null) {
-
-				log.info("Layout - Creating base entity " + layoutCode);
-
-				/* otherwise we create it */
-				beLayout = this.create(layoutCode, layout.getName());
-			}
+//			if (beLayout != null) {
+//
+//				log.info("Layout - Creating base entity " + layoutCode);
+//
+//				/* otherwise we create it */
+//				beLayout = this.create(layoutCode, layout.getName());
+//			}
 
 			if (beLayout != null) {
 
@@ -1435,7 +1435,7 @@ public class BaseEntityUtils {
 					beData = beLayout.findEntityAttribute("PRI_LAYOUT_DATA").get().getAsString().trim();
 				}
 				
-				if (true/*!GennySettings.disableLayoutLoading && (existingLayoutHashcode != contentHashcode)*/)
+				if (!GennySettings.disableLayoutLoading && (existingLayoutHashcode != contentHashcode))
 						
 						 {
 					log.info("Resaving layout: " + layoutCode);
