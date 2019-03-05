@@ -1528,7 +1528,7 @@ public class BaseEntityUtils {
 	
 	public String removeBaseEntity(final String baseEntityCode) {
 		try {
-			return QwandaUtils.apiDelete(this.qwandaServiceUrl + "/qwanda/baseentitys" + baseEntityCode,
+			return QwandaUtils.apiDelete(this.qwandaServiceUrl + "/qwanda/baseentitys/" + baseEntityCode,
 					this.token);
 		} catch (Exception e) {
 			e.printStackTrace();
