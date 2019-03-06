@@ -19,11 +19,6 @@ public class VertxCache implements GennyCacheInterface {
 	@Override
 
 	public Object readCache(String realm, final String key, final String token) {
-//		JSONObject decodedTokenJson = KeycloakUtils.getDecodedToken(token);
-//		String realm = decodedTokenJson.getString("azp");
-		// TODO HACK
-		realm = "genny";
-
 
 		return DistMap.getMapBaseEntitys(realm).get(key);
 	}
@@ -31,12 +26,7 @@ public class VertxCache implements GennyCacheInterface {
 	@Override
 	public void writeCache(String realm, final String key, final String value, final String token,long ttl_seconds) {
 
-	//	JSONObject decodedTokenJson = KeycloakUtils.getDecodedToken(token);
-	//	String realm = decodedTokenJson.getString("azp");
 		
-		// TODO HACK
-		realm = "genny";
-
 		if (key == null) {
 			throw new IllegalArgumentException("Key is null");
 		}
@@ -47,9 +37,6 @@ public class VertxCache implements GennyCacheInterface {
 				logger.error("Null Key provided! with value=["+value+"]");
 				
 			} else {
-				if (value.contains("SBE_NEW_ITEMS")) {
-					//logger.info("Write Cache value=["+value+"]");
-				}
 				DistMap.getMapBaseEntitys(realm).put(key, value, ttl_seconds,TimeUnit.SECONDS);
 			}
 		}
@@ -58,8 +45,6 @@ public class VertxCache implements GennyCacheInterface {
 
 	@Override
 	public void clear(String realm) {
-		// TODO HACK
-		realm = "genny";
 
 		DistMap.clear(realm);
 

@@ -1372,19 +1372,19 @@ public class BaseEntityUtils {
 			String layoutCode = ("LAY_" + realm + "_" + precode).toUpperCase();
 
 			log.info("Layout - Handling " + layoutCode);
-			try {
+//			try {
 				// Check if in cache first to save time.
-				beLayout = VertxUtils.readFromDDT(getRealm(),layoutCode, serviceToken);
-				if (beLayout==null) {
-					beLayout = QwandaUtils.getBaseEntityByCode(layoutCode, serviceToken);
-					if (beLayout != null) {
-						VertxUtils.writeCachedJson(layoutCode, JsonUtils.toJson(beLayout), serviceToken);
-					}
-				}
+				beLayout = VertxUtils.readFromDDT(realm,layoutCode, serviceToken);
+//				if (beLayout==null) {
+//					beLayout = QwandaUtils.getBaseEntityByCode(layoutCode, serviceToken);
+//					if (beLayout != null) {
+//						VertxUtils.writeCachedJson(layoutCode, JsonUtils.toJson(beLayout), serviceToken);
+//					}
+//				}
 
-			} catch (IOException e) {
-				log.error(e.getMessage());
-			}
+//			} catch (IOException e) {
+//				log.error(e.getMessage());
+//			}
 
 			/* if the base entity does not exist, we create it */
 			if (beLayout == null) {
@@ -1395,13 +1395,13 @@ public class BaseEntityUtils {
 				beLayout = this.create(layoutCode, layout.getName());
 			}
 
-			if (beLayout != null) {
-
-				log.info("Layout - Creating base entity " + layoutCode);
-
-				/* otherwise we create it */
-				beLayout = this.create(layoutCode, layout.getName());
-			}
+//			if (beLayout != null) {
+//
+//				log.info("Layout - Creating base entity " + layoutCode);
+//
+//				/* otherwise we create it */
+//				beLayout = this.create(layoutCode, layout.getName());
+//			}
 
 			if (beLayout != null) {
 
@@ -1420,10 +1420,12 @@ public class BaseEntityUtils {
 
 				/* download the content of the layout */
 				String content = LayoutUtils.downloadLayoutContent(layout);
+				int existingLayoutHashcode=layout.getData().trim().hashCode();
+				int contentHashcode = content.trim().hashCode();
 
-				log.debug("layout.getData().hashcode()="+layout.getData().trim().hashCode());
+				log.debug("layout.getData().hashcode()="+existingLayoutHashcode);
 
-				log.debug("content.hashcode()="+content.trim().hashCode());
+				log.debug("content.hashcode()="+contentHashcode);
 
 
 				Optional<EntityAttribute> primaryLayoutData = beLayout.findEntityAttribute("PRI_LAYOUT_DATA");
@@ -1433,16 +1435,16 @@ public class BaseEntityUtils {
 					beData = beLayout.findEntityAttribute("PRI_LAYOUT_DATA").get().getAsString().trim();
 				}
 				
-				if (!GennySettings.disableLayoutLoading && (!layout.getData().trim().equals(beData))
+				if (!GennySettings.disableLayoutLoading && (true /*existingLayoutHashcode != contentHashcode*/))
 						
-						) {
+						 {
 					log.info("Resaving layout: " + layoutCode);
 
 
 				Answer newAnswerContent = new Answer(beLayout.getCode(), beLayout.getCode(), "PRI_LAYOUT_DATA",
 						content);
 
-				newAnswerContent.setChangeEvent(true);
+				newAnswerContent.setChangeEvent(false);
 				answers.add(newAnswerContent);
 
 				Answer newAnswer = new Answer(beLayout.getCode(), beLayout.getCode(), "PRI_LAYOUT_URI",
@@ -1461,7 +1463,7 @@ public class BaseEntityUtils {
 						layout.getModifiedDate());
 				answers.add(newAnswer4);
 
-				this.saveAnswers(answers);
+				this.saveAnswers(answers,false);  // No change events required
 
 				/* create link between GRP_LAYOUTS and this new LAY_XX base entity */
 				this.createLink("GRP_LAYOUTS", beLayout.getCode(), "LNK_CORE", "LAYOUT", 1.0);
