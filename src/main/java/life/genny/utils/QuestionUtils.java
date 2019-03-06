@@ -9,6 +9,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.logging.log4j.Logger;
 
 import life.genny.qwanda.Ask;
+import life.genny.qwanda.Question;
 import life.genny.qwanda.attribute.Attribute;
 import life.genny.qwanda.datatype.DataType;
 import life.genny.qwanda.entity.BaseEntity;
@@ -260,5 +261,28 @@ public class QuestionUtils {
 		}
 
 		return bulk;
+	}
+	
+	public static Ask createQuestionForBaseEntity(BaseEntity be, Boolean isQuestionGroup) {
+
+        /* Get the service token */
+        String serviceToken = RulesUtils.generateServiceToken(GennySettings.dynamicRealm());
+        
+        /* creating attribute code according to the value of isQuestionGroup */
+        String attributeCode = isQuestionGroup ? "QQQ_QUESTION_GROUP_INPUT" : "PRI_EVENT";
+
+        /* Get the on-the-fly question attribute */
+        Attribute attribute = RulesUtils.getAttribute(attributeCode, serviceToken);  
+        log.info("createQuestionForBaseEntity method, attribute ::"+JsonUtils.toJson(attribute));
+        
+        /* creating suffix according to value of isQuestionGroup. If it is a question-group, suffix "_GRP" is required" */  
+        String questionSuffix = isQuestionGroup ? "_GRP" : "";
+        
+        /* We generate the question */
+        Question newQuestion = new Question("QUE_" + be.getCode() + questionSuffix, be.getName(), attribute, false);
+        log.info("createQuestionForBaseEntity method, newQuestion ::"+JsonUtils.toJson(newQuestion));
+       
+        /* We generate the ask */
+        return new Ask(newQuestion, be.getCode(), be.getCode(), false, 1.0, false, false, true);
 	}
 }
