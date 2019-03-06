@@ -1531,6 +1531,17 @@ public class BaseEntityUtils {
 		}
 		return null;
 	}
+	
+	public String removeBaseEntity(final String baseEntityCode) {
+		try {
+			return QwandaUtils.apiDelete(this.qwandaServiceUrl + "/qwanda/baseentitys/" + baseEntityCode,
+					this.token);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "Success";
+
+	}
 
 	/*
 	 * Returns comma seperated list of all the childcode for the given parent code
