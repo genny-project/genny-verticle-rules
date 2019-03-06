@@ -1355,6 +1355,9 @@ public class BaseEntityUtils {
 
 	public BaseEntity baseEntityForLayout(String realm, String token, Layout layout) {
 
+		if (GennySettings.disableLayoutLoading) {
+			return null;
+		}
 		if (layout.getPath() == null) {
 			return null;
 		}
@@ -1368,6 +1371,9 @@ public class BaseEntityUtils {
 			// beLayout =
 			// RulesUtils.getBaseEntityByAttributeAndValue(RulesUtils.qwandaServiceUrl,
 			// this.decodedTokenMap, this.token, "PRI_LAYOUT_URI", layout.getPath());
+			if (layout.getPath().contains("bucket")) {
+				log.info("bucket");
+			}
 			String precode = String.valueOf(layout.getPath().replaceAll("[^a-zA-Z0-9]", "").toUpperCase().hashCode());
 			String layoutCode = ("LAY_" + realm + "_" + precode).toUpperCase();
 
