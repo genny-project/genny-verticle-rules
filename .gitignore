@@ -17,3 +17,4 @@ src/main/resources/genny-verticle-rules-git.properties
 ./.factorypath
 ./.project
 ./.settings/org.eclipse.*
+/.apt_generated/
