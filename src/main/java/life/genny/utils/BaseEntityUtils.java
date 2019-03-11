@@ -1429,19 +1429,22 @@ public class BaseEntityUtils {
 				int existingLayoutHashcode=layout.getData().trim().hashCode();
 				int contentHashcode = content.trim().hashCode();
 
-				log.debug("layout.getData().hashcode()="+existingLayoutHashcode);
 
-				log.debug("content.hashcode()="+contentHashcode);
 
 
 				Optional<EntityAttribute> primaryLayoutData = beLayout.findEntityAttribute("PRI_LAYOUT_DATA");
 				String beData = null;
+				int behc= 0;
 				if(primaryLayoutData.isPresent()) {
 					log.debug("beLayout.findEntityAttribute(\"PRI_LAYOUT_DATA\").get().getAsString().trim().hashcode()="+beLayout.findEntityAttribute("PRI_LAYOUT_DATA").get().getAsString().trim().hashCode());
 					beData = beLayout.findEntityAttribute("PRI_LAYOUT_DATA").get().getAsString().trim();
+					log.debug("baseentity.hashcode()="+beData.hashCode());
+					behc = beData.hashCode();
 				}
-				
-				if (!GennySettings.disableLayoutLoading && (true /*existingLayoutHashcode != contentHashcode*/))
+				log.debug("layout.getData().hashcode()="+existingLayoutHashcode);
+				log.debug("content.hashcode()="+contentHashcode);
+			
+				if (!GennySettings.disableLayoutLoading && (behc != contentHashcode))
 						
 						 {
 					log.info("Resaving layout: " + layoutCode);
