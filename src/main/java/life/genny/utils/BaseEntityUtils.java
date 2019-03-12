@@ -1444,7 +1444,7 @@ public class BaseEntityUtils {
 				log.debug("layout.getData().hashcode()="+existingLayoutHashcode);
 				log.debug("content.hashcode()="+contentHashcode);
 			
-				if (!GennySettings.disableLayoutLoading && (behc != contentHashcode))
+				if (!GennySettings.disableLayoutLoading && (true /*behc != contentHashcode*/))
 						
 						 {
 					log.info("Resaving layout: " + layoutCode);
