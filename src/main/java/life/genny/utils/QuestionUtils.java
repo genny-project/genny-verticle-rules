@@ -213,33 +213,35 @@ public class QuestionUtils {
 
 							List<String> validationStrings = validation.getSelectionBaseEntityGroupList();
 
-							for(String validationString: validationStrings) {
+							if(validationStrings != null) {
+								for(String validationString: validationStrings) {
 
-								if(validationString.startsWith("GRP_")) {
+									if(validationString.startsWith("GRP_")) {
 
-									/* we have a GRP. we push it to FE */
-									List<BaseEntity> bes = CacheUtils.getChildren(validationString, 2, token);
-									List<BaseEntity> filteredBes = null;
+										/* we have a GRP. we push it to FE */
+										List<BaseEntity> bes = CacheUtils.getChildren(validationString, 2, token);
+										List<BaseEntity> filteredBes = null;
 
-									if(bes != null && bes.size() > 0) {
-										
-										/* hard coding this for now. sorry */
-										if(attributeCode.equals("LNK_LOAD_LISTS") && stakeholderCode != null) {
+										if(bes != null && bes.size() > 0) {
+											
+											/* hard coding this for now. sorry */
+											if(attributeCode.equals("LNK_LOAD_LISTS") && stakeholderCode != null) {
 
-											/* we filter load you only are a stakeholder of */
-											filteredBes = bes.stream().filter(baseEntity -> {
-												return baseEntity.getValue("PRI_AUTHOR", "").equals(stakeholderCode);
-											}).collect(Collectors.toList());
+												/* we filter load you only are a stakeholder of */
+												filteredBes = bes.stream().filter(baseEntity -> {
+													return baseEntity.getValue("PRI_AUTHOR", "").equals(stakeholderCode);
+												}).collect(Collectors.toList());
+											}
+											else {
+												filteredBes = bes;
+											}
+
+											QDataBaseEntityMessage beMessage = new QDataBaseEntityMessage(filteredBes);
+											beMessage.setLinkCode("LNK_CORE");
+											beMessage.setParentCode(validationString);
+											beMessage.setReplace(true);
+											bulk.add(beMessage);
 										}
-										else {
-											filteredBes = bes;
-										}
-
-										QDataBaseEntityMessage beMessage = new QDataBaseEntityMessage(filteredBes);
-										beMessage.setLinkCode("LNK_CORE");
-										beMessage.setParentCode(validationString);
-										beMessage.setReplace(true);
-										bulk.add(beMessage);
 									}
 								}
 							}
