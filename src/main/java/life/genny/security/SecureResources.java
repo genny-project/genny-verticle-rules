@@ -22,100 +22,46 @@ public class SecureResources {
    * @return the keycloakJsonMap
    */
   public static Map<String, String> getKeycloakJsonMap() {
-		if (keycloakJsonMap==null || keycloakJsonMap.isEmpty()) {
-			readFilenamesFromDirectory(GennySettings.realmDir);
-		}
-
-    return keycloakJsonMap;
+	  return keycloakJsonMap;
   }
 
   public static Map<String, String> keycloakJsonMap = new ConcurrentHashMap<String, String>();
-  private static String hostIP =
-      System.getenv("HOSTIP") != null ? System.getenv("HOSTIP") : "127.0.0.1";
+
+  	public static String fetchRealms() {
+  		String ret = "";
+  		for (String keycloakRealmKey : keycloakJsonMap.keySet()) {
+  			ret += keycloakRealmKey + ":" + keycloakJsonMap.get(keycloakRealmKey) + "\n";
+  		}
+  		return ret;
+  	}
 
   /**
    * @param keycloakJsonMap the keycloakJsonMap to set
    * @return
    */
   public static Future<Void> setKeycloakJsonMap() {
+	  
+  	  
     final Future<Void> fut = Future.future();
     Vertx.currentContext().owner().executeBlocking(exec -> {
-      // Load in keycloakJsons
-      // readFilenamesFromDirectory("./realm", keycloakJsonMap);
-      // update afterwrads
-      final List<String> filesList = Vertx.currentContext().owner().fileSystem().readDirBlocking("./realm/" + System.getenv("PROJECT_REALM"));
-
-      for (final String dirFileStr : filesList) {
-        final String fileStr = new File(dirFileStr).getName();;
-        if (!"keycloak-data.json".equalsIgnoreCase(fileStr)) {
-        	Vertx.currentContext().owner().fileSystem().readFile(dirFileStr, d -> {
-            if (!d.failed()) {
-              try {
-                System.out.println("Loading in [" + fileStr + "]");
-                final String keycloakJsonText =
-                    d.result().toString().replaceAll("localhost", hostIP);
-                keycloakJsonMap.put(fileStr, keycloakJsonText);
-            //    if (GennySettings.devMode) {
-                //if ("genny.json".equalsIgnoreCase(fileStr)) {
-                	keycloakJsonMap.put(GennySettings.mainrealm+".json", keycloakJsonText);
-                //}
-            //    }
-                System.out.println("Keycloak json file:"+fileStr+":"+keycloakJsonText);
-
-              } catch (final DecodeException dE) {
-
-              }
-            } else {
-              System.err.println("Error reading  file!"+fileStr);
-            }
-          });
-        }
-      }
+    	String keycloakJson = "{\n" + 
+      	  		"  \"realm\": \"genny\",\n" + 
+      	  		"  \"auth-server-url\": \"http://keycloak.genny.life:8180/auth\",\n" + 
+      	  		"  \"ssl-required\": \"none\",\n" + 
+      	  		"  \"resource\": \"genny\",\n" + 
+      	  		"  \"credentials\": {\n" + 
+      	  		"    \"secret\": \"056b73c1-7078-411d-80ec-87d41c55c3b4\"\n" + 
+      	  		"  },\n" + 
+      	  		"  \"policy-enforcer\": {}\n" + 
+      	  		"}";
+            
+      	  keycloakJsonMap.put("keycloak.json", keycloakJson);
       fut.complete();
     }, res -> {
     });
     return fut;
   }
 
-  public static void readFilenamesFromDirectory(final String rootFilePath) {
-    final File folder = new File(rootFilePath);
-    final File[] listOfFiles = folder.listFiles();
-    if (listOfFiles != null) {
-    for (int i = 0; i < listOfFiles.length; i++) {
-      if (listOfFiles[i].isFile()) {
-        System.out.println("File " + listOfFiles[i].getName());
-        try {
-          String keycloakJsonText = getFileAsText(listOfFiles[i]);
-          // Handle case where dev is in place with localhost
-          keycloakJsonText = keycloakJsonText.replaceAll("localhost", GennySettings.hostIP);
-          keycloakJsonMap.put(listOfFiles[i].getName(), keycloakJsonText);
-        } catch (final IOException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
-
-      } else if (listOfFiles[i].isDirectory()) {
-        System.out.println("Directory " + listOfFiles[i].getName());
-        readFilenamesFromDirectory(listOfFiles[i].getName());
-      }
-    }
-    } else {
-    	System.out.println("No realm files");
-    }
-  }
-
-  private static String getFileAsText(final File file) throws IOException {
-    final BufferedReader in = new BufferedReader(new FileReader(file));
-    String ret = "";
-    String line = null;
-    while ((line = in.readLine()) != null) {
-      ret += line;
-    }
-    in.close();
-
-    return ret;
-  }
-  
   public static void clear()
   {
 	  if (keycloakJsonMap != null) {
