@@ -50,10 +50,10 @@ public class SecureResources {
     final Future<Void> fut = Future.future();
     Vertx.currentContext().owner().executeBlocking(exec -> {
     	String keycloakJson = "{\n" + 
-      	  		"  \"realm\": \"genny\",\n" + 
+      	  		"  \"realm\": \"internmatch\",\n" + 
       	  		"  \"auth-server-url\": \"http://keycloak.genny.life:8180/auth\",\n" + 
       	  		"  \"ssl-required\": \"none\",\n" + 
-      	  		"  \"resource\": \"genny\",\n" + 
+      	  		"  \"resource\": \"internmatch\",\n" + 
       	  		"  \"credentials\": {\n" + 
       	  		"    \"secret\": \"056b73c1-7078-411d-80ec-87d41c55c3b4\"\n" + 
       	  		"  },\n" + 
