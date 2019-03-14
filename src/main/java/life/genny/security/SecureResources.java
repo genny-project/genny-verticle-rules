@@ -4,9 +4,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.logging.log4j.Logger;
 
 import io.vertx.core.json.DecodeException;
 import io.vertx.rxjava.core.Future;
@@ -16,6 +19,8 @@ import life.genny.qwandautils.GennySettings;
 
 public class SecureResources {
 	
+	  protected static final Logger log = org.apache.logging.log4j.LogManager
+		      .getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
 
 
   /**
@@ -51,7 +56,7 @@ public class SecureResources {
         	Vertx.currentContext().owner().fileSystem().readFile(dirFileStr, d -> {
             if (!d.failed()) {
               try {
-                System.out.println("Loading in [" + fileStr + "]");
+                log.info("Loading in [" + fileStr + "]");
                 final String keycloakJsonText =
                     d.result().toString().replaceAll("localhost", hostIP);
                 keycloakJsonMap.put(fileStr, keycloakJsonText);
@@ -60,7 +65,7 @@ public class SecureResources {
                 	keycloakJsonMap.put(GennySettings.mainrealm+".json", keycloakJsonText);
                 //}
             //    }
-                System.out.println("Keycloak json file:"+fileStr+":"+keycloakJsonText);
+                log.info("Keycloak json file:"+fileStr+":"+keycloakJsonText);
 
               } catch (final DecodeException dE) {
 
@@ -83,7 +88,7 @@ public class SecureResources {
     if (listOfFiles != null) {
     for (int i = 0; i < listOfFiles.length; i++) {
       if (listOfFiles[i].isFile()) {
-        System.out.println("File " + listOfFiles[i].getName());
+        log.info("File " + listOfFiles[i].getName());
         try {
           String keycloakJsonText = getFileAsText(listOfFiles[i]);
           // Handle case where dev is in place with localhost
@@ -95,12 +100,12 @@ public class SecureResources {
         }
 
       } else if (listOfFiles[i].isDirectory()) {
-        System.out.println("Directory " + listOfFiles[i].getName());
+        log.info("Directory " + listOfFiles[i].getName());
         readFilenamesFromDirectory(listOfFiles[i].getName());
       }
     }
     } else {
-    	System.out.println("No realm files");
+    	log.info("No realm files");
     }
   }
 

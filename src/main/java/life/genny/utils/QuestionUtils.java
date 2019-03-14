@@ -72,10 +72,10 @@ public class QuestionUtils {
 			}			
 		} 
 		catch (ClientProtocolException e) {
-			System.out.println(e.getMessage());
+			log.info(e.getMessage());
 		} 
 		catch (IOException e) {
-			System.out.println(e.getMessage());
+			log.info(e.getMessage());
 		}
 
 		return null;
@@ -153,7 +153,7 @@ public class QuestionUtils {
 
 		}
 		catch (Exception e) {
-			System.out.println("Ask questions exception: ");
+			log.info("Ask questions exception: ");
 			e.printStackTrace();
 			return null;
 		}
@@ -168,7 +168,7 @@ public class QuestionUtils {
 					Ask[] childAskArr = ask.getChildAsks();
 					if(childAskArr != null && childAskArr.length > 0) {
 						for(Ask childAsk : childAskArr) {
-							System.out.println("child ask code :: "+childAsk.getAttributeCode() + ", child ask name :: "+childAsk.getName());
+							log.info("child ask code :: "+childAsk.getAttributeCode() + ", child ask name :: "+childAsk.getName());
 							if(childAsk.getAttributeCode().equals(questionAttributeCode)) {
 								if(customTemporaryQuestion != null) {
 									childAsk.getQuestion().setName(customTemporaryQuestion);
@@ -213,33 +213,35 @@ public class QuestionUtils {
 
 							List<String> validationStrings = validation.getSelectionBaseEntityGroupList();
 
-							for(String validationString: validationStrings) {
+							if(validationStrings != null) {
+								for(String validationString: validationStrings) {
 
-								if(validationString.startsWith("GRP_")) {
+									if(validationString.startsWith("GRP_")) {
 
-									/* we have a GRP. we push it to FE */
-									List<BaseEntity> bes = CacheUtils.getChildren(validationString, 2, token);
-									List<BaseEntity> filteredBes = null;
+										/* we have a GRP. we push it to FE */
+										List<BaseEntity> bes = CacheUtils.getChildren(validationString, 2, token);
+										List<BaseEntity> filteredBes = null;
 
-									if(bes != null && bes.size() > 0) {
-										
-										/* hard coding this for now. sorry */
-										if(attributeCode.equals("LNK_LOAD_LISTS") && stakeholderCode != null) {
+										if(bes != null && bes.size() > 0) {
+											
+											/* hard coding this for now. sorry */
+											if(attributeCode.equals("LNK_LOAD_LISTS") && stakeholderCode != null) {
 
-											/* we filter load you only are a stakeholder of */
-											filteredBes = bes.stream().filter(baseEntity -> {
-												return baseEntity.getValue("PRI_AUTHOR", "").equals(stakeholderCode);
-											}).collect(Collectors.toList());
+												/* we filter load you only are a stakeholder of */
+												filteredBes = bes.stream().filter(baseEntity -> {
+													return baseEntity.getValue("PRI_AUTHOR", "").equals(stakeholderCode);
+												}).collect(Collectors.toList());
+											}
+											else {
+												filteredBes = bes;
+											}
+
+											QDataBaseEntityMessage beMessage = new QDataBaseEntityMessage(filteredBes);
+											beMessage.setLinkCode("LNK_CORE");
+											beMessage.setParentCode(validationString);
+											beMessage.setReplace(true);
+											bulk.add(beMessage);
 										}
-										else {
-											filteredBes = bes;
-										}
-
-										QDataBaseEntityMessage beMessage = new QDataBaseEntityMessage(filteredBes);
-										beMessage.setLinkCode("LNK_CORE");
-										beMessage.setParentCode(validationString);
-										beMessage.setReplace(true);
-										bulk.add(beMessage);
 									}
 								}
 							}

@@ -1,11 +1,14 @@
 package life.genny.utils;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.logging.log4j.Logger;
 
 import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.entity.EntityEntity;
@@ -18,6 +21,10 @@ import life.genny.qwandautils.QwandaUtils;
 
 
 public class CacheUtils {
+	
+	  protected static final Logger log = org.apache.logging.log4j.LogManager
+		      .getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
+
 
 	private String realm;
 
@@ -70,7 +77,7 @@ public class CacheUtils {
 		/* we generate a service token */
 		String token = RulesUtils.generateServiceToken(realm);
 
-		System.out.println("Generating message for cached item: " + cachedItemKey);
+		log.info("Generating message for cached item: " + cachedItemKey);
 
 		/* we grab the cached Item */
 		QDataBaseEntityMessage cachedItemMessages = VertxUtils.getObject(realm, cachedItemKey, realm, QDataBaseEntityMessage.class);
@@ -161,7 +168,7 @@ public class CacheUtils {
 
 		}
 		catch (Exception e) {
-			System.out.println("Error generating cached item: " + cachedItem.getCode());
+			log.info("Error generating cached item: " + cachedItem.getCode());
 		}
 
 		/* we save the message in cache */
@@ -241,7 +248,7 @@ public class CacheUtils {
 			}
 		}
 		catch (IOException e) {
-			System.out.println("Error adding message" + targetCode);
+			log.info("Error adding message" + targetCode);
 		}
 	}
 

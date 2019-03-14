@@ -133,8 +133,6 @@ public class VertxUtils {
 	static public void putObject(final String realm, final String keyPrefix, final String key, final Object obj,
 			final String token) {
 		String data = JsonUtils.toJson(obj);
-		data = data.replaceAll("\\\"", "\"");
-		data = data.replaceAll("\\n", "\n");
 		writeCachedJson(realm ,keyPrefix + ":" + key, data, token);
 	}
 
@@ -144,12 +142,9 @@ public class VertxUtils {
 
 	static public JsonObject readCachedJson(String realm, final String key, final String token) {
 		JsonObject result = null;
-		// HACK TODO
-		realm = "genny";
 		
 		if (!GennySettings.forceCacheApi) {
 			String ret = null;
-			JsonObject retj = null;
 			try {
 				//log.info("VERTX READING DIRECTLY FROM CACHE! USING "+(GennySettings.isCacheServer?" LOCAL DDT":"CLIENT "));
 				ret = (String) cacheInterface.readCache(realm, key, token);
@@ -167,10 +162,14 @@ public class VertxUtils {
 			try {
 				//log.info("VERTX READING  FROM CACHE API!");
 				resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/" + key, token);
-				result = new JsonObject(resultStr);
+				if (resultStr != null) {
+					result = new JsonObject(resultStr);
+				} else {
+					result = new JsonObject().put("status", "error");
+				}
+
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("Could not read "+key+" from cache");
 			}
 
 		}
@@ -187,11 +186,11 @@ public class VertxUtils {
 	}
 	
 	static public JsonObject writeCachedJson(String realm, final String key, String value, final String token, long ttl_seconds) {
-		// HACK TODO
-		realm = "genny";
 		if (!GennySettings.forceCacheApi) {
 			//log.debug("WRITING USING "+(GennySettings.isCacheServer?" LOCAL DDT":"CLIENT ")+"  "+key);
-
+			if ("genny".equals(realm)) {
+				realm = GennySettings.mainrealm;
+			}
 			cacheInterface.writeCache(realm, key, value, token,ttl_seconds);
 		} else {
 			try {
@@ -212,17 +211,20 @@ public class VertxUtils {
 	
 	static public void clearDDT(String realm)
 	{
-		// HACK TODO
-		realm = "genny";
+		if ("genny".equals(realm)) {
+			realm = GennySettings.mainrealm;
+		}
+
 		cacheInterface.clear(realm);
 	}
 
 	static public BaseEntity readFromDDT(String realm, final String code, final boolean withAttributes, final String token) {
 		BaseEntity be = null;
 
-		// HACK TODO
-		realm = "genny";
-		
+		if ("genny".equals(realm)) {
+			realm = GennySettings.mainrealm;
+		}
+
 		JsonObject json = readCachedJson(realm, code,token);
 
 		if ("ok".equals(json.getString("status"))) {
