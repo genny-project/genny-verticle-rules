@@ -213,26 +213,14 @@ public class RulesUtils {
 
 		/* otherwise we renew it */
 		println("Generating Service Token for "+realm);
-		String jsonFile = realm + ".json";        
+		if (SecureResources.getKeycloakJsonMap().isEmpty()) {
+			SecureResources.setKeycloakJsonMap();
+		}
+		String jsonFile = "keycloak.json";        
 		String keycloakJson = SecureResources.getKeycloakJsonMap().get(jsonFile);
 		if (keycloakJson == null) {
 			println("No keycloakMap for " + realm+" ... fixing");
-			SecureResources.readFilenamesFromDirectory(GennySettings.realmDir);
-			String gennyKeycloakJson = SecureResources.getKeycloakJsonMap().get("genny.json");
-			if (GennySettings.devMode) {
-					SecureResources.getKeycloakJsonMap().put(jsonFile, gennyKeycloakJson);
-					keycloakJson = gennyKeycloakJson;
-			} else {
-					if (GennySettings.defaultLocalIP.equalsIgnoreCase(GennySettings.hostIP)) {
-							println("gennyKeycloakJson="+gennyKeycloakJson);
-							// Running in local docker mode
-							SecureResources.getKeycloakJsonMap().put(jsonFile, gennyKeycloakJson);
-							keycloakJson = gennyKeycloakJson;
-							println("No keycloak Json file available for realm - "+realm+" , so using genny instead ..");
-					} else {
-							println("Error - No keycloak Json file available for realm - "+realm);
-					}
-			}
+			return null;
 		}
 		println("keycloak.json="+keycloakJson);
 		JsonObject realmJson = new JsonObject(keycloakJson);
