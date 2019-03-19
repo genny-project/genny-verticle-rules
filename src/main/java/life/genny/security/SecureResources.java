@@ -45,17 +45,16 @@ public class SecureResources {
    * @return
    */
   public static Future<Void> setKeycloakJsonMap() {
-	  
   	  
     final Future<Void> fut = Future.future();
     Vertx.currentContext().owner().executeBlocking(exec -> {
     	String keycloakJson = "{\n" + 
-      	  		"  \"realm\": \"internmatch\",\n" + 
-      	  		"  \"auth-server-url\": \"http://keycloak.genny.life:8180/auth\",\n" + 
+      	  		"  \"realm\": \"" + System.getenv("PROJECT_REALM") + "\",\n" + 
+      	  		"  \"auth-server-url\": \"" + System.getenv("KEYCLOAKURL") + "\",\n" + 
       	  		"  \"ssl-required\": \"none\",\n" + 
-      	  		"  \"resource\": \"internmatch\",\n" + 
+      	  		"  \"resource\": \"" + System.getenv("PROJECT_REALM") + "\",\n" + 
       	  		"  \"credentials\": {\n" + 
-      	  		"    \"secret\": \"056b73c1-7078-411d-80ec-87d41c55c3b4\"\n" + 
+      	  		"    \"secret\": \"" + System.getenv("KEYCLOAK_SECRET") + "\" \n" + 
       	  		"  },\n" + 
       	  		"  \"policy-enforcer\": {}\n" + 
       	  		"}";
