@@ -37,7 +37,6 @@ import life.genny.qwandautils.GennySettings;
 import life.genny.qwandautils.JsonUtils;
 import life.genny.qwandautils.KeycloakUtils;
 import life.genny.qwandautils.QwandaUtils;
-import life.genny.security.SecureResources;
 
 public class RulesUtils {
 
@@ -213,20 +212,15 @@ public class RulesUtils {
 
 		/* otherwise we renew it */
 		println("Generating Service Token for "+realm);
-		if (SecureResources.getKeycloakJsonMap().isEmpty()) {
-			SecureResources.setKeycloakJsonMap();
-		}
-		String jsonFile = "keycloak.json";        
-		String keycloakJson = SecureResources.getKeycloakJsonMap().get(jsonFile);
-		if (keycloakJson == null) {
-			println("No keycloakMap for " + realm+" ... fixing");
+		JsonObject keycloakJson = VertxUtils.readCachedJson(GennySettings.mainrealm, GennySettings.KEYCLOAK_JSON);
+		if (keycloakJson == null || "error".equals(keycloakJson.getBoolean("status"))) {
+			println("KEYCLOAK JSON NOT FOUND FOR " + realm);
 			return null;
 		}
-		println("keycloak.json="+keycloakJson);
-		JsonObject realmJson = new JsonObject(keycloakJson);
-		JsonObject secretJson = realmJson.getJsonObject("credentials");
+		println("Keycloak Json ="+keycloakJson);
+		JsonObject secretJson = keycloakJson.getJsonObject("credentials");
 		String secret = secretJson.getString("secret");
-		String jsonRealm = realmJson.getString("realm");
+		String jsonRealm = keycloakJson.getString("realm");
 		
 		String key = GennySettings.dynamicKey(jsonRealm);
 		String initVector = GennySettings.dynamicInitVector(jsonRealm);
@@ -238,8 +232,8 @@ public class RulesUtils {
 		password = GennySettings.dynamicPassword(jsonRealm);
 		println("password=["+password+"]");
 		// Now ask the bridge for the keycloak to use
-		String keycloakurl = realmJson.getString("auth-server-url").substring(0,
-						realmJson.getString("auth-server-url").length() - ("/auth".length()));
+		String keycloakurl = keycloakJson.getString("auth-server-url").substring(0,
+				keycloakJson.getString("auth-server-url").length() - ("/auth".length()));
 		println(keycloakurl);
 		try {
 			println("jsonRealm= "+jsonRealm+", dynamicRealm() : " + dynamicRealm + "\n" + "realm : " + realm + "\n" + "secret : " + secret + "\n"
