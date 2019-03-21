@@ -212,11 +212,12 @@ public class RulesUtils {
 
 		/* otherwise we renew it */
 		println("Generating Service Token for "+realm);
-		JsonObject keycloakJson = VertxUtils.readCachedJson(GennySettings.mainrealm, GennySettings.KEYCLOAK_JSON);
-		if (keycloakJson == null || "error".equals(keycloakJson.getBoolean("status"))) {
-			println("KEYCLOAK JSON NOT FOUND FOR " + realm);
+		JsonObject json = VertxUtils.readCachedJson(GennySettings.mainrealm, GennySettings.KEYCLOAK_JSON);
+		if (json==null || "error".equals(json.getString("status"))) {
+			log.error("KEYCLOAK JSON NOT FOUND");
 			return null;
-		}
+		} 
+		JsonObject keycloakJson = new JsonObject(json.getString("value"));
 		println("Keycloak Json ="+keycloakJson);
 		JsonObject secretJson = keycloakJson.getJsonObject("credentials");
 		String secret = secretJson.getString("secret");

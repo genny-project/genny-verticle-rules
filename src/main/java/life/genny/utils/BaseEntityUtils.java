@@ -1541,9 +1541,8 @@ public class BaseEntityUtils {
 					this.token);
 		} catch (Exception e) {
 			e.printStackTrace();
+			return "Failed";
 		}
-		return "Success";
-
 	}
 
 	/*
