@@ -218,15 +218,18 @@ public class QuestionUtils {
 								for(String validationString: validationStrings) {
 
 									if(validationString.startsWith("GRP_")) {
+										
+										/* Grab the parent */
+										BaseEntity parent = CacheUtils.getBaseEntity(validationString, token);
 
 										/* we have a GRP. we push it to FE */
 										List<BaseEntity> bes = CacheUtils.getChildren(validationString, 2, token);
 										List<BaseEntity> filteredBes = null;
 
-										if(bes != null && bes.size() > 0) {
+										if(bes != null && bes.isEmpty() == false) {
 											
 											/* hard coding this for now. sorry */
-											if(attributeCode.equals("LNK_LOAD_LISTS") && stakeholderCode != null) {
+											if("LNK_LOAD_LISTS".equals(attributeCode) && stakeholderCode != null) {
 
 												/* we filter load you only are a stakeholder of */
 												filteredBes = bes.stream().filter(baseEntity -> {
@@ -236,12 +239,17 @@ public class QuestionUtils {
 											else {
 												filteredBes = bes;
 											}
-
+											
+											/* create message for base entities required for the validation */
 											QDataBaseEntityMessage beMessage = new QDataBaseEntityMessage(filteredBes);
 											beMessage.setLinkCode("LNK_CORE");
 											beMessage.setParentCode(validationString);
 											beMessage.setReplace(true);
 											bulk.add(beMessage);
+											
+											/* create message for parent */
+											QDataBaseEntityMessage parentMessage = new QDataBaseEntityMessage(parent);
+											bulk.add(parentMessage);
 										}
 									}
 								}
