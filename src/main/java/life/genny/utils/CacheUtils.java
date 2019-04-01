@@ -1,6 +1,7 @@
 package life.genny.utils;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +21,7 @@ import life.genny.qwandautils.KeycloakUtils;
 import life.genny.qwandautils.QwandaUtils;
 
 
-public class CacheUtils {
+public class CacheUtils implements Serializable {
 	
 	  protected static final Logger log = org.apache.logging.log4j.LogManager
 		      .getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
