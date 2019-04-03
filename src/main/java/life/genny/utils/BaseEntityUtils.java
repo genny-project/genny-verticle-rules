@@ -1,6 +1,7 @@
 package life.genny.utils;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Type;
 import java.time.LocalDate;
@@ -48,7 +49,7 @@ import life.genny.qwandautils.JsonUtils;
 import life.genny.qwandautils.QwandaUtils;
 import life.genny.utils.Layout.LayoutUtils;
 
-public class BaseEntityUtils {
+public class BaseEntityUtils implements Serializable {
 
 	protected static final Logger log = org.apache.logging.log4j.LogManager
 			.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
@@ -384,7 +385,7 @@ public class BaseEntityUtils {
 		BaseEntity be = null;
 
 		try {
-			log.info("Fetching BaseEntityByCode, code="+code);
+			//log.info("Fetching BaseEntityByCode, code="+code);
 			be = VertxUtils.readFromDDT(getRealm(),code, withAttributes, this.token);
 			if (be == null) {
 				log.info("ERROR - be (" + code + ") fetched is NULL ");
