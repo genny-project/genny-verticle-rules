@@ -47,19 +47,19 @@ public class ClusterConfig {
 		eb.setReconnectInterval(5);
 
 		if (GennySettings.devMode) {
-			System.out.println("IN DEV MODE on "+GennySettings.defaultLocalIP);
+			log.info("IN DEV MODE on "+GennySettings.defaultLocalIP);
 			eb.setClusterPublicHost(GennySettings.defaultLocalIP);
 			eb.setHost(GennySettings.defaultLocalIP);
 
 		} else {
-			System.out.println("NOT IN DEV MODE , MYIP=[" + GennySettings.myIP + "]");
+			log.info("NOT IN DEV MODE , MYIP=[" + GennySettings.myIP + "]");
 			if (!GennySettings.defaultLocalIP.equalsIgnoreCase(GennySettings.hostIP)) {
-				System.out.println("Production Mode");
+				log.info("Production Mode");
 				if (GennySettings.hostIP != null) {
 					eb.setPort(portEBCluster).setHost(GennySettings.myIP);
 				}
 			} else {
-				System.out.println("Local Docker Mode");
+				log.info("Local Docker Mode");
 				eb.setPort(portEBCluster);
 				eb.setHost(GennySettings.myIP);
 			}
@@ -87,7 +87,7 @@ public class ClusterConfig {
 	        }else{
 	            haInst = getHazelcastClientInstance();
 	        }
-			DistMap.registerDataStructure(haInst, GennySettings.mainrealm); // TODO, get all realms
+			DistMap.registerDataStructure(haInst); // TODO, get all realms
 
 			final VertxOptions options = new VertxOptions();
 			final ClusterManager mgr = new HazelcastClusterManager(haInstServer);
@@ -101,9 +101,11 @@ public class ClusterConfig {
 				options.setBlockedThreadCheckInterval(1000000000L * 600);
 				options.setMaxWorkerExecuteTime(1000000000L * 600);
 			} else {
-				options.setBlockedThreadCheckInterval(1000);
-				options.setMaxEventLoopExecuteTime(2000000000L);
+				options.setBlockedThreadCheckInterval(100000L);
+				options.setMaxEventLoopExecuteTime(200000000L);
 				options.setMaxWorkerExecuteTime(60000000000L);
+
+
 			}
 
 			options.setEventLoopPoolSize(16);

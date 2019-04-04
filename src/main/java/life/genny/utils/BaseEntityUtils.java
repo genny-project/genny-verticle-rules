@@ -1,6 +1,7 @@
 package life.genny.utils;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Type;
 import java.time.LocalDate;
@@ -48,14 +49,14 @@ import life.genny.qwandautils.JsonUtils;
 import life.genny.qwandautils.QwandaUtils;
 import life.genny.utils.Layout.LayoutUtils;
 
-public class BaseEntityUtils {
+public class BaseEntityUtils implements Serializable {
 
 	protected static final Logger log = org.apache.logging.log4j.LogManager
 			.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
 
 	private Map<String, Object> decodedMapToken;
 	private String token;
-	private String realm;
+	private static String realm;
 	private String qwandaServiceUrl;
 
 	private CacheUtils cacheUtil;
@@ -71,6 +72,11 @@ public class BaseEntityUtils {
 		this.cacheUtil.setBaseEntityUtils(this);
 	}
 
+	private static String getRealm()
+	{
+		return realm;
+	}
+	
 	/* =============== refactoring =============== */
 
 	public BaseEntity create(final String uniqueCode, final String bePrefix, final String name) {
@@ -87,8 +93,9 @@ public class BaseEntityUtils {
 
 		BaseEntity newBaseEntity = QwandaUtils.createBaseEntityByCode(baseEntityCode, name, qwandaServiceUrl,
 				this.token);
+		
 		this.addAttributes(newBaseEntity);
-		VertxUtils.writeCachedJson(newBaseEntity.getCode(), JsonUtils.toJson(newBaseEntity));
+		VertxUtils.writeCachedJson(newBaseEntity.getRealm(),newBaseEntity.getCode(), JsonUtils.toJson(newBaseEntity));
 		return newBaseEntity;
 	}
 
@@ -165,7 +172,7 @@ public class BaseEntityUtils {
 			role = QwandaUtils.createBaseEntityByCode(code, name, qwandaServiceUrl, this.token);
 			this.addAttributes(role);
 
-			VertxUtils.writeCachedJson(role.getCode(), JsonUtils.toJson(role));
+			VertxUtils.writeCachedJson(role.getRealm(),role.getCode(), JsonUtils.toJson(role));
 		}
 
 		for (String capabilityCode : capabilityCodes) {
@@ -350,7 +357,7 @@ public class BaseEntityUtils {
 
 		try {
 
-			JsonObject cachedJsonObject = VertxUtils.readCachedJson(code);
+			JsonObject cachedJsonObject = VertxUtils.readCachedJson(getRealm(),code);
 			if (cachedJsonObject != null) {
 
 				String seJson = JsonUtils.toJson(cachedJsonObject);
@@ -378,8 +385,8 @@ public class BaseEntityUtils {
 		BaseEntity be = null;
 
 		try {
-			log.info("Fetching BaseEntityByCode, code="+code);
-			be = VertxUtils.readFromDDT(code, withAttributes, this.token);
+			//log.info("Fetching BaseEntityByCode, code="+code);
+			be = VertxUtils.readFromDDT(getRealm(),code, withAttributes, this.token);
 			if (be == null) {
 				log.info("ERROR - be (" + code + ") fetched is NULL ");
 			} else {
@@ -1027,7 +1034,7 @@ public class BaseEntityUtils {
 
 	public String updateBaseEntity(BaseEntity be) {
 		try {
-			VertxUtils.writeCachedJson(be.getCode(), JsonUtils.toJson(be));
+			VertxUtils.writeCachedJson(getRealm(),be.getCode(), JsonUtils.toJson(be));
 			return QwandaUtils.apiPutEntity(this.qwandaServiceUrl + "/qwanda/baseentitys", JsonUtils.toJson(be),
 					this.token);
 		} catch (Exception e) {
@@ -1044,12 +1051,12 @@ public class BaseEntityUtils {
 					log.error("ERROR! searchEntity se has no code!");
 				}
 				if (se.getId() == null) {
-					BaseEntity existing = VertxUtils.readFromDDT(se.getCode(), this.realm);
+					BaseEntity existing = VertxUtils.readFromDDT(getRealm(),se.getCode(), this.realm);
 					if (existing != null) {
 						se.setId(existing.getId());
 					}
 				}
-				VertxUtils.writeCachedJson(se.getCode(), JsonUtils.toJson(se));
+				VertxUtils.writeCachedJson(getRealm(),se.getCode(), JsonUtils.toJson(se));
 				if (se.getId() != null) {
 					ret = QwandaUtils.apiPutEntity(this.qwandaServiceUrl + "/qwanda/baseentitys", JsonUtils.toJson(se),
 							this.token);
@@ -1101,7 +1108,7 @@ public class BaseEntityUtils {
 					} else {
 						cachedBe.addAnswer(answer);
 					}
-					VertxUtils.writeCachedJson(answer.getTargetCode(), JsonUtils.toJson(cachedBe));
+					VertxUtils.writeCachedJson(getRealm(),answer.getTargetCode(), JsonUtils.toJson(cachedBe));
 				}
 			}
 
@@ -1170,7 +1177,7 @@ public class BaseEntityUtils {
 			}
 		}
 
-			VertxUtils.writeCachedJson(cachedBe.getCode(), JsonUtils.toJson(cachedBe));
+			VertxUtils.writeCachedJson(getRealm(),cachedBe.getCode(), JsonUtils.toJson(cachedBe));
 
 
 		return cachedBe;
@@ -1349,6 +1356,9 @@ public class BaseEntityUtils {
 
 	public BaseEntity baseEntityForLayout(String realm, String token, Layout layout) {
 
+		if (GennySettings.disableLayoutLoading) {
+			return null;
+		}
 		if (layout.getPath() == null) {
 			return null;
 		}
@@ -1362,23 +1372,26 @@ public class BaseEntityUtils {
 			// beLayout =
 			// RulesUtils.getBaseEntityByAttributeAndValue(RulesUtils.qwandaServiceUrl,
 			// this.decodedTokenMap, this.token, "PRI_LAYOUT_URI", layout.getPath());
+			if (layout.getPath().contains("bucket")) {
+				log.info("bucket");
+			}
 			String precode = String.valueOf(layout.getPath().replaceAll("[^a-zA-Z0-9]", "").toUpperCase().hashCode());
 			String layoutCode = ("LAY_" + realm + "_" + precode).toUpperCase();
 
 			log.info("Layout - Handling " + layoutCode);
-			try {
+//			try {
 				// Check if in cache first to save time.
-				beLayout = VertxUtils.readFromDDT(layoutCode, serviceToken);
-				if (beLayout==null) {
-					beLayout = QwandaUtils.getBaseEntityByCode(layoutCode, serviceToken);
-					if (beLayout != null) {
-						VertxUtils.writeCachedJson(layoutCode, JsonUtils.toJson(beLayout), serviceToken);
-					}
-				}
+				beLayout = VertxUtils.readFromDDT(realm,layoutCode, serviceToken);
+//				if (beLayout==null) {
+//					beLayout = QwandaUtils.getBaseEntityByCode(layoutCode, serviceToken);
+//					if (beLayout != null) {
+//						VertxUtils.writeCachedJson(layoutCode, JsonUtils.toJson(beLayout), serviceToken);
+//					}
+//				}
 
-			} catch (IOException e) {
-				log.error(e.getMessage());
-			}
+//			} catch (IOException e) {
+//				log.error(e.getMessage());
+//			}
 
 			/* if the base entity does not exist, we create it */
 			if (beLayout == null) {
@@ -1388,6 +1401,14 @@ public class BaseEntityUtils {
 				/* otherwise we create it */
 				beLayout = this.create(layoutCode, layout.getName());
 			}
+
+//			if (beLayout != null) {
+//
+//				log.info("Layout - Creating base entity " + layoutCode);
+//
+//				/* otherwise we create it */
+//				beLayout = this.create(layoutCode, layout.getName());
+//			}
 
 			if (beLayout != null) {
 
@@ -1406,24 +1427,34 @@ public class BaseEntityUtils {
 
 				/* download the content of the layout */
 				String content = LayoutUtils.downloadLayoutContent(layout);
+				int existingLayoutHashcode=layout.getData().trim().hashCode();
+				int contentHashcode = content.trim().hashCode();
 
-				log.debug("layout.getData().hashcode()="+layout.getData().trim().hashCode());
-				
+
+
+
 				Optional<EntityAttribute> primaryLayoutData = beLayout.findEntityAttribute("PRI_LAYOUT_DATA");
 				String beData = null;
+				int behc= 0;
 				if(primaryLayoutData.isPresent()) {
 					log.debug("beLayout.findEntityAttribute(\"PRI_LAYOUT_DATA\").get().getAsString().trim().hashcode()="+beLayout.findEntityAttribute("PRI_LAYOUT_DATA").get().getAsString().trim().hashCode());
 					beData = beLayout.findEntityAttribute("PRI_LAYOUT_DATA").get().getAsString().trim();
+					log.debug("baseentity.hashcode()="+beData.hashCode());
+					behc = beData.hashCode();
 				}
-				
-				if (!layout.getData().trim().equals(beData)) {
-					
-				log.info("Resaving layout: " + layoutCode);
+				log.debug("layout.getData().hashcode()="+existingLayoutHashcode);
+				log.debug("content.hashcode()="+contentHashcode);
+			
+				if (!GennySettings.disableLayoutLoading && (true /*behc != contentHashcode*/))
+						
+						 {
+					log.info("Resaving layout: " + layoutCode);
+
 
 				Answer newAnswerContent = new Answer(beLayout.getCode(), beLayout.getCode(), "PRI_LAYOUT_DATA",
 						content);
 
-				newAnswerContent.setChangeEvent(true);
+				newAnswerContent.setChangeEvent(false);
 				answers.add(newAnswerContent);
 
 				Answer newAnswer = new Answer(beLayout.getCode(), beLayout.getCode(), "PRI_LAYOUT_URI",
@@ -1442,7 +1473,7 @@ public class BaseEntityUtils {
 						layout.getModifiedDate());
 				answers.add(newAnswer4);
 
-				this.saveAnswers(answers);
+				this.saveAnswers(answers,false);  // No change events required
 
 				/* create link between GRP_LAYOUTS and this new LAY_XX base entity */
 				this.createLink("GRP_LAYOUTS", beLayout.getCode(), "LNK_CORE", "LAYOUT", 1.0);
@@ -1504,6 +1535,17 @@ public class BaseEntityUtils {
 		}
 		return null;
 	}
+	
+	public String removeBaseEntity(final String baseEntityCode) {
+		try {
+			return QwandaUtils.apiDelete(this.qwandaServiceUrl + "/qwanda/baseentitys/" + baseEntityCode,
+					this.token);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "Success";
+
+	}
 
 	/*
 	 * Returns comma seperated list of all the childcode for the given parent code
@@ -1543,7 +1585,7 @@ public class BaseEntityUtils {
 			return null;
 	}
 
-	static public QBulkPullMessage createQBulkPullMessage(QBulkMessage msg) {
+	public QBulkPullMessage createQBulkPullMessage(QBulkMessage msg) {
 
 		UUID uuid = UUID.randomUUID();
 		QBulkPullMessage pullMsg = new QBulkPullMessage(uuid.toString());
@@ -1556,14 +1598,14 @@ public class BaseEntityUtils {
 
 	}
 
-	static public QBulkPullMessage createQBulkPullMessage(JsonObject msg) {
+	public static QBulkPullMessage createQBulkPullMessage(JsonObject msg) {
 
 		UUID uuid = UUID.randomUUID();
 
 		QBulkPullMessage pullMsg = new QBulkPullMessage(uuid.toString());
 
 		// Put the QBulkMessage into the PontoonDDT
-		DistMap.getDistPontoonBE().put(uuid, msg, 2, TimeUnit.MINUTES);
+		DistMap.getDistPontoonBE(getRealm()).put(uuid, msg, 2, TimeUnit.MINUTES);
 
 		// then create the QBulkPullMessage
 		pullMsg.setPullUrl(GennySettings.pontoonUrl + "/pull/" + uuid);

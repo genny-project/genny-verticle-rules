@@ -1,5 +1,9 @@
 package life.genny.channel;
 
+import java.lang.invoke.MethodHandles;
+
+import org.apache.logging.log4j.Logger;
+
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.rxjava.core.Vertx;
@@ -7,6 +11,8 @@ import io.vertx.rxjava.ext.web.Router;
 import life.genny.qwandautils.GennySettings;
 
 public class Routers {
+	  protected static final Logger log = org.apache.logging.log4j.LogManager
+		      .getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
 
 
 	static private Router router = null;
@@ -20,6 +26,7 @@ public class Routers {
 		router.route(HttpMethod.POST, "/write").handler(RouterHandlers::apiMapPutHandler);
 		router.route(HttpMethod.POST, "/writearray").handler(RouterHandlers::apiMapPutHandlerArray);
 		router.route(HttpMethod.GET, "/read/:param1").handler(RouterHandlers::apiMapGetHandler);
+		router.route(HttpMethod.GET, "/read/:realm/:param1").handler(RouterHandlers::apiMapGetHandlerRealm);
 		router.route(HttpMethod.GET, "/version").handler(VersionHandler::apiGetVersionHandler);
 		router.route(HttpMethod.GET, "/clear").handler(RouterHandlers::apiClearGetHandler);
 		return router;
@@ -34,7 +41,7 @@ public class Routers {
 	}
 
 	public static void activate(final Vertx vertx) {
-		System.out.println("Activating cache Routes on port "+GennySettings.cacheApiPort+" given ["+GennySettings.cacheApiPort+"]");
+		log.info("Activating cache Routes on port "+GennySettings.cacheApiPort+" given ["+GennySettings.cacheApiPort+"]");
 		HttpServerOptions serverOptions = new HttpServerOptions();
 		  serverOptions.setUsePooledBuffers(true);
 		  serverOptions.setCompressionSupported(true);

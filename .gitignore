@@ -8,6 +8,7 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .classpath
 .settings
+.project
 .mvn/timing.properties
 src/main/resources/genny-verticle-rules-git.properties
 # Avoid ignoring Maven wrapper jar file (.jar files are usually ignored)
@@ -16,3 +17,4 @@ src/main/resources/genny-verticle-rules-git.properties
 ./.factorypath
 ./.project
 ./.settings/org.eclipse.*
+/.apt_generated/

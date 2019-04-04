@@ -98,7 +98,7 @@ public class VertxUtils {
 	static public <T> T getObject(final String realm, final String keyPrefix, final String key, final Class clazz,
 			final String token) {
 		T item = null;
-		JsonObject json = readCachedJson(realm + ":" + keyPrefix + ":" + key, token);
+		JsonObject json = readCachedJson(realm,keyPrefix + ":" + key, token);
 		if (json.getString("status").equalsIgnoreCase("ok")) {
 		  String data = json.getString("value");
 		  item = (T) JsonUtils.fromJson(data, clazz);
@@ -116,7 +116,7 @@ public class VertxUtils {
 	static public <T> T getObject(final String realm, final String keyPrefix, final String key, final Type clazz,
 			final String token) {
 		T item = null;
-		JsonObject json = readCachedJson(realm + ":" + keyPrefix + ":" + key, token);
+		JsonObject json = readCachedJson(realm,keyPrefix + ":" + key, token);
 		if (json.getString("status").equalsIgnoreCase("ok")) {
 		  String data = json.getString("value");
           item = (T) JsonUtils.fromJson(data, clazz);
@@ -133,24 +133,21 @@ public class VertxUtils {
 	static public void putObject(final String realm, final String keyPrefix, final String key, final Object obj,
 			final String token) {
 		String data = JsonUtils.toJson(obj);
-		data = data.replaceAll("\\\"", "\"");
-		data = data.replaceAll("\\n", "\n");
-		writeCachedJson(realm + ":" + keyPrefix + ":" + key, data, token);
+		writeCachedJson(realm ,keyPrefix + ":" + key, data, token);
 	}
 
-	static public JsonObject readCachedJson(final String key) {
-		return readCachedJson(key, DEFAULT_TOKEN);
+	static public JsonObject readCachedJson(final String realm, final String key) {
+		return readCachedJson(realm, key, DEFAULT_TOKEN);
 	}
 
-	static public JsonObject readCachedJson(final String key, final String token) {
+	static public JsonObject readCachedJson(String realm, final String key, final String token) {
 		JsonObject result = null;
-
-		if (!(GennySettings.devMode  && cacheInterface instanceof WildflyCacheInterface)/*|| (!GennySettings.isCacheServer)*/) {
+		
+		if (!GennySettings.forceCacheApi) {
 			String ret = null;
-			JsonObject retj = null;
 			try {
 				//log.info("VERTX READING DIRECTLY FROM CACHE! USING "+(GennySettings.isCacheServer?" LOCAL DDT":"CLIENT "));
-				ret = (String) cacheInterface.readCache(key, token);
+				ret = (String) cacheInterface.readCache(realm, key, token);
 			} catch (Exception e) {
 	                log.error("Cache is  null");
 	                e.printStackTrace();
@@ -165,10 +162,14 @@ public class VertxUtils {
 			try {
 				//log.info("VERTX READING  FROM CACHE API!");
 				resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/" + key, token);
-				result = new JsonObject(resultStr);
+				if (resultStr != null) {
+					result = new JsonObject(resultStr);
+				} else {
+					result = new JsonObject().put("status", "error");
+				}
+
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("Could not read "+key+" from cache");
 			}
 
 		}
@@ -176,19 +177,21 @@ public class VertxUtils {
 		return result;
 	}
 
-	static public JsonObject writeCachedJson(final String key, final String value) {
-		return writeCachedJson(key, value, DEFAULT_TOKEN);
+	static public JsonObject writeCachedJson(final String realm, final String key, final String value) {
+		return writeCachedJson(realm, key, value, DEFAULT_TOKEN);
 	}
 
-	static public JsonObject writeCachedJson(final String key, final String value, final String token) {
-	  return writeCachedJson(key, value, token, 0L);
+	static public JsonObject writeCachedJson(final String realm, final String key, final String value, final String token) {
+	  return writeCachedJson(realm, key, value, token, 0L);
 	}
 	
-	static public JsonObject writeCachedJson(final String key, String value, final String token, long ttl_seconds) {
-		if (!(GennySettings.devMode  && cacheInterface instanceof WildflyCacheInterface)/*|| (!GennySettings.isCacheServer)*/) {
+	static public JsonObject writeCachedJson(String realm, final String key, String value, final String token, long ttl_seconds) {
+		if (!GennySettings.forceCacheApi) {
 			//log.debug("WRITING USING "+(GennySettings.isCacheServer?" LOCAL DDT":"CLIENT ")+"  "+key);
-
-			cacheInterface.writeCache(key, value, token,ttl_seconds);
+			if ("genny".equals(realm)) {
+				realm = GennySettings.mainrealm;
+			}
+			cacheInterface.writeCache(realm, key, value, token,ttl_seconds);
 		} else {
 			try {
 				log.debug("WRITING TO CACHE USING API! "+key);
@@ -204,24 +207,34 @@ public class VertxUtils {
 		JsonObject ok = new JsonObject().put("status", "ok");
 		return ok;
 
-	}
+}
 	
-	static public void clearDDT()
+	static public void clearDDT(String realm)
 	{
-		cacheInterface.clear();
+		if ("genny".equals(realm)) {
+			realm = GennySettings.mainrealm;
+		}
+
+		cacheInterface.clear(realm);
 	}
 
-	static public BaseEntity readFromDDT(final String code, final boolean withAttributes, final String token) {
+	static public BaseEntity readFromDDT(String realm, final String code, final boolean withAttributes, final String token) {
 		BaseEntity be = null;
-		JsonObject json = readCachedJson(code);
+
+		if ("genny".equals(realm)) {
+			realm = GennySettings.mainrealm;
+		}
+
+		JsonObject json = readCachedJson(realm, code,token);
+
 		if ("ok".equals(json.getString("status"))) {
 		    be = JsonUtils.fromJson(json.getString("value"), BaseEntity.class);
 			if (be != null && be.getCode()==null) {
-				log.error("readFromDDT baseEntity has null code! json is ["+json.getString("value")+"]");
+				log.error("readFromDDT baseEntity for realm "+realm+" has null code! json is ["+json.getString("value")+"]");
 			}
 		} else {
 			// fetch normally
-			log.info("Cache MISS for " + code+" with attributes");
+			log.info("Cache MISS for " + code+" with attributes in realm  "+realm);
 			try {
 				if (withAttributes) {
 					be = QwandaUtils.getBaseEntityByCodeWithAttributes(code, token);
@@ -231,24 +244,25 @@ public class VertxUtils {
 			} catch (Exception e) {
 				// Okay, this is bad. Usually the code is not in the database but in keycloak
 				// So lets leave it to the rules to sort out... (new user)
-				log.error("BE " + code + " is NOT IN CACHE OR DB " + e.getLocalizedMessage());
+				log.error("BE " + code + " for realm "+realm+" is NOT IN CACHE OR DB " + e.getLocalizedMessage());
 				return null;
 
 			}
-			if ((cachedEnabled) || (System.getenv("GENNY_DEV") != null)) {
-              writeCachedJson(code, JsonUtils.toJson(be));
-          }
+             writeCachedJson(realm, code, JsonUtils.toJson(be));
+
 		}
 		return be;
 	}
 
 	static boolean cacheDisabled = System.getenv("NO_CACHE") != null ? true : false;
 
-	static public BaseEntity readFromDDT(final String code, final String token) {
+	static public BaseEntity readFromDDT(final String realm, final String code, final String token) {
 		// if ("PER_SHARONCROW66_AT_GMAILCOM".equals(code)) {
-		// System.out.println("DEBUG");
+		// log.info("DEBUG");
 		// }
-		return readFromDDT(code, false,token);
+
+		return readFromDDT(realm, code, true,token);
+
 }
 
 	static public void subscribeAdmin(final String realm, final String adminUserCode) {
@@ -387,7 +401,7 @@ public class VertxUtils {
 	}
 
 	public static void putMessageProducer(String sessionState, MessageProducer<JsonObject> toSessionChannel) {
-		System.out.println("Registering SessionChannel to "+sessionState);
+		log.info("Registering SessionChannel to "+sessionState);
 		localMessageProducerCache.put(sessionState, toSessionChannel);
 
 	}
@@ -406,18 +420,18 @@ public class VertxUtils {
 	
 	static public JsonObject publish(BaseEntity user, String channel, Object payload, final String[] filterAttributes) {
 		
-		if (!(GennySettings.devMode  && cacheInterface instanceof WildflyCacheInterface)/*|| (!GennySettings.isCacheServer)*/) {
+		if (!GennySettings.forceEventBusApi) {
 			eb.publish(user, channel, payload, filterAttributes);
 		} else {
 			try {
 				
 				String jsonMsg = (String)payload;
-				String bridgeApi = System.getenv("REACT_APP_VERTX_SERVICE_API");
-				log.debug("WRITING TO EVENTBUS USING API! "+bridgeApi);
+	
+				log.info("WRITING TO EVENTBUS USING API! "+GennySettings.bridgeServiceUrl);
 				JsonObject jsonJson = new JsonObject(jsonMsg);
 				//log.info("token="+jsonJson.getString("token"));
 				//log.info("jsonMsg="+jsonMsg);
-				QwandaUtils.apiPostEntity(bridgeApi, jsonMsg, jsonJson.getString("token"));
+				QwandaUtils.apiPostEntity(GennySettings.bridgeServiceUrl, jsonMsg, jsonJson.getString("token"));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -482,7 +496,7 @@ public class VertxUtils {
 	static public BaseEntity privacyFilter(BaseEntity user, BaseEntity be, final String[] filterAttributes) {
 		Set<EntityAttribute> allowedAttributes = new HashSet<EntityAttribute>();
 		for (EntityAttribute entityAttribute : be.getBaseEntityAttributes()) {
-			// System.out.println("ATTRIBUTE:"+entityAttribute.getAttributeCode()+(entityAttribute.getPrivacyFlag()?"PRIVACYFLAG=TRUE":"PRIVACYFLAG=FALSE"));
+			// log.info("ATTRIBUTE:"+entityAttribute.getAttributeCode()+(entityAttribute.getPrivacyFlag()?"PRIVACYFLAG=TRUE":"PRIVACYFLAG=FALSE"));
 			if ((be.getCode().startsWith("PER_")) && (!be.getCode().equals(user.getCode()))) {
 				String attributeCode = entityAttribute.getAttributeCode();
 
