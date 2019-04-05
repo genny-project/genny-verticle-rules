@@ -1538,13 +1538,14 @@ public class BaseEntityUtils implements Serializable {
 	
 	public String removeBaseEntity(final String baseEntityCode) {
 		try {
-			return QwandaUtils.apiDelete(this.qwandaServiceUrl + "/qwanda/baseentitys/" + baseEntityCode,
+			String result = QwandaUtils.apiDelete(this.qwandaServiceUrl + "/qwanda/baseentitys/" + baseEntityCode,
 					this.token);
+			log.info("Result from remove user: " + result);
+			return result;
 		} catch (Exception e) {
 			e.printStackTrace();
+			return "Failed";
 		}
-		return "Success";
-
 	}
 
 	/*
