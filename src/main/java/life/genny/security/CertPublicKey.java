@@ -26,17 +26,16 @@ public enum CertPublicKey {
   private final String N = "n";
   private final String E = "e";
   private PublicKey publicKey;
+
   private final static String KEYCLOAK_CERT_URL =
       System.getenv("KEYCLOAKURL")
-//      "http://localhost:8180"
       + "/auth/realms/"
           + GennySettings.mainrealm
-//          + "genny"
           + "/protocol/openid-connect/certs";
 
   public PublicKey getPublicKey() {
     Optional<PublicKey> ifExist = Optional.ofNullable(publicKey);
-    publicKey = ifExist.orElse(findPublicKey());
+    publicKey = ifExist.orElseGet(()->findPublicKey());
     return publicKey;
   }
 
@@ -64,7 +63,7 @@ public enum CertPublicKey {
 
   public String encodedToBase64() {
     return Base64.getEncoder()
-        .encodeToString(findPublicKey().getEncoded());
+        .encodeToString(getPublicKey().getEncoded());
   }
 
   public static JsonObject fetchOIDCPubKey() {
@@ -73,7 +72,6 @@ public enum CertPublicKey {
     try {
       apiGet = QwandaUtils.apiGet(KEYCLOAK_CERT_URL, null);
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
     return Json.mapper.convertValue(apiGet, JsonObject.class);
