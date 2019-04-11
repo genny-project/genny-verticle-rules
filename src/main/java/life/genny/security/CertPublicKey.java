@@ -30,21 +30,11 @@ public enum CertPublicKey {
   private final static String KEYCLOAK_CERT_URL ;
 
   static{
-    if (GennySettings.devMode || 
-            (GennySettings.defaultLocalIP.equals(GennySettings.hostIP))) {
-      KEYCLOAK_CERT_URL =
-          System.getenv("KEYCLOAKURL")
-          + "/auth/realms/"
-          + "genny"
-          + "/protocol/openid-connect/certs";
-    }else{
       KEYCLOAK_CERT_URL =
           System.getenv("KEYCLOAKURL")
           + "/auth/realms/"
           + GennySettings.mainrealm
           + "/protocol/openid-connect/certs";
-    }
-
   }
 
   public PublicKey getPublicKey() {
