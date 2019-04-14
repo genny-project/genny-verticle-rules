@@ -15,6 +15,9 @@ src/main/resources/genny-verticle-rules-git.properties
 !/.mvn/wrapper/maven-wrapper.jar
 src/main/resources/genny-verticle-rules-git.properties
 ./.factorypath
+.factorypath
 ./.project
 ./.settings/org.eclipse.*
 /.apt_generated/
+**/bin/*
+bin/
