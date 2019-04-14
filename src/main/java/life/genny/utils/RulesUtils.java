@@ -37,7 +37,6 @@ import life.genny.qwandautils.GennySettings;
 import life.genny.qwandautils.JsonUtils;
 import life.genny.qwandautils.KeycloakUtils;
 import life.genny.qwandautils.QwandaUtils;
-import life.genny.security.SecureResources;
 
 public class RulesUtils {
 
@@ -213,32 +212,16 @@ public class RulesUtils {
 
 		/* otherwise we renew it */
 		println("Generating Service Token for "+realm);
-		String jsonFile = realm + ".json";        
-		String keycloakJson = SecureResources.getKeycloakJsonMap().get(jsonFile);
-		if (keycloakJson == null) {
-			println("No keycloakMap for " + realm+" ... fixing");
-			SecureResources.readFilenamesFromDirectory(GennySettings.realmDir);
-			String gennyKeycloakJson = SecureResources.getKeycloakJsonMap().get("genny.json");
-			if (GennySettings.devMode) {
-					SecureResources.getKeycloakJsonMap().put(jsonFile, gennyKeycloakJson);
-					keycloakJson = gennyKeycloakJson;
-			} else {
-					if (GennySettings.defaultLocalIP.equalsIgnoreCase(GennySettings.hostIP)) {
-							println("gennyKeycloakJson="+gennyKeycloakJson);
-							// Running in local docker mode
-							SecureResources.getKeycloakJsonMap().put(jsonFile, gennyKeycloakJson);
-							keycloakJson = gennyKeycloakJson;
-							println("No keycloak Json file available for realm - "+realm+" , so using genny instead ..");
-					} else {
-							println("Error - No keycloak Json file available for realm - "+realm);
-					}
-			}
-		}
-		println("keycloak.json="+keycloakJson);
-		JsonObject realmJson = new JsonObject(keycloakJson);
-		JsonObject secretJson = realmJson.getJsonObject("credentials");
+		JsonObject json = VertxUtils.readCachedJson(GennySettings.mainrealm, GennySettings.KEYCLOAK_JSON);
+		if (json==null || "error".equals(json.getString("status"))) {
+			log.error("KEYCLOAK JSON NOT FOUND");
+			return null;
+		} 
+		JsonObject keycloakJson = new JsonObject(json.getString("value"));
+		println("Keycloak Json ="+keycloakJson);
+		JsonObject secretJson = keycloakJson.getJsonObject("credentials");
 		String secret = secretJson.getString("secret");
-		String jsonRealm = realmJson.getString("realm");
+		String jsonRealm = keycloakJson.getString("realm");
 		
 		String key = GennySettings.dynamicKey(jsonRealm);
 		String initVector = GennySettings.dynamicInitVector(jsonRealm);
@@ -250,8 +233,8 @@ public class RulesUtils {
 		password = GennySettings.dynamicPassword(jsonRealm);
 		println("password=["+password+"]");
 		// Now ask the bridge for the keycloak to use
-		String keycloakurl = realmJson.getString("auth-server-url").substring(0,
-						realmJson.getString("auth-server-url").length() - ("/auth".length()));
+		String keycloakurl = keycloakJson.getString("auth-server-url").substring(0,
+				keycloakJson.getString("auth-server-url").length() - ("/auth".length()));
 		println(keycloakurl);
 		try {
 			println("jsonRealm= "+jsonRealm+", dynamicRealm() : " + dynamicRealm + "\n" + "realm : " + realm + "\n" + "secret : " + secret + "\n"
