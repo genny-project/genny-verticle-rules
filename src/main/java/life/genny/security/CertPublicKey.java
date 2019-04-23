@@ -1,10 +1,13 @@
 package life.genny.security;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.security.PublicKey;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import org.apache.logging.log4j.Logger;
 import org.keycloak.jose.jwk.JWK;
 import org.keycloak.jose.jwk.JWKParser;
 import io.netty.util.concurrent.Future;
@@ -19,6 +22,9 @@ import life.genny.utils.VertxUtils;
 import rx.Single;
 
 public enum CertPublicKey {
+	
+
+
 
   INSTANCE;
 
@@ -75,8 +81,10 @@ public enum CertPublicKey {
 	if (jsonObj == null) {
 		return null;
 	}
-	
-	BaseEntity project = JsonUtils.fromJson(jsonObj.toString(), BaseEntity.class);
+	if ("error".equals(jsonObj.getString("status"))) {
+		return null;
+	}
+	BaseEntity project = JsonUtils.fromJson(jsonObj.getString("value").toString(), BaseEntity.class);
 	String keycloakUrl = project.getValue("ENV_KEYCLOAK_REDIRECTURI","http://keycloak.genny.life");
     String apiGet = null;
     String keycloakCertUrl = 
