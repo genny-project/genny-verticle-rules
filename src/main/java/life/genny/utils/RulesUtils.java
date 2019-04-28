@@ -2,6 +2,7 @@ package life.genny.utils;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -182,115 +183,116 @@ public class RulesUtils {
 	public static String generateServiceToken(String realm) {
 
 		/* we get the service token currently stored in the cache */
-		String serviceToken = VertxUtils.getObject(realm, "CACHE", "SERVICE_TOKEN", String.class);
+		String serviceToken = VertxUtils.getObject(realm, "CACHE", "SERVICE_TOKEN"+realm, String.class);
 
+		return serviceToken;
 		/* if we have got a service token cached */
-		if (serviceToken != null) {
-
-			/* we decode it */
-			JSONObject decodedServiceToken = KeycloakUtils.getDecodedToken(serviceToken);
-
-			/* we get the expiry timestamp */
-			long expiryTime = decodedServiceToken.getLong("exp");
-
-			/* we get the current time */
-			long nowTime = LocalDateTime.now().atZone(TimeZone.getDefault().toZoneId()).toEpochSecond();
-
-			/* we calculate the differencr */ 
-			long duration = expiryTime - nowTime;
-
-			/* if the difference is negative it means the expiry time is less than the nowTime 
-				 if the difference < ACCESS_TOKEN_EXPIRY_LIMIT_SECONDS, it means the token will expire in 3 hours
-			*/
-			if(duration > GennySettings.ACCESS_TOKEN_EXPIRY_LIMIT_SECONDS) {
-
-				//log.info("======= USING CACHED ACCESS TOKEN ========");
-
-				/* if the token is NOTn about to expire (> 3 hours), we reuse it */
-				return serviceToken;
-			}
-		}
-
-		/* otherwise we renew it */
-		println("Generating Service Token for "+realm);
-		String jsonFile = realm + ".json";        
-		String keycloakJson = SecureResources.getKeycloakJsonMap().get(jsonFile);
-		if (keycloakJson == null) {
-			println("No keycloakMap for " + realm+" ... fixing");
-			SecureResources.readFilenamesFromDirectory(GennySettings.realmDir);
-			String gennyKeycloakJson = SecureResources.getKeycloakJsonMap().get("genny.json");
-			if (GennySettings.devMode) {
-					SecureResources.getKeycloakJsonMap().put(jsonFile, gennyKeycloakJson);
-					keycloakJson = gennyKeycloakJson;
-			} else {
-					if (GennySettings.defaultLocalIP.equalsIgnoreCase(GennySettings.hostIP)) {
-							println("gennyKeycloakJson="+gennyKeycloakJson);
-							// Running in local docker mode
-							SecureResources.getKeycloakJsonMap().put(jsonFile, gennyKeycloakJson);
-							keycloakJson = gennyKeycloakJson;
-							println("No keycloak Json file available for realm - "+realm+" , so using genny instead ..");
-					} else {
-							println("Error - No keycloak Json file available for realm - "+realm);
-					}
-			}
-		}
-		println("keycloak.json="+keycloakJson);
-		JsonObject realmJson = new JsonObject(keycloakJson);
-		JsonObject secretJson = realmJson.getJsonObject("credentials");
-		String secret = secretJson.getString("secret");
-		String jsonRealm = realmJson.getString("realm");
-		
-		String key = GennySettings.dynamicKey(jsonRealm);
-		String initVector = GennySettings.dynamicInitVector(jsonRealm);
-		String encryptedPassword = GennySettings.dynamicEncryptedPassword(jsonRealm);
-		String password= null;
-		String dynamicRealm = GennySettings.dynamicRealm(jsonRealm);
-		
-		println("key:"+key+":"+initVector+":"+encryptedPassword);
-		password = GennySettings.dynamicPassword(jsonRealm);
-		println("password=["+password+"]");
-		// Now ask the bridge for the keycloak to use
-		String keycloakurl = realmJson.getString("auth-server-url").substring(0,
-						realmJson.getString("auth-server-url").length() - ("/auth".length()));
-		println(keycloakurl);
-		try {
-			println("jsonRealm= "+jsonRealm+", dynamicRealm() : " + dynamicRealm + "\n" + "realm : " + realm + "\n" + "secret : " + secret + "\n"
-							+ "keycloakurl: " + keycloakurl + "\n" + "key : " + key + "\n" + "initVector : " + initVector + "\n"
-							+ "enc pw : " + encryptedPassword + "\n" + "password : [" + password + "]\n");
-
-			/* we get the refresh token from the cache */
-			String cached_refresh_token = VertxUtils.getObject(realm, "CACHE", "SERVICE_TOKEN_REFRESH", String.class); 
-
-			/* we get a secure token payload containing a refresh token and an access token */
-			JsonObject secureTokenPayload = KeycloakUtils.getSecureTokenPayload(keycloakurl, dynamicRealm, dynamicRealm, secret, "service", password, cached_refresh_token);
-
-			/* we get the access token and the refresh token */
-			String access_token = secureTokenPayload.getString("access_token");
-			String refresh_token = secureTokenPayload.getString("refresh_token");
-
-			/* we print it out */
-			println("access_token = " + StringUtils.abbreviateMiddle(access_token, "...", 20));
-
-			/* if we don't have an access token */
-			if (access_token == null) {
-
-				/* we print out the error */
-				println(RulesUtils.ANSI_RED + "Token is Null -> Check that keycloak for realm (" + realm
-						+ ") has service user password set properly to " + password + RulesUtils.ANSI_RESET);
-			}
-			
-			/* if we have an access token, we store it in the cache as well as the refresh token */
-			else {
-				VertxUtils.putObject(realm, "CACHE", "SERVICE_TOKEN", access_token); // TODO
-				VertxUtils.putObject(realm, "CACHE", "SERVICE_TOKEN_REFRESH", refresh_token); // TODO
-			}
-						
-			return access_token;
-
-		} catch (Exception e) {
-				println(e);
-		}
-		return null;
+//		if (serviceToken != null) {
+//
+//			/* we decode it */
+//			JSONObject decodedServiceToken = KeycloakUtils.getDecodedToken(serviceToken);
+//
+//			/* we get the expiry timestamp */
+//			long expiryTime = decodedServiceToken.getLong("exp");
+//
+//			/* we get the current time */
+//			long nowTime = LocalDateTime.now().atZone(TimeZone.getDefault().toZoneId()).toEpochSecond();
+//
+//			/* we calculate the differencr */ 
+//			long duration = expiryTime - nowTime;
+//
+//			/* if the difference is negative it means the expiry time is less than the nowTime 
+//				 if the difference < ACCESS_TOKEN_EXPIRY_LIMIT_SECONDS, it means the token will expire in 3 hours
+//			*/
+//			if(duration > GennySettings.ACCESS_TOKEN_EXPIRY_LIMIT_SECONDS) {
+//
+//				//log.info("======= USING CACHED ACCESS TOKEN ========");
+//
+//				/* if the token is NOTn about to expire (> 3 hours), we reuse it */
+//				return serviceToken;
+//			}
+//		}
+//
+//		/* otherwise we renew it */
+//		println("Generating Service Token for "+realm);
+//		String jsonFile = realm + ".json";        
+//		String keycloakJson = SecureResources.getKeycloakJsonMap().get(jsonFile);
+//		if (keycloakJson == null) {
+//			println("No keycloakMap for " + realm+" ... fixing");
+//			SecureResources.readFilenamesFromDirectory(GennySettings.realmDir);
+//			String gennyKeycloakJson = SecureResources.getKeycloakJsonMap().get("genny.json");
+//			if (GennySettings.devMode) {
+//					SecureResources.getKeycloakJsonMap().put(jsonFile, gennyKeycloakJson);
+//					keycloakJson = gennyKeycloakJson;
+//			} else {
+//					if (GennySettings.defaultLocalIP.equalsIgnoreCase(GennySettings.hostIP)) {
+//							println("gennyKeycloakJson="+gennyKeycloakJson);
+//							// Running in local docker mode
+//							SecureResources.getKeycloakJsonMap().put(jsonFile, gennyKeycloakJson);
+//							keycloakJson = gennyKeycloakJson;
+//							println("No keycloak Json file available for realm - "+realm+" , so using genny instead ..");
+//					} else {
+//							println("Error - No keycloak Json file available for realm - "+realm);
+//					}
+//			}
+//		}
+//		println("keycloak.json="+keycloakJson);
+//		JsonObject realmJson = new JsonObject(keycloakJson);
+//		JsonObject secretJson = realmJson.getJsonObject("credentials");
+//		String secret = secretJson.getString("secret");
+//		String jsonRealm = realmJson.getString("realm");
+//		
+//		String key = GennySettings.dynamicKey(jsonRealm);
+//		String initVector = GennySettings.dynamicInitVector(jsonRealm);
+//		String encryptedPassword = GennySettings.dynamicEncryptedPassword(jsonRealm);
+//		String password= null;
+//		String dynamicRealm = GennySettings.dynamicRealm(jsonRealm);
+//		
+//		println("key:"+key+":"+initVector+":"+encryptedPassword);
+//		password = GennySettings.dynamicPassword(jsonRealm);
+//		println("password=["+password+"]");
+//		// Now ask the bridge for the keycloak to use
+//		String keycloakurl = realmJson.getString("auth-server-url").substring(0,
+//						realmJson.getString("auth-server-url").length() - ("/auth".length()));
+//		println(keycloakurl);
+//		try {
+//			println("jsonRealm= "+jsonRealm+", dynamicRealm() : " + dynamicRealm + "\n" + "realm : " + realm + "\n" + "secret : " + secret + "\n"
+//							+ "keycloakurl: " + keycloakurl + "\n" + "key : " + key + "\n" + "initVector : " + initVector + "\n"
+//							+ "enc pw : " + encryptedPassword + "\n" + "password : [" + password + "]\n");
+//
+//			/* we get the refresh token from the cache */
+//			String cached_refresh_token = VertxUtils.getObject(realm, "CACHE", "SERVICE_TOKEN_REFRESH", String.class); 
+//
+//			/* we get a secure token payload containing a refresh token and an access token */
+//			JsonObject secureTokenPayload = KeycloakUtils.getSecureTokenPayload(keycloakurl, dynamicRealm, dynamicRealm, secret, "service", password, cached_refresh_token);
+//
+//			/* we get the access token and the refresh token */
+//			String access_token = secureTokenPayload.getString("access_token");
+//			String refresh_token = secureTokenPayload.getString("refresh_token");
+//
+//			/* we print it out */
+//			println("access_token = " + StringUtils.abbreviateMiddle(access_token, "...", 20));
+//
+//			/* if we don't have an access token */
+//			if (access_token == null) {
+//
+//				/* we print out the error */
+//				println(RulesUtils.ANSI_RED + "Token is Null -> Check that keycloak for realm (" + realm
+//						+ ") has service user password set properly to " + password + RulesUtils.ANSI_RESET);
+//			}
+//			
+//			/* if we have an access token, we store it in the cache as well as the refresh token */
+//			else {
+//				VertxUtils.putObject(realm, "CACHE", "SERVICE_TOKEN", access_token); // TODO
+//				VertxUtils.putObject(realm, "CACHE", "SERVICE_TOKEN_REFRESH", refresh_token); // TODO
+//			}
+//						
+//			return access_token;
+//
+//		} catch (Exception e) {
+//				println(e);
+//		}
+//		return null;
 	}
 
 	/**

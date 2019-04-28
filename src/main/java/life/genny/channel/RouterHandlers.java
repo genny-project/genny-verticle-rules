@@ -169,8 +169,16 @@ public class RouterHandlers {
 		        req.response().headers().set("Content-Type", "application/json");
 		        req.response().end(err.encode());
 		      } else {
-		    	    JsonObject valueJson = new JsonObject(json.getString("value"));
-		    	    json.put("value", valueJson);
+		    	  String value = json.getString("value");
+		    	//  value = value.replaceAll("\\\"", "\"");
+		    	    JsonObject valueJson = null;
+		    	    try { // convert to nice json
+						valueJson = new JsonObject(value);
+						  json.put("value", valueJson);
+					} catch (Exception e) {
+						valueJson = new JsonObject();
+					}
+		    	  
 
 		            req.response().headers().set("Content-Type", "application/json");
 		            req.response().end(json.encode());
