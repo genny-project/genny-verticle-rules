@@ -1610,19 +1610,4 @@ public class BaseEntityUtils implements Serializable {
 
 	}
 
-	public BaseEntity createVirtualLink(BaseEntity source, BaseEntity target, String linkCode, String linkValue,
-			Double weight) {
-
-		System.out.println("CREATING LINK between " + source.getCode() + "and" + target.getCode() + "with LINK VALUE = "
-				+ linkValue);
-		Attribute attribute = new Attribute(linkCode, linkCode, new DataType(String.class));
-
-		EntityEntity entityEntity = new EntityEntity(source, target, attribute, weight, linkValue);
-		Set<EntityEntity> entEntList = new HashSet<>();
-		entEntList.add(entityEntity);
-
-		source.setLinks(entEntList);
-		return source;
-	}
-
 }
