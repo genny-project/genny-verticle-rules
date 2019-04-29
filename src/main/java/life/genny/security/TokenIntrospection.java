@@ -2,10 +2,16 @@ package life.genny.security;
 
 import java.util.Arrays;
 import java.util.List;
+
+import java.util.Map;
+
 import java.util.function.BiPredicate;
 import io.vertx.core.json.JsonObject;
 import io.vertx.rxjava.ext.auth.AuthProvider;
 import io.vertx.rxjava.ext.auth.User;
+
+import life.genny.qwandautils.KeycloakUtils;
+
 
 public class TokenIntrospection {
 
@@ -17,9 +23,14 @@ public class TokenIntrospection {
   public static BiPredicate<String, String> checkAuth =
       (token, role) -> {
 
+
+    	// extract the realm from the token
+    	  String realm = getRealm(token);
+    	  
         JsonObject tokenWrapped = new JsonObject();
         tokenWrapped.put(JWT, token);
-        AuthProvider provider = JWTUtils.getProvider();
+        AuthProvider provider = JWTUtils.getProvider(realm);
+
         User user = null;
         try {
           user = provider.rxAuthenticate(tokenWrapped).toBlocking()
@@ -44,5 +55,11 @@ public class TokenIntrospection {
     return Arrays.asList(roles);
   }
 
+
+  public static String getRealm(final String token)
+  {
+	  Map<String, Object> serviceDecodedTokenMap = KeycloakUtils.getJsonMap(token);
+	return (String)serviceDecodedTokenMap.get("azp");
+  }
 
 }
