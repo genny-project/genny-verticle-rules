@@ -59,7 +59,7 @@ public class BaseEntityUtils implements Serializable {
 
 	private Map<String, Object> decodedMapToken;
 	private String token;
-	private static String realm;
+	private String realm;
 	private String qwandaServiceUrl;
 
 	private CacheUtils cacheUtil;
@@ -75,7 +75,7 @@ public class BaseEntityUtils implements Serializable {
 		this.cacheUtil.setBaseEntityUtils(this);
 	}
 
-	private static String getRealm() {
+	private String getRealm() {
 		return realm;
 	}
 
@@ -265,11 +265,6 @@ public class BaseEntityUtils implements Serializable {
 
 	public void saveAnswers(List<Answer> answers, final boolean changeEvent) {
 
-		if (answers.size() == 1) {
-			if (answers.get(0).getAttributeCode().equals("PRI_CONTAINER_SIZE_REQUESTED")) {
-				log.info("PRI_CONTAINER_SIZE_REQUESTED");
-			}
-		}
 
 		if (!changeEvent) {
 			for (Answer answer : answers) {
@@ -284,12 +279,12 @@ public class BaseEntityUtils implements Serializable {
 		this.updateCachedBaseEntity(answers);
 
 		String jsonAnswer = JsonUtils.toJson(msg);
-		jsonAnswer.replace("\\\"", "\"");
+	//	jsonAnswer.replace("\\\"", "\"");
 
 		try {
 			QwandaUtils.apiPostEntity(this.qwandaServiceUrl + "/qwanda/answers/bulk2", jsonAnswer, token);
 		} catch (IOException e) {
-			// log.error("Socket error trying to post answer");
+			 log.error("Socket error trying to post answer");
 		}
 	}
 
@@ -1599,7 +1594,7 @@ public class BaseEntityUtils implements Serializable {
 
 	}
 
-	public static QBulkPullMessage createQBulkPullMessage(JsonObject msg) {
+	public  QBulkPullMessage createQBulkPullMessage(JsonObject msg) {
 
 		UUID uuid = UUID.randomUUID();
 
