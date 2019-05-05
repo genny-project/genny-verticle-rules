@@ -37,6 +37,7 @@ public class EventBusVertx  implements EventBusInterface
 			Producer.getToWebData().write(payload).end();
 			break;
 		case "cmds":
+		case "webcmds":
 			payload = EventBusInterface.privacyFilter(user, payload,filterAttributes);
 			Producer.getToWebCmds().send(payload);
 			break;
