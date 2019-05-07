@@ -59,7 +59,7 @@ public class BaseEntityUtils implements Serializable {
 
 	private Map<String, Object> decodedMapToken;
 	private String token;
-	private String realm;
+	private static String realm;
 	private String qwandaServiceUrl;
 
 	private CacheUtils cacheUtil;
@@ -75,7 +75,7 @@ public class BaseEntityUtils implements Serializable {
 		this.cacheUtil.setBaseEntityUtils(this);
 	}
 
-	private String getRealm() {
+	private static String getRealm() {
 		return realm;
 	}
 
@@ -1594,7 +1594,7 @@ public class BaseEntityUtils implements Serializable {
 
 	}
 
-	public  QBulkPullMessage createQBulkPullMessage(JsonObject msg) {
+	public static QBulkPullMessage createQBulkPullMessage(JsonObject msg) {
 
 		UUID uuid = UUID.randomUUID();
 
