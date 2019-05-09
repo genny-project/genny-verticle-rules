@@ -182,7 +182,7 @@ public class RulesUtils {
 	public static String generateServiceToken(String realm) {
 
 		/* we get the service token currently stored in the cache */
-		String serviceToken = VertxUtils.getObject(realm, "CACHE", "SERVICE_TOKEN"+realm.toUpperCase(), String.class);
+		String serviceToken = VertxUtils.getObject(realm, "CACHE", "SERVICE_TOKEN", String.class);
 
 		return serviceToken;
 
