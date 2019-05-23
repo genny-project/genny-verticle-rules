@@ -427,7 +427,7 @@ public class VertxUtils {
 				
 				String jsonMsg = (String)payload;
 	
-				log.info("WRITING TO EVENTBUS USING API! "+GennySettings.bridgeServiceUrl);
+				System.out.println("WRITING TO EVENTBUS USING API! "+GennySettings.bridgeServiceUrl);
 				JsonObject jsonJson = new JsonObject(jsonMsg);
 				//log.info("token="+jsonJson.getString("token"));
 				//log.info("jsonMsg="+jsonMsg);

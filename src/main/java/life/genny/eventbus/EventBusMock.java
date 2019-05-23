@@ -2,6 +2,7 @@ package life.genny.eventbus;
 
 import java.lang.invoke.MethodHandles;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 
 import io.vertx.rxjava.core.eventbus.EventBus;
@@ -26,30 +27,37 @@ public class EventBusMock  implements EventBusInterface
 	@Override
 	public void publish(BaseEntity user, String channel, Object payload, final String[] filterAttributes) {
 		// Actually Send ....
+		String payloadStr = (String)payload.toString();
+		payloadStr = StringUtils.abbreviateMiddle(payloadStr, "...", 80);
 		switch (channel) {
 		case "event":
 		case "events":
-			log.info(channel.toUpperCase()+":"+payload);
+			System.out.println(channel.toUpperCase()+":"+payloadStr);
 			;
 			break;
 		case "data":
-			log.info(channel.toUpperCase()+":"+payload);
+			System.out.println(channel.toUpperCase()+":"+payloadStr);
 			break;
 
 		case "webdata":
 			payload = EventBusInterface.privacyFilter(user, payload,filterAttributes);
-			log.info(channel.toUpperCase()+":"+payload);
+			payloadStr = (String)payload.toString();
+			payloadStr = StringUtils.abbreviateMiddle(payloadStr, "...", 80);
+
+			System.out.println(channel.toUpperCase()+":"+payloadStr);
 			break;
 		case "cmds":
 		case "webcmds":
 			payload = EventBusInterface.privacyFilter(user, payload,filterAttributes);
-			log.info(channel.toUpperCase()+":"+payload);
+			payloadStr = (String)payload.toString();
+			payloadStr = StringUtils.abbreviateMiddle(payloadStr, "...", 80);
+			System.out.println(channel.toUpperCase()+":"+payloadStr);
 			break;
 		case "services":
-			log.info(channel.toUpperCase()+":"+payload);
+			System.out.println(channel.toUpperCase()+":"+payloadStr);
 			break;
 		case "messages":
-			log.info(channel.toUpperCase()+":"+payload);
+			System.out.println(channel.toUpperCase()+":"+payloadStr);
 			break;
 		default:
 			log.error("Channel does not exist: " + channel);
