@@ -15,6 +15,8 @@ public class Consumer {
 
 	private static Observable<Message<Object>> fromEvents;
 	private static Observable<Message<Object>> fromSocial;
+	
+	private static Observable<Message<Object>> fromHealth;
 
 	/**
 	 * @return the fromCmds
@@ -136,6 +138,21 @@ public class Consumer {
 		Consumer.fromWebData = fromWebData;
 	}
 
+	/**
+	 * @return the fromWebData
+	 */
+	public static Observable<Message<Object>> getFromHealth() {
+		return fromHealth;
+	}
+
+	/**
+	 * @param fromWebData
+	 *            the fromWebData to set
+	 */
+	public static void setFromHealth(Observable<Message<Object>> fromHealth) {
+		Consumer.fromHealth = fromHealth;
+	}
+
 	public static void registerAllConsumer(EventBus eb) {
 		setFromWebCmds(eb.consumer("webcmds").toObservable());
 		setFromWebData(eb.consumer("webdata").toObservable());
@@ -145,6 +162,7 @@ public class Consumer {
 		setFromEvents(eb.consumer("events").toObservable());
 		setFromSocial(eb.consumer("social").toObservable());
 		setFromMessages(eb.consumer("messages").toObservable());
+		setFromHealth(eb.consumer("health").toObservable());
 		
 		
 	}

@@ -18,6 +18,7 @@ public class Producer {
 	private static MessageProducer<Object> toWebCmds;
 	private static MessageProducer<Object> toServices;
 	private static MessageProducer<Object> toSocial;
+	private static MessageProducer<Object> toHealth;
 
 	public static MessageProducer<Object> getToSocial() {
 		return toSocial;
@@ -167,6 +168,22 @@ public class Producer {
 		Producer.toWebData = toWebData;
 	}
 
+	/**
+	 * @return the toHealth
+	 */
+	public static MessageProducer<Object> getToHealth() {
+		return toHealth;
+	}
+
+	/**
+	 * @param toWebData
+	 *            the toHealth to set
+	 */
+	public static void setToHealth(MessageProducer<Object> toWebData) {
+		Producer.toHealth = toHealth;
+	}
+	
+	
 	public static void registerAllProducers(EventBus eb) {
 		setToEvents(eb.publisher("events"));
 		setToData(eb.publisher("data"));
@@ -176,6 +193,7 @@ public class Producer {
 		setToServices(eb.publisher("services"));
 		setToMessages(eb.publisher("messages"));
 		setToSocial(eb.publisher("social"));
+		setToHealth(eb.publisher("health"));
 	}
 
 }
