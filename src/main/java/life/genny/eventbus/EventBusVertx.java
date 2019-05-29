@@ -5,17 +5,15 @@ import life.genny.channel.Producer;
 import life.genny.cluster.CurrentVtxCtx;
 import life.genny.qwanda.entity.BaseEntity;
 
-public class EventBusVertx  implements EventBusInterface
-{
+public class EventBusVertx implements EventBusInterface {
+	private static final String WEBCMDS = "webcmds";
 	EventBus eventBus = null;
-	
-	public EventBusVertx ()
-	{
+
+	public EventBusVertx() {
 		eventBus = CurrentVtxCtx.getCurrentCtx().getClusterVtx().eventBus();
 	}
-	
-	public EventBusVertx(EventBus eventBus)
-	{
+
+	public EventBusVertx(EventBus eventBus) {
 		this.eventBus = eventBus;
 	}
 
@@ -33,13 +31,20 @@ public class EventBusVertx  implements EventBusInterface
 			break;
 
 		case "webdata":
-			payload = EventBusInterface.privacyFilter(user, payload,filterAttributes);
+			payload = EventBusInterface.privacyFilter(user, payload, filterAttributes);
 			Producer.getToWebData().write(payload).end();
 			break;
 		case "cmds":
 		case "webcmds":
-			payload = EventBusInterface.privacyFilter(user, payload,filterAttributes);
-			Producer.getToWebCmds().send(payload);
+			payload = EventBusInterface.privacyFilter(user, payload, filterAttributes);
+			if (Producer.getToWebCmds().writeQueueFull()) {
+				log.error("WEBSOCKET EVT >> producer data is full hence message cannot be sent");
+				Producer.setToWebCmds(CurrentVtxCtx.getCurrentCtx().getClusterVtx().eventBus().publisher(WEBCMDS));
+				Producer.getToWebCmds().send(payload);
+
+			} else {
+				Producer.getToWebCmds().send(payload);
+			}
 			break;
 		case "services":
 			Producer.getToServices().write(payload);
