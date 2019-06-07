@@ -25,8 +25,8 @@ public class Routers {
 		router.route().handler(RouterHandlers.cors());
 		router.route(HttpMethod.POST, "/write").handler(RouterHandlers::apiMapPutHandler);
 		router.route(HttpMethod.POST, "/writearray").handler(RouterHandlers::apiMapPutHandlerArray);
-		router.route(HttpMethod.GET, "/read/:param1").handler(RouterHandlers::apiMapGetHandler);
-		router.route(HttpMethod.GET, "/read/:realm/:param1").handler(RouterHandlers::apiMapGetHandlerRealm);
+		router.route(HttpMethod.GET, "/read/:key").handler(RouterHandlers::apiMapGetHandler);
+		router.route(HttpMethod.GET, "/read/:realm/:key").handler(RouterHandlers::apiMapGetHandlerRealm);
 		router.route(HttpMethod.GET, "/version").handler(VersionHandler::apiGetVersionHandler);
 		router.route(HttpMethod.GET, "/clear").handler(RouterHandlers::apiClearGetHandler);
 		return router;

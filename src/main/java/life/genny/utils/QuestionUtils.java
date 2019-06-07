@@ -273,10 +273,10 @@ public class QuestionUtils {
 		return bulk;
 	}
 	
-	public static Ask createQuestionForBaseEntity(BaseEntity be, Boolean isQuestionGroup) {
+	public static Ask createQuestionForBaseEntity(BaseEntity be, Boolean isQuestionGroup, String token) {
 
         /* Get the service token */
-        String serviceToken = RulesUtils.generateServiceToken(GennySettings.dynamicRealm());
+        String serviceToken = RulesUtils.generateServiceToken(GennySettings.dynamicRealm(), token);
         
         /* creating attribute code according to the value of isQuestionGroup */
         String attributeCode = isQuestionGroup ? "QQQ_QUESTION_GROUP_INPUT" : "PRI_EVENT";
@@ -295,4 +295,9 @@ public class QuestionUtils {
         /* We generate the ask */
         return new Ask(newQuestion, be.getCode(), be.getCode(), false, 1.0, false, false, true);
 	}
+
+
+	
+	
+	
 }

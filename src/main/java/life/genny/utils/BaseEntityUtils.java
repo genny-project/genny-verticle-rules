@@ -1357,7 +1357,7 @@ public class BaseEntityUtils implements Serializable {
 			return null;
 		}
 
-		String serviceToken = RulesUtils.generateServiceToken(realm);
+		String serviceToken = RulesUtils.generateServiceToken(realm,token);
 		if (serviceToken != null) {
 
 			BaseEntity beLayout = null;

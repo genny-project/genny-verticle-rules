@@ -161,7 +161,7 @@ public class VertxUtils {
 			String resultStr = null;
 			try {
 				//log.info("VERTX READING  FROM CACHE API!");
-				resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/" + key, token);
+				resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/"+realm+"/" + key, token);
 				if (resultStr != null) {
 					result = new JsonObject(resultStr);
 				} else {

@@ -179,10 +179,10 @@ public class RulesUtils {
 		return toJsonObject(msg);
 	}
 
-	public static String generateServiceToken(String realm) {
+	public static String generateServiceToken(String realm, String token) {
 
 		/* we get the service token currently stored in the cache */
-		String serviceToken = VertxUtils.getObject(realm, "CACHE", "SERVICE_TOKEN", String.class);
+		String serviceToken = VertxUtils.getObject(realm, "CACHE", "SERVICE_TOKEN", String.class, token);
 
 		return serviceToken;
 

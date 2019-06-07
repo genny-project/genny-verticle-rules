@@ -1,10 +1,11 @@
 package life.genny.channel;
 
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
-import org.json.JSONException;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
@@ -12,17 +13,12 @@ import io.vertx.rxjava.core.MultiMap;
 import io.vertx.rxjava.core.http.HttpServerRequest;
 import io.vertx.rxjava.ext.web.RoutingContext;
 import io.vertx.rxjava.ext.web.handler.CorsHandler;
-import life.genny.qwanda.entity.BaseEntity;
-import life.genny.qwanda.message.QDataBaseEntityMessage;
 import life.genny.qwandautils.GennySettings;
-import life.genny.qwandautils.JsonUtils;
 import life.genny.qwandautils.KeycloakUtils;
+import life.genny.security.TokenIntrospection;
 import life.genny.utils.VertxUtils;
 
-
-
 public class RouterHandlers {
-
 
 	protected static final Logger log = org.apache.logging.log4j.LogManager
 			.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
@@ -32,222 +28,219 @@ public class RouterHandlers {
 				.allowedMethod(HttpMethod.OPTIONS).allowedHeader("X-PINGARUNER").allowedHeader("Content-Type")
 				.allowedHeader("X-Requested-With");
 	}
-	
 
+	private static final List<String> roles;
+	static {
+		roles = TokenIntrospection.setRoles("dev", "test", "service");
+	}
 
+	public static void apiMapPutHandler(final RoutingContext context) {
 
-	 public static void apiMapPutHandler(final RoutingContext context) {
-		    
-	    
-		    //handle the body here and assign it to wifiPayload to process the data 
-		    final HttpServerRequest req = context.request().bodyHandler(boddy -> {
-		    	String realm = GennySettings.mainrealm;
-				String token = context.request().getParam("token");
+		// handle the body here and assign it to payload to process the data
+		final HttpServerRequest req = context.request().bodyHandler(boddy -> {
+			String token = null;
+			JsonObject payload = boddy.toJsonObject();
 
-		   //   log.info(boddy.toJsonObject());
-		    	  JsonObject wifiPayload = boddy.toJsonObject();
-		      if (wifiPayload == null) {
-		    	  context.request().response().headers().set("Content-Type", "application/json");
-		          JsonObject err = new JsonObject().put("status", "error");
-		          context.request().response().headers().set("Content-Type", "application/json");
-		          context.request().response().end(err.encode());
-		        } 
-		      else {
-		          // a JsonObject wraps a map and it exposes type-aware getters
-		          String param1 = wifiPayload.getString("key");
-					if (token == null) {
-						MultiMap headerMap = context.request().headers();
-						token = headerMap.get("Authorization");
-						if (token == null) {
-							log.error("NULL TOKEN!");
-						} else {
-							token = token.substring(7); // To remove initial [Bearer ]
-						}
-					} 
-					
-				
+			if (payload != null) {
+				token = payload.getJsonObject("headers").getString("Authorization").split("Bearer ")[1];
+			}
+
+			if (token != null && TokenIntrospection.checkAuthForRoles(roles, token)) { // do not allow empty tokens
+
+				log.info("Roles from this token are allow and authenticated "
+						+ TokenIntrospection.checkAuthForRoles(roles, token));
+
+				JSONObject tokenJSON = KeycloakUtils.getDecodedToken(token);
+				String realm = tokenJSON.getString("aud");
+
+				// for testig and debugging, if a user has a role test then put the token into a
+				// cache entry so that the test can access it
+				JSONObject realm_access = tokenJSON.getJSONObject("realm_access");
+				JSONArray roles = realm_access.getJSONArray("roles");
+				List<Object> roleList = roles.toList();
+
+				if ((roleList.contains("test")) || (roleList.contains("dev"))) {
+
 					try {
-						realm = KeycloakUtils.getDecodedToken(token).getString("azp");
-					} catch (JSONException  | NullPointerException e) {  // TODO, should always be a token ....
-						realm = GennySettings.mainrealm;
-						log.error("token not decoded:["+token+"] using realm "+realm+" and key "+param1);
-						
+						// a JsonObject wraps a map and it exposes type-aware getters
+						String key = payload.getString("key");
+						String value = payload.getString("json");
+						Long expirySecs = Long.decode(payload.getString("json"));
+						VertxUtils.writeCachedJson(realm, key, value, token, expirySecs);
+
+						JsonObject ret = new JsonObject().put("status", "ok");
+						context.request().response().headers().set("Content-Type", "application/json");
+						context.request().response().end(ret.encode());
+
+					} catch (Exception e) {
+						context.request().response().headers().set("Content-Type", "application/json");
+						JsonObject err = new JsonObject().put("status", "error");
+						context.request().response().headers().set("Content-Type", "application/json");
+						context.request().response().end(err.encode());
+
 					}
+				}
+			}
+		});
 
-					// TODO hack
-					if ("genny".equalsIgnoreCase(realm)) {
-						realm = GennySettings.mainrealm;
-					}
-	         
-		          String param2 = wifiPayload.getString("json");
-		          VertxUtils.writeCachedJson(realm,param1, param2);
-		         
-		                  JsonObject ret = new JsonObject().put("status", "ok");
-		                  context.request().response().headers().set("Content-Type", "application/json");
-		                  context.request().response().end(ret.encode());
+	}
 
-		        }
-		    });
-
+	public static void apiMapPutHandlerArray(final RoutingContext context) {
 		    
 		    
-
-		  }
-
-	 public static void apiMapPutHandlerArray(final RoutingContext context) {
-		    
-		    
-		    //handle the body here and assign it to wifiPayload to process the data 
-		    final HttpServerRequest req = context.request().bodyHandler(boddy -> {
-		    	String realm = GennySettings.mainrealm;
-				String token = context.request().getParam("token");
-
-		   //   log.info(boddy.toJsonObject());
-		    	  JsonObject wifiPayload = boddy.toJsonObject();
-		      if (wifiPayload == null) {
-		    	  context.request().response().headers().set("Content-Type", "application/json");
-		          JsonObject err = new JsonObject().put("status", "error");
-		          context.request().response().headers().set("Content-Type", "application/json");
-		          context.request().response().end(err.encode());
-		        } 
-		      else {
-		          // a JsonObject wraps a map and it exposes type-aware getters
-		          String param2 = wifiPayload.getString("json");
-		          QDataBaseEntityMessage msg = JsonUtils.fromJson(param2,QDataBaseEntityMessage.class);
-		          log.info("Writing a batch of "+msg.getItems().length+" to cache");
-					if (token == null) {
-						MultiMap headerMap = context.request().headers();
-						token = headerMap.get("Authorization");
-						if (token == null) {
-							log.error("NULL TOKEN!");
-						} else {
-							token = token.substring(7); // To remove initial [Bearer ]
-						}
-					} 
-					try {
-						realm = KeycloakUtils.getDecodedToken(token).getString("azp");
-					} catch (JSONException  | NullPointerException e) {  // TODO, should always be a token ....
-						realm = GennySettings.mainrealm;
-						log.error("token not decoded:["+token+"] using realm "+realm);
-						
-					}
-
-					// TODO hack
-					if ("genny".equalsIgnoreCase(realm)) {
-						realm = GennySettings.mainrealm;
-					}
-	
-					
-		          long start = System.nanoTime();
-		          for (BaseEntity be : msg.getItems()) {
-		        	  VertxUtils.writeCachedJson(realm,be.getCode(), JsonUtils.toJson(be));
-		          }
-		          long end = System.nanoTime();
-		          double dif = (end - start)/1e6;
-		          log.info("Finished writing to cache in "+dif+"ms");
-		                  JsonObject ret = new JsonObject().put("status", "ok");
-		                  context.request().response().headers().set("Content-Type", "application/json");
-		                  context.request().response().end(ret.encode());
-
-		        }
-		    });
-
-		    
+//		    //handle the body here and assign it to wifiPayload to process the data 
+//		    final HttpServerRequest req = context.request().bodyHandler(boddy -> {
+//		    	String realm = GennySettings.mainrealm;
+//
+//		   //   log.info(boddy.toJsonObject());
+//		    	  JsonObject payload = boddy.toJsonObject();
+//		    	  
+//					String token = payload.getJsonObject("headers").getString("Authorization").split("Bearer ")[1];
+//
+//					if (token != null && TokenIntrospection.checkAuthForRoles(roles, token)) { // do not allow empty tokens
+//
+//						log.info("Roles from this token are allow and authenticated "
+//								+ TokenIntrospection.checkAuthForRoles(roles, token));
+//						
+//
+//						JSONObject tokenJSON = KeycloakUtils.getDecodedToken(token);
+//						String sessionState = tokenJSON.getString("session_state");
+//						String realm = tokenJSON.getString("aud");
+//						String uname = QwandaUtils.getNormalisedUsername(tokenJSON.getString("preferred_username"));
+//						String userCode = "PER_" + uname.toUpperCase();
+//
+//						// for testig and debugging, if a user has a role test then put the token into a cache entry so that the test can access it
+//						JSONObject realm_access = tokenJSON.getJSONObject("realm_access");
+//						JSONArray roles = realm_access.getJSONArray("roles");
+//						List<Object> roleList = roles.toList();
+//						
+//						if (roleList.contains("test")) {
+//		    	  
+//		    	  
+//		    	  
+//		    	  
+//		    	  
+//		      if (wifiPayload == null) {
+//		    	  context.request().response().headers().set("Content-Type", "application/json");
+//		          JsonObject err = new JsonObject().put("status", "error");
+//		          context.request().response().headers().set("Content-Type", "application/json");
+//		          context.request().response().end(err.encode());
+//		        } 
+//		      else {
+//		          // a JsonObject wraps a map and it exposes type-aware getters
+//		          String param2 = wifiPayload.getString("json");
+//		          QDataBaseEntityMessage msg = JsonUtils.fromJson(param2,QDataBaseEntityMessage.class);
+//		          log.info("Writing a batch of "+msg.getItems().length+" to cache");
+//					if (token == null) {
+//						MultiMap headerMap = context.request().headers();
+//						token = headerMap.get("Authorization");
+//						if (token == null) {
+//							log.error("NULL TOKEN!");
+//						} else {
+//							token = token.substring(7); // To remove initial [Bearer ]
+//						}
+//					} 
+//					try {
+//						realm = KeycloakUtils.getDecodedToken(token).getString("azp");
+//					} catch (JSONException  | NullPointerException e) {  // TODO, should always be a token ....
+//						realm = GennySettings.mainrealm;
+//						log.error("token not decoded:["+token+"] using realm "+realm);
+//						
+//					}
+//
+//					// TODO hack
+//					if ("genny".equalsIgnoreCase(realm)) {
+//						realm = GennySettings.mainrealm;
+//					}
+//	
+//					
+//		          long start = System.nanoTime();
+//		          for (BaseEntity be : msg.getItems()) {
+//		        	  VertxUtils.writeCachedJson(realm,be.getCode(), JsonUtils.toJson(be));
+//		          }
+//		          long end = System.nanoTime();
+//		          double dif = (end - start)/1e6;
+//		          log.info("Finished writing to cache in "+dif+"ms");
+//		                  JsonObject ret = new JsonObject().put("status", "ok");
+//		                  context.request().response().headers().set("Content-Type", "application/json");
+//		                  context.request().response().end(ret.encode());
+//
+//		        }
+//		    });
+//
+//		    
 		    
 
 }
-	
-	  public static void apiMapGetHandlerRealm(final RoutingContext context) {
-		    final HttpServerRequest req = context.request();
-		    String param1 = req.getParam("param1").toUpperCase();
-		    String realm = req.getParam("realm");
-		    JsonObject json = null;
-		    
-		    json = VertxUtils.readCachedJson(realm,param1);
-		      if (json.getString("status").equals("error")) {
-		        JsonObject err = new JsonObject().put("status", "error");
-		        req.response().headers().set("Content-Type", "application/json");
-		        req.response().end(err.encode());
-		      } else {
-		    	  String value = json.getString("value");
-		    	//  value = value.replaceAll("\\\"", "\"");
-		    	    JsonObject valueJson = null;
-		    	    try { // convert to nice json
-						valueJson = new JsonObject(value);
-						  json.put("value", valueJson);
-					} catch (Exception e) {
-						valueJson = new JsonObject();
-					}
-		    	  
 
-		            req.response().headers().set("Content-Type", "application/json");
-		            req.response().end(json.encode());
-		          }
+	public static void apiMapGetHandlerRealm(final RoutingContext context) {
+		apiMapGetHandler(context);
+	}
 
-		  }
+	public static void apiMapGetHandler(final RoutingContext context) {
+		final HttpServerRequest req = context.request();
+		String key = req.getParam("key");
+		String realm = req.getParam("realm");
+		String token = context.request().getParam("token");
 
-	 
-		  public static void apiMapGetHandler(final RoutingContext context) {
-		    final HttpServerRequest req = context.request();
-		    String param1 = req.getParam("param1");
-	    	String realm = GennySettings.mainrealm;
-			String token = context.request().getParam("token");
+		if (token == null) {
+			MultiMap headerMap = context.request().headers();
+			token = headerMap.get("Authorization");
+			if (token == null) {
+				log.error("NULL TOKEN!");
+			} else {
+				token = token.substring(7); // To remove initial [Bearer ]
+			}
 
+		}
 
-		    JsonObject json = null;
-		    
-		    if (!StringUtils.isBlank(param1)) {
-		    	param1 = param1.toUpperCase();
-				if (token == null) {
-					MultiMap headerMap = context.request().headers();
-					token = headerMap.get("Authorization");
-					if (token == null) {
-						log.error("NULL TOKEN!");
-					} else {
-						token = token.substring(7); // To remove initial [Bearer ]
-					}
-					
-				} 
+		if (token != null && TokenIntrospection.checkAuthForRoles(roles, token)) { // do not allow empty tokens
+
+			log.info("Roles from this token are allow and authenticated "
+					+ TokenIntrospection.checkAuthForRoles(roles, token));
+
+			JSONObject tokenJSON = KeycloakUtils.getDecodedToken(token);
+			if (realm == null) {
+				realm = tokenJSON.getString("aud");
+			}
+
+			// for testig and debugging, if a user has a role test then put the token into a
+			// cache entry so that the test can access it
+			JSONObject realm_access = tokenJSON.getJSONObject("realm_access");
+			JSONArray roles = realm_access.getJSONArray("roles");
+			List<Object> roleList = roles.toList();
+
+			if ((roleList.contains("test")) || (roleList.contains("dev"))) {
+
 				try {
-					 log.info("Cache read token = "+token);
-					realm = KeycloakUtils.getDecodedToken(token).getString("azp");
-				} catch (JSONException  | NullPointerException e) {  // TODO, should always be a token ....
-					realm = GennySettings.mainrealm;
-					log.error("token not decoded:["+token+"] using realm "+realm+" and parm "+param1);
-					
+					// a JsonObject wraps a map and it exposes type-aware getters
+					JsonObject value = VertxUtils.readCachedJson(realm, key, token);
+//					if (value.getString("status")==null) {
+//					JsonObject ret = new JsonObject().put("status", "ok");
+//					ret.put("value", value);
+//					}
+					context.request().response().headers().set("Content-Type", "application/json");
+					context.request().response().end(value.encode());
+
+				} catch (Exception e) {
+					context.request().response().headers().set("Content-Type", "application/json");
+					JsonObject err = new JsonObject().put("status", "error");
+					context.request().response().headers().set("Content-Type", "application/json");
+					context.request().response().end(err.encode());
+
 				}
+			}
+		}
 
-				// TODO hack
-				if ("genny".equalsIgnoreCase(realm)) {
-					realm = GennySettings.mainrealm;
-				}
-				
-		    json = VertxUtils.readCachedJson(realm,param1);
-		      if (json.getString("status").equals("error")) {
-		        JsonObject err = new JsonObject().put("status", "error");
-		        req.response().headers().set("Content-Type", "application/json");
-		        req.response().end(err.encode());
-		      } else {
-		    	    JsonObject valueJson = new JsonObject(json.getString("value"));
-		    	    json.put("value", valueJson);
-		            req.response().headers().set("Content-Type", "application/json");
-		            req.response().end(json.encode());
-		          }
+	}
 
-		    } else {
-		    	req.response().headers().set("Content-Type", "application/json");
-		    	req.response().end();
-		    }
-		  }
+	public static void apiClearGetHandler(final RoutingContext context) {
+		final HttpServerRequest req = context.request();
 
-		  public static void apiClearGetHandler(final RoutingContext context) {
-			    final HttpServerRequest req = context.request();
+		VertxUtils.clearDDT(GennySettings.dynamicRealm());
+		req.response().headers().set("Content-Type", "application/json");
+		req.response().end();
 
-			    VertxUtils.clearDDT(GennySettings.dynamicRealm());
-				            req.response().headers().set("Content-Type", "application/json");
-			            req.response().end();
-
-			  }
-
+	}
 
 }

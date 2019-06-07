@@ -28,12 +28,14 @@ public class CacheUtils implements Serializable {
 
 
 	private String realm;
+	private String token;
 
 	private BaseEntityUtils baseEntityUtils;
   private Boolean isReloadingCache = false;
 
 	public CacheUtils(String qwandaServiceUrl, String token, Map<String, Object> decodedMapToken, String realm) {
 		this.realm = realm;
+		this.token = token;
 	}
 
 	public void setBaseEntityUtils(BaseEntityUtils baseEntityUtils) {
@@ -76,12 +78,12 @@ public class CacheUtils implements Serializable {
     	//this.isReloadingCache = true; // THIS HAS BEEN VOLUNTARELY COMMENTED OUT. DO NOT PUT BACK
 
 		/* we generate a service token */
-		String token = RulesUtils.generateServiceToken(realm);
+		String serviceToken = RulesUtils.generateServiceToken(realm,token);
 
 		log.info("Generating message for cached item: " + cachedItemKey);
 
 		/* we grab the cached Item */
-		QDataBaseEntityMessage cachedItemMessages = VertxUtils.getObject(realm, cachedItemKey, realm, QDataBaseEntityMessage.class);
+		QDataBaseEntityMessage cachedItemMessages = VertxUtils.getObject(realm, cachedItemKey, realm, QDataBaseEntityMessage.class,token);
 
 		if (cachedItemMessages != null) {
 
@@ -238,7 +240,7 @@ public class CacheUtils implements Serializable {
 		}
 
 		/* we re-generate the target */
-		String token = RulesUtils.generateServiceToken(this.realm);
+		String token = RulesUtils.generateServiceToken(this.realm,this.token);
 		try {
 
 			BaseEntity targetEntity = QwandaUtils.getBaseEntityByCode(targetCode, token);
@@ -255,7 +257,7 @@ public class CacheUtils implements Serializable {
 
 	private Boolean addMessage(QDataBaseEntityMessage message, String targetCode) {
 
-		QBulkMessage target = VertxUtils.getObject(realm, "CACHE", targetCode, QBulkMessage.class);
+		QBulkMessage target = VertxUtils.getObject(realm, "CACHE", targetCode, QBulkMessage.class, this.token);
 
 		if(target == null) {
 			target = new QBulkMessage();
@@ -267,7 +269,7 @@ public class CacheUtils implements Serializable {
 		target.setMessages(targetMessages.toArray(new QDataBaseEntityMessage[0]));
 
 		/* we write it all to vertx*/
-		VertxUtils.putObject(this.realm, "CACHE", targetCode, target);
+		VertxUtils.putObject(this.realm, "CACHE", targetCode, target,this.token);
 		return true;
 	}
 
@@ -308,7 +310,7 @@ public class CacheUtils implements Serializable {
 		VertxUtils.putObject(this.realm, "CACHE", sourceCode, source); */
 
 		QBulkMessage itemMessage = this.reloadItem(sourceCode);
-		VertxUtils.putObject(this.realm, "CACHE", sourceCode, itemMessage);
+		VertxUtils.putObject(this.realm, "CACHE", sourceCode, itemMessage,this.token);
 
 		return true;
 	}
@@ -447,7 +449,7 @@ public class CacheUtils implements Serializable {
 		/* 5. we cache the message */
 		QDataBaseEntityMessage[] cachedItemMessagesArray = bulkmsg.toArray(new QDataBaseEntityMessage[0]);
 		QBulkMessage bulkItem = new QBulkMessage(cachedItemMessagesArray.clone());
-		VertxUtils.putObject(this.realm, "CACHE", cachedItem.getCode(), bulkItem);
+		VertxUtils.putObject(this.realm, "CACHE", cachedItem.getCode(), bulkItem,this.token);
 
 		return bulkmsg;
 	}
@@ -460,9 +462,9 @@ public class CacheUtils implements Serializable {
 	public QBulkMessage fetchAndSubscribeCachedItemsForStakeholder(String realm, String cachedItemKey, BaseEntity stakeholder, Map<String, List<String>> subscriptions, Map<String, List<String>> allowedBuckets) {
 
 		QBulkMessage bulk = new QBulkMessage();
-		String token = RulesUtils.generateServiceToken(realm);
+		String token = RulesUtils.generateServiceToken(realm,this.token);
 
-		QDataBaseEntityMessage cachedItemMessages = VertxUtils.getObject(realm, cachedItemKey, realm, QDataBaseEntityMessage.class);
+		QDataBaseEntityMessage cachedItemMessages = VertxUtils.getObject(realm, cachedItemKey, realm, QDataBaseEntityMessage.class,this.token);
 
 		if (cachedItemMessages != null) {
 
@@ -471,7 +473,7 @@ public class CacheUtils implements Serializable {
 
 				/* we grab cache items for the given message */
 				QBulkMessage currentItemMessages = new QBulkMessage();
-				currentItemMessages = VertxUtils.getObject(realm, "CACHE", message.getCode(), QBulkMessage.class);
+				currentItemMessages = VertxUtils.getObject(realm, "CACHE", message.getCode(), QBulkMessage.class,this.token);
 
 				if (currentItemMessages != null) {
 
@@ -615,7 +617,7 @@ public class CacheUtils implements Serializable {
 		QBulkMessage ret = new QBulkMessage();
 		HashMap<String, List<BaseEntity>> baseEntityMap = new HashMap<String, List<BaseEntity>>();
 		HashMap<String, Boolean> excludedBes = new HashMap<String, Boolean>();
-		String token = RulesUtils.generateServiceToken(this.realm);
+		String token = RulesUtils.generateServiceToken(this.realm,this.token);
 
 		/* we loop through every single messages in the bulk message */
 		for (QDataBaseEntityMessage message : newItems.getMessages()) {
