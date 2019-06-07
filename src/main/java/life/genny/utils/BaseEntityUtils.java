@@ -1101,7 +1101,7 @@ public class BaseEntityUtils implements Serializable {
 					} else {
 						cachedBe.addAnswer(answer);
 					}
-					VertxUtils.writeCachedJson(getRealm(), answer.getTargetCode(), JsonUtils.toJson(cachedBe));
+					VertxUtils.writeCachedJson(getRealm(), answer.getTargetCode(), JsonUtils.toJson(cachedBe),this.token);
 				}
 			}
 
@@ -1172,7 +1172,7 @@ public class BaseEntityUtils implements Serializable {
 			}
 		}
 
-		VertxUtils.writeCachedJson(getRealm(), cachedBe.getCode(), JsonUtils.toJson(cachedBe));
+		VertxUtils.writeCachedJson(getRealm(), cachedBe.getCode(), JsonUtils.toJson(cachedBe),this.token);
 
 		return cachedBe;
 	}
