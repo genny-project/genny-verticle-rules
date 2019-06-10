@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.logging.log4j.Logger;
 import org.kie.api.KieBase;
 
@@ -554,5 +555,31 @@ public class VertxUtils {
 			return apiPostEntity(postUrl, entityString, authToken, null);
 		}
 	}
+	
+	public static Set<String> fetchRealmsFromApi()
+	{
+		List<String> activeRealms = new ArrayList<String>();
+		JsonObject ar = VertxUtils.readCachedJson(GennySettings.GENNY_REALM, "REALMS");
+		String ars = ar.getString("value");
+
+		if (ars == null) {
+			try {
+				ars = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl + "/utils/realms", "NOTREQUIRED");
+			} catch (ClientProtocolException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		Type listType = new TypeToken<List<String>>() {
+		}.getType();
+		ars = ars.replaceAll("\\\"", "\"");
+		activeRealms = JsonUtils.fromJson(ars, listType);
+		Set<String> realms = new HashSet<>(activeRealms);
+		return realms;
+	}
+
+	
 	
 }

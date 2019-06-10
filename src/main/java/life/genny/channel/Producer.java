@@ -19,6 +19,8 @@ public class Producer {
 	private static MessageProducer<Object> toServices;
 	private static MessageProducer<Object> toSocial;
 	private static MessageProducer<Object> toHealth;
+	private static MessageProducer<Object> toSignals;
+	private static MessageProducer<Object> toStatefulMessages;
 
 	public static MessageProducer<Object> getToSocial() {
 		return toSocial;
@@ -179,11 +181,29 @@ public class Producer {
 	 * @param toWebData
 	 *            the toHealth to set
 	 */
-	public static void setToHealth(MessageProducer<Object> toWebData) {
+	public static void setToHealth(MessageProducer<Object> toHealth) {
 		Producer.toHealth = toHealth;
 	}
 	
 	
+	
+	
+	public static MessageProducer<Object> getToSignals() {
+		return toSignals;
+	}
+
+	public static void setToSignals(MessageProducer<Object> toSignals) {
+		Producer.toSignals = toSignals;
+	}
+
+	public static MessageProducer<Object> getToStatefulMessages() {
+		return toStatefulMessages;
+	}
+
+	public static void setToStatefulMessages(MessageProducer<Object> toStatefulMessages) {
+		Producer.toStatefulMessages = toStatefulMessages;
+	}
+
 	public static void registerAllProducers(EventBus eb) {
 		setToEvents(eb.publisher("events"));
 		setToData(eb.publisher("data"));
@@ -194,6 +214,8 @@ public class Producer {
 		setToMessages(eb.publisher("messages"));
 		setToSocial(eb.publisher("social"));
 		setToHealth(eb.publisher("health"));
+		setToSignals(eb.publisher("signals"));
+		setToStatefulMessages(eb.publisher("statefulmessages"));
 	}
 
 }

@@ -52,6 +52,12 @@ public class EventBusVertx implements EventBusInterface {
 		case "messages":
 			Producer.getToMessages().send(payload);
 			break;
+		case "statefulmessages":
+			Producer.getToStatefulMessages().send(payload);
+			break;
+		case "signals":
+			Producer.getToSignals().write(payload);
+			break;
 		default:
 			log.error("Channel does not exist: " + channel);
 		}
