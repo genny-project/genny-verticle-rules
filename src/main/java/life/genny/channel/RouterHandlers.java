@@ -55,11 +55,11 @@ public class RouterHandlers {
 
 				// for testig and debugging, if a user has a role test then put the token into a
 				// cache entry so that the test can access it
-				JSONObject realm_access = tokenJSON.getJSONObject("realm_access");
-				JSONArray roles = realm_access.getJSONArray("roles");
-				List<Object> roleList = roles.toList();
-
-				if ((roleList.contains("test")) || (roleList.contains("dev"))) {
+//				JSONObject realm_access = tokenJSON.getJSONObject("realm_access");
+//				JSONArray roles = realm_access.getJSONArray("roles");
+//				List<Object> roleList = roles.toList();
+//
+//				if ((roleList.contains("test")) || (roleList.contains("dev"))) {
 
 					try {
 						// a JsonObject wraps a map and it exposes type-aware getters
@@ -73,14 +73,13 @@ public class RouterHandlers {
 						context.request().response().end(ret.encode());
 
 					} catch (Exception e) {
-						context.request().response().headers().set("Content-Type", "application/json");
 						JsonObject err = new JsonObject().put("status", "error");
 						context.request().response().headers().set("Content-Type", "application/json");
 						context.request().response().end(err.encode());
 
 					}
 				}
-			}
+//			}
 		});
 
 	}
@@ -206,31 +205,26 @@ public class RouterHandlers {
 
 			// for testig and debugging, if a user has a role test then put the token into a
 			// cache entry so that the test can access it
-			JSONObject realm_access = tokenJSON.getJSONObject("realm_access");
-			JSONArray roles = realm_access.getJSONArray("roles");
-			List<Object> roleList = roles.toList();
+	////		JSONObject realm_access = tokenJSON.getJSONObject("realm_access");
+	//		JSONArray roles = realm_access.getJSONArray("roles");
+	//		List<Object> roleList = roles.toList();
 
-			if ((roleList.contains("test")) || (roleList.contains("dev"))) {
+	//		if ((roleList.contains("test")) || (roleList.contains("dev"))) {
 
 				try {
 					// a JsonObject wraps a map and it exposes type-aware getters
 					JsonObject value = VertxUtils.readCachedJson(realm, key, token);
-//					if (value.getString("status")==null) {
-//					JsonObject ret = new JsonObject().put("status", "ok");
-//					ret.put("value", value);
-//					}
 					context.request().response().headers().set("Content-Type", "application/json");
 					context.request().response().end(value.encode());
 
 				} catch (Exception e) {
-					context.request().response().headers().set("Content-Type", "application/json");
 					JsonObject err = new JsonObject().put("status", "error");
 					context.request().response().headers().set("Content-Type", "application/json");
 					context.request().response().end(err.encode());
 
 				}
 			}
-		}
+	//	}
 
 	}
 

@@ -283,14 +283,14 @@ public class QuestionUtils {
 
         /* Get the on-the-fly question attribute */
         Attribute attribute = RulesUtils.getAttribute(attributeCode, serviceToken);  
-        log.info("createQuestionForBaseEntity method, attribute ::"+JsonUtils.toJson(attribute));
+        log.debug("createQuestionForBaseEntity method, attribute ::"+JsonUtils.toJson(attribute));
         
         /* creating suffix according to value of isQuestionGroup. If it is a question-group, suffix "_GRP" is required" */  
         String questionSuffix = isQuestionGroup ? "_GRP" : "";
         
         /* We generate the question */
         Question newQuestion = new Question("QUE_" + be.getCode() + questionSuffix, be.getName(), attribute, false);
-        log.info("createQuestionForBaseEntity method, newQuestion ::"+JsonUtils.toJson(newQuestion));
+        log.debug("createQuestionForBaseEntity method, newQuestion ::"+JsonUtils.toJson(newQuestion));
        
         /* We generate the ask */
         return new Ask(newQuestion, be.getCode(), be.getCode(), false, 1.0, false, false, true);
