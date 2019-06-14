@@ -421,22 +421,7 @@ public class VertxUtils {
 	
 	static public JsonObject publish(BaseEntity user, String channel, Object payload, final String[] filterAttributes) {
 		
-		if (!GennySettings.forceEventBusApi) {
 			eb.publish(user, channel, payload, filterAttributes);
-		} else {
-			try {
-				
-				String jsonMsg = (String)payload;
-	
-				System.out.println("WRITING TO EVENTBUS USING API! "+GennySettings.bridgeServiceUrl);
-				JsonObject jsonJson = new JsonObject(jsonMsg);
-				//log.info("token="+jsonJson.getString("token"));
-				//log.info("jsonMsg="+jsonMsg);
-				QwandaUtils.apiPostEntity(GennySettings.bridgeServiceUrl, jsonMsg, jsonJson.getString("token"));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 
 		JsonObject ok = new JsonObject().put("status", "ok");
 		return ok;

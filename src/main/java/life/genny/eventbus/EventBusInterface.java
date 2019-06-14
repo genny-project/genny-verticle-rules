@@ -8,13 +8,18 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.naming.NamingException;
+
 import org.apache.logging.log4j.Logger;
 
+import io.vertx.core.json.JsonObject;
 import life.genny.qwanda.attribute.EntityAttribute;
 import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.message.QBulkMessage;
 import life.genny.qwanda.message.QDataBaseEntityMessage;
+import life.genny.qwandautils.GennySettings;
 import life.genny.qwandautils.JsonUtils;
+import life.genny.qwandautils.QwandaUtils;
 
 public interface EventBusInterface {
 	static final Logger log = org.apache.logging.log4j.LogManager
@@ -124,5 +129,101 @@ public interface EventBusInterface {
 		return isContainsValue;
 	}
 
-	public void publish(BaseEntity user, String channel, Object payload, final String[] filterAttributes);
+	public default  void write(final String channel, final Object payload) throws NamingException 
+	{
+		log.info("MOCK EVT BUS WRITE: "+channel+":"+payload);
+	}
+	
+	public default  void send(final String channel, final Object payload) throws NamingException 
+	{
+		log.info("MOCK EVT BUS SEND: "+channel+":"+payload);
+	}
+
+	
+	public default void writeMsg(final String channel, final Object msg) throws NamingException {
+		String json = msg.toString();
+		
+		JsonObject event = new JsonObject(json);
+		
+		if (GennySettings.forceEventBusApi) {
+			try {
+				event.put("eventbus", "WRITE");
+				QwandaUtils.apiPostEntity(GennySettings.bridgeServiceUrl, json, event.getString("token"));
+			} catch (Exception e) {
+				log.error("Error in posting message to bridge eventbus:" + event);
+			}
+			
+		} else {
+			write(channel,msg);
+		  
+		}
+
+	}
+
+	public default void sendMsg(final String channel, final Object msg) throws NamingException {
+		String json = msg.toString();
+		JsonObject event = new JsonObject(json);
+
+		
+		if (GennySettings.forceEventBusApi) {
+			try {
+				event.put("eventbus", "SEND");
+				QwandaUtils.apiPostEntity(GennySettings.bridgeServiceUrl, json, event.getString("token"));
+			} catch (Exception e) {
+				log.error("Error in posting message to bridge eventbus:" + event);
+			}
+			
+		} else {
+			send(channel,msg);
+		  
+		}
+
+	}
+
+	
+	
+	public default void publish(BaseEntity user, String channel, Object payload, final String[] filterAttributes) {
+		try {
+		// Actually Send ....
+		switch (channel) {
+		case "event":
+		case "events":
+			sendMsg("events",payload);
+			break;
+		case "data":
+			writeMsg("data",payload);
+			break;
+
+		case "webdata":
+			payload = EventBusInterface.privacyFilter(user, payload,filterAttributes);
+			writeMsg("webdata",payload);
+			break;
+		case "cmds":
+		case "webcmds":
+			payload = EventBusInterface.privacyFilter(user, payload,filterAttributes);
+			writeMsg("webcmds",payload);
+			break;
+		case "services":
+			writeMsg("services",payload);
+			break;
+		case "messages":
+			writeMsg("messages",payload);
+			break;
+		case "statefulmessages":
+			writeMsg("statefulmessages",payload);
+			break;
+		case "signals":
+			writeMsg("signals",payload);
+			break;
+
+		default:
+			payload = EventBusInterface.privacyFilter(user, payload,filterAttributes);
+			sendMsg(channel,payload);
+		//	log.error("Channel does not exist: " + channel);
+		}
+		} catch (NamingException e) {
+			e.printStackTrace();
+		}
+	}
+
 }

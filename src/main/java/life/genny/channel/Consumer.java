@@ -1,10 +1,19 @@
 package life.genny.channel;
 
+import java.lang.invoke.MethodHandles;
+
+import org.apache.logging.log4j.Logger;
+import org.mortbay.log.Log;
+
 import io.vertx.rxjava.core.eventbus.EventBus;
 import io.vertx.rxjava.core.eventbus.Message;
 import rx.Observable;
 
 public class Consumer {
+
+	  protected static final Logger log =
+		      org.apache.logging.log4j.LogManager.getLogger(
+		          MethodHandles.lookup().lookupClass().getCanonicalName());
 
 	private static Observable<Message<Object>> fromWebCmds;
 	private static Observable<Message<Object>> fromWebData;
@@ -17,6 +26,10 @@ public class Consumer {
 	private static Observable<Message<Object>> fromSocial;
 	
 	private static Observable<Message<Object>> fromHealth;
+	
+	private static Observable<Message<Object>> fromDirect;
+	
+	public static String directIP = "";
 
 	/**
 	 * @return the fromCmds
@@ -152,6 +165,16 @@ public class Consumer {
 	public static void setFromHealth(Observable<Message<Object>> fromHealth) {
 		Consumer.fromHealth = fromHealth;
 	}
+	
+	
+
+	public static Observable<Message<Object>> getFromDirect() {
+		return fromDirect;
+	}
+
+	public static void setFromDirect(Observable<Message<Object>> fromDirect) {
+		Consumer.fromDirect = fromDirect;
+	}
 
 	public static void registerAllConsumer(EventBus eb) {
 		setFromWebCmds(eb.consumer("webcmds").toObservable());
@@ -164,7 +187,11 @@ public class Consumer {
 		setFromMessages(eb.consumer("messages").toObservable());
 		setFromHealth(eb.consumer("health").toObservable());
 		
-		
+		String myip = System.getenv("MYIP"); // get the local ip of this verticle
+	//	myip = "mytest";
+		setFromDirect(eb.consumer(myip).toObservable());
+		log.info("This Verticle is listening directly on "+myip);
+		directIP = myip;  // make available to others
 	}
 
 }

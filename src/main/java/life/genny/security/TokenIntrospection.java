@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import java.util.function.BiPredicate;
+
+import com.github.javaparser.utils.Log;
+
 import io.vertx.core.json.JsonObject;
 import io.vertx.rxjava.ext.auth.AuthProvider;
 import io.vertx.rxjava.ext.auth.User;
@@ -46,9 +49,17 @@ public class TokenIntrospection {
   public static Boolean checkAuthForRoles(List<String> roles,
       String token) {
 
-    return roles.stream()
-        .anyMatch(role -> checkAuth.test(token, role));
-
+    Boolean checked = false;
+    
+    try {
+		checked = roles.stream()
+		    .anyMatch(role -> checkAuth.test(token, role));
+	} catch (NullPointerException e) {
+	Log.error("Bad token - force false to CheckAuth");
+	}
+    
+    
+    return checked;
   }
 
   public static List<String> setRoles(String... roles) {

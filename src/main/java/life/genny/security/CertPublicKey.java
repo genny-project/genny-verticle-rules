@@ -53,9 +53,9 @@ public enum CertPublicKey {
     this.publicKeyMap.put(realm, publicKey);
   }
 
-  public PublicKey findPublicKey(final String realm) {
+  public PublicKey findPublicKey(final String realm) throws NullPointerException {
     JsonObject value = fetchOIDCPubKey(realm);
-
+    
     JsonArray jsonArray = value.getJsonArray(KEYS);
     JsonObject jsonObject = jsonArray.getJsonObject(0);
     JWK jwk = new JWK();
@@ -69,7 +69,7 @@ public enum CertPublicKey {
   }
 
 
-  public void reload(final String realm) {
+  public void reload(final String realm) throws NullPointerException {
     PublicKey key = findPublicKey(realm);
     publicKeyMap.put(realm, key);
   }
