@@ -59,6 +59,24 @@ public class RulesUtils {
 	static public Map<String, Attribute> attributeMap = new ConcurrentHashMap<String, Attribute>();
 	static public QDataAttributeMessage attributesMsg = null;
 
+	public static String executeJBPMLogger(final String status, final String module, final String topColour,
+			final String bottomColour) {
+		String moduleLogger = (GennySettings.devMode ? "" : bottomColour) + status + " ::  " + module
+				+ (GennySettings.devMode ? "" : ANSI_RESET);
+		return moduleLogger;
+	}
+
+	public static String terminateJBPMLogger(String module) {
+		return executeRuleLogger("<<<<<<<<<< END RULE", module, ANSI_YELLOW, ANSI_GREEN) + "\n"
+				+ (GennySettings.devMode ? "" : ANSI_YELLOW) + (GennySettings.devMode ? "" : ANSI_RESET);
+
+	}
+
+	public static String headerJBPMLogger(String module) {
+		return executeRuleLogger(">>>>>>>>>> START RULE", module, ANSI_RED, ANSI_GREEN)
+				+ (GennySettings.devMode ? "" : ANSI_RED) + (GennySettings.devMode ? "" : ANSI_RESET);
+	}
+
 	public static String executeRuleLogger(final String status, final String module, final String topColour,
 			final String bottomColour) {
 		String moduleLogger = (GennySettings.devMode ? "" : bottomColour) + status + " ::  " + module
@@ -101,7 +119,7 @@ public class RulesUtils {
 		if (GennySettings.devMode) {
 			log.info(date + ": " + obj);
 		} else {
-			log.info((GennySettings.devMode ? "" : colour) + date + ": " + obj
+			log.info((GennySettings.devMode ? "" : colour) + ": " + obj
 					+ (GennySettings.devMode ? "" : ANSI_RESET));
 		}
 
