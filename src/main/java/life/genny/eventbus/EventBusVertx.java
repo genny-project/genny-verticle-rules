@@ -47,9 +47,9 @@ public class EventBusVertx implements EventBusInterface {
 			if (Producer.getToData().writeQueueFull()) {
 				log.error("DATA >> producer data is full hence message cannot be sent");
 				Producer.setToData(CurrentVtxCtx.getCurrentCtx().getClusterVtx().eventBus().publisher(DATA));
-				Producer.getToData().write(payload).end();
+				Producer.getToData().write(payload);
 			} else {
-				Producer.getToData().write(payload).end();
+				Producer.getToData().write(payload);
 			}
 			break;
 
@@ -57,18 +57,18 @@ public class EventBusVertx implements EventBusInterface {
 			if (Producer.getToWebData().writeQueueFull()) {
 				log.error("WEBDATA >> producer data is full hence message cannot be sent");
 				Producer.setToWebData(CurrentVtxCtx.getCurrentCtx().getClusterVtx().eventBus().publisher(WEBDATA));
-				Producer.getToWebData().write(payload).end();
+				Producer.getToWebData().write(payload);
 			} else {
-				Producer.getToWebData().write(payload).end();
+				Producer.getToWebData().write(payload);
 			}
 			break;
 		case CMDS:
 			if (Producer.getToCmds().writeQueueFull()) {
 				log.error("CMDS >> producer data is full hence message cannot be sent");
 				Producer.setToCmds(CurrentVtxCtx.getCurrentCtx().getClusterVtx().eventBus().publisher(CMDS));
-				Producer.getToCmds().send(payload).end();
+				Producer.getToCmds().send(payload);
 			} else {
-				Producer.getToCmds().send(payload).end();
+				Producer.getToCmds().send(payload);
 			}
 			break;
 
@@ -76,18 +76,18 @@ public class EventBusVertx implements EventBusInterface {
 			if (Producer.getToWebCmds().writeQueueFull()) {
 				log.error("WEBCMDS >> producer data is full hence message cannot be sent");
 				Producer.setToWebCmds(CurrentVtxCtx.getCurrentCtx().getClusterVtx().eventBus().publisher(WEBCMDS));
-				Producer.getToWebCmds().send(payload).end();
+				Producer.getToWebCmds().send(payload);
 			} else {
-				Producer.getToWebCmds().send(payload).end();
+				Producer.getToWebCmds().send(payload);
 			}
 			break;
 		case SERVICES:
 			if (Producer.getToServices().writeQueueFull()) {
 				log.error("SERVICES >> producer data is full hence message cannot be sent");
 				Producer.setToServices(CurrentVtxCtx.getCurrentCtx().getClusterVtx().eventBus().publisher(SERVICES));
-				Producer.getToServices().send(payload).end();
+				Producer.getToServices().send(payload);
 			} else {
-				Producer.getToServices().send(payload).end();
+				Producer.getToServices().send(payload);
 			}
 			break;
 
@@ -95,9 +95,9 @@ public class EventBusVertx implements EventBusInterface {
 			if (Producer.getToMessages().writeQueueFull()) {
 				log.error("MESSAGES >> producer data is full hence message cannot be sent");
 				Producer.setToMessages(CurrentVtxCtx.getCurrentCtx().getClusterVtx().eventBus().publisher(MESSAGES));
-				Producer.getToMessages().send(payload).end();
+				Producer.getToMessages().send(payload);
 			} else {
-				Producer.getToMessages().send(payload).end();
+				Producer.getToMessages().send(payload);
 			}
 
 			break;
@@ -105,22 +105,25 @@ public class EventBusVertx implements EventBusInterface {
 			if (Producer.getToStatefulMessages().writeQueueFull()) {
 				log.error("STATEFULMESSAGES >> producer data is full hence message cannot be sent");
 				Producer.setToStatefulMessages(CurrentVtxCtx.getCurrentCtx().getClusterVtx().eventBus().publisher(STATEFULMESSAGES));
-				Producer.getToStatefulMessages().send(payload).end();
+				Producer.getToStatefulMessages().send(payload);
 			} else {
-				Producer.getToStatefulMessages().send(payload).end();
+				Producer.getToStatefulMessages().send(payload);
 			}
 			break;
 		case SIGNALS:
 			if (Producer.getToSignals().writeQueueFull()) {
 				log.error("SIGNALS >> producer data is full hence message cannot be sent");
 				Producer.setToSignals(CurrentVtxCtx.getCurrentCtx().getClusterVtx().eventBus().publisher(SIGNALS));
-				Producer.getToSignals().write(payload).end();
+				Producer.getToSignals().write(payload);
 			} else {
-				Producer.getToSignals().write(payload).end();
+				Producer.getToSignals().write(payload);
 			}
 			break;
 		default:
-			log.error("Channel does not exist: " + channel);
+			Producer.setToDirect(CurrentVtxCtx.getCurrentCtx().getClusterVtx().eventBus().publisher(channel));
+			Producer.getToDirect().write(payload);
+
+		//	log.error("Channel does not exist: " + channel);
 		}	
 	}
 	

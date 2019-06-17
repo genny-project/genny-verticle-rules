@@ -5,7 +5,10 @@ import java.util.Map;
 import java.util.Set;
 import io.vertx.core.json.JsonObject;
 import io.vertx.rxjava.core.eventbus.EventBus;
+import io.vertx.rxjava.core.eventbus.Message;
 import io.vertx.rxjava.core.eventbus.MessageProducer;
+import life.genny.qwandautils.GennySettings;
+import rx.Observable;
 
 public class Producer {
 
@@ -21,6 +24,7 @@ public class Producer {
 	private static MessageProducer<Object> toHealth;
 	private static MessageProducer<Object> toSignals;
 	private static MessageProducer<Object> toStatefulMessages;
+	private static MessageProducer<Object> toDirect;
 
 	public static MessageProducer<Object> getToSocial() {
 		return toSocial;
@@ -203,6 +207,16 @@ public class Producer {
 	public static void setToStatefulMessages(MessageProducer<Object> toStatefulMessages) {
 		Producer.toStatefulMessages = toStatefulMessages;
 	}
+	
+	
+
+	public static MessageProducer<Object> getToDirect() {
+		return toDirect;
+	}
+
+	public static void setToDirect(MessageProducer<Object> toDirect) {
+		Producer.toDirect = toDirect;
+	}
 
 	public static void registerAllProducers(EventBus eb) {
 		setToEvents(eb.publisher("events"));
@@ -216,6 +230,7 @@ public class Producer {
 		setToHealth(eb.publisher("health"));
 		setToSignals(eb.publisher("signals"));
 		setToStatefulMessages(eb.publisher("statefulmessages"));
+		setToDirect(eb.publisher(GennySettings.myIP)); // dummy start channel
 	}
 
 }
