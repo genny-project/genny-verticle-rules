@@ -12,6 +12,7 @@ import javax.naming.NamingException;
 
 import org.apache.logging.log4j.Logger;
 
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import life.genny.qwanda.attribute.EntityAttribute;
 import life.genny.qwanda.entity.BaseEntity;
@@ -20,6 +21,7 @@ import life.genny.qwanda.message.QDataBaseEntityMessage;
 import life.genny.qwandautils.GennySettings;
 import life.genny.qwandautils.JsonUtils;
 import life.genny.qwandautils.QwandaUtils;
+import life.genny.utils.RulesUtils;
 
 public interface EventBusInterface {
 	static final Logger log = org.apache.logging.log4j.LogManager
@@ -179,11 +181,27 @@ public interface EventBusInterface {
 		}
 
 	}
-
+ 
 	
 	
 	public default void publish(BaseEntity user, String channel, Object payload, final String[] filterAttributes) {
 		try {
+			JsonObject json = null;
+			try {
+				json = new JsonObject(payload.toString());
+			} catch (Exception e) {
+				return;
+			}
+			String payloadType = json.getString("data_type");
+			if ("Ask".equals(payloadType)) {
+				JsonArray items = json.getJsonArray("items");
+				JsonObject ask = items.getJsonObject(0);
+				String targetCode = ask.getString("targetCode");
+				String questionCode = ask.getString("questionCode");
+				log.info(RulesUtils.ANSI_PURPLE+channel+":"+user.getCode()+":Ask:"+payload.toString().length()+": ask about "+targetCode+":"+questionCode);
+			} else {
+				log.info(RulesUtils.ANSI_CYAN+channel+":"+user.getCode()+":"+json.getString("data_type")+":"+payload.toString().length());
+			}
 		// Actually Send ....
 		switch (channel) {
 		case "event":
