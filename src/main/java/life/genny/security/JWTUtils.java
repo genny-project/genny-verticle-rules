@@ -14,7 +14,7 @@ public class JWTUtils {
   private static String RS256 = "RS256";
 
 
-  public static JWTAuth getProvider(final String realm) {
+  public static JWTAuth getProvider(Vertx vertx,final String realm) {
 
 
     // Get Configuration Options with paratameters settled
@@ -27,7 +27,7 @@ public class JWTUtils {
     // JWTAuth provider = JWTAuth.create(
     // CurrentVtxCtx.getCurrentCtx().getClusterVtx(), c);
 
-    JWTAuth provider = JWTAuth.create(Vertx.vertx(), c);
+    JWTAuth provider = JWTAuth.create(vertx, c);
     return provider;
   }
 

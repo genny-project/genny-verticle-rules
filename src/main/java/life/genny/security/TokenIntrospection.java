@@ -10,6 +10,7 @@ import java.util.function.BiPredicate;
 import com.github.javaparser.utils.Log;
 
 import io.vertx.core.json.JsonObject;
+import io.vertx.rxjava.core.Vertx;
 import io.vertx.rxjava.ext.auth.AuthProvider;
 import io.vertx.rxjava.ext.auth.User;
 
@@ -22,6 +23,8 @@ public class TokenIntrospection {
   static String role = "user";
   static String JWT = "jwt";
   static String NULL = "null";
+  
+  static Vertx avertx;
 
   public static BiPredicate<String, String> checkAuth =
       (token, role) -> {
@@ -32,7 +35,7 @@ public class TokenIntrospection {
     	  
         JsonObject tokenWrapped = new JsonObject();
         tokenWrapped.put(JWT, token);
-        AuthProvider provider = JWTUtils.getProvider(realm);
+        AuthProvider provider = JWTUtils.getProvider(avertx,realm);
 
         User user = null;
         try {
@@ -46,10 +49,11 @@ public class TokenIntrospection {
       };
 
 
-  public static Boolean checkAuthForRoles(List<String> roles,
+  public static Boolean checkAuthForRoles(Vertx vertx, List<String> roles,
       String token) {
 
     Boolean checked = false;
+    avertx = vertx;
     
     try {
 		checked = roles.stream()

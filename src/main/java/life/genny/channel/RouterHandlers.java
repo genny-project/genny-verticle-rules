@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.rxjava.core.MultiMap;
+import io.vertx.rxjava.core.Vertx;
 import io.vertx.rxjava.core.http.HttpServerRequest;
 import io.vertx.rxjava.ext.web.RoutingContext;
 import io.vertx.rxjava.ext.web.handler.CorsHandler;
@@ -28,6 +29,8 @@ public class RouterHandlers {
 				.allowedMethod(HttpMethod.OPTIONS).allowedHeader("X-PINGARUNER").allowedHeader("Content-Type")
 				.allowedHeader("X-Requested-With");
 	}
+	
+	public static Vertx avertx;
 
 	private static final List<String> roles;
 	static {
@@ -45,10 +48,10 @@ public class RouterHandlers {
 				token = payload.getJsonObject("headers").getString("Authorization").split("Bearer ")[1];
 			}
 
-			if (token != null && TokenIntrospection.checkAuthForRoles(roles, token)) { // do not allow empty tokens
+			if (token != null && TokenIntrospection.checkAuthForRoles(avertx,roles, token)) { // do not allow empty tokens
 
 				log.info("Roles from this token are allow and authenticated "
-						+ TokenIntrospection.checkAuthForRoles(roles, token));
+						+ TokenIntrospection.checkAuthForRoles(avertx,roles, token));
 
 				JSONObject tokenJSON = KeycloakUtils.getDecodedToken(token);
 				String realm = tokenJSON.getString("aud");
@@ -193,10 +196,10 @@ public class RouterHandlers {
 
 		}
 
-		if (token != null && TokenIntrospection.checkAuthForRoles(roles, token)) { // do not allow empty tokens
+		if (token != null && TokenIntrospection.checkAuthForRoles(avertx,roles, token)) { // do not allow empty tokens
 
 			log.info("Roles from this token are allow and authenticated "
-					+ TokenIntrospection.checkAuthForRoles(roles, token));
+					+ TokenIntrospection.checkAuthForRoles(avertx,roles, token));
 
 			JSONObject tokenJSON = KeycloakUtils.getDecodedToken(token);
 			if (realm == null) {

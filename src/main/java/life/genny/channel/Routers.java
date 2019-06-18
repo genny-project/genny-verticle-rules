@@ -22,6 +22,8 @@ public class Routers {
 			router = Router.router(vertx);
 		}
 
+		RouterHandlers.avertx = vertx;
+		
 		router.route().handler(RouterHandlers.cors());
 		router.route(HttpMethod.POST, "/write").handler(RouterHandlers::apiMapPutHandler);
 		router.route(HttpMethod.POST, "/writearray").handler(RouterHandlers::apiMapPutHandlerArray);

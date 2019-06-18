@@ -20,6 +20,7 @@ import life.genny.qwanda.message.QBulkMessage;
 import life.genny.qwanda.message.QDataBaseEntityMessage;
 import life.genny.qwandautils.GennySettings;
 import life.genny.qwandautils.JsonUtils;
+import life.genny.qwandautils.QwandaMessage;
 import life.genny.qwandautils.QwandaUtils;
 import life.genny.utils.RulesUtils;
 
@@ -33,6 +34,8 @@ public interface EventBusInterface {
 					new HashMap<String, BaseEntity>(), filterAttributes));
 		} else if (payload instanceof QBulkMessage) {
 			return JsonUtils.toJson(privacyFilter(user, (QBulkMessage) payload, filterAttributes));
+		} else if (payload instanceof QwandaMessage) {
+			return JsonUtils.toJson(privacyFilter(user, (QwandaMessage) payload, filterAttributes));
 		} else
 			return payload;
 	}
@@ -71,6 +74,11 @@ public interface EventBusInterface {
 		return msg;
 	}
 
+	public static QwandaMessage privacyFilter(BaseEntity user, QwandaMessage msg, final String[] filterAttributes) {
+		privacyFilter(user, msg.askData,  filterAttributes);
+		return msg;
+	}
+	
 	public static QBulkMessage privacyFilter(BaseEntity user, QBulkMessage msg, final String[] filterAttributes) {
 		Map<String, BaseEntity> uniqueBes = new HashMap<String, BaseEntity>();
 		for (QDataBaseEntityMessage beMsg : msg.getMessages()) {
@@ -131,33 +139,30 @@ public interface EventBusInterface {
 		return isContainsValue;
 	}
 
-	public default  void write(final String channel, final Object payload) throws NamingException 
-	{
-		log.info("MOCK EVT BUS WRITE: "+channel+":"+payload);
-	}
-	
-	public default  void send(final String channel, final Object payload) throws NamingException 
-	{
-		log.info("MOCK EVT BUS SEND: "+channel+":"+payload);
+	public default void write(final String channel, final Object payload) throws NamingException {
+		log.info("MOCK EVT BUS WRITE: " + channel + ":" + payload);
 	}
 
-	
+	public default void send(final String channel, final Object payload) throws NamingException {
+		log.info("MOCK EVT BUS SEND: " + channel + ":" + payload);
+	}
+
 	public default void writeMsg(final String channel, final Object msg) throws NamingException {
 		String json = msg.toString();
-		
+
 		JsonObject event = new JsonObject(json);
-		
+
 		if (GennySettings.forceEventBusApi) {
 			try {
 				event.put("eventbus", "WRITE");
-				QwandaUtils.apiPostEntity(GennySettings.bridgeServiceUrl, json, event.getString("token"));
+				QwandaUtils.apiPostEntity(GennySettings.bridgeServiceUrl+"?channel="+channel, json, event.getString("token"));
 			} catch (Exception e) {
 				log.error("Error in posting message to bridge eventbus:" + event);
 			}
-			
+
 		} else {
-			write(channel,msg);
-		  
+			write(channel, msg);
+
 		}
 
 	}
@@ -166,29 +171,32 @@ public interface EventBusInterface {
 		String json = msg.toString();
 		JsonObject event = new JsonObject(json);
 
-		
 		if (GennySettings.forceEventBusApi) {
 			try {
 				event.put("eventbus", "SEND");
-				QwandaUtils.apiPostEntity(GennySettings.bridgeServiceUrl, json, event.getString("token"));
+				QwandaUtils.apiPostEntity(GennySettings.bridgeServiceUrl+"?channel="+channel, json, event.getString("token"));
 			} catch (Exception e) {
 				log.error("Error in posting message to bridge eventbus:" + event);
 			}
-			
+
 		} else {
-			send(channel,msg);
-		  
+			send(channel, msg);
+
 		}
 
 	}
- 
-	
-	
+
 	public default void publish(BaseEntity user, String channel, Object payload, final String[] filterAttributes) {
 		try {
 			JsonObject json = null;
 			try {
-				json = new JsonObject(payload.toString());
+				if (payload instanceof String) {
+					json = new JsonObject(payload.toString());
+				} else if (payload instanceof JsonObject) {
+					json = (JsonObject) payload;
+				} else {
+					json = new JsonObject(JsonUtils.toJson(payload));
+				}
 			} catch (Exception e) {
 				return;
 			}
@@ -198,47 +206,62 @@ public interface EventBusInterface {
 				JsonObject ask = items.getJsonObject(0);
 				String targetCode = ask.getString("targetCode");
 				String questionCode = ask.getString("questionCode");
-				log.info(RulesUtils.ANSI_PURPLE+channel+":"+user.getCode()+":Ask:"+payload.toString().length()+": ask about "+targetCode+":"+questionCode);
+				log.info(RulesUtils.ANSI_PURPLE + channel + ":" + user.getCode() + ":Ask:" + payload.toString().length()
+						+ ": ask about " + targetCode + ":" + questionCode);
 			} else {
-				log.info(RulesUtils.ANSI_CYAN+channel+":"+user.getCode()+":"+json.getString("data_type")+":"+payload.toString().length());
+				if ("webcmds".equals(channel) || ("cmds".equals(channel))) {
+					if ("BaseEntity".equals(json.getString("data_type"))) {
+						JsonArray items = json.getJsonArray("items");
+						JsonObject be = items.getJsonObject(0);
+						String code = be.getString("code");
+						log.info(RulesUtils.ANSI_GREEN + channel + ":" + user.getCode() + ":" + ":"
+								+ payload.toString().length() + ":" + code);
+					} else {
+						log.info(RulesUtils.ANSI_CYAN + channel + ":" + user.getCode() + ":" + ":"
+								+ payload.toString().length());
+					}
+				} else {
+					log.info(RulesUtils.ANSI_CYAN + channel + ":" + user.getCode() + ":" + json.getString("data_type")
+							+ ":" + payload.toString().length());
+				}
 			}
-		// Actually Send ....
-		switch (channel) {
-		case "event":
-		case "events":
-			sendMsg("events",payload);
-			break;
-		case "data":
-			writeMsg("data",payload);
-			break;
+			// Actually Send ....
+			switch (channel) {
+			case "event":
+			case "events":
+				sendMsg("events", payload);
+				break;
+			case "data":
+				writeMsg("data", payload);
+				break;
 
-		case "webdata":
-			payload = EventBusInterface.privacyFilter(user, payload,filterAttributes);
-			writeMsg("webdata",payload);
-			break;
-		case "cmds":
-		case "webcmds":
-			payload = EventBusInterface.privacyFilter(user, payload,filterAttributes);
-			writeMsg("webcmds",payload);
-			break;
-		case "services":
-			writeMsg("services",payload);
-			break;
-		case "messages":
-			writeMsg("messages",payload);
-			break;
-		case "statefulmessages":
-			writeMsg("statefulmessages",payload);
-			break;
-		case "signals":
-			writeMsg("signals",payload);
-			break;
+			case "webdata":
+				payload = EventBusInterface.privacyFilter(user, payload, filterAttributes);
+				writeMsg("webdata", payload);
+				break;
+			case "cmds":
+			case "webcmds":
+				payload = EventBusInterface.privacyFilter(user, payload, filterAttributes);
+				writeMsg("webcmds", payload);
+				break;
+			case "services":
+				writeMsg("services", payload);
+				break;
+			case "messages":
+				writeMsg("messages", payload);
+				break;
+			case "statefulmessages":
+				writeMsg("statefulmessages", payload);
+				break;
+			case "signals":
+				writeMsg("signals", payload);
+				break;
 
-		default:
-			payload = EventBusInterface.privacyFilter(user, payload,filterAttributes);
-			sendMsg(channel,payload);
-		//	log.error("Channel does not exist: " + channel);
-		}
+			default:
+				payload = EventBusInterface.privacyFilter(user, payload, filterAttributes);
+				sendMsg(channel, payload);
+				// log.error("Channel does not exist: " + channel);
+			}
 		} catch (NamingException e) {
 			e.printStackTrace();
 		}
