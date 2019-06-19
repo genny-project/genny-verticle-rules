@@ -198,8 +198,6 @@ public class RouterHandlers {
 
 		if (token != null && TokenIntrospection.checkAuthForRoles(avertx,roles, token)) { // do not allow empty tokens
 
-			log.info("Roles from this token are allow and authenticated "
-					+ TokenIntrospection.checkAuthForRoles(avertx,roles, token));
 
 			JSONObject tokenJSON = KeycloakUtils.getDecodedToken(token);
 			if (realm == null) {
@@ -226,6 +224,8 @@ public class RouterHandlers {
 					context.request().response().end(err.encode());
 
 				}
+			} else {
+				log.warn("TOKEN NOT GOOD");
 			}
 	//	}
 
