@@ -221,7 +221,7 @@ public interface EventBusInterface {
 								+ payload.toString().length());
 					}
 				} else {
-					log.info(RulesUtils.ANSI_CYAN + channel + ":" + user.getCode() + ":" + json.getString("data_type")
+					log.info(RulesUtils.ANSI_CYAN + channel + ":" + user.getCode() + ":" + (json.getString("data_type")!=null?json.getString("data_type"):"")
 							+ ":" + payload.toString().length());
 				}
 			}

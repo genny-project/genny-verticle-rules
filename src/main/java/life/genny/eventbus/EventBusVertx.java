@@ -43,7 +43,6 @@ public class EventBusVertx implements EventBusInterface {
 			}
 			break;
 		case DATA:
-			Producer.getToData().write(payload).end();
 			if (Producer.getToData().writeQueueFull()) {
 				log.error("DATA >> producer data is full hence message cannot be sent");
 				Producer.setToData(CurrentVtxCtx.getCurrentCtx().getClusterVtx().eventBus().publisher(DATA));
