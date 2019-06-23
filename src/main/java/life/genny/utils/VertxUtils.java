@@ -402,7 +402,6 @@ public class VertxUtils {
 	}
 
 	public static void putMessageProducer(String sessionState, MessageProducer<JsonObject> toSessionChannel) {
-		log.info("Registering SessionChannel to "+sessionState);
 		localMessageProducerCache.put(sessionState, toSessionChannel);
 
 	}
