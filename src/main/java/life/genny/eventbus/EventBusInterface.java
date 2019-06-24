@@ -16,6 +16,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import life.genny.qwanda.attribute.EntityAttribute;
 import life.genny.qwanda.entity.BaseEntity;
+import life.genny.qwanda.entity.EntityEntity;
 import life.genny.qwanda.message.QBulkMessage;
 import life.genny.qwanda.message.QDataBaseEntityMessage;
 import life.genny.qwandautils.GennySettings;
@@ -64,7 +65,8 @@ public interface EventBusInterface {
 						 * the GRP_NEW_ITEMS are being sent without any links so it doesn't show any
 						 * internships.
 						 */
-						slimBaseEntity.setLinks(be.getLinks());
+					//	slimBaseEntity.setLinks(be.getLinks());
+						slimBaseEntity.setLinks(new HashSet<EntityEntity>()); // null could work
 						bes.add(slimBaseEntity);
 					}
 				}
