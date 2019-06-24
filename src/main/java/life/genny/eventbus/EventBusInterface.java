@@ -51,6 +51,7 @@ public interface EventBusInterface {
 
 						be = privacyFilter(user, be, filterAttributes);
 						uniquePeople.put(be.getCode(), be);
+						be.setLinks(new HashSet<EntityEntity>()); // clear the links
 						bes.add(be);
 					} else {
 						/*
