@@ -121,6 +121,7 @@ public interface EventBusInterface {
 				}
 			}
 		}
+		be.setLinks(new HashSet<EntityEntity>()); // clear the links
 		be.setBaseEntityAttributes(allowedAttributes);
 
 		return be;
