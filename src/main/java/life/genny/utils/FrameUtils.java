@@ -11,9 +11,17 @@ import org.slf4j.LoggerFactory;
 import io.vavr.Tuple;
 import io.vavr.Tuple1;
 import io.vavr.Tuple2;
+import io.vavr.Tuple3;
+import io.vavr.Tuple4;
 import life.genny.models.GennyToken;
 import life.genny.qwanda.Link;
+import life.genny.qwanda.attribute.Attribute;
+import life.genny.qwanda.attribute.AttributeLink;
+import life.genny.qwanda.attribute.EntityAttribute;
+import life.genny.qwanda.datatype.DataType;
 import life.genny.qwanda.entity.BaseEntity;
+import life.genny.qwanda.entity.EntityEntity;
+import life.genny.qwanda.exception.BadDataException;
 import life.genny.qwanda.llama.Frame;
 import life.genny.qwanda.message.QBulkMessage;
 import life.genny.qwanda.message.QDataBaseEntityMessage;
@@ -24,163 +32,101 @@ public class FrameUtils {
 
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
 
-	static public QBulkMessage toMessage(final Frame frame, GennyToken gennyToken) {
+	static public QDataBaseEntityMessage toMessage(final Frame rootFrame, GennyToken gennyToken) {
 		
 	
-		List<QDataBaseEntityMessage> messages = new ArrayList<QDataBaseEntityMessage>();
-		// Traverse the frame tree and build BaseEntitys and links
+		List<BaseEntity> baseEntityList = new ArrayList<BaseEntity>();
 
-		BaseEntity root = VertxUtils.getObject(gennyToken.getRealm(), "", frame.getCode(), BaseEntity.class,
+		BaseEntity root = getBaseEntity(rootFrame, gennyToken);
+
+		log.info(root.toString());
+
+
+	//	processCodeFrames(rootFrame, gennyToken, messages, root);
+		
+
+		// Traverse the frame tree and build BaseEntitys and links
+		processFrames(rootFrame, gennyToken, baseEntityList, root);
+	
+		
+
+		QDataBaseEntityMessage msg = new QDataBaseEntityMessage(baseEntityList);
+		
+		
+	
+		return msg;
+	}
+
+	private static BaseEntity getBaseEntity(final Frame rootFrame, final GennyToken gennyToken)
+	{
+		return getBaseEntity(rootFrame.getCode(),rootFrame.getName(),gennyToken);
+
+	}
+	
+	private static BaseEntity getBaseEntity(final String beCode, final String beName,final GennyToken gennyToken)
+	{
+		BaseEntity be = VertxUtils.getObject(gennyToken.getRealm(), "", beCode, BaseEntity.class,
 				gennyToken.getToken());
-		if (root == null) {
+		if (be == null) {
 			try {
-				root = QwandaUtils.getBaseEntityByCodeWithAttributes(frame.getCode(), gennyToken.getToken());
-				if (root == null) {
-					root = QwandaUtils.createBaseEntityByCode(frame.getCode(), frame.getName(),
+				be = QwandaUtils.getBaseEntityByCodeWithAttributes(beCode, gennyToken.getToken());
+				if (be == null) {
+					be = QwandaUtils.createBaseEntityByCode(beCode,beName,
 							GennySettings.qwandaServiceUrl, gennyToken.getToken());
 				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
 		}
 
-		log.info(root.toString());
+		return be;
 
-
-		processCodeFrames(frame, gennyToken, messages, root);
-		
-		processFrames(frame, gennyToken, messages, root);
-
-		processCodeThemes(frame, gennyToken, messages, root);
-
-		
-		// Now fetch the root with all the links
-		try {
-			root = QwandaUtils.getBaseEntityByCodeWithAttributes(frame.getCode(), gennyToken.getToken());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		QBulkMessage bulkMsg = new QBulkMessage(messages);
-		
-	
-		return bulkMsg;
 	}
-
+	
+	
 	/**
 	 * @param frame
 	 * @param gennyToken
 	 * @param messages
 	 * @param root
 	 */
-	private static void processFrames(final Frame frame, GennyToken gennyToken, List<QDataBaseEntityMessage> messages,
-			BaseEntity root) {
+	private static void processFrames(final Frame frame, GennyToken gennyToken, List<BaseEntity> baseEntityList,
+			BaseEntity parent) {
 		// Go through the frames and fetch them
-		for (Tuple2<Frame, Frame.FramePosition> frameTuple2 : frame.getFrames()) {
-			Frame theChildFrame = frameTuple2._1;
-			Frame.FramePosition position = frameTuple2._2;
 
-			BaseEntity childFrame = VertxUtils.getObject(gennyToken.getRealm(), "", theChildFrame.getCode(), BaseEntity.class,
-					gennyToken.getToken());
+		for (Tuple3<Frame, Frame.FramePosition, Double> frameTuple3 : frame.getFrames()) {
+			System.out.println("Process Frame "+frameTuple3._1.getCode());
+			Frame childFrame = frameTuple3._1;
+			Frame.FramePosition position = frameTuple3._2;
+			Double weight = frameTuple3._3;
+			
+			childFrame.setParent(parent); // Set the parent sop that we can link the childs themes to it.
 
-			if (childFrame == null) {
-				theChildFrame.setRealm(gennyToken.getRealm());
-
-				try {
-					childFrame = QwandaUtils.getBaseEntityByCodeWithAttributes(theChildFrame.getCode(), gennyToken.getToken());
-					if (childFrame == null) {
-						Long cid  = QwandaUtils.postBaseEntity(GennySettings.qwandaServiceUrl, gennyToken.getToken(), (BaseEntity)theChildFrame);
-						childFrame = QwandaUtils.getBaseEntityByCodeWithAttributes(theChildFrame.getCode(), gennyToken.getToken());
-					
-					}
-					
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+			BaseEntity childBe = getBaseEntity(childFrame,gennyToken);
+			
+			// link to the parent
+			EntityEntity link  = null;
+			Attribute linkFrame = new AttributeLink("LNK_FRAME","frame");
+			link = new EntityEntity(parent, childBe, linkFrame, position.name(),weight);
+			parent.getLinks().add(link);
+			baseEntityList.add(childBe);
+			
+			// Traverse the frame tree and build BaseEntitys and links
+			if (!childFrame.getFrames().isEmpty()) {
+				processFrames(childFrame, gennyToken, baseEntityList, childBe);
 			}
-
-			// link to the root
-			if (!QwandaUtils.checkIfLinkExists(root.getCode(), "LNK_FRAME", theChildFrame.getCode(), position.name(),
-					gennyToken.getToken())) {
-				// Create a link
-				log.info("No Link detected");
-				Link link = new Link(root.getCode(), theChildFrame.getCode(), "LNK_FRAME", position.name());
-				try {
-					QwandaUtils.postLink(GennySettings.qwandaServiceUrl, gennyToken.getToken(), link);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			} else {
-				log.info("Link detected from " + root.getCode() + " to " + childFrame.getCode());
+			
+			if (!childFrame.getThemeObjects().isEmpty()) {
+				processThemes(childFrame, position,gennyToken, baseEntityList, childBe);
 			}
+			
+			System.out.println("Processed "+frame.getCode());
 
-			BaseEntity[] beArray = new BaseEntity[2];
-			beArray[0] = root;
-			beArray[1] = childFrame;
-			QDataBaseEntityMessage baseEntityMessage = new QDataBaseEntityMessage(beArray, root.getCode(),
-					"LNK_FRAME", position.name());
-			messages.add(baseEntityMessage);
 		}
 	}
 
-	/**
-	 * @param frame
-	 * @param gennyToken
-	 * @param messages
-	 * @param root
-	 */
-	private static void processCodeFrames(final Frame frame, GennyToken gennyToken, List<QDataBaseEntityMessage> messages,
-			BaseEntity root) {
-		// Go through the frame codes and fetch the
-		for (Tuple2<String, Frame.FramePosition> frameTuple2 : frame.getFrameCodes()) {
-			String frameCode = frameTuple2._1;
-			Frame.FramePosition position = frameTuple2._2;
 
-			BaseEntity childFrame = VertxUtils.getObject(gennyToken.getRealm(), "", frameCode, BaseEntity.class,
-					gennyToken.getToken());
-
-			if (childFrame == null) {
-				childFrame = new BaseEntity(frameCode, frameCode);
-				childFrame.setRealm(gennyToken.getRealm());
-
-				try {
-					childFrame = QwandaUtils.getBaseEntityByCodeWithAttributes(frameCode, gennyToken.getToken());
-					if (childFrame == null) {
-						childFrame = QwandaUtils.createBaseEntityByCode(frameCode, frameCode,
-								GennySettings.qwandaServiceUrl, gennyToken.getToken());
-					}
-					
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-
-			// link to the root
-			if (!QwandaUtils.checkIfLinkExists(root.getCode(), "LNK_FRAME", frameCode, position.name(),
-					gennyToken.getToken())) {
-				// Create a link
-				log.info("No Link detected");
-				Link link = new Link(root.getCode(), frameCode, "LNK_FRAME", position.name());
-				try {
-					QwandaUtils.postLink(GennySettings.qwandaServiceUrl, gennyToken.getToken(), link);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			} else {
-				log.info("Link detected from " + root.getCode() + " to " + childFrame.getCode());
-			}
-
-			BaseEntity[] beArray = new BaseEntity[2];
-			beArray[0] = root;
-			beArray[1] = childFrame;
-			QDataBaseEntityMessage baseEntityMessage = new QDataBaseEntityMessage(beArray, root.getCode(),
-					"LNK_FRAME", position.name());
-			messages.add(baseEntityMessage);
-		}
-	}
 	
 	/**
 	 * @param frame
@@ -188,52 +134,40 @@ public class FrameUtils {
 	 * @param messages
 	 * @param root
 	 */
-	private static void processCodeThemes(final Frame frame, GennyToken gennyToken, List<QDataBaseEntityMessage> messages,
-			BaseEntity root) {
+	private static void processThemes(final Frame frame, Frame.FramePosition position, GennyToken gennyToken, List<BaseEntity> baseEntityList,
+			BaseEntity parent) {
 		// Go through the theme codes and fetch the
-		for (Tuple1<String> frameTuple2 : frame.getThemeCodes()) {
-			String themeCode = frameTuple2._1;
-
-			BaseEntity theme = VertxUtils.getObject(gennyToken.getRealm(), "", themeCode, BaseEntity.class,
-					gennyToken.getToken());
-
-			if (theme == null) {
-				theme = new BaseEntity(themeCode, themeCode);
-				theme.setRealm(gennyToken.getRealm());
-
-				try {
-					theme = QwandaUtils.getBaseEntityByCodeWithAttributes(themeCode, gennyToken.getToken());
-					if (theme == null) {
-						theme = QwandaUtils.createBaseEntityByCode(themeCode, themeCode,
-								GennySettings.qwandaServiceUrl, gennyToken.getToken());
-					}
-					
-				} catch (IOException e) {
-					e.printStackTrace();
+		for ( Tuple4<String,Frame.ThemeAttribute,Object,Double> themeTuple4 : frame.getThemeObjects()) {
+			System.out.println("Process Theme "+themeTuple4._1);
+			String themeCode = themeTuple4._1;
+			Frame.ThemeAttribute themeAttribute = themeTuple4._2;
+			Object themeObject =  themeTuple4._3;
+			Double weight = themeTuple4._4;
+			
+			BaseEntity childBe = getBaseEntity(themeCode,themeCode,gennyToken);
+			
+			//Attribute attribute = RulesUtils.getAttribute(themeAttribute.name(), gennyToken.getToken());
+			Attribute attribute = new Attribute(themeAttribute.name(),themeAttribute.name(),new DataType("DTT_THEME"));
+			try {
+				if (childBe.containsEntityAttribute(themeAttribute.name())) {
+					EntityAttribute themeEA = childBe.findEntityAttribute(themeAttribute.name()).get();
+					themeEA.setValue(themeObject);
+					themeEA.setWeight(weight);
+				} else {
+					childBe.addAttribute(new EntityAttribute(childBe, attribute, weight, themeObject));
 				}
+			} catch (BadDataException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
+			// link to the parent
+			EntityEntity link  = null;
+			Attribute linkFrame = new AttributeLink("LNK_THEME","theme");
+			link = new EntityEntity(frame.getParent(), childBe, linkFrame, position.name(),weight);
+			frame.getParent().getLinks().add(link);
+			baseEntityList.add(childBe);
+		
 
-			// link to the root
-			if (!QwandaUtils.checkIfLinkExists(root.getCode(), "LNK_THEME", themeCode, "link",
-					gennyToken.getToken())) {
-				// Create a link
-				log.info("No Link detected");
-				Link link = new Link(root.getCode(), themeCode, "LNK_FRAME", "link");
-				try {
-					QwandaUtils.postLink(GennySettings.qwandaServiceUrl, gennyToken.getToken(), link);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			} else {
-				log.info("Link detected from " + root.getCode() + " to " + theme.getCode());
-			}
-
-			BaseEntity[] beArray = new BaseEntity[2];
-			beArray[0] = root;
-			beArray[1] = theme;
-			QDataBaseEntityMessage baseEntityMessage = new QDataBaseEntityMessage(beArray, root.getCode(),
-					"LNK_THEME", "link");
-			messages.add(baseEntityMessage);
 		}
 	}
 	

@@ -427,86 +427,86 @@ public class VertxUtils {
 
 	}
 
-//	static public Object privacyFilter(BaseEntity user, Object payload, final String[] filterAttributes) {
-//		if (payload instanceof QDataBaseEntityMessage) {
-//			return JsonUtils.toJson(privacyFilter(user, (QDataBaseEntityMessage) payload,new HashMap<String, BaseEntity>(), filterAttributes));
-//		} else if (payload instanceof QBulkMessage) {
-//			return JsonUtils.toJson(privacyFilter(user, (QBulkMessage) payload,filterAttributes));
-//		} else
-//			return payload;
-//	}
+	static public Object privacyFilter(BaseEntity user, Object payload, final String[] filterAttributes) {
+		if (payload instanceof QDataBaseEntityMessage) {
+			return JsonUtils.toJson(privacyFilter(user, (QDataBaseEntityMessage) payload,new HashMap<String, BaseEntity>(), filterAttributes));
+		} else if (payload instanceof QBulkMessage) {
+			return JsonUtils.toJson(privacyFilter(user, (QBulkMessage) payload,filterAttributes));
+		} else
+			return payload;
+	}
 
 
 	
-//	static public QDataBaseEntityMessage privacyFilter(BaseEntity user, QDataBaseEntityMessage msg,
-//			Map<String, BaseEntity> uniquePeople, final String[] filterAttributes) {
-//		ArrayList<BaseEntity> bes = new ArrayList<BaseEntity>();
-//		for (BaseEntity be : msg.getItems()) {
-//			if (uniquePeople != null && be.getCode() != null && !uniquePeople.containsKey(be.getCode())) {
-//				
-//				be = privacyFilter(user, be, filterAttributes);
-//				uniquePeople.put(be.getCode(), be);
-//				bes.add(be);
-//			} 
-//			else {
-//				/* Avoid sending the attributes again for the same BaseEntity, so sending without attributes */
-//				BaseEntity slimBaseEntity = new BaseEntity(be.getCode(), be.getName());
-//				/* Setting the links again but Adam don't want it to be send as it increasing the size of BE.
-//				 * Frontend should create links based on the parentCode of baseEntity not the links. This requires work in the frontend.
-//				 * But currently the GRP_NEW_ITEMS are being sent without any links so it doesn't show any internships.
-//				 */
-//				slimBaseEntity.setLinks(be.getLinks());
-//				bes.add(slimBaseEntity);
-//			}
-//		}
-//		msg.setItems(bes.toArray(new BaseEntity[bes.size()]));
-//		return msg;
-//	}
-//	
-//	static public QBulkMessage privacyFilter(BaseEntity user,QBulkMessage msg, final String[] filterAttributes) {
-//		Map<String, BaseEntity> uniqueBes = new HashMap<String, BaseEntity>();
-//		for (QDataBaseEntityMessage beMsg : msg.getMessages()) {
-//			beMsg = privacyFilter(user,beMsg, uniqueBes,filterAttributes);
-//		}
-//		return msg;
-//}
-//
-//	static public BaseEntity privacyFilter(BaseEntity user, BaseEntity be) {
-//		final String[] filterStrArray = { "PRI_FIRSTNAME", "PRI_LASTNAME", "PRI_MOBILE", "PRI_DRIVER", "PRI_OWNER",
-//				"PRI_IMAGE_URL", "PRI_CODE", "PRI_NAME", "PRI_USERNAME", "PRI_DRIVER_RATING" };
-//
-//		return privacyFilter(user, be, filterStrArray);
-//	}
-//
-//	static public BaseEntity privacyFilter(BaseEntity user, BaseEntity be, final String[] filterAttributes) {
-//		Set<EntityAttribute> allowedAttributes = new HashSet<EntityAttribute>();
-//		for (EntityAttribute entityAttribute : be.getBaseEntityAttributes()) {
-//			// log.info("ATTRIBUTE:"+entityAttribute.getAttributeCode()+(entityAttribute.getPrivacyFlag()?"PRIVACYFLAG=TRUE":"PRIVACYFLAG=FALSE"));
-//			if ((be.getCode().startsWith("PER_")) && (!be.getCode().equals(user.getCode()))) {
-//				String attributeCode = entityAttribute.getAttributeCode();
-//
-//				if (Arrays.stream(filterAttributes).anyMatch(x -> x.equals(attributeCode))) {
-//
-//
-//					allowedAttributes.add(entityAttribute);
-//				} else {
-//					if (attributeCode.startsWith("PRI_IS_")) {
-//						allowedAttributes.add(entityAttribute);// allow all roles
-//					}
-//					if (attributeCode.startsWith("LNK_")) {
-//						allowedAttributes.add(entityAttribute);// allow attributes that starts with "LNK_"
-//					}
-//				}
-//			} else {
-//				if (!entityAttribute.getPrivacyFlag()) { // don't allow privacy flag attributes to get through
-//					allowedAttributes.add(entityAttribute);
-//				}
-//			}
-//		}
-//		be.setBaseEntityAttributes(allowedAttributes);
-//
-//		return be;
-//	}
+	static public QDataBaseEntityMessage privacyFilter(BaseEntity user, QDataBaseEntityMessage msg,
+			Map<String, BaseEntity> uniquePeople, final String[] filterAttributes) {
+		ArrayList<BaseEntity> bes = new ArrayList<BaseEntity>();
+		for (BaseEntity be : msg.getItems()) {
+			if (uniquePeople != null && be.getCode() != null && !uniquePeople.containsKey(be.getCode())) {
+				
+				be = privacyFilter(user, be, filterAttributes);
+				uniquePeople.put(be.getCode(), be);
+				bes.add(be);
+			} 
+			else {
+				/* Avoid sending the attributes again for the same BaseEntity, so sending without attributes */
+				BaseEntity slimBaseEntity = new BaseEntity(be.getCode(), be.getName());
+				/* Setting the links again but Adam don't want it to be send as it increasing the size of BE.
+				 * Frontend should create links based on the parentCode of baseEntity not the links. This requires work in the frontend.
+				 * But currently the GRP_NEW_ITEMS are being sent without any links so it doesn't show any internships.
+				 */
+				slimBaseEntity.setLinks(be.getLinks());
+				bes.add(slimBaseEntity);
+			}
+		}
+		msg.setItems(bes.toArray(new BaseEntity[bes.size()]));
+		return msg;
+	}
+	
+	static public QBulkMessage privacyFilter(BaseEntity user,QBulkMessage msg, final String[] filterAttributes) {
+		Map<String, BaseEntity> uniqueBes = new HashMap<String, BaseEntity>();
+		for (QDataBaseEntityMessage beMsg : msg.getMessages()) {
+			beMsg = privacyFilter(user,beMsg, uniqueBes,filterAttributes);
+		}
+		return msg;
+}
+
+	static public BaseEntity privacyFilter(BaseEntity user, BaseEntity be) {
+		final String[] filterStrArray = { "PRI_FIRSTNAME", "PRI_LASTNAME", "PRI_MOBILE", "PRI_DRIVER", "PRI_OWNER",
+				"PRI_IMAGE_URL", "PRI_CODE", "PRI_NAME", "PRI_USERNAME", "PRI_DRIVER_RATING" };
+
+		return privacyFilter(user, be, filterStrArray);
+	}
+
+	static public BaseEntity privacyFilter(BaseEntity user, BaseEntity be, final String[] filterAttributes) {
+		Set<EntityAttribute> allowedAttributes = new HashSet<EntityAttribute>();
+		for (EntityAttribute entityAttribute : be.getBaseEntityAttributes()) {
+			// log.info("ATTRIBUTE:"+entityAttribute.getAttributeCode()+(entityAttribute.getPrivacyFlag()?"PRIVACYFLAG=TRUE":"PRIVACYFLAG=FALSE"));
+			if ((be.getCode().startsWith("PER_")) && (!be.getCode().equals(user.getCode()))) {
+				String attributeCode = entityAttribute.getAttributeCode();
+
+				if (Arrays.stream(filterAttributes).anyMatch(x -> x.equals(attributeCode))) {
+
+
+					allowedAttributes.add(entityAttribute);
+				} else {
+					if (attributeCode.startsWith("PRI_IS_")) {
+						allowedAttributes.add(entityAttribute);// allow all roles
+					}
+					if (attributeCode.startsWith("LNK_")) {
+						allowedAttributes.add(entityAttribute);// allow attributes that starts with "LNK_"
+					}
+				}
+			} else {
+				if (!entityAttribute.getPrivacyFlag()) { // don't allow privacy flag attributes to get through
+					allowedAttributes.add(entityAttribute);
+				}
+			}
+		}
+		be.setBaseEntityAttributes(allowedAttributes);
+
+		return be;
+	}
 
 	public static Boolean checkIfAttributeValueContainsString(BaseEntity baseentity, String attributeCode,
 			String checkIfPresentStr) {

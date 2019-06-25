@@ -1,5 +1,6 @@
 package life.genny.eventbus;
 
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,7 +17,6 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import life.genny.qwanda.attribute.EntityAttribute;
 import life.genny.qwanda.entity.BaseEntity;
-import life.genny.qwanda.entity.EntityEntity;
 import life.genny.qwanda.message.QBulkMessage;
 import life.genny.qwanda.message.QDataBaseEntityMessage;
 import life.genny.qwandautils.GennySettings;
@@ -47,11 +47,20 @@ public interface EventBusInterface {
 		if (uniquePeople != null) {
 			for (BaseEntity be : msg.getItems()) {
 				if (be != null) {
+					
 					if (!uniquePeople.containsKey(be.getCode())) {
+						if (be.getCode().equals(msg.getParentCode())) {
+							// get the latest parent code from api to ensure links are ok?
+							try {
+								be = QwandaUtils.getBaseEntityByCode(be.getCode(), msg.getToken());
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
 
 						be = privacyFilter(user, be, filterAttributes);
 						uniquePeople.put(be.getCode(), be);
-						be.setLinks(new HashSet<EntityEntity>()); // clear the links
 						bes.add(be);
 					} else {
 						/*
@@ -66,8 +75,7 @@ public interface EventBusInterface {
 						 * the GRP_NEW_ITEMS are being sent without any links so it doesn't show any
 						 * internships.
 						 */
-					//	slimBaseEntity.setLinks(be.getLinks());
-						slimBaseEntity.setLinks(new HashSet<EntityEntity>()); // null could work
+						slimBaseEntity.setLinks(be.getLinks());
 						bes.add(slimBaseEntity);
 					}
 				}
@@ -121,7 +129,6 @@ public interface EventBusInterface {
 				}
 			}
 		}
-		be.setLinks(new HashSet<EntityEntity>()); // clear the links
 		be.setBaseEntityAttributes(allowedAttributes);
 
 		return be;
