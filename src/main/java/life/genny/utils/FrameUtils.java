@@ -3,6 +3,7 @@ package life.genny.utils;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,10 +28,12 @@ import life.genny.qwandautils.QwandaUtils;
 
 public class FrameUtils {
 
-	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
+private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
 
+	
+	
 	static public QDataBaseEntityMessage toMessage(final Frame rootFrame, GennyToken gennyToken) {
-
+		
 		List<BaseEntity> baseEntityList = new ArrayList<BaseEntity>();
 
 		BaseEntity root = getBaseEntity(rootFrame, gennyToken);
@@ -67,7 +70,7 @@ public class FrameUtils {
 				e.printStackTrace();
 			}
 		}
-
+		be.setLinks(new HashSet<EntityEntity>()); // clear
 		return be;
 
 	}
@@ -96,7 +99,9 @@ public class FrameUtils {
 			EntityEntity link = null;
 			Attribute linkFrame = new AttributeLink("LNK_FRAME", "frame");
 			link = new EntityEntity(parent, childBe, linkFrame, position.name(), weight);
-			parent.getLinks().add(link);
+			if (!parent.getLinks().contains(link)) {
+				parent.getLinks().add(link);
+			}
 			baseEntityList.add(childBe);
 
 			// Traverse the frame tree and build BaseEntitys and links
@@ -162,7 +167,9 @@ public class FrameUtils {
 				EntityEntity link = null;
 				Attribute linkFrame = new AttributeLink("LNK_THEME", "theme");
 				link = new EntityEntity(frame.getParent(), childBe, linkFrame, position.name(), weight);
-				frame.getParent().getLinks().add(link);
+				if (!frame.getParent().getLinks().contains(link)) {
+					frame.getParent().getLinks().add(link);
+				}
 				baseEntityList.add(childBe);
 
 			}
