@@ -6,12 +6,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 import javax.naming.NamingException;
 
 import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -47,7 +52,7 @@ public interface EventBusInterface {
 		if (uniquePeople != null) {
 			for (BaseEntity be : msg.getItems()) {
 				if (be != null) {
-					
+
 					if (!uniquePeople.containsKey(be.getCode())) {
 						if (be.getCode().equals(msg.getParentCode())) {
 							// get the latest parent code from api to ensure links are ok?
@@ -86,10 +91,10 @@ public interface EventBusInterface {
 	}
 
 	public static QwandaMessage privacyFilter(BaseEntity user, QwandaMessage msg, final String[] filterAttributes) {
-		privacyFilter(user, msg.askData,  filterAttributes);
+		privacyFilter(user, msg.askData, filterAttributes);
 		return msg;
 	}
-	
+
 	public static QBulkMessage privacyFilter(BaseEntity user, QBulkMessage msg, final String[] filterAttributes) {
 		Map<String, BaseEntity> uniqueBes = new HashMap<String, BaseEntity>();
 		for (QDataBaseEntityMessage beMsg : msg.getMessages()) {
@@ -159,16 +164,46 @@ public interface EventBusInterface {
 	}
 
 	public default void writeMsg(final String channel, final Object msg) throws NamingException {
-		String json = msg.toString();
-
-		JsonObject event = new JsonObject(json);
 
 		if (GennySettings.forceEventBusApi) {
 			try {
-				event.put("eventbus", "WRITE");
-				QwandaUtils.apiPostEntity(GennySettings.bridgeServiceUrl+"?channel="+channel, json, event.getString("token"));
+				String json = msg.toString();
+				JsonParser parser = new JsonParser();
+				com.google.gson.JsonObject event = parser.parse(json).getAsJsonObject();
+
+				event.addProperty("eventbus", "WRITE");
+//				if (("DATA_MSG".equals(event.get("msg_type").getAsString()))
+//						&& ("BaseEntity".equals(event.get("data_type").getAsString()))) {
+//					com.google.gson.JsonArray items = event.getAsJsonArray("items");
+//					for (JsonElement pa : items) {
+//						com.google.gson.JsonObject item = pa.getAsJsonObject();
+//						if (item.get("code").getAsString().startsWith("THM_")) {
+//							com.google.gson.JsonArray eas = item.getAsJsonArray("baseEntityAttributes");
+//							for (JsonElement ea : eas) {
+//								com.google.gson.JsonObject eaItem = ea.getAsJsonObject();
+//								String valueString = eaItem.get("valueString").getAsString();
+//								if (valueString != null) {
+//									if (valueString.startsWith("{")) { // TODO hack
+//										com.google.gson.JsonObject vs = parser.parse(valueString).getAsJsonObject();
+//										eaItem.add("valueString", vs); // set as Json to make fronternd read it
+//									}
+//								}
+//							}
+//						}
+//					}
+//					event.add("items", items);
+//					json = event.getAsString();
+//				}
+				json = msg.toString();
+				json = json.replace("\\\"","\"");
+//				json = json.replace("\"{\"","{\"");
+//				json = json.replace("\"}\"","\"}");
+//				json = json.replace("}\",","},");
+				json = json.replace("\"{","{");
+				QwandaUtils.apiPostEntity(GennySettings.bridgeServiceUrl + "?channel=" + channel, json,
+						event.get("token").getAsString());
 			} catch (Exception e) {
-				log.error("Error in posting message to bridge eventbus:" + event);
+				log.error("Error in posting message to bridge eventbus:" + channel + ":" + msg);
 			}
 
 		} else {
@@ -185,7 +220,8 @@ public interface EventBusInterface {
 		if (GennySettings.forceEventBusApi) {
 			try {
 				event.put("eventbus", "SEND");
-				QwandaUtils.apiPostEntity(GennySettings.bridgeServiceUrl+"?channel="+channel, json, event.getString("token"));
+				QwandaUtils.apiPostEntity(GennySettings.bridgeServiceUrl + "?channel=" + channel, json,
+						event.getString("token"));
 			} catch (Exception e) {
 				log.error("Error in posting message to bridge eventbus:" + event);
 			}
@@ -232,8 +268,9 @@ public interface EventBusInterface {
 								+ payload.toString().length());
 					}
 				} else {
-					log.info(RulesUtils.ANSI_CYAN + channel + ":" + user.getCode() + ":" + (json.getString("data_type")!=null?json.getString("data_type"):"")
-							+ ":" + payload.toString().length());
+					log.info(RulesUtils.ANSI_CYAN + channel + ":" + user.getCode() + ":"
+							+ (json.getString("data_type") != null ? json.getString("data_type") : "") + ":"
+							+ payload.toString().length());
 				}
 			}
 			// Actually Send ....
@@ -252,8 +289,8 @@ public interface EventBusInterface {
 				break;
 			case "cmds":
 			case "webcmds":
-				payload = EventBusInterface.privacyFilter(user, payload, filterAttributes);
-				writeMsg("webcmds", payload);
+				payload = EventBusInterface.privacyFilter(user, json, filterAttributes);
+				writeMsg("webcmds", json);
 				break;
 			case "services":
 				writeMsg("services", payload);

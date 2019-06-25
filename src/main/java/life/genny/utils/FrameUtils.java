@@ -3,18 +3,16 @@ package life.genny.utils;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.vavr.Tuple;
-import io.vavr.Tuple1;
-import io.vavr.Tuple2;
 import io.vavr.Tuple3;
 import io.vavr.Tuple4;
 import life.genny.models.GennyToken;
-import life.genny.qwanda.Link;
 import life.genny.qwanda.attribute.Attribute;
 import life.genny.qwanda.attribute.AttributeLink;
 import life.genny.qwanda.attribute.EntityAttribute;
@@ -23,7 +21,6 @@ import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.entity.EntityEntity;
 import life.genny.qwanda.exception.BadDataException;
 import life.genny.qwanda.llama.Frame;
-import life.genny.qwanda.message.QBulkMessage;
 import life.genny.qwanda.message.QDataBaseEntityMessage;
 import life.genny.qwandautils.GennySettings;
 import life.genny.qwandautils.QwandaUtils;
@@ -137,11 +134,11 @@ public class FrameUtils {
 	private static void processThemes(final Frame frame, Frame.FramePosition position, GennyToken gennyToken, List<BaseEntity> baseEntityList,
 			BaseEntity parent) {
 		// Go through the theme codes and fetch the
-		for ( Tuple4<String,Frame.ThemeAttribute,Object,Double> themeTuple4 : frame.getThemeObjects()) {
+		for ( Tuple4<String,Frame.ThemeAttribute,JSONObject,Double> themeTuple4 : frame.getThemeObjects()) {
 			System.out.println("Process Theme "+themeTuple4._1);
 			String themeCode = themeTuple4._1;
 			Frame.ThemeAttribute themeAttribute = themeTuple4._2;
-			Object themeObject =  themeTuple4._3;
+			JSONObject themeJson =  themeTuple4._3;
 			Double weight = themeTuple4._4;
 			
 			BaseEntity childBe = getBaseEntity(themeCode,themeCode,gennyToken);
@@ -151,10 +148,20 @@ public class FrameUtils {
 			try {
 				if (childBe.containsEntityAttribute(themeAttribute.name())) {
 					EntityAttribute themeEA = childBe.findEntityAttribute(themeAttribute.name()).get();
-					themeEA.setValue(themeObject);
+					String existingSetValue = themeEA.getAsString();
+					JSONObject json = new JSONObject(existingSetValue);
+					Iterator<String> keys = themeJson.keys();
+
+					while(keys.hasNext()) {
+					    String key = keys.next();
+					    Object value = json.get(key);
+					    json.put(key, value);
+					}
+					
+					themeEA.setValue(json.toString());
 					themeEA.setWeight(weight);
 				} else {
-					childBe.addAttribute(new EntityAttribute(childBe, attribute, weight, themeObject));
+					childBe.addAttribute(new EntityAttribute(childBe, attribute, weight, themeJson.toString()));
 				}
 			} catch (BadDataException e) {
 				// TODO Auto-generated catch block
