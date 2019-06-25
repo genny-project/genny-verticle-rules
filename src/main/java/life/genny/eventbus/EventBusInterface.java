@@ -195,11 +195,11 @@ public interface EventBusInterface {
 //					json = event.getAsString();
 //				}
 				json = msg.toString();
-				json = json.replace("\\\"","\"");
+//				json = json.replace("\\\"","\"");
 //				json = json.replace("\"{\"","{\"");
 //				json = json.replace("\"}\"","\"}");
 //				json = json.replace("}\",","},");
-				json = json.replace("\"{","{");
+//				json = json.replace("\"{","{");
 				QwandaUtils.apiPostEntity(GennySettings.bridgeServiceUrl + "?channel=" + channel, json,
 						event.get("token").getAsString());
 			} catch (Exception e) {
