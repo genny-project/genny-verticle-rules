@@ -189,9 +189,6 @@ public class VertxUtils {
 	static public JsonObject writeCachedJson(String realm, final String key, String value, final String token, long ttl_seconds) {
 		if (!GennySettings.forceCacheApi) {
 			//log.debug("WRITING USING "+(GennySettings.isCacheServer?" LOCAL DDT":"CLIENT ")+"  "+key);
-			if ("genny".equals(realm)) {
-				realm = GennySettings.mainrealm;
-			}
 			cacheInterface.writeCache(realm, key, value, token,ttl_seconds);
 		} else {
 			try {
@@ -212,9 +209,6 @@ public class VertxUtils {
 	
 	static public void clearDDT(String realm)
 	{
-		if ("genny".equals(realm)) {
-			realm = GennySettings.mainrealm;
-		}
 
 		cacheInterface.clear(realm);
 	}
@@ -222,9 +216,6 @@ public class VertxUtils {
 	static public BaseEntity readFromDDT(String realm, final String code, final boolean withAttributes, final String token) {
 		BaseEntity be = null;
 
-		if ("genny".equals(realm)) {
-			realm = GennySettings.mainrealm;
-		}
 
 		JsonObject json = readCachedJson(realm, code,token);
 
