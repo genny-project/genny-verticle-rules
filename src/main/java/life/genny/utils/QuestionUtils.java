@@ -352,7 +352,9 @@ public class QuestionUtils {
 		log.debug("createQuestionForBaseEntity method, newQuestion ::" + JsonUtils.toJson(newQuestion));
 
 		/* We generate the ask */
-		return new Ask(newQuestion, be.getCode(), be.getCode(), false, 1.0, false, false, true);
+		Ask ask = new Ask(newQuestion, be.getCode(), be.getCode(), false, 1.0, false, false, true);
+		ask.setRealm(serviceToken.getRealm());
+		return ask;
 	}
 
 	public static Ask createVirtualContext(Ask ask, BaseEntity theme, ContextType linkCode,
