@@ -17,7 +17,7 @@ import life.genny.qwanda.ContextList;
 import life.genny.qwanda.ContextType;
 import life.genny.qwanda.Link;
 import life.genny.qwanda.Question;
-import life.genny.qwanda.Context.VisualControlType;
+import life.genny.qwanda.VisualControlType;
 import life.genny.qwanda.attribute.Attribute;
 import life.genny.qwanda.datatype.DataType;
 import life.genny.qwanda.entity.BaseEntity;
