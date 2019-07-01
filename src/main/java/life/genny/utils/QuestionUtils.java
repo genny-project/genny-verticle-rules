@@ -355,6 +355,48 @@ public class QuestionUtils {
 		Ask ask = new Ask(newQuestion, be.getCode(), be.getCode(), false, 1.0, false, false, true);
 		ask.setRealm(serviceToken.getRealm());
 		return ask;
+//		/* We generate the question */
+//		Question newQuestion = null;
+//		try {
+//			String existingQuestionStr = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl+"/qwanda/questioncodes/"+be.getCode(), serviceToken.getToken());
+//			newQuestion = JsonUtils.fromJson(existingQuestionStr, Question.class);
+//		} catch (IOException e) {
+//			
+//		}
+//		Ask ask = null;
+//		if (newQuestion == null) {
+//			newQuestion = new Question(be.getCode() , be.getName(), attribute, false);
+//			ask = new Ask(newQuestion, be.getCode(), be.getCode(), false, 1.0, false, false, true);
+//
+//		} else {
+//			// turn into hacky Question Group
+//			attributeCode = "QQQ_QUESTION_GROUP_INPUT" ;
+//
+//			/* Get the on-the-fly question attribute */
+//			attribute = RulesUtils.getAttribute(attributeCode, serviceToken.getToken());
+//
+//			Question fakeQuestionGrp = new Question(be.getCode()+"_GRP" , be.getName(), attribute, false);
+//			fakeQuestionGrp.setMandatory(newQuestion.getMandatory());
+//			fakeQuestionGrp.setRealm(newQuestion.getRealm());
+//			fakeQuestionGrp.setReadonly(newQuestion.getReadonly());
+//			fakeQuestionGrp.setOneshot(newQuestion.getOneshot());
+//	
+//			try {
+//				fakeQuestionGrp.addTarget(newQuestion, 1.0);
+//			} catch (BadDataException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//			ask = new Ask(fakeQuestionGrp, serviceToken.getUserCode(), serviceToken.getUserCode(), false, 1.0, false, false, true);
+//
+//			
+//		}
+//		log.debug("createQuestionForBaseEntity method, newQuestion ::" + JsonUtils.toJson(newQuestion));
+//
+//		/* We generate the ask */
+//		ask.setRealm(serviceToken.getRealm());
+//		return ask;
+
 	}
 
 	public static Ask createVirtualContext(Ask ask, BaseEntity theme, ContextType linkCode,
