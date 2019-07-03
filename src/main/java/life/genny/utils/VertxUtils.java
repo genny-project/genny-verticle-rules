@@ -196,6 +196,7 @@ public class VertxUtils {
 				JsonObject json = new JsonObject();
 		        json.put("key", key);
 		        json.put("json", value);
+		        json.put("ttl", ttl_seconds+"");
 		        QwandaUtils.apiPostEntity(GennySettings.ddtUrl + "/write", json.toString(), token);
 			} catch (IOException e) {
 				e.printStackTrace();
