@@ -8,6 +8,7 @@ import com.google.gson.annotations.Expose;
 
 import life.genny.qwanda.message.QCmdViewMessage;
 import life.genny.qwanda.message.QTabView;
+import life.genny.utils.Layout.ViewType;
 
 public class LayoutViewData implements Serializable{
 		

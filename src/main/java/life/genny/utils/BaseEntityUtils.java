@@ -30,6 +30,7 @@ import com.google.gson.reflect.TypeToken;
 
 import io.vertx.core.json.JsonObject;
 import life.genny.channel.DistMap;
+
 import life.genny.qwanda.Answer;
 import life.genny.qwanda.Layout;
 import life.genny.qwanda.Link;
@@ -49,8 +50,8 @@ import life.genny.qwanda.message.QDataBaseEntityMessage;
 import life.genny.qwandautils.GennySettings;
 import life.genny.qwandautils.JsonUtils;
 import life.genny.qwandautils.QwandaUtils;
-import life.genny.utils.Layout.LayoutUtils;
 import life.genny.utils.VertxUtils;
+import life.genny.utils.Layout.LayoutUtils;
 
 public class BaseEntityUtils implements Serializable {
 
