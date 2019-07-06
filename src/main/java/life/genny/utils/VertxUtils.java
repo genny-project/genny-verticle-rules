@@ -29,6 +29,7 @@ import life.genny.channel.DistMap;
 import life.genny.eventbus.EventBusInterface;
 import life.genny.eventbus.EventBusVertx;
 import life.genny.eventbus.WildflyCacheInterface;
+import life.genny.models.GennyToken;
 import life.genny.qwanda.attribute.EntityAttribute;
 import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.message.QBulkMessage;
@@ -45,14 +46,14 @@ public class VertxUtils {
 	protected static final Logger log = org.apache.logging.log4j.LogManager
 			.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
 
-	static boolean cachedEnabled = true;
+	static public boolean cachedEnabled = false;
 	
 	static public EventBusInterface eb;
+	
 	
 	static final String DEFAULT_TOKEN = "DUMMY";
 	static final String[] DEFAULT_FILTER_ARRAY = { "PRI_FIRSTNAME", "PRI_LASTNAME", "PRI_MOBILE",
 			"PRI_IMAGE_URL", "PRI_CODE", "PRI_NAME", "PRI_USERNAME" };
-
 
 
 	public enum ESubscriptionType {
@@ -162,7 +163,14 @@ public class VertxUtils {
 			String resultStr = null;
 			try {
 				//log.info("VERTX READING  FROM CACHE API!");
-				resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/"+realm+"/" + key, token);
+				if (cachedEnabled) {
+					GennyToken temp = new GennyToken(token);
+					realm = temp.getRealm();
+
+					resultStr = (String)localCache.get(realm+":"+key);
+				} else {
+					resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/"+realm+"/" + key, token);
+				}
 				if (resultStr != null) {
 					result = new JsonObject(resultStr);
 				} else {
@@ -192,12 +200,20 @@ public class VertxUtils {
 			cacheInterface.writeCache(realm, key, value, token,ttl_seconds);
 		} else {
 			try {
+				if (cachedEnabled) {
+					// force 
+					GennyToken temp = new GennyToken(token);
+					realm = temp.getRealm();
+					localCache.put(realm+":"+key,value);
+				} else {
+
 				log.debug("WRITING TO CACHE USING API! "+key);
 				JsonObject json = new JsonObject();
 		        json.put("key", key);
 		        json.put("json", value);
 		        json.put("ttl", ttl_seconds+"");
 		        QwandaUtils.apiPostEntity(GennySettings.ddtUrl + "/write", json.toString(), token);
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

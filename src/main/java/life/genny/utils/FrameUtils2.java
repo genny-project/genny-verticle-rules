@@ -140,6 +140,10 @@ public class FrameUtils2 {
 		}
 		if (be == null) {
 			try {
+				if (VertxUtils.cachedEnabled) {
+					be = new BaseEntity(beCode, beName);
+					be.setRealm(serviceToken.getRealm());
+				} else {
 				be = QwandaUtils.getBaseEntityByCodeWithAttributes(beCode,
 				 serviceToken.getToken());
 				if (be == null) {
@@ -149,6 +153,7 @@ public class FrameUtils2 {
 					} catch (java.lang.NumberFormatException e) {
 						be = new BaseEntity(beCode, beName);
 					}
+				}
 				}
 			} catch (Exception e) {
 				be = QwandaUtils.createBaseEntityByCode(beCode, beName, GennySettings.qwandaServiceUrl,
