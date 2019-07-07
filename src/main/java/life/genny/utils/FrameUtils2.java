@@ -69,12 +69,14 @@ public class FrameUtils2 {
 		msg.setTotal(msg.getReturnCount()); // fudge the total.
 		msg.setReplace(true);
 
-		for (Ask ask : askList) {
-			QDataAskMessage askMsg = QuestionUtils.getAsks(serviceToken.getUserCode(),"PRJ_INTERNMATCH",
+		if (!VertxUtils.cachedEnabled) {  // cannot retrieve questions if no service!
+			for (Ask ask : askList) {
+				QDataAskMessage askMsg = QuestionUtils.getAsks(serviceToken.getUserCode(),"PRJ_INTERNMATCH",
 					ask.getQuestionCode(), serviceToken.getToken());
-			askMsg = processQDataAskMessage(askMsg, ask, serviceToken);
+				askMsg = processQDataAskMessage(askMsg, ask, serviceToken);
 
-			asks.add(askMsg);
+				asks.add(askMsg);
+			}
 		}
 		return msg;
 	}
