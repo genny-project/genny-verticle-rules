@@ -39,6 +39,7 @@ public class Frame3 extends BaseEntity {
 	private Optional<QuestionGroup> questionGroup = Optional.empty();
 	private FramePosition position;
 	private BaseEntity parent;
+
 	private List<Tuple4<String, ThemeAttributeType,  JSONObject, Double>> themeObjects = new ArrayList<Tuple4<String, ThemeAttributeType, JSONObject, Double>>();
 	private List<Tuple2<Theme,Double>> themes = new ArrayList<Tuple2<Theme,Double>>();
 	
@@ -49,8 +50,9 @@ public class Frame3 extends BaseEntity {
 	private List<Frame3> frame3s;
 	private List<Theme> theme3s;
 
+	
 	/**
-	 * static factory method for builder
+	 * static factory method for builder that never needs to load in a theme or a frame from a code
 	 */
 	public static Builder builder(final String code) {
 		return new Frame3.Builder(code);
@@ -151,14 +153,16 @@ public class Frame3 extends BaseEntity {
 		private Frame3.Builder parentBuilder;
 		private Consumer<Frame3> callback;
 
+
 		
 		public Builder(final String code) {
 			managedInstance.setCode(code);
 			managedInstance.setName(StringUtils.capitalize(code.substring(4)));
 		}
 
-		public Builder(Frame3.Builder b, Consumer<Frame3> c, String frameCode) {
+		public Builder(Frame3.Builder b, Consumer<Frame3> c, String frameCode ) {
 			managedInstance.setCode(frameCode);
+
 			Tuple3<Frame3, FramePosition, Double> frameTuple = Tuple.of(managedInstance, FramePosition.CENTRE, b.frameWeight);
 			b.managedInstance.frames.add(frameTuple);
 			b.frameWeight = b.frameWeight + 1.0;
@@ -196,9 +200,9 @@ public class Frame3 extends BaseEntity {
 		 * @param none
 		 * @return
 		 */
-		public Frame3.Builder addFrame(String code) {
+		public Frame3.Builder addFrame(String code,GennyToken serviceToken) {
 		
-			return addFrame(code,FramePosition.CENTRE);
+			return addFrame(code,FramePosition.CENTRE,serviceToken);
 		}
 
 		/**
@@ -206,13 +210,17 @@ public class Frame3 extends BaseEntity {
 		 * 
 		 * @param none
 		 * @return
+		 * @throws Exception 
 		 */
-		public Frame3.Builder addFrame(String code,FramePosition position) {
+		public Frame3.Builder addFrame(String frameCode,FramePosition position,GennyToken serviceToken)  {
 			if (managedInstance.frame3s == null) {
 				managedInstance.frame3s = new ArrayList<Frame3>();
 			}
+			Frame3 frame = null;
+			frame = VertxUtils.getObject(serviceToken.getRealm(), "", frameCode, Frame3.class, serviceToken.getToken());
+
 			Consumer<Frame3> f = obj -> { managedInstance.frame3s.add(obj);};
-			return new Frame3.Builder(this, f,code,position);
+			return new Frame3.Builder(this, f,frame,position);
 		}
 
 		/**
@@ -263,12 +271,12 @@ public class Frame3 extends BaseEntity {
 		 * @param none
 		 * @return
 		 */
-		public Theme.Builder addTheme(String themeCode) {
+		public Theme.Builder addTheme(String themeCode,GennyToken serviceToken) {
 			if (managedInstance.theme3s == null) {
 				managedInstance.theme3s = new ArrayList<Theme>();
 			}
 			Consumer<Theme> f = obj -> { managedInstance.theme3s.add(obj);};
-			Theme theme = VertxUtils.getObject(managedInstance.getRealm(), "", themeCode, Theme.class);
+			Theme theme = VertxUtils.getObject(serviceToken.getRealm(), "", themeCode, Theme.class, serviceToken.getToken());
 			theme.setDirectLink(true);
 			managedInstance.themes.add(Tuple.of(theme,themeWeight));
 			themeWeight = themeWeight - 1.0;
