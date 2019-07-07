@@ -344,8 +344,14 @@ public class QuestionUtils {
 		String attributeCode = isQuestionGroup ? "QQQ_QUESTION_GROUP_INPUT" : "PRI_EVENT";
 
 		/* Get the on-the-fly question attribute */
-		Attribute attribute = RulesUtils.getAttribute(attributeCode, serviceToken.getToken());
-		log.debug("createQuestionForBaseEntity method, attribute ::" + JsonUtils.toJson(attribute));
+		Attribute attribute = null;
+		if (!VertxUtils.cachedEnabled) {
+			attribute = RulesUtils.getAttribute(attributeCode, serviceToken.getToken());
+			log.debug("createQuestionForBaseEntity method, attribute ::" + JsonUtils.toJson(attribute));
+		} else {
+			 attribute = new Attribute(attributeCode, attributeCode,
+						new DataType("DTT_THEME")); // this helps junit testing
+		}
 
 
 		/* We generate the question */

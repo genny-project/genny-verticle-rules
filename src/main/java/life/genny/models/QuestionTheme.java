@@ -8,6 +8,7 @@ import javax.annotation.concurrent.Immutable;
 
 import org.json.JSONObject;
 
+import com.google.gson.annotations.Expose;
 
 import life.genny.qwanda.ContextType;
 import life.genny.qwanda.VisualControlType;
@@ -15,10 +16,15 @@ import life.genny.qwanda.VisualControlType;
 
 @Immutable
 public final class QuestionTheme {
+	@Expose
 	private String code;
+	@Expose
 	private Optional<Theme> theme=Optional.empty();
+	@Expose
 	private Optional<VisualControlType> vcl=Optional.empty();
+	@Expose
 	private Optional<ContextType> contextType=Optional.empty();
+	@Expose
 	private Optional<Double> weight=Optional.empty();
 	
 

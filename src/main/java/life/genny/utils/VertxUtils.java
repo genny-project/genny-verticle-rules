@@ -168,6 +168,8 @@ public class VertxUtils {
 					realm = temp.getRealm();
 
 					resultStr = (String)localCache.get(realm+":"+key);
+					JsonObject resultJson = new JsonObject().put("status", "ok").put("value", resultStr);
+					resultStr = resultJson.toString();
 				} else {
 					resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/"+realm+"/" + key, token);
 				}

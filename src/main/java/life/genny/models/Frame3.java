@@ -15,6 +15,8 @@ import javax.annotation.concurrent.Immutable;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
+import com.google.gson.annotations.Expose;
+
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.Tuple3;
@@ -35,19 +37,27 @@ public class Frame3 extends BaseEntity {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	@Expose
 	private String questionCode;
-	private Optional<QuestionGroup> questionGroup = Optional.empty();
+	@Expose
+	private QuestionGroup questionGroup = null;
+	@Expose
 	private FramePosition position;
+	@Expose
 	private BaseEntity parent;
 
+	@Expose
 	private List<Tuple4<String, ThemeAttributeType,  JSONObject, Double>> themeObjects = new ArrayList<Tuple4<String, ThemeAttributeType, JSONObject, Double>>();
+	@Expose
 	private List<Tuple2<Theme,Double>> themes = new ArrayList<Tuple2<Theme,Double>>();
-	
+	@Expose
 	private List<Tuple3<String, FramePosition, Double>> frameCodes = new ArrayList<Tuple3<String, FramePosition, Double>>();
+	@Expose
 	private List<Tuple3<Frame3, FramePosition, Double>> frames = new ArrayList<Tuple3<Frame3, FramePosition, Double>>();
 
-
+	@Expose
 	private List<Frame3> frame3s;
+	@Expose
 	private List<Theme> theme3s;
 
 	
@@ -77,7 +87,7 @@ public class Frame3 extends BaseEntity {
 	/**
 	 * @return the questionGroup
 	 */
-	public Optional<QuestionGroup> getQuestionGroup() {
+	public QuestionGroup getQuestionGroup() {
 		return questionGroup;
 	}
 
@@ -377,7 +387,7 @@ public class Frame3 extends BaseEntity {
 		 * @return
 		 */
 		public QuestionGroup.Builder question(final String questionCode) {
-			Consumer<QuestionGroup> f = obj -> { managedInstance.questionGroup = Optional.of(obj);};
+			Consumer<QuestionGroup> f = obj -> { managedInstance.questionGroup = obj;};
 			managedInstance.questionCode = questionCode;
 			return new QuestionGroup.Builder(this, f,questionCode);
 		}

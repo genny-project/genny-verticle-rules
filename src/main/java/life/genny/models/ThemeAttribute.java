@@ -1,54 +1,90 @@
 package life.genny.models;
 
-import java.util.Optional;
 import java.util.function.Consumer;
 
 import javax.annotation.concurrent.Immutable;
 
 import org.json.JSONObject;
 
+import com.google.gson.annotations.Expose;
+
 
 
 @Immutable
 public final class ThemeAttribute {
+	@Expose
 	private String code;
 
-	
-	private Optional<String> flexDirection = Optional.empty();
-	private Optional<String> justifyContent = Optional.empty();
-	private Optional<String> backgroundColor = Optional.empty();
-	private Optional<Integer> margin = Optional.empty();
-	private Optional<Integer> marginBottom = Optional.empty();
-	private Optional<Integer> marginRight = Optional.empty();
-	private Optional<Integer> width = Optional.empty();
-	private Optional<String> widthPercent = Optional.empty();
-	private Optional<Integer> height = Optional.empty();
-	private Optional<String> heightPercent = Optional.empty();
-	private Optional<Integer> maxWidth = Optional.empty();
-	private Optional<Integer> minWidth = Optional.empty();
-	private Optional<Integer> padding = Optional.empty();
-	private Optional<String> shadowColor = Optional.empty();
-	private Optional<Double> shadowOpacity = Optional.empty();
-	private Optional<Integer> shadowRadius = Optional.empty();
-	private Optional<ShadowOffset> shadowOffset = Optional.empty();
-	private Optional<Integer> borderBottomWidth = Optional.empty();
-	private Optional<Integer> borderWidth = Optional.empty();
-	private Optional<String> placeholderColor = Optional.empty();
-	private Optional<String> borderStyle = Optional.empty();
-	private Optional<String> borderColor = Optional.empty();
-	private Optional<String> color = Optional.empty();
-	private Optional<Integer> size = Optional.empty();
-	private Optional<String> sizeText = Optional.empty();
-	private Optional<Boolean> bold = Optional.empty();
-	private Optional<String> fit = Optional.empty();
-	private Optional<String> overflowX = Optional.empty();
-	private Optional<String> overflowY = Optional.empty();
-	private Optional<String> textAlign = Optional.empty();
-	private Optional<Boolean> valueBoolean = Optional.empty();
-	private Optional<Integer> valueInteger = Optional.empty();
-	private Optional<String> valueString = Optional.empty();
-	private Optional<Double> valueDouble = Optional.empty();
-	private Optional<String> alignItems = Optional.empty();
+	@Expose
+	private String flexDirection = null;
+	@Expose
+	private String justifyContent = null;
+	@Expose
+	private String backgroundColor = null;
+	@Expose
+	private Integer margin = null;
+	@Expose
+	private Integer marginBottom = null;
+	@Expose
+	private Integer marginRight = null;
+	@Expose
+	private Integer width = null;
+	@Expose
+	private String widthPercent = null;
+	@Expose
+	private Integer height = null;
+	@Expose
+	private String heightPercent = null;
+	@Expose
+	private Integer maxWidth = null;
+	@Expose
+	private Integer minWidth = null;
+	@Expose
+	private Integer padding = null;
+	@Expose
+	private String shadowColor = null;
+	@Expose
+	private Double shadowOpacity = null;
+	@Expose
+	private Integer shadowRadius = null;
+	@Expose
+	private ShadowOffset shadowOffset = null;
+	@Expose
+	private Integer borderBottomWidth = null;
+	@Expose
+	private Integer borderWidth = null;
+	@Expose
+	private String placeholderColor = null;
+	@Expose
+	private String borderStyle = null;
+	@Expose
+	private String borderColor = null;
+	@Expose
+	private String color = null;
+	@Expose
+	private Integer size = null;
+	@Expose
+	private String sizeText = null;
+	@Expose
+	private Boolean bold = null;
+	@Expose
+	private String fit = null;
+	@Expose
+	private String overflowX = null;
+	@Expose
+	private String overflowY = null;
+	@Expose
+	private String textAlign = null;
+	@Expose
+	private Boolean valueBoolean = null;
+	@Expose
+	private Integer valueInteger = null;
+	@Expose
+	private String valueString = null;
+	@Expose
+	private Double valueDouble = null;
+	@Expose
+	private String alignItems = null;
 
 
 	/**
@@ -72,77 +108,77 @@ public final class ThemeAttribute {
 	 * @return the flexDirection
 	 */
 	public String getFlexDirection() {
-		return flexDirection.orElse("");
+		return flexDirection;
 	}
 
 	public String getAlignItems() {
-		return alignItems.orElse("");
+		return alignItems;
 	}
 
 	/**
 	 * @return the justifyContent
 	 */
 	public String getJustifyContent() {
-		return justifyContent.orElse("");
+		return justifyContent;
 	}
 
 	/**
 	 * @return the backgroundColor
 	 */
 	public String getBackgroundColor() {
-		return backgroundColor.orElse("");
+		return backgroundColor;
 	}
 
 	/**
 	 * @return the shadowColor
 	 */
 	public String getShadowColor() {
-		return shadowColor.orElse("");
+		return shadowColor;
 	}
 
 	/**
 	 * @return the shadowOpacity
 	 */
 	public Double getShadowOpacity() {
-		return shadowOpacity.orElse(0.0);
+		return shadowOpacity;
 	}
 
 	/**
 	 * @return the borderBottomWidth
 	 */
 	public Integer getBorderBottomWidth() {
-		return borderBottomWidth.orElse(0);
+		return borderBottomWidth;
 	}
 
 		/**
 	 * @return the borderWidth
 	 */
 	public Integer getBorderWidth() {
-		return borderWidth.orElse(0);
+		return borderWidth;
 	}
 
 	/**
 	 * @return the margin
 	 */
 	public Integer getMargin() {
-		return margin.orElse(0);
+		return margin;
 	}
 
 	/**
 	 * @return the width
 	 */
 	public Integer getWidth() {
-		return width.orElse(0);
+		return width;
 	}
 
 	/**
 	 * @return the widthPercent
 	 */
 	public String getWidthPercent() {
-		if (!width.isPresent()) {
-			return widthPercent.orElse("100%");
+		if (width == null) {
+			return widthPercent!=null?widthPercent:"100%";
 		} else {
-			return width.get() + "";
+			return width + "";
 		}
 	}
 
@@ -150,17 +186,17 @@ public final class ThemeAttribute {
 	 * @return the height
 	 */
 	public Integer getHeight() {
-		return height.orElse(0);
+		return height;
 	}
 
 	/**
 	 * @return the heightPercent
 	 */
 	public String getHeightPercent() {
-		if (!height.isPresent()) {
-			return heightPercent.orElse("100%");
+		if (height == null) {
+			return heightPercent!=null?heightPercent:"100%";
 		} else {
-			return height.get() + "";
+			return height + "";
 		}
 	}
 
@@ -168,34 +204,34 @@ public final class ThemeAttribute {
 	 * @return the maxWidth
 	 */
 	public Integer getMaxWidth() {
-		return maxWidth.orElse(0);
+		return maxWidth;
 	}
 
 	/**
 	 * @return the minWidth
 	 */
 	public Integer getMinWidth() {
-		return minWidth.orElse(0);
+		return minWidth;
 	}
 
 	/**
 	 * @return the padding
 	 */
 	public Integer getPadding() {
-		return padding.orElse(0);
+		return padding;
 	}
 
 	/**
 	 * @return the shadowRadius
 	 */
 	public Integer getShadowRadius() {
-		return shadowRadius.orElse(0);
+		return shadowRadius;
 	}
 
 	/**
 	 * @return the shadowOffset
 	 */
-	public Optional<ShadowOffset> getShadowOffset() {
+	public ShadowOffset getShadowOffset() {
 		return shadowOffset;
 	}
 
@@ -203,34 +239,34 @@ public final class ThemeAttribute {
 	 * @return the placeholderColor
 	 */
 	public String getPlaceholderColor() {
-		return placeholderColor.orElse("#888");
+		return placeholderColor!=null?placeholderColor:"#888";
 	}
 
 	/**
 	 * @return the borderStyle
 	 */
 	public String getBorderStyle() {
-		return borderStyle.orElse("solid");
+		return borderStyle!=null?borderStyle:"solid";
 	}
 
 	/**
 	 * @return the borderColor
 	 */
 	public String getBorderColor() {
-		return borderColor.orElse("#ddd");
+		return borderColor!=null?borderColor:"#ddd";
 	}
 
 	/**
 	 * @return the color
 	 */
 	public String getColor() {
-		return color.orElse("red");
+		return color!=null?color:"red";
 	}
 
 	/**
 	 * @return the marginBottom
 	 */
-	public Optional<Integer> getMarginBottom() {
+	public Integer getMarginBottom() {
 		return marginBottom;
 	}
 
@@ -238,13 +274,13 @@ public final class ThemeAttribute {
 	 * @return the marginRight
 	 */
 	public Integer getMarginRight() {
-		return marginRight.orElse(0);
+		return marginRight;
 	}
 
 	/**
 	 * @return the size
 	 */
-	public Optional<Integer> getSize() {
+	public Integer getSize() {
 		return size;
 	}
 
@@ -252,73 +288,74 @@ public final class ThemeAttribute {
 	 * @return the textSize
 	 */
 	public String getTextSize() {
-		if (!size.isPresent()) {
-			return sizeText.orElse("md");
+		if (size == null) {
+			
+			return sizeText!=null?sizeText:"md";
 		} else {
-			return size.get() + "";
+			return size + "";
 		}
 	}
 
 	/**
 	 * @return the bold
 	 */
-	public Optional<Boolean> getBold() {
+	public Boolean getBold() {
 		return bold;
 	}
 
 	/**
 	 * @return the fit
 	 */
-	public Optional<String> getFit() {
+	public String getFit() {
 		return fit;
 	}
 
 	/**
 	 * @return the overflowX
 	 */
-	public Optional<String> getOverflowX() {
+	public String getOverflowX() {
 		return overflowX;
 	}
 
 	/**
 	 * @return the overflowY
 	 */
-	public Optional<String> getoverflowY() {
+	public String getoverflowY() {
 		return overflowY;
 	}
 
 	/**
 	 * @return the textAlign
 	 */
-	public Optional<String> getTextAlign() {
+	public String getTextAlign() {
 		return textAlign;
 	}
 
 	/**
 	 * @return the valueBoolean
 	 */
-	public Optional<Boolean> getValueBoolean() {
+	public Boolean getValueBoolean() {
 		return valueBoolean;
 	}
 
 	/**
 	 * @return the valueInteger
 	 */
-	public Optional<Integer> getValueInteger() {
+	public Integer getValueInteger() {
 		return valueInteger;
 	}
 
 	/**
 	 * @return the valueString
 	 */
-	public Optional<String> getValueString() {
+	public String getValueString() {
 		return valueString;
 	}
 
 	/**
 	 * @return the valueDouble
 	 */
-	public Optional<Double> getValueDouble() {
+	public Double getValueDouble() {
 		return valueDouble;
 	}
 	
@@ -342,204 +379,204 @@ public final class ThemeAttribute {
 			managedInstance.code = attributeType.name();
 			parentBuilder = b;
 			callback = c;
-			managedInstance.valueBoolean = Optional.of(value);
+			managedInstance.valueBoolean = value;
 		}
 
 		public Builder(Theme.Builder b, Consumer<ThemeAttribute> c, ThemeAttributeType attributeType, Integer value) {
 			managedInstance.code = attributeType.name();
 			parentBuilder = b;
 			callback = c;
-			managedInstance.valueInteger = Optional.of(value);
+			managedInstance.valueInteger = value;
 		}
 
 		public Builder(Theme.Builder b, Consumer<ThemeAttribute> c, ThemeAttributeType attributeType, String value) {
 			managedInstance.code = attributeType.name();
 			parentBuilder = b;
 			callback = c;
-			managedInstance.valueString = Optional.of(value);
+			managedInstance.valueString = value;
 		}
 
 		public Builder(Theme.Builder b, Consumer<ThemeAttribute> c, ThemeAttributeType attributeType, Double value) {
 			managedInstance.code = attributeType.name();
 			parentBuilder = b;
 			callback = c;
-			managedInstance.valueDouble = Optional.of(value);
+			managedInstance.valueDouble = value;
 		}
 
 		public Builder flexDirection(String value) {
-			managedInstance.flexDirection = Optional.of(value);
+			managedInstance.flexDirection = value;
 			return this;
 		}
 
 		public Builder justifyContent(String value) {
-			managedInstance.justifyContent = Optional.of(value);
+			managedInstance.justifyContent = value;
 			return this;
 		}
 
 		public Builder alignItems(String value) {
-			managedInstance.alignItems = Optional.of(value);
+			managedInstance.alignItems = value;
 			return this;
 		}
 
 		public Builder backgroundColor(String value) { // Accept Spelling errors
-			managedInstance.backgroundColor = Optional.of(value);
+			managedInstance.backgroundColor = value;
 			return this;
 		}
 
 		public Builder backgroundColour(String value) {
-			managedInstance.backgroundColor = Optional.of(value);
+			managedInstance.backgroundColor = value;
 			return this;
 		}
 
 		public Builder margin(Integer value) {
-			managedInstance.margin = Optional.of(value);
+			managedInstance.margin = value;
 			return this;
 		}
 
 		public Builder width(Integer value) {
-			managedInstance.width = Optional.of(value);
+			managedInstance.width = value;
 			return this;
 		}
 
 		public Builder width(String value) {
-			managedInstance.widthPercent = Optional.of(value); // should check format
+			managedInstance.widthPercent = value; // should check format
 			return this;
 		}
 
 		public Builder height(Integer value) {
-			managedInstance.height = Optional.of(value);
+			managedInstance.height = value;
 			return this;
 		}
 
 		public Builder height(String value) {
-			managedInstance.heightPercent = Optional.of(value); // should check format
+			managedInstance.heightPercent = value; // should check format
 			return this;
 		}
 
 		public Builder maxWidth(Integer value) {
-			managedInstance.maxWidth = Optional.of(value);
+			managedInstance.maxWidth = value;
 			return this;
 		}
 
 		public Builder minWidth(Integer value) {
-			managedInstance.minWidth = Optional.of(value);
+			managedInstance.minWidth = value;
 			return this;
 		}
 
 		public Builder padding(Integer value) {
-			managedInstance.padding = Optional.of(value);
+			managedInstance.padding = value;
 			return this;
 		}
 
 		public Builder shadowRadius(Integer value) {
-			managedInstance.shadowRadius = Optional.of(value);
+			managedInstance.shadowRadius = value;
 			return this;
 		}
 
 		public Builder shadowColor(String value) { // Accept Spelling errors
-			managedInstance.shadowColor = Optional.of(value);
+			managedInstance.shadowColor = value;
 			return this;
 		}
 
 		public Builder shadowColour(String value) {
-			managedInstance.shadowColor = Optional.of(value);
+			managedInstance.shadowColor = value;
 			return this;
 		}
 
 		public Builder shadowOpacity(Double value) {
-			managedInstance.shadowOpacity = Optional.of(value);
+			managedInstance.shadowOpacity = value;
 			return this;
 		}
 
 		public Builder borderBottomWidth(Integer value) {
-			managedInstance.borderBottomWidth = Optional.of(value);
+			managedInstance.borderBottomWidth = value;
 			return this;
 		}
 
 		public Builder borderWidth(Integer value) {
-			managedInstance.borderWidth = Optional.of(value);
+			managedInstance.borderWidth = value;
 			return this;
 		}
 
 		public Builder placeholderColor(String value) {
-			managedInstance.placeholderColor = Optional.of(value);
+			managedInstance.placeholderColor = value;
 			return this;
 		}
 
 		public Builder borderStyle(String value) {
-			managedInstance.borderStyle = Optional.of(value);
+			managedInstance.borderStyle = value;
 			return this;
 		}
 
 		public Builder borderColor(String value) {
-			managedInstance.borderColor = Optional.of(value);
+			managedInstance.borderColor = value;
 			return this;
 		}
 
 		public Builder borderColour(String value) {
-			managedInstance.borderColor = Optional.of(value);
+			managedInstance.borderColor = value;
 			return this;
 		}
 
 		public Builder color(String value) {
-			managedInstance.color = Optional.of(value);
+			managedInstance.color = value;
 			return this;
 		}
 
 		public Builder colour(String value) {
-			managedInstance.color = Optional.of(value);
+			managedInstance.color = value;
 			return this;
 		}
 
 		public Builder bold(Boolean value) {
-			managedInstance.bold = Optional.of(value);
+			managedInstance.bold = value;
 			return this;
 		}
 
 		public Builder fit(String value) {
-			managedInstance.fit = Optional.of(value);
+			managedInstance.fit = value;
 			return this;
 		}
 
 		public Builder overflowX(String value) {
-			managedInstance.overflowX = Optional.of(value);
+			managedInstance.overflowX = value;
 			return this;
 		}
 
 		public Builder overflowY(String value) {
-			managedInstance.overflowY = Optional.of(value);
+			managedInstance.overflowY = value;
 			return this;
 		}
 
 		public Builder textAlign(String value) {
-			managedInstance.textAlign = Optional.of(value);
+			managedInstance.textAlign = value;
 			return this;
 		}
 
 		public Builder size(Integer value) {
-			managedInstance.size = Optional.of(value);
+			managedInstance.size = value;
 			return this;
 		}
 
 		public Builder size(String value) {
-			managedInstance.sizeText = Optional.of(value); // should check format
+			managedInstance.sizeText = value; // should check format
 			return this;
 		}
 
 		public Builder marginBottom(Integer value) {
-			managedInstance.marginBottom = Optional.of(value);
+			managedInstance.marginBottom = value;
 			return this;
 		}
 
 		public Builder marginRight(Integer value) {
-			managedInstance.marginRight = Optional.of(value);
+			managedInstance.marginRight = value;
 			return this;
 		}
 		
 		public Builder valueBoolean(Boolean value)
 		{
 			// TODO -> This is terrible hack by me
-			managedInstance.valueBoolean = Optional.of(value);
+			managedInstance.valueBoolean = value;
 			return this;
 		}
 
@@ -554,7 +591,7 @@ public final class ThemeAttribute {
 		 */
 		public ShadowOffset.Builder shadowOffset() {
 			Consumer<ShadowOffset> f = obj -> {
-				managedInstance.shadowOffset = Optional.of(obj);
+				managedInstance.shadowOffset = obj;
 			};
 			return new ShadowOffset.Builder(this, f);
 		}
@@ -573,84 +610,84 @@ public final class ThemeAttribute {
 
 	public JSONObject getJsonObject() {
 		JSONObject json = new JSONObject();
-		if (fit.isPresent())
-			json.put("fit", fit.get());
-		if (overflowX.isPresent())
-			json.put("overflowX", overflowX.get());
-		if (overflowY.isPresent())
-			json.put("overflowY", overflowY.get());
-		if (textAlign.isPresent())
-			json.put("textAlign", textAlign.get());
-		if (flexDirection.isPresent())
-			json.put("flexDirection", flexDirection.get());
-		if (justifyContent.isPresent())
-			json.put("justifyContent", justifyContent.get());
-		if (backgroundColor.isPresent())
-			json.put("backgroundColor", backgroundColor.get());
-		if (shadowColor.isPresent())
-			json.put("shadowColor", shadowColor.get());
-		if (shadowOpacity.isPresent())
-			json.put("shadowOpacity", shadowOpacity.get());
-		if (width.isPresent()) {
-			json.put("width", width.get());
+		if (fit!=null)
+			json.put("fit", fit);
+		if (overflowX!=null)
+			json.put("overflowX", overflowX);
+		if (overflowY!=null)
+			json.put("overflowY", overflowY);
+		if (textAlign!=null)
+			json.put("textAlign", textAlign);
+		if (flexDirection!=null)
+			json.put("flexDirection", flexDirection);
+		if (justifyContent!=null)
+			json.put("justifyContent", justifyContent);
+		if (backgroundColor!=null)
+			json.put("backgroundColor", backgroundColor);
+		if (shadowColor!=null)
+			json.put("shadowColor", shadowColor);
+		if (shadowOpacity!=null)
+			json.put("shadowOpacity", shadowOpacity);
+		if (width!=null) {
+			json.put("width", width);
 		} else {
-			if (widthPercent.isPresent()) {
-				json.put("width", widthPercent.get());
+			if (widthPercent!=null) {
+				json.put("width", widthPercent);
 			}
 		}
 
-		if (height.isPresent()) {
-			json.put("height", height.get());
+		if (height!=null) {
+			json.put("height", height);
 		} else {
-			if (heightPercent.isPresent()) {
-				json.put("height", heightPercent.get());
+			if (heightPercent!=null) {
+				json.put("height", heightPercent);
 			}
 		}
-		if (margin.isPresent())
-			json.put("margin", margin.get());
-		if (marginRight.isPresent())
-			json.put("marginRight", marginRight.get());
-		if (maxWidth.isPresent())
-			json.put("maxWidth", maxWidth.get());
-		if (minWidth.isPresent())
-			json.put("minWidth", minWidth.get());
-		if (padding.isPresent())
-			json.put("padding", padding.get());
-		if (shadowRadius.isPresent())
-			json.put("shadowRadius", shadowRadius.get());
-		if (shadowOffset.isPresent())
-			json.put("shadowOffset", shadowOffset.get().getJsonObject());
-		if (borderBottomWidth.isPresent())
-			json.put("borderBottomWidth", borderBottomWidth.get());
-		if (borderWidth.isPresent())
-			json.put("borderWidth", borderWidth.get());
-		if (placeholderColor.isPresent())
-			json.put("placeholderColor", placeholderColor.get());
-		if (borderStyle.isPresent())
-			json.put("borderStyle", borderStyle.get());
-		if (borderColor.isPresent())
-			json.put("borderColor", borderColor.get());
-		if (color.isPresent())
-			json.put("color", color.get());
-		if (size.isPresent()) {
-			json.put("size", size.get());
+		if (margin!=null)
+			json.put("margin", margin);
+		if (marginRight!=null)
+			json.put("marginRight", marginRight);
+		if (maxWidth!=null)
+			json.put("maxWidth", maxWidth);
+		if (minWidth!=null)
+			json.put("minWidth", minWidth);
+		if (padding!=null)
+			json.put("padding", padding);
+		if (shadowRadius!=null)
+			json.put("shadowRadius", shadowRadius);
+		if (shadowOffset!=null)
+			json.put("shadowOffset", shadowOffset.getJsonObject());
+		if (borderBottomWidth!=null)
+			json.put("borderBottomWidth", borderBottomWidth);
+		if (borderWidth!=null)
+			json.put("borderWidth", borderWidth);
+		if (placeholderColor!=null)
+			json.put("placeholderColor", placeholderColor);
+		if (borderStyle!=null)
+			json.put("borderStyle", borderStyle);
+		if (borderColor!=null)
+			json.put("borderColor", borderColor);
+		if (color!=null)
+			json.put("color", color);
+		if (size!=null) {
+			json.put("size", size);
 		} else {
-			if (sizeText.isPresent()) {
-				json.put("size", sizeText.get());
+			if (sizeText!=null) {
+				json.put("size", sizeText);
 			}
 		}
 
-		if (bold.isPresent())
-			json.put("bold", bold.get());
+		if (bold!=null)
+			json.put("bold", bold);
 
-		if (valueBoolean.isPresent())
-			json.put("valueBoolean", valueBoolean.get());
-		if (valueInteger.isPresent())
-			json.put("valueInteger", valueInteger.get());
-		if (valueString.isPresent())
-			json.put("valueString", valueString.get());
-		if (valueDouble.isPresent())
-			json.put("valueDouble", valueDouble.get());
+		if (valueBoolean!=null)
+			json.put("valueBoolean", valueBoolean);
+		if (valueInteger!=null)
+			json.put("valueInteger", valueInteger);
+		if (valueString!=null)
+			json.put("valueString", valueString);
+		if (valueDouble!=null)
+			json.put("valueDouble", valueDouble);
 
 		return json;
 	}

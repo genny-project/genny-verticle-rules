@@ -8,6 +8,8 @@ import java.util.function.Consumer;
 
 import javax.annotation.concurrent.Immutable;
 
+import com.google.gson.annotations.Expose;
+
 import life.genny.qwanda.attribute.Attribute;
 import life.genny.qwanda.attribute.AttributeBoolean;
 import life.genny.qwanda.attribute.AttributeDouble;
@@ -24,10 +26,10 @@ public class Theme extends BaseEntity {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private String code;
-	private String name;
+	@Expose
 	private Boolean directLink = false;
 
+	@Expose
 	private Set<ThemeAttribute> attributes;
 
 	/**
@@ -44,15 +46,6 @@ public class Theme extends BaseEntity {
 		super();
 	}
 
-	public String getCode() {
-		return code;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	
 	
 
 	/**
@@ -87,14 +80,14 @@ public class Theme extends BaseEntity {
 
 		
 		public Builder(final String code) {
-			managedInstance.code = code;
-			managedInstance.name = code;
+			managedInstance.setCode(code);
+			managedInstance.setName(code);
 		}
 
 
 		public Builder(Frame3.Builder b, Consumer<Theme> c, String code) {
-			managedInstance.code = code;
-			managedInstance.name = code;
+			managedInstance.setCode(code);
+			managedInstance.setName(code);
 			parentBuilder = b;
 			callback = c;
 		}
@@ -112,7 +105,7 @@ public class Theme extends BaseEntity {
 		 * @return Theme
 		 */
 		public Builder name(String name) {
-			managedInstance.name = name;
+			managedInstance.setName(name);
 			return this;
 		}
 

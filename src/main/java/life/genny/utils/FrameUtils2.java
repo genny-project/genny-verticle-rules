@@ -58,7 +58,7 @@ public class FrameUtils2 {
 
 		BaseEntity root = getBaseEntity(rootFrame, serviceToken);
 
-		log.info(root.toString());
+		//log.info(root.toString());
 
 		baseEntityList.add(root);
 
@@ -207,22 +207,22 @@ public class FrameUtils2 {
 				processThemeTuples(childFrame, position, serviceToken, baseEntityList, childBe);
 			}
 
-			if (childFrame.getQuestionGroup().isPresent()) {
+			if (childFrame.getQuestionGroup()!=null) {
 				System.out.println("Processing Question  " + childFrame.getQuestionCode());
 
 				/* create an ask */
-				BaseEntity askBe = new BaseEntity(childFrame.getQuestionGroup().get().getCode(),
-						childFrame.getQuestionGroup().get().getCode());
+				BaseEntity askBe = new BaseEntity(childFrame.getQuestionGroup().getCode(),
+						childFrame.getQuestionGroup().getCode());
 				askBe.setRealm(parent.getRealm());
 
 				Ask ask = QuestionUtils.createQuestionForBaseEntity2(askBe,
-						StringUtils.endsWith(askBe.getCode(), "GRP"), serviceToken,childFrame.getQuestionGroup().get().getSourceAlias(),childFrame.getQuestionGroup().get().getTargetAlias());
+						StringUtils.endsWith(askBe.getCode(), "GRP"), serviceToken,childFrame.getQuestionGroup().getSourceAlias(),childFrame.getQuestionGroup().getTargetAlias());
 
 				Map<ContextType, Set<BaseEntity>> contextMap = new HashMap<ContextType, Set<BaseEntity>>();
 				Map<ContextType, life.genny.qwanda.VisualControlType> vclMap = new HashMap<ContextType, VisualControlType>();
 				/* package up Question Themes */
-				if (!childFrame.getQuestionGroup().get().getQuestionThemes().isEmpty()) {
-					for (QuestionTheme qTheme : childFrame.getQuestionGroup().get().getQuestionThemes()) {
+				if (!childFrame.getQuestionGroup().getQuestionThemes().isEmpty()) {
+					for (QuestionTheme qTheme : childFrame.getQuestionGroup().getQuestionThemes()) {
 						System.out.println("Question Theme: " + qTheme.getCode() + ":" + qTheme.getJson());
 						processQuestionThemes(askBe, qTheme, serviceToken, ask, baseEntityList, contextMap, vclMap);
 						Set<BaseEntity> themeSet = new HashSet<BaseEntity>();
@@ -340,8 +340,13 @@ public class FrameUtils2 {
 			for (ThemeAttribute themeAttribute : theme.getAttributes()) {
 				Attribute attribute = null;
 
-
-				attribute = RulesUtils.getAttribute(themeAttribute.getCode(),gennyToken.getToken());
+				if (themeAttribute.getCode()==null) {
+					System.out.println("themeAttribute code is null");
+				} else {
+					if (!VertxUtils.cachedEnabled) {
+						attribute = RulesUtils.getAttribute(themeAttribute.getCode(),gennyToken.getToken());
+					}
+				}
 
 				if (attribute == null) { attribute = new Attribute(themeAttribute.getCode(), themeAttribute.getCode(),
 						new DataType("DTT_THEME"));
@@ -365,7 +370,7 @@ public class FrameUtils2 {
 						themeEA.setWeight(weight);
 					} else {
 						if (attribute.dataType.getClassName().equals(Boolean.class.getCanonicalName())) {
-							themeBe.addAttribute(new EntityAttribute(themeBe, attribute, weight, themeAttribute.getValueBoolean().get()));
+							themeBe.addAttribute(new EntityAttribute(themeBe, attribute, weight, themeAttribute.getValueBoolean()));
 						} else 	if (attribute.dataType.getClassName().equals(Double.class.getCanonicalName())) {
 							themeBe.addAttribute(new EntityAttribute(themeBe, attribute, weight, themeAttribute.getValueDouble()));
 						} else 	if (attribute.dataType.getClassName().equals(String.class.getCanonicalName())) {

@@ -7,11 +7,15 @@ import javax.annotation.concurrent.Immutable;
 
 import org.json.JSONObject;
 
+import com.google.gson.annotations.Expose;
+
 @Immutable
 public final class ShadowOffset {
 
-	private Optional<Integer> width = Optional.empty();
-	private Optional<Integer> height = Optional.empty();
+	@Expose
+	private Integer width = null;
+	@Expose
+	private Integer height = null;
 
 
 	/**
@@ -41,12 +45,12 @@ public final class ShadowOffset {
 		}
 
 		public Builder width(Integer value) {
-			managedInstance.width = Optional.of(value);
+			managedInstance.width = value;
 			return this;
 		}
 
 		public Builder height(Integer value) {
-			managedInstance.height = Optional.of(value);
+			managedInstance.height = value;
 			return this;
 		}
 
@@ -69,8 +73,8 @@ public final class ShadowOffset {
 	public JSONObject getJsonObject() {
 		JSONObject json = new JSONObject();
 
-		if (width.isPresent()) json.put("width", width.get());
-		if (height.isPresent()) json.put("height", height.get());
+		if (width!=null) json.put("width", width);
+		if (height!=null) json.put("height", height);
 		
 
 		return json;
