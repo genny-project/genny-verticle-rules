@@ -270,17 +270,21 @@ public class Frame3 extends BaseEntity {
 		 * 
 		 * @param none
 		 * @return
+		 * @throws Exception 
 		 */
-		public Theme.Builder addTheme(String themeCode,GennyToken serviceToken) {
+		public Theme.Builder addTheme(String themeCode,GennyToken serviceToken) throws Exception {
 			if (managedInstance.theme3s == null) {
 				managedInstance.theme3s = new ArrayList<Theme>();
 			}
 			Consumer<Theme> f = obj -> { managedInstance.theme3s.add(obj);};
 			Theme theme = VertxUtils.getObject(serviceToken.getRealm(), "", themeCode, Theme.class, serviceToken.getToken());
+			if (theme != null) {
 			theme.setDirectLink(true);
 			managedInstance.themes.add(Tuple.of(theme,themeWeight));
 			themeWeight = themeWeight - 1.0;
-
+			} else {
+				throw new Exception("Could not load Theme - Does it exist yet?");
+			}
 			return new Theme.Builder(this, f, theme);		
 		}		
 		
