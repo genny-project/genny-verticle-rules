@@ -203,6 +203,7 @@ public interface EventBusInterface {
 				QwandaUtils.apiPostEntity(GennySettings.bridgeServiceUrl + "?channel=" + channel, json,
 						event.get("token").getAsString());
 			} catch (Exception e) {
+				String json2 = msg.toString();
 				log.error("Error in posting message to bridge eventbus:" + channel + ":" + msg);
 			}
 

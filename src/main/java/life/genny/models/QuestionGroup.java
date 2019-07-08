@@ -9,6 +9,8 @@ import java.util.function.Consumer;
 
 import javax.annotation.concurrent.Immutable;
 
+import com.google.gson.annotations.Expose;
+
 import io.vavr.Tuple;
 import life.genny.utils.VertxUtils;
 
@@ -16,13 +18,15 @@ import life.genny.utils.VertxUtils;
 
 @Immutable
 public class QuestionGroup {
-
+	@Expose
 	private String code;
-	private Optional<String> sourceAlias = Optional.empty(); // This is used to permit source setting.
-
-	private Optional<String> targetAlias = Optional.empty(); // This is used to permit target setting.
-
+	@Expose
+	private String sourceAlias = null; // This is used to permit source setting.
+	@Expose
+	private String targetAlias = null; // This is used to permit target setting.
+	@Expose
 	private Set<QuestionTheme> questionThemes = new HashSet<QuestionTheme>();
+	@Expose
 	private Set<String> themeCodes;
 
 	/**
@@ -47,14 +51,14 @@ public class QuestionGroup {
 	/**
 	 * @return the sourceAlias
 	 */
-	public Optional<String> getSourceAlias() {
+	public String getSourceAlias() {
 		return sourceAlias;
 	}
 
 	/**
 	 * @return the targetAlias
 	 */
-	public Optional<String> getTargetAlias() {
+	public String getTargetAlias() {
 		return targetAlias;
 	}
 
@@ -81,13 +85,13 @@ public class QuestionGroup {
 
 		public Builder sourceAlias(final String aliasCode)
 		{
-			managedInstance.sourceAlias = Optional.of(aliasCode);
+			managedInstance.sourceAlias = aliasCode;
 			return this;
 		}
 		
 		public Builder targetAlias(final String aliasCode)
 		{
-			managedInstance.targetAlias = Optional.of(aliasCode);
+			managedInstance.targetAlias = aliasCode;
 			return this;
 		}
 		
@@ -123,14 +127,21 @@ public class QuestionGroup {
 		 * 
 		 * @param none
 		 * @return
+		 * @throws Exception 
 		 */
-		public QuestionTheme.Builder addTheme(String themeCode) {
-			if (managedInstance.questionThemes == null) {
-				managedInstance.questionThemes = new HashSet<QuestionTheme>();
-			}
+		public QuestionTheme.Builder addTheme(String themeCode,GennyToken serviceToken) throws Exception {
+			Theme theme = VertxUtils.getObject(serviceToken.getRealm(), "", themeCode, Theme.class, serviceToken.getToken());
+			if (theme != null) {
+				if (managedInstance.questionThemes == null) {
+					managedInstance.questionThemes = new HashSet<QuestionTheme>();
+				}
 
+			} else {
+				throw new Exception("Could not load Theme - Does it exist yet?");
+			}
 			Consumer<QuestionTheme> f = obj -> { managedInstance.questionThemes.add(obj);};
-			return new QuestionTheme.Builder(this, f, themeCode);
+
+			return new QuestionTheme.Builder(this, f, theme);
 		}
 
 

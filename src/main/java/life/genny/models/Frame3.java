@@ -1,6 +1,7 @@
 package life.genny.models;
 
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -31,7 +32,7 @@ import life.genny.utils.VertxUtils;
 
 
 @Immutable
-public class Frame3 extends BaseEntity {
+public class Frame3 extends BaseEntity implements Serializable {
 
 	/**
 	 * 
@@ -47,13 +48,13 @@ public class Frame3 extends BaseEntity {
 	private BaseEntity parent;
 
 	@Expose
-	private List<Tuple4<String, ThemeAttributeType,  JSONObject, Double>> themeObjects = new ArrayList<Tuple4<String, ThemeAttributeType, JSONObject, Double>>();
+	private ArrayList<ThemeTuple4> themeObjects = new ArrayList<ThemeTuple4>();
 	@Expose
-	private List<Tuple2<Theme,Double>> themes = new ArrayList<Tuple2<Theme,Double>>();
+	private ArrayList<ThemeDouble> themes = new ArrayList<ThemeDouble>();
 	@Expose
-	private List<Tuple3<String, FramePosition, Double>> frameCodes = new ArrayList<Tuple3<String, FramePosition, Double>>();
+	private ArrayList<StringTuple> frameCodes = new ArrayList<StringTuple>();
 	@Expose
-	private List<Tuple3<Frame3, FramePosition, Double>> frames = new ArrayList<Tuple3<Frame3, FramePosition, Double>>();
+	private ArrayList<FrameTuple3> frames = new ArrayList<FrameTuple3>();
 
 	@Expose
 	private List<Frame3> frame3s;
@@ -108,28 +109,28 @@ public class Frame3 extends BaseEntity {
 	/**
 	 * @return the themeObjects
 	 */
-	public List<Tuple4<String, ThemeAttributeType, JSONObject, Double>> getThemeObjects() {
+	public List<ThemeTuple4> getThemeObjects() {
 		return themeObjects;
 	}
 
 	/**
 	 * @return the themes
 	 */
-	public List<Tuple2<Theme, Double>> getThemes() {
+	public ArrayList<ThemeDouble> getThemes() {
 		return themes;
 	}
 
 	/**
 	 * @return the frameCodes
 	 */
-	public List<Tuple3<String, FramePosition, Double>> getFrameCodes() {
+	public List<StringTuple> getFrameCodes() {
 		return frameCodes;
 	}
 
 	/**
 	 * @return the frames
 	 */
-	public List<Tuple3<Frame3, FramePosition, Double>> getFrames() {
+	public List<FrameTuple3> getFrames() {
 		return frames;
 	}
 
@@ -173,7 +174,7 @@ public class Frame3 extends BaseEntity {
 		public Builder(Frame3.Builder b, Consumer<Frame3> c, String frameCode ) {
 			managedInstance.setCode(frameCode);
 
-			Tuple3<Frame3, FramePosition, Double> frameTuple = Tuple.of(managedInstance, FramePosition.CENTRE, b.frameWeight);
+			FrameTuple3 frameTuple = new FrameTuple3(managedInstance, FramePosition.CENTRE, b.frameWeight);
 			b.managedInstance.frames.add(frameTuple);
 			b.frameWeight = b.frameWeight + 1.0;
 
@@ -183,7 +184,7 @@ public class Frame3 extends BaseEntity {
 		
 		public Builder(Frame3.Builder b, Consumer<Frame3> c, String frameCode,FramePosition position) {
 			managedInstance.setCode(frameCode);
-			Tuple3<Frame3, FramePosition, Double> frameTuple = Tuple.of(managedInstance, position, b.frameWeight);
+			FrameTuple3 frameTuple = new FrameTuple3(managedInstance, position, b.frameWeight);
 			b.managedInstance.frames.add(frameTuple);
 			b.frameWeight = b.frameWeight + 1.0;
 
@@ -193,7 +194,7 @@ public class Frame3 extends BaseEntity {
 
 		public Builder(Frame3.Builder b, Consumer<Frame3> c, Frame3 frame,FramePosition position) {
 			managedInstance = frame;
-			Tuple3<Frame3, FramePosition, Double> frameTuple = Tuple.of(managedInstance, position, b.frameWeight);
+			FrameTuple3 frameTuple = new FrameTuple3(managedInstance, position, b.frameWeight);
 			b.managedInstance.frames.add(frameTuple);
 			b.frameWeight = b.frameWeight + 1.0;
 
@@ -268,7 +269,7 @@ public class Frame3 extends BaseEntity {
 				managedInstance.theme3s = new ArrayList<Theme>();
 			}
 			Consumer<Theme> f = obj -> { managedInstance.theme3s.add(obj);};
-			managedInstance.themes.add(Tuple.of(theme,themeWeight));
+			managedInstance.themes.add(new ThemeDouble(theme,themeWeight));
 			themeWeight = themeWeight - 1.0;
 
 			return new Theme.Builder(this, f, theme);		
@@ -289,9 +290,9 @@ public class Frame3 extends BaseEntity {
 			Consumer<Theme> f = obj -> { managedInstance.theme3s.add(obj);};
 			Theme theme = VertxUtils.getObject(serviceToken.getRealm(), "", themeCode, Theme.class, serviceToken.getToken());
 			if (theme != null) {
-			theme.setDirectLink(true);
-			managedInstance.themes.add(Tuple.of(theme,themeWeight));
-			themeWeight = themeWeight - 1.0;
+				theme.setDirectLink(true);
+				managedInstance.themes.add(new ThemeDouble(theme,themeWeight));
+				themeWeight = themeWeight - 1.0;
 			} else {
 				throw new Exception("Could not load Theme - Does it exist yet?");
 			}
@@ -310,7 +311,7 @@ public class Frame3 extends BaseEntity {
 			}
 			Consumer<Theme> f = obj -> { managedInstance.theme3s.add(obj);};
 			theme.setDirectLink(true);
-			managedInstance.themes.add(Tuple.of(theme,themeWeight));
+			managedInstance.themes.add(new ThemeDouble(theme,themeWeight));
 			themeWeight = themeWeight - 1.0;
 
 			return new Theme.Builder(this, f, theme);		
@@ -329,7 +330,7 @@ public class Frame3 extends BaseEntity {
 			Consumer<Theme> f = obj -> { managedInstance.theme3s.add(obj);};
 			String themeCode = "THM_"+UUID.randomUUID().toString().substring(0, 25);
 			Theme theme = Theme.builder(themeCode).build();
-			managedInstance.themes.add(Tuple.of(theme,themeWeight));
+			managedInstance.themes.add(new ThemeDouble(theme,themeWeight));
 			themeWeight = themeWeight - 1.0;
 
 		
@@ -349,7 +350,7 @@ public class Frame3 extends BaseEntity {
 			}
 			Consumer<Theme> f = obj -> { managedInstance.theme3s.add(obj);};
 			ThemeAttributeType codeOnly = ThemeAttributeType.codeOnly;
-			Tuple4<String, ThemeAttributeType, JSONObject, Double> theme = Tuple.of(themeCode, codeOnly, new JSONObject("{\"codeOnly\":true}"),
+			ThemeTuple4 theme = new ThemeTuple4(themeCode, codeOnly, new JSONObject("{\"codeOnly\":true}"),
 					themeWeight);
 
 			managedInstance.themeObjects.add(theme);
@@ -375,7 +376,7 @@ public class Frame3 extends BaseEntity {
 			
 			keyValue.put(property, value);
 			
-			Tuple4<String, ThemeAttributeType, JSONObject, Double> theme = Tuple.of(themeCode, attributeCode, keyValue,
+			ThemeTuple4 theme = new ThemeTuple4(themeCode, attributeCode, keyValue,
 					themeWeight);
 			managedInstance.themeObjects.add(theme);
 			themeWeight = themeWeight - 1.0;

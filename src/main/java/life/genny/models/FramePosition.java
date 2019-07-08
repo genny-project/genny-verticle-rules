@@ -1,6 +1,8 @@
 package life.genny.models;
 
-public enum FramePosition {
+import java.io.Serializable;
+
+public enum FramePosition implements Serializable{
 	NORTH("NORTH"), EAST("EAST"), WEST("WEST"), SOUTH("SOUTH"), CENTRE("CENTRE"), WRAPPER("WRAPPER");
 
 	private final String name;

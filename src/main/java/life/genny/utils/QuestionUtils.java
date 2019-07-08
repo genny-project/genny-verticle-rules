@@ -338,7 +338,7 @@ public class QuestionUtils {
 		return new Ask(newQuestion, be.getCode(), be.getCode(), false, 1.0, false, false, true);
 	}
 	
-	public static Ask createQuestionForBaseEntity2(BaseEntity be, Boolean isQuestionGroup, GennyToken serviceToken, final Optional<String> sourceAlias, final Optional<String> targetAlias) {
+	public static Ask createQuestionForBaseEntity2(BaseEntity be, Boolean isQuestionGroup, GennyToken serviceToken, final String sourceAlias, final String targetAlias) {
 
 		/* creating attribute code according to the value of isQuestionGroup */
 		String attributeCode = isQuestionGroup ? "QQQ_QUESTION_GROUP_INPUT" : "PRI_EVENT";
@@ -359,7 +359,7 @@ public class QuestionUtils {
 		log.debug("createQuestionForBaseEntity method, newQuestion ::" + JsonUtils.toJson(newQuestion));
 
 		/* We generate the ask */
-		Ask ask = new Ask(newQuestion, sourceAlias.orElse(be.getCode()), targetAlias.orElse(be.getCode()), false, 1.0, false, false, true);
+		Ask ask = new Ask(newQuestion, (sourceAlias!=null?sourceAlias:be.getCode()),( targetAlias!=null?targetAlias:be.getCode()), false, 1.0, false, false, true);
 		ask.setRealm(serviceToken.getRealm());
 		return ask;
 

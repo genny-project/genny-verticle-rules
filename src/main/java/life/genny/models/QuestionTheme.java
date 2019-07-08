@@ -19,13 +19,13 @@ public final class QuestionTheme {
 	@Expose
 	private String code;
 	@Expose
-	private Optional<Theme> theme=Optional.empty();
+	private Theme theme=null;
 	@Expose
-	private Optional<VisualControlType> vcl=Optional.empty();
+	private VisualControlType vcl=null;
 	@Expose
-	private Optional<ContextType> contextType=Optional.empty();
+	private ContextType contextType=null;
 	@Expose
-	private Optional<Double> weight=Optional.empty();
+	private Double weight=null;
 	
 
 	
@@ -54,7 +54,7 @@ public final class QuestionTheme {
 	/**
 	 * @return the theme
 	 */
-	public Optional<Theme> getTheme() {
+	public Theme getTheme() {
 		return theme;
 	}
 
@@ -63,7 +63,10 @@ public final class QuestionTheme {
 	 * @return the vcl
 	 */
 	public VisualControlType getVcl() {
-		return vcl.orElse(VisualControlType.VCL_INPUT);
+		if (vcl == null) {
+			return VisualControlType.VCL_INPUT;
+		} else 
+		return vcl;
 	}
 
 
@@ -71,7 +74,10 @@ public final class QuestionTheme {
 	 * @return the contextType
 	 */
 	public ContextType getContextType() {
-		return contextType.orElse(ContextType.THEME);
+		if (contextType == null) {
+			return ContextType.THEME;
+		} else 
+		return contextType;
 	}
 
 
@@ -79,7 +85,10 @@ public final class QuestionTheme {
 	 * @return the weight
 	 */
 	public Double getWeight() {
-		return weight.orElse(1.0);
+		if (weight == null) {
+			return 1.0;
+		} else
+		return weight;
 	}
 
 	/**
@@ -110,7 +119,7 @@ public final class QuestionTheme {
 		}
 		
 		public Builder(QuestionGroup.Builder b, Consumer<QuestionTheme> c, Theme theme) {
-			managedInstance.theme = Optional.of(theme);
+			managedInstance.theme = theme;
 			managedInstance.code = theme.getCode();
 			parentBuilder = b;
 			callback = c;
@@ -118,17 +127,17 @@ public final class QuestionTheme {
 
 
 		public Builder contextType(ContextType value) {
-			managedInstance.contextType = Optional.of(value);
+			managedInstance.contextType = value;
 			return this;
 		}
 
 		public Builder vcl(VisualControlType value) {
-			managedInstance.vcl = Optional.of(value);
+			managedInstance.vcl = value;
 			return this;
 		}
 
 		public Builder weight(Double value) { 
-			managedInstance.weight = Optional.of(value);
+			managedInstance.weight = value;
 			return this;
 		}
 
@@ -159,9 +168,9 @@ public final class QuestionTheme {
 	{
 		JSONObject json = new JSONObject();
 		json.put("contextCode", code);
-		if (contextType.isPresent()) json.put("name", contextType.get());
-		if (vcl.isPresent()) json.put("visualControlType", vcl.get());
-		if (weight.isPresent()) json.put("weight", weight.get());
+		if (contextType != null) json.put("name", contextType);
+		if (vcl != null) json.put("visualControlType", vcl);
+		if (weight != null) json.put("weight", weight);
 
 		return json;
 	}
