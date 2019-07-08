@@ -14,6 +14,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import javax.naming.NamingException;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.logging.log4j.Logger;
@@ -436,6 +438,20 @@ public class VertxUtils {
 		return ok;
 
 	}
+	
+	static public JsonObject writeMsg(String channel, Object payload) {
+		
+		try {
+			eb.writeMsg(channel, payload);
+		} catch (NamingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	JsonObject ok = new JsonObject().put("status", "ok");
+	return ok;
+
+}
 
 	static public Object privacyFilter(BaseEntity user, Object payload, final String[] filterAttributes) {
 		if (payload instanceof QDataBaseEntityMessage) {
