@@ -50,6 +50,8 @@ public class FrameUtils2 {
 
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
 
+	static public Boolean showLogs = false;
+	
 	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
 			Set<QDataAskMessage> asks) {
 
@@ -137,9 +139,6 @@ public class FrameUtils2 {
 	private static BaseEntity getBaseEntity(final String beCode, final String beName, final GennyToken serviceToken) {
 		BaseEntity be = null; //VertxUtils.getObject(serviceToken.getRealm(), "", beCode, BaseEntity.class,
 		// serviceToken.getToken());
-		if ("THM_NOT_INHERITBALE".equals(beCode)) {
-			log.info("here");
-		}
 		if (be == null) {
 			try {
 				if (VertxUtils.cachedEnabled) {
@@ -178,7 +177,9 @@ public class FrameUtils2 {
 
 		// Go through the frames and fetch them
 		for (Tuple3<Frame3, FramePosition, Double> frameTuple3 : frame.getFrames()) {
-			System.out.println("Processing Frame     " + frameTuple3._1.getCode());
+			if (showLogs) {
+				System.out.println("Processing Frame     " + frameTuple3._1.getCode());
+			}
 			Frame3 childFrame = frameTuple3._1;
 			FramePosition position = frameTuple3._2;
 			Double weight = frameTuple3._3;
@@ -210,8 +211,9 @@ public class FrameUtils2 {
 			}
 
 			if (childFrame.getQuestionGroup()!=null) {
-				System.out.println("Processing Question  " + childFrame.getQuestionCode());
-
+				if (showLogs) {
+					System.out.println("Processing Question  " + childFrame.getQuestionCode());
+				}
 				/* create an ask */
 				BaseEntity askBe = new BaseEntity(childFrame.getQuestionGroup().getCode(),
 						childFrame.getQuestionGroup().getCode());
@@ -225,7 +227,9 @@ public class FrameUtils2 {
 				/* package up Question Themes */
 				if (!childFrame.getQuestionGroup().getQuestionThemes().isEmpty()) {
 					for (QuestionTheme qTheme : childFrame.getQuestionGroup().getQuestionThemes()) {
-						System.out.println("Question Theme: " + qTheme.getCode() + ":" + qTheme.getJson());
+						if (showLogs) {
+							System.out.println("Question Theme: " + qTheme.getCode() + ":" + qTheme.getJson());
+						}
 						processQuestionThemes(askBe, qTheme, serviceToken, ask, baseEntityList, contextMap, vclMap);
 						Set<BaseEntity> themeSet = new HashSet<BaseEntity>();
 						if (qTheme.getTheme().isPresent()) {
@@ -273,7 +277,9 @@ public class FrameUtils2 {
 			Set<BaseEntity> baseEntityList, BaseEntity parent) {
 		// Go through the theme codes and fetch the
 		for (Tuple4<String, ThemeAttributeType, JSONObject, Double> themeTuple4 : frame.getThemeObjects()) {
-			System.out.println("Processing Theme     " + themeTuple4._1);
+			if (showLogs) {
+				System.out.println("Processing Theme     " + themeTuple4._1);
+			}
 			String themeCode = themeTuple4._1;
 			ThemeAttributeType themeAttribute = themeTuple4._2;
 			if (!themeAttribute.name().equalsIgnoreCase("codeOnly")) {
@@ -333,7 +339,9 @@ public class FrameUtils2 {
 
 		// Go through the theme codes and fetch the
 		for (Tuple2<Theme, Double> themeTuple2 : frame.getThemes()) {
-			System.out.println("Processing Theme     " + themeTuple2._1.getCode());
+			if (showLogs) {
+				System.out.println("Processing Theme     " + themeTuple2._1.getCode());
+			}
 			Theme theme = themeTuple2._1;
 			Double weight = themeTuple2._2;
 
@@ -356,9 +364,6 @@ public class FrameUtils2 {
 
 				try {
 					if (themeBe.containsEntityAttribute(themeAttribute.getCode())) {
-						if ("PRI_IS_INHERITABLE".equals(themeAttribute.getCode())) {
-							log.info("here");
-						}
 						EntityAttribute themeEA = themeBe.findEntityAttribute(themeAttribute.getCode()).get();
 						String existingSetValue = themeEA.getAsString();
 						JSONObject json = new JSONObject(existingSetValue);
@@ -419,15 +424,13 @@ public class FrameUtils2 {
 	private static void processQuestionThemes(final BaseEntity fquestion, QuestionTheme qTheme, GennyToken gennyToken,
 			Ask ask, Set<BaseEntity> baseEntityList, Map<ContextType, Set<BaseEntity>> contextMap,
 			Map<ContextType, VisualControlType> vclMap) {
-		if ("THM_FORM_CONTAINER_DEFAULT".equals(qTheme.getCode())) {
-			log.info("info");
-		}
 
 		if (qTheme.getTheme().isPresent()) {
 			Theme theme = qTheme.getTheme().get();
 			theme.setRealm(fquestion.getRealm());
-
-			System.out.println("Processing Theme     " + theme.getCode());
+			if (showLogs) {
+				System.out.println("Processing Theme     " + theme.getCode());
+			}
 			Double weight = qTheme.getWeight();
 
 			String existingSetValue = "";
@@ -478,10 +481,6 @@ public class FrameUtils2 {
 
 			baseEntityList.add(themeBe);
 
-			if ("THM_FORM_INPUT_DEFAULT".equals(qTheme.getCode())) {
-				log.info("hre");
-				;
-			}
 
 			// Add Contexts
 			ContextType contextType = qTheme.getContextType();
@@ -520,9 +519,6 @@ public class FrameUtils2 {
 			context.setRealm(ask.getRealm());
 			completeContext.add(context);
 
-			/* publish the theme baseentity message */
-			// QDataBaseEntityMessage themeMsg = new QDataBaseEntityMessage(theme);
-			// publishCmd(themeMsg);
 		}
 
 		ContextList contextList = ask.getContextList();
