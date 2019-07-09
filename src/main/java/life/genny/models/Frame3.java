@@ -210,10 +210,11 @@ public class Frame3 extends BaseEntity implements Serializable {
 		 * 
 		 * @param none
 		 * @return
+		 * @throws Exception 
 		 */
-		public Frame3.Builder addFrame(String code,GennyToken serviceToken) {
+		public Frame3.Builder addFrame(String frameCode,GennyToken serviceToken) throws Exception {
 		
-			return addFrame(code,FramePosition.CENTRE,serviceToken);
+			return addFrame(frameCode,FramePosition.CENTRE,serviceToken);
 		}
 
 		/**
@@ -223,14 +224,20 @@ public class Frame3 extends BaseEntity implements Serializable {
 		 * @return
 		 * @throws Exception 
 		 */
-		public Frame3.Builder addFrame(String frameCode,FramePosition position,GennyToken serviceToken)  {
+		public Frame3.Builder addFrame(String frameCode,FramePosition position,GennyToken serviceToken) throws Exception  {
 			if (managedInstance.frame3s == null) {
 				managedInstance.frame3s = new ArrayList<Frame3>();
 			}
 			Frame3 frame = null;
 			frame = VertxUtils.getObject(serviceToken.getRealm(), "", frameCode, Frame3.class, serviceToken.getToken());
+			if (frame != null) {
+
+			} else {
+				throw new Exception("Could not load Frame "+frameCode+" - Does it exist yet?");
+			}
 
 			Consumer<Frame3> f = obj -> { managedInstance.frame3s.add(obj);};
+			
 			return new Frame3.Builder(this, f,frame,position);
 		}
 
@@ -294,7 +301,7 @@ public class Frame3 extends BaseEntity implements Serializable {
 				managedInstance.themes.add(new ThemeDouble(theme,themeWeight));
 				themeWeight = themeWeight - 1.0;
 			} else {
-				throw new Exception("Could not load Theme - Does it exist yet?");
+				throw new Exception("Could not load Theme "+themeCode+" - Does it exist yet?");
 			}
 			return new Theme.Builder(this, f, theme);		
 		}		
