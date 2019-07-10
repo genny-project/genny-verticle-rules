@@ -12,6 +12,7 @@ import javax.annotation.concurrent.Immutable;
 import com.google.gson.annotations.Expose;
 
 import io.vavr.Tuple;
+import life.genny.qwanda.Context;
 import life.genny.utils.VertxUtils;
 
 
@@ -28,6 +29,8 @@ public class QuestionGroup {
 	private Set<QuestionTheme> questionThemes = new HashSet<QuestionTheme>();
 	@Expose
 	private Set<String> themeCodes;
+	@Expose
+	private Set<Context> contexts;
 
 	/**
 	 * static factory method for builder
@@ -69,6 +72,19 @@ public class QuestionGroup {
 	public Set<String> getThemeCodes() {
 		return Collections.unmodifiableSet(themeCodes);
 	}
+
+	
+	
+	/**
+	 * @return the contexts
+	 */
+	public Set<Context> getContexts() {
+		return contexts;
+	}
+
+
+
+
 
 	/**
 	 * more fluent Builder
@@ -122,6 +138,21 @@ public class QuestionGroup {
 			return new QuestionTheme.Builder(this, f, theme);
 		}
 
+		/**
+		 * fluent setter for questionThemes in the list
+		 * 
+		 * @param none
+		 * @return
+		 */
+		public QuestionGroup.Builder addContext(Context context) {
+			if (managedInstance.contexts == null) {
+				managedInstance.contexts = new HashSet<Context>();
+			}
+			managedInstance.contexts.add(context);
+			return this;
+		}
+		
+		
 		/**
 		 * fluent setter for questionThemes in the list
 		 * 

@@ -57,9 +57,21 @@ public class FrameUtils2 {
 	static public Boolean showLogs = false;
 
 	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken) {
+		Map<String, ContextList> contextListMap = new HashMap<String, ContextList>();
+		toMessage(rootFrame, serviceToken, contextListMap);
+	}
+
+	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
+			Set<QDataAskMessage> asks) {
+		Map<String, ContextList> contextListMap = new HashMap<String, ContextList>();
+		return toMessage(rootFrame, serviceToken, asks, contextListMap);
+	}
+
+	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken,
+			Map<String, ContextList> contextListMap) {
 
 		Set<QDataAskMessage> askMsgs = new HashSet<QDataAskMessage>();
-		QDataBaseEntityMessage msg = toMessage(rootFrame, serviceToken, askMsgs);
+		QDataBaseEntityMessage msg = toMessage(rootFrame, serviceToken, askMsgs, contextListMap);
 		String askMsgsStr = JsonUtils.toJson(askMsgs);
 
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(), rootFrame, serviceToken.getToken());
@@ -71,7 +83,7 @@ public class FrameUtils2 {
 	}
 
 	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
-			Set<QDataAskMessage> asks) {
+			Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap) {
 
 		Set<BaseEntity> baseEntityList = new HashSet<BaseEntity>();
 		Set<Ask> askList = new HashSet<>();
@@ -94,6 +106,20 @@ public class FrameUtils2 {
 				QDataAskMessage askMsg = QuestionUtils.getAsks(serviceToken.getUserCode(), serviceToken.getUserCode(),
 						ask.getQuestionCode(), serviceToken.getToken());
 				askMsg = processQDataAskMessage(askMsg, ask, serviceToken);
+
+				if ((contextListMap != null) && (!contextListMap.isEmpty())) {
+					for (Ask anAsk : askMsg.getItems()) {
+						// Check for any associated ContextList to anAsk
+						String attributeCode = anAsk.getAttributeCode();
+						String targetCode = anAsk.getTargetCode();
+						String key = targetCode + ":" + attributeCode;
+
+						if (contextListMap.containsKey(key)) {
+							ContextList contextList = contextListMap.get(key);
+							anAsk.setContextList(contextList);
+						}
+					}
+				}
 
 				asks.add(askMsg);
 			}
@@ -250,7 +276,7 @@ public class FrameUtils2 {
 						}
 						processQuestionThemes(askBe, qTheme, serviceToken, ask, baseEntityList, contextMap, vclMap);
 						Set<BaseEntity> themeSet = new HashSet<BaseEntity>();
-						if (qTheme.getTheme()!=null) {
+						if (qTheme.getTheme() != null) {
 							themeSet.add(qTheme.getTheme().getBaseEntity());
 							// Hack
 							VisualControlType vcl = null;
@@ -363,7 +389,8 @@ public class FrameUtils2 {
 			Double weight = themeTuple2.getWeight();
 
 			if (theme == null) {
-				log.error("null pointer!");;
+				log.error("null pointer!");
+				;
 			}
 			BaseEntity themeBe = null;
 			try {
@@ -456,7 +483,7 @@ public class FrameUtils2 {
 			Ask ask, Set<BaseEntity> baseEntityList, Map<ContextType, Set<BaseEntity>> contextMap,
 			Map<ContextType, VisualControlType> vclMap) {
 
-		if (qTheme.getTheme()!=null) {
+		if (qTheme.getTheme() != null) {
 			Theme theme = qTheme.getTheme();
 			theme.setRealm(fquestion.getRealm());
 			if (showLogs) {
