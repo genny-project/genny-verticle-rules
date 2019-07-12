@@ -451,7 +451,7 @@ public class VertxUtils {
 
 	static public JsonObject writeMsg(String channel, BaseEntity baseentity, String aliasCode) {
 		QDataBaseEntityMessage msg = new QDataBaseEntityMessage(baseentity, aliasCode);
-		return writeMsg("webcmds", msg);
+		return writeMsg(channel, msg);
 	}
 
 	static public Object privacyFilter(BaseEntity user, Object payload, final String[] filterAttributes) {
