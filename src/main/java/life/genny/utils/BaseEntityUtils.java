@@ -30,7 +30,7 @@ import com.google.gson.reflect.TypeToken;
 
 import io.vertx.core.json.JsonObject;
 import life.genny.channel.DistMap;
-
+import life.genny.models.GennyToken;
 import life.genny.qwanda.Answer;
 import life.genny.qwanda.Layout;
 import life.genny.qwanda.Link;
@@ -55,29 +55,46 @@ import life.genny.utils.Layout.LayoutUtils;
 
 public class BaseEntityUtils implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	protected static final Logger log = org.apache.logging.log4j.LogManager
 			.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
 
 	private Map<String, Object> decodedMapToken;
 	private String token;
-	private static String realm;
+	private String realm;
 	private String qwandaServiceUrl;
 
 	private CacheUtils cacheUtil;
+	private GennyToken gennyToken;
 
-	public BaseEntityUtils(String qwandaServiceUrl, String token, Map<String, Object> decodedMapToken, String realm) {
+	
+	public BaseEntityUtils(GennyToken gennyToken)
+	{
+		this(GennySettings.qwandaServiceUrl,gennyToken);
+	}
+	
+	public BaseEntityUtils(String qwandaServiceUrl, GennyToken gennyToken) {
 
-		this.decodedMapToken = decodedMapToken;
+		this.decodedMapToken = gennyToken.getAdecodedTokenMap();
 		this.qwandaServiceUrl = qwandaServiceUrl;
-		this.token = token;
-		this.realm = realm;
-
+		this.token = gennyToken.getToken();
+		this.realm = gennyToken.getRealm();
+		this.gennyToken = gennyToken;
 		this.cacheUtil = new CacheUtils(qwandaServiceUrl, token, decodedMapToken, realm);
 		this.cacheUtil.setBaseEntityUtils(this);
 	}
+	
+	
+	public BaseEntityUtils(String qwandaServiceUrl, String token, Map<String, Object> decodedMapToken, String realm) {
+		this(qwandaServiceUrl,new GennyToken(token));
+	}
 
-	private static String getRealm() {
-		return realm;
+	private  String getRealm() {
+		return gennyToken.getRealm();
 	}
 
 	/* =============== refactoring =============== */
@@ -1600,9 +1617,11 @@ public class BaseEntityUtils implements Serializable {
 		UUID uuid = UUID.randomUUID();
 
 		QBulkPullMessage pullMsg = new QBulkPullMessage(uuid.toString());
+		String token = msg.getString("token");
+		GennyToken gennyToken = new GennyToken(token);
 
 		// Put the QBulkMessage into the PontoonDDT
-		DistMap.getDistPontoonBE(getRealm()).put(uuid, msg, 2, TimeUnit.MINUTES);
+		DistMap.getDistPontoonBE(gennyToken.getRealm()).put(uuid, msg, 2, TimeUnit.MINUTES);
 
 		// then create the QBulkPullMessage
 		pullMsg.setPullUrl(GennySettings.pontoonUrl + "/pull/" + uuid);
