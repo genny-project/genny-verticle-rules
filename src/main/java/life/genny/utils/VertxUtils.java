@@ -13,6 +13,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.naming.NamingException;
 
@@ -163,8 +165,19 @@ public class VertxUtils {
 					realm = temp.getRealm();
 
 					resultStr = (String) localCache.get(realm + ":" + key);
-					JsonObject resultJson = new JsonObject().put("status", "ok").put("value", resultStr);
-					resultStr = resultJson.toString();
+					if (resultStr != null) {
+						String resultStr2 = resultStr.replaceAll(Pattern.quote("\\\""), Matcher.quoteReplacement("\""));
+						String resultStr3 = resultStr2.replaceAll(Pattern.quote("\\n"), Matcher.quoteReplacement("\n"));
+						String resultStr4 = resultStr3.replaceAll(Pattern.quote("\\\n"), Matcher.quoteReplacement("\n"));
+						String resultStr5 = resultStr4.replaceAll(Pattern.quote("\"{"), Matcher.quoteReplacement("{"));
+						String resultStr6 = resultStr5.replaceAll(Pattern.quote("}\""), Matcher.quoteReplacement("}"));
+					//	JsonObject rs2 = new JsonObject(resultStr6);
+						//String resultStr2 = resultStr.replaceAll("\\","");
+						//.replace("\\\"","\"");
+						JsonObject resultJson = new JsonObject().put("status", "ok").put("value", resultStr6);
+						resultStr = resultJson.toString();
+					} 
+					
 				} else {
 					resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/" + realm + "/" + key, token);
 				}

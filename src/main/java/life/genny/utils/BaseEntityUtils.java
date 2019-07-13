@@ -111,11 +111,17 @@ public class BaseEntityUtils implements Serializable {
 
 	public BaseEntity create(String baseEntityCode, String name) {
 
-		BaseEntity newBaseEntity = QwandaUtils.createBaseEntityByCode(baseEntityCode, name, qwandaServiceUrl,
+		BaseEntity newBaseEntity = null;
+		if (VertxUtils.cachedEnabled == false) {
+		newBaseEntity = QwandaUtils.createBaseEntityByCode(baseEntityCode, name, qwandaServiceUrl,
 				this.token);
-
+		} else {
+			GennyToken gt = new GennyToken(this.token);
+			newBaseEntity = new BaseEntity(baseEntityCode, name);
+			newBaseEntity.setRealm(gt.getRealm());
+		}
 		this.addAttributes(newBaseEntity);
-		VertxUtils.writeCachedJson(newBaseEntity.getRealm(), newBaseEntity.getCode(), JsonUtils.toJson(newBaseEntity));
+		VertxUtils.writeCachedJson(newBaseEntity.getRealm(), newBaseEntity.getCode(), JsonUtils.toJson(newBaseEntity),this.token);
 		return newBaseEntity;
 	}
 
