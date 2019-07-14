@@ -173,7 +173,7 @@ public class VertxUtils {
 					realm = temp.getRealm();
 
 					resultStr = (String) localCache.get(realm + ":" + key);
-					if (resultStr != null) {
+					if ((resultStr != null)&&(!"\"null\"".equals(resultStr))) {
 						String resultStr2 = resultStr.replaceAll(Pattern.quote("\\\""), Matcher.quoteReplacement("\""));
 						String resultStr3 = resultStr2.replaceAll(Pattern.quote("\\n"), Matcher.quoteReplacement("\n"));
 						String resultStr4 = resultStr3.replaceAll(Pattern.quote("\\\n"), Matcher.quoteReplacement("\n"));
@@ -184,7 +184,9 @@ public class VertxUtils {
 						//.replace("\\\"","\"");
 						JsonObject resultJson = new JsonObject().put("status", "ok").put("value", resultStr6);
 						resultStr = resultJson.toString();
-					} 
+					}  else {
+						resultStr = null;
+					}
 					
 				} else {
 					resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/" + realm + "/" + key, token);
@@ -264,7 +266,7 @@ public class VertxUtils {
 			}
 		} else {
 			// fetch normally
-			System.out.println("Cache MISS for " + code + " with attributes in realm  " + realm);
+			//System.out.println("Cache MISS for " + code + " with attributes in realm  " + realm);
 			if (cachedEnabled) {
 				// force
 				GennyToken temp = new GennyToken(token);
