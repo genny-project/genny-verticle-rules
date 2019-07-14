@@ -99,7 +99,11 @@ public class VertxUtils {
 		JsonObject json = readCachedJson(realm, keyPrefix + ":" + key, token);
 		if (json.getString("status").equalsIgnoreCase("ok")) {
 			String data = json.getString("value");
-			item = (T) JsonUtils.fromJson(data, clazz);
+			try {
+				item = (T) JsonUtils.fromJson(data, clazz);
+			} catch (Exception e) {
+				System.out.println("Bad JsonUtils "+realm+":"+key+":"+clazz.getTypeName());
+			}
 			return item;
 		} else {
 			return null;
@@ -117,7 +121,11 @@ public class VertxUtils {
 		JsonObject json = readCachedJson(realm, keyPrefix + ":" + key, token);
 		if (json.getString("status").equalsIgnoreCase("ok")) {
 			String data = json.getString("value");
-			item = (T) JsonUtils.fromJson(data, clazz);
+			try {
+				item = (T) JsonUtils.fromJson(data, clazz);
+			} catch (Exception e) {
+				System.out.println("Bad JsonUtils "+realm+":"+key+":"+clazz.getTypeName());
+			}
 			return item;
 		} else {
 			return null;
@@ -256,7 +264,19 @@ public class VertxUtils {
 			}
 		} else {
 			// fetch normally
-			log.info("Cache MISS for " + code + " with attributes in realm  " + realm);
+			System.out.println("Cache MISS for " + code + " with attributes in realm  " + realm);
+			if (cachedEnabled) {
+				// force
+				GennyToken temp = new GennyToken(token);
+				realm = temp.getRealm();
+				String ddtvalue = localCache.get(realm + ":" + code);
+				if (ddtvalue == null) {
+					return null;
+				} else {
+					be = JsonUtils.fromJson(ddtvalue, BaseEntity.class);
+				}
+			} else {
+
 			try {
 				if (withAttributes) {
 					be = QwandaUtils.getBaseEntityByCodeWithAttributes(code, token);
@@ -270,8 +290,9 @@ public class VertxUtils {
 				return null;
 
 			}
+			
 			writeCachedJson(realm, code, JsonUtils.toJson(be));
-
+			}
 		}
 		return be;
 	}
