@@ -235,6 +235,8 @@ public interface EventBusInterface {
 
 	}
 
+
+	
 	public default void publish(BaseEntity user, String channel, Object payload, final String[] filterAttributes) {
 		try {
 			JsonObject json = null;

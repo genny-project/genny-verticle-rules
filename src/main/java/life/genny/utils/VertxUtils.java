@@ -473,6 +473,12 @@ public class VertxUtils {
 
 	}
 
+	static public void publish(BaseEntity user, String channel, BaseEntity be, String aliasCode, String token) {
+
+		QDataBaseEntityMessage msg = new QDataBaseEntityMessage(be, aliasCode);
+		msg.setToken(token);
+		eb.publish(user, channel, msg, null);
+	}
 	static public JsonObject writeMsg(String channel, Object payload) {
 
 		try {
