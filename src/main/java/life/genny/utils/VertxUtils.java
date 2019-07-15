@@ -218,8 +218,6 @@ public class VertxUtils {
 	static public JsonObject writeCachedJson(String realm, final String key, String value, final String token,
 			long ttl_seconds) {
 		if (!GennySettings.forceCacheApi) {
-			// log.debug("WRITING USING "+(GennySettings.isCacheServer?" LOCAL DDT":"CLIENT
-			// ")+" "+key);
 			cacheInterface.writeCache(realm, key, value, token, ttl_seconds);
 		} else {
 			try {
@@ -227,7 +225,11 @@ public class VertxUtils {
 					// force
 					GennyToken temp = new GennyToken(token);
 					realm = temp.getRealm();
-					localCache.put(realm + ":" + key, value);
+					if (value == null) {
+						localCache.remove(realm + ":" + key);
+					} else {
+						localCache.put(realm + ":" + key, value);
+					}
 				} else {
 
 					log.debug("WRITING TO CACHE USING API! " + key);
