@@ -29,6 +29,7 @@ import life.genny.qwandautils.JsonUtils;
 import life.genny.qwandautils.QwandaMessage;
 import life.genny.qwandautils.QwandaUtils;
 import life.genny.utils.RulesUtils;
+import life.genny.utils.VertxUtils;
 
 public interface EventBusInterface {
 	static final Logger log = org.apache.logging.log4j.LogManager
@@ -165,7 +166,7 @@ public interface EventBusInterface {
 
 	public default void writeMsg(final String channel, final Object msg) throws NamingException {
 
-		if (GennySettings.forceEventBusApi) {
+		if ((GennySettings.forceEventBusApi) && (!VertxUtils.cachedEnabled)) {
 			try {
 				String json = msg.toString();
 				JsonParser parser = new JsonParser();
