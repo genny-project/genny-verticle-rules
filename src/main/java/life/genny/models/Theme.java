@@ -31,7 +31,7 @@ public class Theme extends BaseEntity {
 
 	@Expose
 	private Set<ThemeAttribute> attributes;
-
+	
 	/**
 	 * static factory method for builder
 	 */
@@ -54,6 +54,10 @@ public class Theme extends BaseEntity {
 	public Boolean getDirectLink() {
 		return directLink;
 	}
+
+	
+	
+	
 
 	/**
 	 * @param directLink the directLink to set

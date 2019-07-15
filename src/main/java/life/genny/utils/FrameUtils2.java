@@ -27,6 +27,7 @@ import life.genny.models.Theme;
 import life.genny.models.ThemeAttribute;
 import life.genny.models.ThemeAttributeType;
 import life.genny.models.ThemeDouble;
+import life.genny.models.ThemePosition;
 import life.genny.models.ThemeTuple4;
 import life.genny.qwanda.Ask;
 import life.genny.qwanda.Context;
@@ -387,6 +388,7 @@ public class FrameUtils2 {
 			}
 			Theme theme = themeTuple2.getTheme();
 			Double weight = themeTuple2.getWeight();
+			ThemePosition themePosition = themeTuple2.getThemePosition();
 
 			if (theme == null) {
 				log.error("null pointer!");
@@ -454,7 +456,7 @@ public class FrameUtils2 {
 				Attribute linkFrame = new AttributeLink("LNK_THEME", "theme");
 
 				if (theme.getDirectLink()) {
-					link = new EntityEntity(parent, themeBe, linkFrame, "FRAME", weight);
+					link = new EntityEntity(parent, themeBe, linkFrame, themePosition.name(), weight);
 					if (!parent.getLinks().contains(link)) {
 						parent.getLinks().add(link);
 					}

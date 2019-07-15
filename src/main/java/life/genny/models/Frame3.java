@@ -276,12 +276,11 @@ public class Frame3 extends BaseEntity implements Serializable {
 				managedInstance.theme3s = new ArrayList<Theme>();
 			}
 			Consumer<Theme> f = obj -> { managedInstance.theme3s.add(obj);};
-			managedInstance.themes.add(new ThemeDouble(theme,themeWeight));
+			managedInstance.themes.add(new ThemeDouble(theme,ThemePosition.CENTRE,themeWeight));
 			themeWeight = themeWeight - 1.0;
 
 			return new Theme.Builder(this, f, theme);		
 		}
-		
 		
 		/**
 		 * fluent setter for themes in the list
@@ -290,7 +289,7 @@ public class Frame3 extends BaseEntity implements Serializable {
 		 * @return
 		 * @throws Exception 
 		 */
-		public Theme.Builder addTheme(String themeCode,GennyToken serviceToken) throws Exception {
+		public Theme.Builder addTheme(String themeCode, GennyToken serviceToken) throws Exception {
 			if (managedInstance.theme3s == null) {
 				managedInstance.theme3s = new ArrayList<Theme>();
 			}
@@ -298,14 +297,37 @@ public class Frame3 extends BaseEntity implements Serializable {
 			Theme theme = VertxUtils.getObject(serviceToken.getRealm(), "", themeCode, Theme.class, serviceToken.getToken());
 			if (theme != null) {
 				theme.setDirectLink(true);
-				managedInstance.themes.add(new ThemeDouble(theme,themeWeight));
+				managedInstance.themes.add(new ThemeDouble(theme,ThemePosition.CENTRE,themeWeight));
+				themeWeight = themeWeight - 1.0;
+			} else {
+				throw new Exception("Could not load Theme "+themeCode+" - Does it exist yet?");
+			}
+			return new Theme.Builder(this, f, theme);		
+		}	
+		
+		/**
+		 * fluent setter for themes in the list
+		 * 
+		 * @param none
+		 * @return
+		 * @throws Exception 
+		 */
+		public Theme.Builder addTheme(String themeCode, ThemePosition themePosition,GennyToken serviceToken) throws Exception {
+			if (managedInstance.theme3s == null) {
+				managedInstance.theme3s = new ArrayList<Theme>();
+			}
+			Consumer<Theme> f = obj -> { managedInstance.theme3s.add(obj);};
+			Theme theme = VertxUtils.getObject(serviceToken.getRealm(), "", themeCode, Theme.class, serviceToken.getToken());
+			if (theme != null) {
+				theme.setDirectLink(true);
+				managedInstance.themes.add(new ThemeDouble(theme,themePosition,themeWeight));
 				themeWeight = themeWeight - 1.0;
 			} else {
 				throw new Exception("Could not load Theme "+themeCode+" - Does it exist yet?");
 			}
 			return new Theme.Builder(this, f, theme);		
 		}		
-		
+
 		/**
 		 * fluent setter for themes in the list
 		 * 
@@ -313,12 +335,22 @@ public class Frame3 extends BaseEntity implements Serializable {
 		 * @return
 		 */
 		public Theme.Builder addTheme(Theme theme) {
+			return addTheme(theme, ThemePosition.CENTRE);		
+		}
+
+		/**
+		 * fluent setter for themes in the list
+		 * 
+		 * @param none
+		 * @return
+		 */
+		public Theme.Builder addTheme(Theme theme, ThemePosition themePosition) {
 			if (managedInstance.theme3s == null) {
 				managedInstance.theme3s = new ArrayList<Theme>();
 			}
 			Consumer<Theme> f = obj -> { managedInstance.theme3s.add(obj);};
 			theme.setDirectLink(true);
-			managedInstance.themes.add(new ThemeDouble(theme,themeWeight));
+			managedInstance.themes.add(new ThemeDouble(theme,themePosition,themeWeight));
 			themeWeight = themeWeight - 1.0;
 
 			return new Theme.Builder(this, f, theme);		
@@ -337,7 +369,7 @@ public class Frame3 extends BaseEntity implements Serializable {
 			Consumer<Theme> f = obj -> { managedInstance.theme3s.add(obj);};
 			String themeCode = "THM_"+UUID.randomUUID().toString().substring(0, 25);
 			Theme theme = Theme.builder(themeCode).build();
-			managedInstance.themes.add(new ThemeDouble(theme,themeWeight));
+			managedInstance.themes.add(new ThemeDouble(theme,ThemePosition.CENTRE,themeWeight));
 			themeWeight = themeWeight - 1.0;
 
 		

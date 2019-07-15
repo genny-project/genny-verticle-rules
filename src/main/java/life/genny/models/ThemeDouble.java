@@ -13,13 +13,16 @@ public class ThemeDouble implements Serializable {
 	Theme theme;
 	@Expose
 	Double weight;
+	@Expose
+	ThemePosition themePosition;
 	
 	private ThemeDouble() {}
 	
-	public ThemeDouble(Theme theme, Double weight)	
+	public ThemeDouble(Theme theme, ThemePosition themePosition, Double weight)	
 	{
 		this.theme = theme;
 		this.weight = weight;
+		this.themePosition = themePosition;
 	}
 
 	/**
@@ -53,6 +56,13 @@ public class ThemeDouble implements Serializable {
 	@Override
 	public String toString() {
 		return theme.getCode() + ":" + weight;
+	}
+
+	/**
+	 * @return the themePosition
+	 */
+	public ThemePosition getThemePosition() {
+		return themePosition;
 	}
 	
 	
