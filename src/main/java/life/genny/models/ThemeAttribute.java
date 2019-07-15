@@ -8,8 +8,6 @@ import org.json.JSONObject;
 
 import com.google.gson.annotations.Expose;
 
-
-
 @Immutable
 public final class ThemeAttribute {
 	@Expose
@@ -17,6 +15,12 @@ public final class ThemeAttribute {
 
 	@Expose
 	private String flexDirection = null;
+	@Expose
+	private Integer flexGrow = null;
+	@Expose
+	private Integer flexShrink = null;
+	@Expose
+	private String flexBasis = null;
 	@Expose
 	private String justifyContent = null;
 	@Expose
@@ -41,6 +45,10 @@ public final class ThemeAttribute {
 	private Integer minWidth = null;
 	@Expose
 	private Integer padding = null;
+	@Expose
+	private Integer paddingX = null;
+	@Expose
+	private Integer paddingY = null;
 	@Expose
 	private String shadowColor = null;
 	@Expose
@@ -86,7 +94,6 @@ public final class ThemeAttribute {
 	@Expose
 	private String alignItems = null;
 
-
 	/**
 	 * static factory method for builder
 	 */
@@ -109,6 +116,27 @@ public final class ThemeAttribute {
 	 */
 	public String getFlexDirection() {
 		return flexDirection;
+	}
+
+	/**
+	 * @return the flexGrow
+	 */
+	public Integer getFlexGrow() {
+		return flexGrow;
+	}
+
+	/**
+	 * @return the flexShrink
+	 */
+	public Integer getFlexShrink() {
+		return flexShrink;
+	}
+
+	/**
+	 * @return the flexBasis
+	 */
+	public String getFlexBasis() {
+		return flexBasis;
 	}
 
 	public String getAlignItems() {
@@ -150,7 +178,7 @@ public final class ThemeAttribute {
 		return borderBottomWidth;
 	}
 
-		/**
+	/**
 	 * @return the borderWidth
 	 */
 	public Integer getBorderWidth() {
@@ -176,7 +204,7 @@ public final class ThemeAttribute {
 	 */
 	public String getWidthPercent() {
 		if (width == null) {
-			return widthPercent!=null?widthPercent:"100%";
+			return widthPercent != null ? widthPercent : "100%";
 		} else {
 			return width + "";
 		}
@@ -194,7 +222,7 @@ public final class ThemeAttribute {
 	 */
 	public String getHeightPercent() {
 		if (height == null) {
-			return heightPercent!=null?heightPercent:"100%";
+			return heightPercent != null ? heightPercent : "100%";
 		} else {
 			return height + "";
 		}
@@ -222,6 +250,20 @@ public final class ThemeAttribute {
 	}
 
 	/**
+	 * @return the paddingX
+	 */
+	public Integer getPaddingX() {
+		return paddingX;
+	}
+
+	/**
+	 * @return the paddingY
+	 */
+	public Integer getPaddingY() {
+		return paddingY;
+	}
+
+	/**
 	 * @return the shadowRadius
 	 */
 	public Integer getShadowRadius() {
@@ -239,28 +281,28 @@ public final class ThemeAttribute {
 	 * @return the placeholderColor
 	 */
 	public String getPlaceholderColor() {
-		return placeholderColor!=null?placeholderColor:"#888";
+		return placeholderColor != null ? placeholderColor : "#888";
 	}
 
 	/**
 	 * @return the borderStyle
 	 */
 	public String getBorderStyle() {
-		return borderStyle!=null?borderStyle:"solid";
+		return borderStyle != null ? borderStyle : "solid";
 	}
 
 	/**
 	 * @return the borderColor
 	 */
 	public String getBorderColor() {
-		return borderColor!=null?borderColor:"#ddd";
+		return borderColor != null ? borderColor : "#ddd";
 	}
 
 	/**
 	 * @return the color
 	 */
 	public String getColor() {
-		return color!=null?color:"red";
+		return color != null ? color : "red";
 	}
 
 	/**
@@ -289,8 +331,8 @@ public final class ThemeAttribute {
 	 */
 	public String getTextSize() {
 		if (size == null) {
-			
-			return sizeText!=null?sizeText:"md";
+
+			return sizeText != null ? sizeText : "md";
 		} else {
 			return size + "";
 		}
@@ -358,8 +400,6 @@ public final class ThemeAttribute {
 	public Double getValueDouble() {
 		return valueDouble;
 	}
-	
-	
 
 	public static class Builder {
 		private ThemeAttribute managedInstance = new ThemeAttribute();
@@ -405,6 +445,21 @@ public final class ThemeAttribute {
 
 		public Builder flexDirection(String value) {
 			managedInstance.flexDirection = value;
+			return this;
+		}
+
+		public Builder flexGrow(Integer value) {
+			managedInstance.flexGrow = value;
+			return this;
+		}
+
+		public Builder flexShrink(Integer value) {
+			managedInstance.flexShrink = value;
+			return this;
+		}
+
+		public Builder flexBasis(String value) {
+			managedInstance.flexBasis = value;
 			return this;
 		}
 
@@ -465,6 +520,16 @@ public final class ThemeAttribute {
 
 		public Builder padding(Integer value) {
 			managedInstance.padding = value;
+			return this;
+		}
+
+		public Builder paddingX(Integer value) {
+			managedInstance.paddingX = value;
+			return this;
+		}
+
+		public Builder paddingY(Integer value) {
+			managedInstance.paddingY = value;
 			return this;
 		}
 
@@ -572,9 +637,8 @@ public final class ThemeAttribute {
 			managedInstance.marginRight = value;
 			return this;
 		}
-		
-		public Builder valueBoolean(Boolean value)
-		{
+
+		public Builder valueBoolean(Boolean value) {
 			// TODO -> This is terrible hack by me
 			managedInstance.valueBoolean = value;
 			return this;
@@ -610,83 +674,93 @@ public final class ThemeAttribute {
 
 	public JSONObject getJsonObject() {
 		JSONObject json = new JSONObject();
-		if (fit!=null)
+		if (fit != null)
 			json.put("fit", fit);
-		if (overflowX!=null)
+		if (overflowX != null)
 			json.put("overflowX", overflowX);
-		if (overflowY!=null)
+		if (overflowY != null)
 			json.put("overflowY", overflowY);
-		if (textAlign!=null)
+		if (textAlign != null)
 			json.put("textAlign", textAlign);
-		if (flexDirection!=null)
+		if (flexDirection != null)
 			json.put("flexDirection", flexDirection);
-		if (justifyContent!=null)
+		if (flexGrow != null)
+			json.put("flexGrow", flexGrow);
+		if (flexShrink != null)
+			json.put("flexShrink", flexShrink);
+		if (flexBasis != null)
+			json.put("flexBasis", flexBasis);
+		if (justifyContent != null)
 			json.put("justifyContent", justifyContent);
-		if (backgroundColor!=null)
+		if (backgroundColor != null)
 			json.put("backgroundColor", backgroundColor);
-		if (shadowColor!=null)
+		if (shadowColor != null)
 			json.put("shadowColor", shadowColor);
-		if (shadowOpacity!=null)
+		if (shadowOpacity != null)
 			json.put("shadowOpacity", shadowOpacity);
-		if (width!=null) {
+		if (width != null) {
 			json.put("width", width);
 		} else {
-			if (widthPercent!=null) {
+			if (widthPercent != null) {
 				json.put("width", widthPercent);
 			}
 		}
 
-		if (height!=null) {
+		if (height != null) {
 			json.put("height", height);
 		} else {
-			if (heightPercent!=null) {
+			if (heightPercent != null) {
 				json.put("height", heightPercent);
 			}
 		}
-		if (margin!=null)
+		if (margin != null)
 			json.put("margin", margin);
-		if (marginRight!=null)
+		if (marginRight != null)
 			json.put("marginRight", marginRight);
-		if (maxWidth!=null)
+		if (maxWidth != null)
 			json.put("maxWidth", maxWidth);
-		if (minWidth!=null)
+		if (minWidth != null)
 			json.put("minWidth", minWidth);
-		if (padding!=null)
+		if (padding != null)
 			json.put("padding", padding);
-		if (shadowRadius!=null)
+		if (paddingX != null)
+			json.put("paddingX", paddingX);
+		if (paddingY != null)
+			json.put("paddingY", paddingY);
+		if (shadowRadius != null)
 			json.put("shadowRadius", shadowRadius);
-		if (shadowOffset!=null)
+		if (shadowOffset != null)
 			json.put("shadowOffset", shadowOffset.getJsonObject());
-		if (borderBottomWidth!=null)
+		if (borderBottomWidth != null)
 			json.put("borderBottomWidth", borderBottomWidth);
-		if (borderWidth!=null)
+		if (borderWidth != null)
 			json.put("borderWidth", borderWidth);
-		if (placeholderColor!=null)
+		if (placeholderColor != null)
 			json.put("placeholderColor", placeholderColor);
-		if (borderStyle!=null)
+		if (borderStyle != null)
 			json.put("borderStyle", borderStyle);
-		if (borderColor!=null)
+		if (borderColor != null)
 			json.put("borderColor", borderColor);
-		if (color!=null)
+		if (color != null)
 			json.put("color", color);
-		if (size!=null) {
+		if (size != null) {
 			json.put("size", size);
 		} else {
-			if (sizeText!=null) {
+			if (sizeText != null) {
 				json.put("size", sizeText);
 			}
 		}
 
-		if (bold!=null)
+		if (bold != null)
 			json.put("bold", bold);
 
-		if (valueBoolean!=null)
+		if (valueBoolean != null)
 			json.put("valueBoolean", valueBoolean);
-		if (valueInteger!=null)
+		if (valueInteger != null)
 			json.put("valueInteger", valueInteger);
-		if (valueString!=null)
+		if (valueString != null)
 			json.put("valueString", valueString);
-		if (valueDouble!=null)
+		if (valueDouble != null)
 			json.put("valueDouble", valueDouble);
 
 		return json;
