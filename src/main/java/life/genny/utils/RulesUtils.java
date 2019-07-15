@@ -846,7 +846,7 @@ public class RulesUtils {
 
 			return attributesMsg;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Attributes API not available");
 		}
 		return null;
 	}
