@@ -2,8 +2,8 @@ package life.genny.models;
 
 import java.io.Serializable;
 
-public enum ThemePosition implements Serializable{
-	NORTH("NORTH"), EAST("EAST"), WEST("WEST"), SOUTH("SOUTH"), CENTRE("CENTRE"), WRAPPER("WRAPPER");
+public enum ThemePosition implements Serializable {
+	NORTH("NORTH"), EAST("EAST"), WEST("WEST"), SOUTH("SOUTH"), CENTRE("CENTRE"), WRAPPER("WRAPPER"), FRAME("FRAME");
 
 	private final String name;
 
