@@ -244,6 +244,33 @@ public class Frame3 extends BaseEntity implements Serializable {
 		 * @param none
 		 * @return
 		 */
+		public Frame3.Builder addFrame(Frame3... frames) {
+			for (Frame3 frame : frames) {
+				addFrame(frame, FramePosition.CENTRE);
+			}
+			return this;
+		}
+		
+		/**
+		 * fluent setter for frames in the list
+		 *
+		 * @param none
+		 * @return
+		 */
+		public Frame3.Builder addFrame(List<Frame3> frames) {
+			for (Frame3 frame : frames) {
+				addFrame(frame, FramePosition.CENTRE);
+			}
+			return this;
+		}
+
+		
+		/**
+		 * fluent setter for frames in the list
+		 *
+		 * @param none
+		 * @return
+		 */
 		public Frame3.Builder addFrame(Frame3 frame, FramePosition position) {
 			if (managedInstance.frame3s == null) {
 				managedInstance.frame3s = new ArrayList<Frame3>();
