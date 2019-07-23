@@ -39,6 +39,7 @@ import life.genny.qwanda.Question;
 import life.genny.qwanda.VisualControlType;
 import life.genny.qwanda.attribute.Attribute;
 import life.genny.qwanda.attribute.AttributeLink;
+import life.genny.qwanda.attribute.AttributeText;
 import life.genny.qwanda.attribute.EntityAttribute;
 import life.genny.qwanda.datatype.DataType;
 import life.genny.qwanda.entity.BaseEntity;
@@ -258,14 +259,42 @@ public class FrameUtils2 {
 				if (showLogs) {
 					System.out.println("Processing Question  " + childFrame.getQuestionCode());
 				}
+				if ("PRI_FIRSTNAME".equals(childFrame.getQuestionCode())) {
+					log.info("Detected");
+				}
 				/* create an ask */
 				BaseEntity askBe = new BaseEntity(childFrame.getQuestionGroup().getCode(),
 						childFrame.getQuestionGroup().getCode());
 				askBe.setRealm(parent.getRealm());
 
-				Ask ask = QuestionUtils.createQuestionForBaseEntity2(askBe,
-						StringUtils.endsWith(askBe.getCode(), "GRP"), serviceToken,
-						childFrame.getQuestionGroup().getSourceAlias(), childFrame.getQuestionGroup().getTargetAlias());
+				Ask ask = null;
+
+				if (childFrame.getQuestionName() != null) {
+					// Fetch Attribute details
+					Attribute attribute = RulesUtils.getAttribute(childFrame.getQuestionName(),
+							serviceToken.getToken());
+					if (attribute == null) {
+						attribute = new AttributeText(childFrame.getQuestionCode(), childFrame.getQuestionName());
+						attribute.setRealm(serviceToken.getRealm());
+					}
+					Boolean readonly = true;
+					Boolean hidden = false;
+					Boolean disabled = false;
+					Double askweight = 1.0;
+					Boolean aMandatory = false;
+					Question fakeQuestion = new Question(childFrame.getQuestionCode(), childFrame.getQuestionName(),
+							attribute, aMandatory);
+
+					ask = new Ask(fakeQuestion, childFrame.getQuestionGroup().getSourceAlias(),
+							childFrame.getQuestionGroup().getTargetAlias(), aMandatory, askweight, disabled, hidden,
+							readonly);
+				} else {
+
+					ask = QuestionUtils.createQuestionForBaseEntity2(askBe,
+							StringUtils.endsWith(askBe.getCode(), "GRP"), serviceToken,
+							childFrame.getQuestionGroup().getSourceAlias(),
+							childFrame.getQuestionGroup().getTargetAlias());
+				}
 
 				Map<ContextType, Set<BaseEntity>> contextMap = new HashMap<ContextType, Set<BaseEntity>>();
 				Map<ContextType, life.genny.qwanda.VisualControlType> vclMap = new HashMap<ContextType, VisualControlType>();

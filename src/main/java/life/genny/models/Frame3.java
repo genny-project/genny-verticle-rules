@@ -38,6 +38,8 @@ public class Frame3 extends BaseEntity implements Serializable {
 	@Expose
 	private String questionCode;
 	@Expose
+	private String questionName;
+	@Expose
 	private QuestionGroup questionGroup = null;
 	@Expose
 	private FramePosition position;
@@ -77,6 +79,15 @@ public class Frame3 extends BaseEntity implements Serializable {
 	 */
 	public String getQuestionCode() {
 		return questionCode;
+	}
+
+	
+	
+	/**
+	 * @return the questionName
+	 */
+	public String getQuestionName() {
+		return questionName;
 	}
 
 	/**
@@ -461,6 +472,22 @@ public class Frame3 extends BaseEntity implements Serializable {
 			};
 			managedInstance.questionCode = questionCode;
 			return new QuestionGroup.Builder(this, f, questionCode);
+		}
+		
+		/**
+		 * more fluent setter for QuestionGroup
+		 *
+		 * @return
+		 */
+		public QuestionGroup.Builder question(final String attributeCode, final String questionName) {
+			Consumer<QuestionGroup> f = obj -> {
+				managedInstance.questionGroup = obj;
+			};
+			// Construction virtual Question 
+			String virtualQuestionCode = "QUE_"+attributeCode.toUpperCase();
+			managedInstance.questionCode = attributeCode;
+			managedInstance.questionName = questionName;
+			return new QuestionGroup.Builder(this, f, attributeCode, questionName);
 		}
 
 		public Frame3.Builder end() {

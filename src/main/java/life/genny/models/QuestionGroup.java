@@ -22,6 +22,8 @@ public class QuestionGroup {
 	@Expose
 	private String code;
 	@Expose
+	private String name;
+	@Expose
 	private String sourceAlias = null; // This is used to permit source setting.
 	@Expose
 	private String targetAlias = null; // This is used to permit target setting.
@@ -50,6 +52,13 @@ public class QuestionGroup {
 	}
 
 
+
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
 
 	/**
 	 * @return the sourceAlias
@@ -116,6 +125,14 @@ public class QuestionGroup {
 			parentBuilder = b;
 			callback = c;
 		}
+		
+		public Builder(Frame3.Builder b, Consumer<QuestionGroup> c, String attributeCode, String questionName) {
+			managedInstance.code = attributeCode;
+			managedInstance.name = questionName;
+			parentBuilder = b;
+			callback = c;
+		}
+
 
 		public Builder(Frame3.Builder b, Consumer<QuestionGroup> c, QuestionGroup questionGroup) {
 			managedInstance = questionGroup;

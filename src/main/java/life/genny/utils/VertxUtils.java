@@ -270,6 +270,7 @@ public class VertxUtils {
 			// fetch normally
 			//System.out.println("Cache MISS for " + code + " with attributes in realm  " + realm);
 			if (cachedEnabled) {
+				log.info("Local Cache being used.. this is NOT production");
 				// force
 				GennyToken temp = new GennyToken(token);
 				realm = temp.getRealm();
