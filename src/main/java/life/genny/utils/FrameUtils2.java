@@ -270,24 +270,10 @@ public class FrameUtils2 {
 				Ask ask = null;
 
 				if (childFrame.getQuestionName() != null) {
-					// Fetch Attribute details
-					Attribute attribute = RulesUtils.getAttribute(childFrame.getQuestionName(),
-							serviceToken.getToken());
-					if (attribute == null) {
-						attribute = new AttributeText(childFrame.getQuestionCode(), childFrame.getQuestionName());
-						attribute.setRealm(serviceToken.getRealm());
-					}
-					Boolean readonly = true;
-					Boolean hidden = false;
-					Boolean disabled = false;
-					Double askweight = 1.0;
-					Boolean aMandatory = false;
-					Question fakeQuestion = new Question(childFrame.getQuestionCode(), childFrame.getQuestionName(),
-							attribute, aMandatory);
-
-					ask = new Ask(fakeQuestion, childFrame.getQuestionGroup().getSourceAlias(),
-							childFrame.getQuestionGroup().getTargetAlias(), aMandatory, askweight, disabled, hidden,
-							readonly);
+					ask = createVirtualAsk(childFrame.getQuestionCode(), childFrame.getQuestionName(),
+							childFrame.getQuestionGroup().getSourceAlias(),
+							childFrame.getQuestionGroup().getTargetAlias(),serviceToken);
+				
 				} else {
 
 					ask = QuestionUtils.createQuestionForBaseEntity2(askBe,
@@ -340,6 +326,29 @@ public class FrameUtils2 {
 		}
 	}
 
+	static public Ask createVirtualAsk(final String questionCode, final String questionName, final String sourceAlias, final String targetAlias,GennyToken serviceToken) {
+	Attribute attribute = RulesUtils.getAttribute(questionCode,
+			serviceToken.getToken());
+	if (attribute == null) {
+		attribute = new AttributeText(questionCode, questionName);
+		attribute.setRealm(serviceToken.getRealm());
+	}
+	Boolean readonly = true;
+	Boolean hidden = false;
+	Boolean disabled = false;
+	Double askweight = 1.0;
+	Boolean aMandatory = false;
+	Question fakeQuestion = new Question(questionCode, questionName,
+			attribute, aMandatory);
+
+	Ask ask = new Ask(fakeQuestion, sourceAlias,
+			targetAlias, aMandatory, askweight, disabled, hidden,
+			readonly);
+	
+	return ask;
+	}
+	
+	
 	/**
 	 * @param frame
 	 * @param gennyToken
