@@ -76,7 +76,8 @@ public class FrameUtils2 {
 		QDataBaseEntityMessage msg = toMessage(rootFrame, serviceToken, askMsgs, contextListMap);
 		String askMsgsStr = JsonUtils.toJson(askMsgs);
 
-	//	VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(), rootFrame, serviceToken.getToken());
+		// VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(),
+		// rootFrame, serviceToken.getToken());
 
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "-MSG", msg, serviceToken.getToken());
 
@@ -107,6 +108,10 @@ public class FrameUtils2 {
 			for (Ask ask : askList) {
 				QDataAskMessage askMsg = QuestionUtils.getAsks(serviceToken.getUserCode(), serviceToken.getUserCode(),
 						ask.getQuestionCode(), serviceToken.getToken());
+				
+				if (null == askMsg) {
+					askMsg = new QDataAskMessage(new Ask[0]);
+				}
 				askMsg = processQDataAskMessage(askMsg, ask, serviceToken);
 
 				if ((contextListMap != null) && (!contextListMap.isEmpty())) {
@@ -132,44 +137,46 @@ public class FrameUtils2 {
 	private static QDataAskMessage processQDataAskMessage(QDataAskMessage askMsg, Ask contextAsk,
 			GennyToken serviceToken) {
 		List<Ask> asks = new ArrayList<Ask>();
-		for (Ask ask : askMsg.getItems()) {
-			ask.setQuestionCode(contextAsk.getQuestionCode()); // ?
+		if ((askMsg != null) && (askMsg.getItems() != null)) {
+			for (Ask ask : askMsg.getItems()) {
+				ask.setQuestionCode(contextAsk.getQuestionCode()); // ?
 
-			ask.setContextList(contextAsk.getContextList());
+				ask.setContextList(contextAsk.getContextList());
 
-			// if ask question is not a group then make it a fake group
-			// if (!StringUtils.endsWith(ask.getQuestion().getCode(), "_GRP")) {
-			// String attributeCode = "QQQ_QUESTION_GROUP_INPUT";
-			//
-			// /* Get the on-the-fly question attribute */
-			// Attribute attribute = RulesUtils.getAttribute(attributeCode,
-			// serviceToken.getToken());
-			//
-			// Question fakeQuestionGrp = new Question(ask.getQuestionCode() + "_GRP",
-			// ask.getName(), attribute,
-			// false);
-			// fakeQuestionGrp.setMandatory(ask.getMandatory());
-			// fakeQuestionGrp.setRealm(ask.getRealm());
-			// fakeQuestionGrp.setReadonly(ask.getReadonly());
-			// fakeQuestionGrp.setOneshot(ask.getOneshot());
-			//
-			// try {
-			// fakeQuestionGrp.addTarget(ask.getQuestion(), 1.0);
-			// } catch (BadDataException e) {
-			// // TODO Auto-generated catch block
-			// e.printStackTrace();
-			// }
-			// Ask newask = new Ask(fakeQuestionGrp, serviceToken.getUserCode(),
-			// serviceToken.getUserCode(), false,
-			// 1.0, false, false, true);
-			// Ask[] childAsks = new Ask[1];
-			// childAsks[0] = ask;
-			// newask.setChildAsks(childAsks);
-			// asks.add(newask);
-			//
-			// } else {
-			asks.add(ask);
-			// }
+				// if ask question is not a group then make it a fake group
+				// if (!StringUtils.endsWith(ask.getQuestion().getCode(), "_GRP")) {
+				// String attributeCode = "QQQ_QUESTION_GROUP_INPUT";
+				//
+				// /* Get the on-the-fly question attribute */
+				// Attribute attribute = RulesUtils.getAttribute(attributeCode,
+				// serviceToken.getToken());
+				//
+				// Question fakeQuestionGrp = new Question(ask.getQuestionCode() + "_GRP",
+				// ask.getName(), attribute,
+				// false);
+				// fakeQuestionGrp.setMandatory(ask.getMandatory());
+				// fakeQuestionGrp.setRealm(ask.getRealm());
+				// fakeQuestionGrp.setReadonly(ask.getReadonly());
+				// fakeQuestionGrp.setOneshot(ask.getOneshot());
+				//
+				// try {
+				// fakeQuestionGrp.addTarget(ask.getQuestion(), 1.0);
+				// } catch (BadDataException e) {
+				// // TODO Auto-generated catch block
+				// e.printStackTrace();
+				// }
+				// Ask newask = new Ask(fakeQuestionGrp, serviceToken.getUserCode(),
+				// serviceToken.getUserCode(), false,
+				// 1.0, false, false, true);
+				// Ask[] childAsks = new Ask[1];
+				// childAsks[0] = ask;
+				// newask.setChildAsks(childAsks);
+				// asks.add(newask);
+				//
+				// } else {
+				asks.add(ask);
+				// }
+			}
 		}
 		Ask[] itemsArray = new Ask[asks.size()];
 		itemsArray = asks.toArray(itemsArray);
@@ -272,8 +279,9 @@ public class FrameUtils2 {
 				if (childFrame.getQuestionName() != null) {
 					ask = createVirtualAsk(childFrame.getQuestionCode(), childFrame.getQuestionName(),
 							childFrame.getQuestionGroup().getSourceAlias(),
-							childFrame.getQuestionGroup().getTargetAlias(),serviceToken);
-				
+							childFrame.getQuestionGroup().getTargetAlias(), serviceToken);
+					ask.setRealm(parent.getRealm());
+
 				} else {
 
 					ask = QuestionUtils.createQuestionForBaseEntity2(askBe,
@@ -326,29 +334,25 @@ public class FrameUtils2 {
 		}
 	}
 
-	static public Ask createVirtualAsk(final String questionCode, final String questionName, final String sourceAlias, final String targetAlias,GennyToken serviceToken) {
-	Attribute attribute = RulesUtils.getAttribute(questionCode,
-			serviceToken.getToken());
-	if (attribute == null) {
-		attribute = new AttributeText(questionCode, questionName);
-		attribute.setRealm(serviceToken.getRealm());
-	}
-	Boolean readonly = true;
-	Boolean hidden = false;
-	Boolean disabled = false;
-	Double askweight = 1.0;
-	Boolean aMandatory = false;
-	Question fakeQuestion = new Question(questionCode, questionName,
-			attribute, aMandatory);
+	static public Ask createVirtualAsk(final String questionCode, final String questionName, final String sourceAlias,
+			final String targetAlias, GennyToken serviceToken) {
+		Attribute attribute = RulesUtils.getAttribute(questionCode, serviceToken.getToken());
+		if (attribute == null) {
+			attribute = new AttributeText(questionCode, questionName);
+			attribute.setRealm(serviceToken.getRealm());
+		}
+		Boolean readonly = true;
+		Boolean hidden = false;
+		Boolean disabled = false;
+		Double askweight = 1.0;
+		Boolean aMandatory = false;
+		Question fakeQuestion = new Question(questionCode, questionName, attribute, aMandatory);
 
-	Ask ask = new Ask(fakeQuestion, sourceAlias,
-			targetAlias, aMandatory, askweight, disabled, hidden,
-			readonly);
-	
-	return ask;
+		Ask ask = new Ask(fakeQuestion, sourceAlias, targetAlias, aMandatory, askweight, disabled, hidden, readonly);
+
+		return ask;
 	}
-	
-	
+
 	/**
 	 * @param frame
 	 * @param gennyToken

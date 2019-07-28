@@ -79,7 +79,9 @@ public class QuestionUtils {
 			json = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/" + sourceCode + "/asks2/"
 					+ questionCode + "/" + targetCode, token);
 			if (json != null) {
-				return JsonUtils.fromJson(json, QDataAskMessage.class);
+				if (!json.contains("<title>Error")) {
+					return JsonUtils.fromJson(json, QDataAskMessage.class);
+				}
 			}
 		} catch (ClientProtocolException e) {
 			log.info(e.getMessage());
