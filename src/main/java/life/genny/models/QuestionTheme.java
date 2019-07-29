@@ -64,7 +64,7 @@ public final class QuestionTheme {
 	 */
 	public VisualControlType getVcl() {
 		if (vcl == null) {
-			return VisualControlType.VCL_INPUT;
+			return VisualControlType.VCL_DEFAULT;
 		} else 
 		return vcl;
 	}
