@@ -484,7 +484,7 @@ public class Frame3 extends BaseEntity implements Serializable {
 				managedInstance.questionGroup = obj;
 			};
 			// Construction virtual Question 
-			String virtualQuestionCode = "QUE_"+attributeCode.toUpperCase();
+
 			managedInstance.questionCode = attributeCode;
 			managedInstance.questionName = questionName;
 			return new QuestionGroup.Builder(this, f, attributeCode, questionName);
