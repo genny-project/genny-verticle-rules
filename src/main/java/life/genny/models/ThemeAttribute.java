@@ -54,6 +54,10 @@ public final class ThemeAttribute {
 	@Expose
 	private Integer padding = null;
 	@Expose
+	private Integer paddingLeft = null;
+	@Expose
+	private Integer paddingRight = null;
+	@Expose
 	private Integer paddingX = null;
 	@Expose
 	private Integer paddingY = null;
@@ -275,6 +279,18 @@ public final class ThemeAttribute {
 	 */
 	public Integer getPadding() {
 		return padding;
+	}
+	/**
+	 * @return the paddingLeft
+	 */
+	public Integer getPaddingLeft() {
+		return paddingLeft;
+	}
+	/**
+	 * @return the paddingRight
+	 */
+	public Integer getPaddingRight() {
+		return paddingRight;
 	}
 
 	/**
@@ -562,6 +578,14 @@ public final class ThemeAttribute {
 			managedInstance.padding = value;
 			return this;
 		}
+		public Builder paddingLeft(Integer value) {
+			managedInstance.paddingLeft = value;
+			return this;
+		}
+		public Builder paddingRight(Integer value) {
+			managedInstance.paddingRight = value;
+			return this;
+		}
 
 		public Builder paddingX(Integer value) {
 			managedInstance.paddingX = value;
@@ -795,6 +819,10 @@ public final class ThemeAttribute {
 			json.put("minWidth", minWidth);
 		if (padding != null)
 			json.put("padding", padding);
+		if (paddingLeft != null)
+			json.put("paddingLeft", paddingLeft);
+		if (paddingRight != null)
+			json.put("paddingRight", paddingRight);
 		if (paddingX != null)
 			json.put("paddingX", paddingX);
 		if (paddingY != null)
