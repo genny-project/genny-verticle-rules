@@ -42,9 +42,15 @@ public final class ThemeAttribute {
 	@Expose
 	private Integer width = null;
 	@Expose
+	private Boolean dynamicWidth = null;
+	@Expose
 	private String widthPercent = null;
 	@Expose
 	private Integer height = null;
+	@Expose
+	private Integer maxHeight = null;
+	@Expose
+	private String maxHeightString = null;
 	@Expose
 	private String heightPercent = null;
 	@Expose
@@ -210,6 +216,12 @@ public final class ThemeAttribute {
 	public Integer getWidth() {
 		return width;
 	}
+	/**
+	 * @return the dynamicWidth
+	 */
+	public Boolean getDynamicWidth() {
+		return dynamicWidth;
+	}
 
 	/**
 	 * @return the widthPercent
@@ -224,7 +236,7 @@ public final class ThemeAttribute {
 	/**
 	 * @return the marginLeftString
 	 */
-	public String getmarginLeftString() {
+	public String getMarginLeftString() {
 		if (marginLeft == null) {
 			return marginLeftString != null ? marginLeftString : "initial";
 		} else {
@@ -247,6 +259,20 @@ public final class ThemeAttribute {
 	 */
 	public Integer getHeight() {
 		return height;
+	}
+
+		/**
+	 * @return the maxHeight
+	 */
+	public Integer getMaxHeight() {
+		return maxHeight;
+	}
+	public String getMaxHeightString() {
+		if (maxHeight == null) {
+			return maxHeightString != null ? maxHeightString : "initial";
+		} else {
+			return maxHeight + "";
+		}
 	}
 
 	/**
@@ -548,6 +574,10 @@ public final class ThemeAttribute {
 			managedInstance.width = value;
 			return this;
 		}
+		public Builder dynamicWidth(Boolean value) {
+			managedInstance.dynamicWidth = value;
+			return this;
+		}
 
 		public Builder width(String value) {
 			managedInstance.widthPercent = value; // should check format
@@ -566,6 +596,14 @@ public final class ThemeAttribute {
 
 		public Builder maxWidth(Integer value) {
 			managedInstance.maxWidth = value;
+			return this;
+		}
+		public Builder maxHeight(Integer value) {
+			managedInstance.maxHeight = value;
+			return this;
+		}
+		public Builder maxHeight(String value) {
+			managedInstance.maxHeightString = value;
 			return this;
 		}
 
@@ -778,6 +816,8 @@ public final class ThemeAttribute {
 			json.put("shadowColor", shadowColor);
 		if (shadowOpacity != null)
 			json.put("shadowOpacity", shadowOpacity);
+		if (dynamicWidth != null)
+			json.put("dynamicWidth", dynamicWidth);
 		if (width != null) {
 			json.put("width", width);
 		} else {
@@ -809,12 +849,20 @@ public final class ThemeAttribute {
 				json.put("marginRight", marginRightString);
 			}
 		}
+
 		if (marginTop != null)
 			json.put("marginTop", marginTop);
 		if (marginBottom != null)
 			json.put("marginBottom", marginBottom);
 		if (maxWidth != null)
 			json.put("maxWidth", maxWidth);
+		if (maxHeight != null){
+			json.put("maxHeight", maxHeight);
+		}else {
+			if (maxHeightString != null) {
+				json.put("maxHeight", maxHeightString);
+			}
+		}
 		if (minWidth != null)
 			json.put("minWidth", minWidth);
 		if (padding != null)
