@@ -1,6 +1,7 @@
 package life.genny.utils.Layout;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
@@ -50,7 +51,7 @@ import life.genny.qwanda.message.QCmdViewMessageAction;
 
 import life.genny.qwanda.entity.EntityQuestion;
 
-public class LayoutUtils {
+public class LayoutUtils implements Serializable {
 
 	/**
 	 * Stores logger object.
