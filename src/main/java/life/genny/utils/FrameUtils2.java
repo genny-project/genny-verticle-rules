@@ -110,6 +110,7 @@ public class FrameUtils2 {
 				String targetAliasCode = serviceToken.getUserCode();
 				if ((!ask.getTargetCode().equals(serviceToken.getUserCode()))&&(!ask.getTargetCode().startsWith("QUE_"))) {
 					targetAliasCode = ask.getTargetCode();
+					log.info("Setting targetAliasCode "+targetAliasCode+" for "+ask.getQuestionCode());
 				}
 				QDataAskMessage askMsg = QuestionUtils.getAsks(sourceAliasCode, targetAliasCode,
 						ask.getQuestionCode(), serviceToken.getToken());
