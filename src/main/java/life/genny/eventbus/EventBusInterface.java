@@ -293,7 +293,7 @@ public interface EventBusInterface {
 				break;
 			case "cmds":
 			case "webcmds":
-				payload = EventBusInterface.privacyFilter(user,json, filterAttributes);
+				payload = EventBusInterface.privacyFilter(user,payload, filterAttributes); 
 				writeMsg("webcmds", json);
 				break;
 			case "services":

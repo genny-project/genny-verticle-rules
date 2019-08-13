@@ -106,7 +106,12 @@ public class FrameUtils2 {
 
 		if (!VertxUtils.cachedEnabled) { // cannot retrieve questions if no service!
 			for (Ask ask : askList) {
-				QDataAskMessage askMsg = QuestionUtils.getAsks(serviceToken.getUserCode(), serviceToken.getUserCode(),
+				String sourceAliasCode = serviceToken.getUserCode();
+				String targetAliasCode = serviceToken.getUserCode();
+				if ((!ask.getTargetCode().equals(serviceToken.getUserCode()))&&(!ask.getTargetCode().startsWith("QUE_"))) {
+					targetAliasCode = ask.getTargetCode();
+				}
+				QDataAskMessage askMsg = QuestionUtils.getAsks(sourceAliasCode, targetAliasCode,
 						ask.getQuestionCode(), serviceToken.getToken());
 				
 				if (null == askMsg) {
@@ -227,6 +232,13 @@ public class FrameUtils2 {
 	private static void processFrames(final Frame3 frame, GennyToken serviceToken, Set<BaseEntity> baseEntityList,
 			BaseEntity parent, Set<Ask> askList) {
 
+		if (frame.getFrames().isEmpty()) {
+			// create the ask
+			if (frame.getQuestionGroup()!=null) {
+				processAskAliasEmpty(frame, serviceToken, baseEntityList, parent,askList, frame.getPosition(), 1.0);
+			}
+		}
+		
 		// Go through the frames and fetch them
 		for (FrameTuple3 frameTuple3 : frame.getFrames()) {
 			if (showLogs) {
@@ -238,98 +250,208 @@ public class FrameUtils2 {
 
 			childFrame.setParent(parent); // Set the parent sop that we can link the childs themes to it.
 
-			BaseEntity childBe = getBaseEntity(childFrame, serviceToken);
+			processAskAlias(frame, serviceToken, baseEntityList, parent, askList, childFrame, position, weight);
 
-			// link to the parent
-			EntityEntity link = null;
-			Attribute linkFrame = new AttributeLink("LNK_FRAME", "frame");
-			link = new EntityEntity(parent, childBe, linkFrame, position.name(), weight);
-			if (!parent.getLinks().contains(link)) {
-				parent.getLinks().add(link);
+		}
+	}
+
+	/**
+	 * @param frame
+	 * @param serviceToken
+	 * @param baseEntityList
+	 * @param parent
+	 * @param askList
+	 * @param childFrame
+	 * @param position
+	 * @param weight
+	 */
+	private static void processAskAliasEmpty(final Frame3 frame, GennyToken serviceToken, Set<BaseEntity> baseEntityList,
+			BaseEntity parent,Set<Ask> askList, FramePosition position, Double weight) {
+		BaseEntity childBe = getBaseEntity(frame, serviceToken);
+
+
+
+		if (!frame.getThemes().isEmpty()) {
+			processThemes(frame, position, serviceToken, baseEntityList, childBe);
+		}
+
+		if (!frame.getThemeObjects().isEmpty()) {
+			processThemeTuples(frame, position, serviceToken, baseEntityList, childBe);
+		}
+
+		if (frame.getQuestionGroup() != null) {
+			if (showLogs) {
+				System.out.println("Processing Question  " + frame.getQuestionCode());
 			}
-			baseEntityList.add(childBe);
+			if ("PRI_FIRSTNAME".equals(frame.getQuestionCode())) {
+				log.info("Detected");
+			}
+			/* create an ask */
+			BaseEntity askBe = new BaseEntity(frame.getQuestionGroup().getCode(),
+					frame.getQuestionGroup().getCode());
+			askBe.setRealm(parent.getRealm());
 
-			// Traverse the frame tree and build BaseEntitys and links
-			if (!childFrame.getFrames().isEmpty()) {
-				processFrames(childFrame, serviceToken, baseEntityList, childBe, askList);
+			Ask ask = null;
+
+			if (frame.getQuestionName() != null) {
+				ask = createVirtualAsk(frame.getQuestionCode(), frame.getQuestionName(),
+						frame.getQuestionGroup().getSourceAlias(),
+						frame.getQuestionGroup().getTargetAlias(), serviceToken);
+				ask.setRealm(parent.getRealm());
+
+			} else {
+
+				ask = QuestionUtils.createQuestionForBaseEntity2(askBe,
+						StringUtils.endsWith(askBe.getCode(), "GRP"), serviceToken,
+						frame.getQuestionGroup().getSourceAlias(),
+						frame.getQuestionGroup().getTargetAlias());
 			}
 
-			if (!childFrame.getThemes().isEmpty()) {
-				processThemes(childFrame, position, serviceToken, baseEntityList, childBe);
-			}
-
-			if (!childFrame.getThemeObjects().isEmpty()) {
-				processThemeTuples(childFrame, position, serviceToken, baseEntityList, childBe);
-			}
-
-			if (childFrame.getQuestionGroup() != null) {
-				if (showLogs) {
-					System.out.println("Processing Question  " + childFrame.getQuestionCode());
-				}
-				if ("PRI_FIRSTNAME".equals(childFrame.getQuestionCode())) {
-					log.info("Detected");
-				}
-				/* create an ask */
-				BaseEntity askBe = new BaseEntity(childFrame.getQuestionGroup().getCode(),
-						childFrame.getQuestionGroup().getCode());
-				askBe.setRealm(parent.getRealm());
-
-				Ask ask = null;
-
-				if (childFrame.getQuestionName() != null) {
-					ask = createVirtualAsk(childFrame.getQuestionCode(), childFrame.getQuestionName(),
-							childFrame.getQuestionGroup().getSourceAlias(),
-							childFrame.getQuestionGroup().getTargetAlias(), serviceToken);
-					ask.setRealm(parent.getRealm());
-
-				} else {
-
-					ask = QuestionUtils.createQuestionForBaseEntity2(askBe,
-							StringUtils.endsWith(askBe.getCode(), "GRP"), serviceToken,
-							childFrame.getQuestionGroup().getSourceAlias(),
-							childFrame.getQuestionGroup().getTargetAlias());
-				}
-
-				Map<ContextType, Set<BaseEntity>> contextMap = new HashMap<ContextType, Set<BaseEntity>>();
-				Map<ContextType, life.genny.qwanda.VisualControlType> vclMap = new HashMap<ContextType, VisualControlType>();
-				/* package up Question Themes */
-				if (!childFrame.getQuestionGroup().getQuestionThemes().isEmpty()) {
-					for (QuestionTheme qTheme : childFrame.getQuestionGroup().getQuestionThemes()) {
-						if (showLogs) {
-							System.out.println("Question Theme: " + qTheme.getCode() + ":" + qTheme.getJson());
+			Map<ContextType, Set<BaseEntity>> contextMap = new HashMap<ContextType, Set<BaseEntity>>();
+			Map<ContextType, life.genny.qwanda.VisualControlType> vclMap = new HashMap<ContextType, VisualControlType>();
+			/* package up Question Themes */
+			if (!frame.getQuestionGroup().getQuestionThemes().isEmpty()) {
+				for (QuestionTheme qTheme : frame.getQuestionGroup().getQuestionThemes()) {
+					if (showLogs) {
+						System.out.println("Question Theme: " + qTheme.getCode() + ":" + qTheme.getJson());
+					}
+					processQuestionThemes(askBe, qTheme, serviceToken, ask, baseEntityList, contextMap, vclMap);
+					Set<BaseEntity> themeSet = new HashSet<BaseEntity>();
+					if (qTheme.getTheme() != null) {
+						themeSet.add(qTheme.getTheme().getBaseEntity());
+						// Hack
+						VisualControlType vcl = null;
+						if (!((qTheme.getCode().equals("THM_FORM_DEFAULT"))
+								|| (qTheme.getCode().equals("THM_BUTTONS"))
+								|| (qTheme.getCode().equals("THM_FORM_CONTAINER_DEFAULT")))) {
+							vcl = qTheme.getVcl();
 						}
-						processQuestionThemes(askBe, qTheme, serviceToken, ask, baseEntityList, contextMap, vclMap);
-						Set<BaseEntity> themeSet = new HashSet<BaseEntity>();
-						if (qTheme.getTheme() != null) {
-							themeSet.add(qTheme.getTheme().getBaseEntity());
-							// Hack
-							VisualControlType vcl = null;
-							if (!((qTheme.getCode().equals("THM_FORM_DEFAULT"))
-									|| (qTheme.getCode().equals("THM_BUTTONS"))
-									|| (qTheme.getCode().equals("THM_FORM_CONTAINER_DEFAULT")))) {
-								vcl = qTheme.getVcl();
-							}
-							createVirtualContext(ask, themeSet, ContextType.THEME, vcl, qTheme.getWeight());
-						}
-
+						createVirtualContext(ask, themeSet, ContextType.THEME, vcl, qTheme.getWeight());
 					}
 
 				}
-				Set<EntityQuestion> entityQuestionList = askBe.getQuestions();
-
-				Link linkAsk = new Link(frame.getCode(), childFrame.getQuestionCode(), "LNK_ASK",
-						FramePosition.CENTRE.name());
-				linkAsk.setWeight(ask.getWeight());
-				EntityQuestion ee = new EntityQuestion(linkAsk);
-				entityQuestionList.add(ee);
-
-				childBe.setQuestions(entityQuestionList);
-				baseEntityList.add(askBe);
-				/* Set the ask to support any sourceAlias and targetAlias */
-
-				askList.add(ask); // add to the ask list
 
 			}
+			Set<EntityQuestion> entityQuestionList = askBe.getQuestions();
+
+			Link linkAsk = new Link(frame.getCode(), frame.getQuestionCode(), "LNK_ASK",
+					FramePosition.CENTRE.name());
+			linkAsk.setWeight(ask.getWeight());
+			EntityQuestion ee = new EntityQuestion(linkAsk);
+			entityQuestionList.add(ee);
+
+			childBe.setQuestions(entityQuestionList);
+			baseEntityList.add(askBe);
+			/* Set the ask to support any sourceAlias and targetAlias */
+
+			askList.add(ask); // add to the ask list
+
+		}
+	}
+
+	
+	/**
+	 * @param frame
+	 * @param serviceToken
+	 * @param baseEntityList
+	 * @param parent
+	 * @param askList
+	 * @param childFrame
+	 * @param position
+	 * @param weight
+	 */
+	private static void processAskAlias(final Frame3 frame, GennyToken serviceToken, Set<BaseEntity> baseEntityList,
+			BaseEntity parent, Set<Ask> askList, Frame3 childFrame, FramePosition position, Double weight) {
+		BaseEntity childBe = getBaseEntity(childFrame, serviceToken);
+
+		// link to the parent
+		EntityEntity link = null;
+		Attribute linkFrame = new AttributeLink("LNK_FRAME", "frame");
+		link = new EntityEntity(parent, childBe, linkFrame, position.name(), weight);
+		if (!parent.getLinks().contains(link)) {
+			parent.getLinks().add(link);
+		}
+		baseEntityList.add(childBe);
+
+		// Traverse the frame tree and build BaseEntitys and links
+		if (!childFrame.getFrames().isEmpty()) {
+			processFrames(childFrame, serviceToken, baseEntityList, childBe, askList);
+		}
+
+		if (!childFrame.getThemes().isEmpty()) {
+			processThemes(childFrame, position, serviceToken, baseEntityList, childBe);
+		}
+
+		if (!childFrame.getThemeObjects().isEmpty()) {
+			processThemeTuples(childFrame, position, serviceToken, baseEntityList, childBe);
+		}
+
+		if (childFrame.getQuestionGroup() != null) {
+			if (showLogs) {
+				System.out.println("Processing Question  " + childFrame.getQuestionCode());
+			}
+			if ("PRI_FIRSTNAME".equals(childFrame.getQuestionCode())) {
+				log.info("Detected");
+			}
+			/* create an ask */
+			BaseEntity askBe = new BaseEntity(childFrame.getQuestionGroup().getCode(),
+					childFrame.getQuestionGroup().getCode());
+			askBe.setRealm(parent.getRealm());
+
+			Ask ask = null;
+
+			if (childFrame.getQuestionName() != null) {
+				ask = createVirtualAsk(childFrame.getQuestionCode(), childFrame.getQuestionName(),
+						childFrame.getQuestionGroup().getSourceAlias(),
+						childFrame.getQuestionGroup().getTargetAlias(), serviceToken);
+				ask.setRealm(parent.getRealm());
+
+			} else {
+
+				ask = QuestionUtils.createQuestionForBaseEntity2(askBe,
+						StringUtils.endsWith(askBe.getCode(), "GRP"), serviceToken,
+						childFrame.getQuestionGroup().getSourceAlias(),
+						childFrame.getQuestionGroup().getTargetAlias());
+			}
+
+			Map<ContextType, Set<BaseEntity>> contextMap = new HashMap<ContextType, Set<BaseEntity>>();
+			Map<ContextType, life.genny.qwanda.VisualControlType> vclMap = new HashMap<ContextType, VisualControlType>();
+			/* package up Question Themes */
+			if (!childFrame.getQuestionGroup().getQuestionThemes().isEmpty()) {
+				for (QuestionTheme qTheme : childFrame.getQuestionGroup().getQuestionThemes()) {
+					if (showLogs) {
+						System.out.println("Question Theme: " + qTheme.getCode() + ":" + qTheme.getJson());
+					}
+					processQuestionThemes(askBe, qTheme, serviceToken, ask, baseEntityList, contextMap, vclMap);
+					Set<BaseEntity> themeSet = new HashSet<BaseEntity>();
+					if (qTheme.getTheme() != null) {
+						themeSet.add(qTheme.getTheme().getBaseEntity());
+						// Hack
+						VisualControlType vcl = null;
+						if (!((qTheme.getCode().equals("THM_FORM_DEFAULT"))
+								|| (qTheme.getCode().equals("THM_BUTTONS"))
+								|| (qTheme.getCode().equals("THM_FORM_CONTAINER_DEFAULT")))) {
+							vcl = qTheme.getVcl();
+						}
+						createVirtualContext(ask, themeSet, ContextType.THEME, vcl, qTheme.getWeight());
+					}
+
+				}
+
+			}
+			Set<EntityQuestion> entityQuestionList = askBe.getQuestions();
+
+			Link linkAsk = new Link(frame.getCode(), childFrame.getQuestionCode(), "LNK_ASK",
+					FramePosition.CENTRE.name());
+			linkAsk.setWeight(ask.getWeight());
+			EntityQuestion ee = new EntityQuestion(linkAsk);
+			entityQuestionList.add(ee);
+
+			childBe.setQuestions(entityQuestionList);
+			baseEntityList.add(askBe);
+			/* Set the ask to support any sourceAlias and targetAlias */
+
+			askList.add(ask); // add to the ask list
 
 		}
 	}
