@@ -1635,4 +1635,18 @@ public class BaseEntityUtils implements Serializable {
 
 	}
 
+	/**
+	 * @return the gennyToken
+	 */
+	public GennyToken getGennyToken() {
+		return gennyToken;
+	}
+
+	/**
+	 * @param gennyToken the gennyToken to set
+	 */
+	public void setGennyToken(GennyToken gennyToken) {
+		this.gennyToken = gennyToken;
+	}
+
 }
