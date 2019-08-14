@@ -1,6 +1,7 @@
 package life.genny.models;
 
 
+import java.io.Serializable;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -15,7 +16,7 @@ import life.genny.qwanda.VisualControlType;
 
 
 @Immutable
-public final class QuestionTheme {
+public final class QuestionTheme implements Serializable {
 	@Expose
 	private String code;
 	@Expose

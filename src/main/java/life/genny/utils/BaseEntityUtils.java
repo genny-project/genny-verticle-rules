@@ -71,12 +71,10 @@ public class BaseEntityUtils implements Serializable {
 	private CacheUtils cacheUtil;
 	private GennyToken gennyToken;
 
-	
-	public BaseEntityUtils(GennyToken gennyToken)
-	{
-		this(GennySettings.qwandaServiceUrl,gennyToken);
+	public BaseEntityUtils(GennyToken gennyToken) {
+		this(GennySettings.qwandaServiceUrl, gennyToken);
 	}
-	
+
 	public BaseEntityUtils(String qwandaServiceUrl, GennyToken gennyToken) {
 
 		this.decodedMapToken = gennyToken.getAdecodedTokenMap();
@@ -87,13 +85,12 @@ public class BaseEntityUtils implements Serializable {
 		this.cacheUtil = new CacheUtils(qwandaServiceUrl, token, decodedMapToken, realm);
 		this.cacheUtil.setBaseEntityUtils(this);
 	}
-	
-	
+
 	public BaseEntityUtils(String qwandaServiceUrl, String token, Map<String, Object> decodedMapToken, String realm) {
-		this(qwandaServiceUrl,new GennyToken(token));
+		this(qwandaServiceUrl, new GennyToken(token));
 	}
 
-	private  String getRealm() {
+	private String getRealm() {
 		return gennyToken.getRealm();
 	}
 
@@ -113,15 +110,15 @@ public class BaseEntityUtils implements Serializable {
 
 		BaseEntity newBaseEntity = null;
 		if (VertxUtils.cachedEnabled == false) {
-		newBaseEntity = QwandaUtils.createBaseEntityByCode(baseEntityCode, name, qwandaServiceUrl,
-				this.token);
+			newBaseEntity = QwandaUtils.createBaseEntityByCode(baseEntityCode, name, qwandaServiceUrl, this.token);
 		} else {
 			GennyToken gt = new GennyToken(this.token);
 			newBaseEntity = new BaseEntity(baseEntityCode, name);
 			newBaseEntity.setRealm(gt.getRealm());
 		}
 		this.addAttributes(newBaseEntity);
-		VertxUtils.writeCachedJson(newBaseEntity.getRealm(), newBaseEntity.getCode(), JsonUtils.toJson(newBaseEntity),this.token);
+		VertxUtils.writeCachedJson(newBaseEntity.getRealm(), newBaseEntity.getCode(), JsonUtils.toJson(newBaseEntity),
+				this.token);
 		return newBaseEntity;
 	}
 
@@ -289,7 +286,6 @@ public class BaseEntityUtils implements Serializable {
 
 	public void saveAnswers(List<Answer> answers, final boolean changeEvent) {
 
-
 		if (!changeEvent) {
 			for (Answer answer : answers) {
 				answer.setChangeEvent(false);
@@ -302,13 +298,15 @@ public class BaseEntityUtils implements Serializable {
 
 		this.updateCachedBaseEntity(answers);
 
-		String jsonAnswer = JsonUtils.toJson(msg);
-	//	jsonAnswer.replace("\\\"", "\"");
+		if (!VertxUtils.cachedEnabled) { // if not running junit, no need for api
+			String jsonAnswer = JsonUtils.toJson(msg);
+			// jsonAnswer.replace("\\\"", "\"");
 
-		try {
-			QwandaUtils.apiPostEntity(this.qwandaServiceUrl + "/qwanda/answers/bulk2", jsonAnswer, token);
-		} catch (IOException e) {
-			 log.error("Socket error trying to post answer");
+			try {
+				QwandaUtils.apiPostEntity(this.qwandaServiceUrl + "/qwanda/answers/bulk2", jsonAnswer, token);
+			} catch (IOException e) {
+				log.error("Socket error trying to post answer");
+			}
 		}
 	}
 
@@ -1125,7 +1123,8 @@ public class BaseEntityUtils implements Serializable {
 					} else {
 						cachedBe.addAnswer(answer);
 					}
-					VertxUtils.writeCachedJson(getRealm(), answer.getTargetCode(), JsonUtils.toJson(cachedBe),this.token);
+					VertxUtils.writeCachedJson(getRealm(), answer.getTargetCode(), JsonUtils.toJson(cachedBe),
+							this.token);
 				}
 			}
 
@@ -1196,7 +1195,7 @@ public class BaseEntityUtils implements Serializable {
 			}
 		}
 
-		VertxUtils.writeCachedJson(getRealm(), cachedBe.getCode(), JsonUtils.toJson(cachedBe),this.token);
+		VertxUtils.writeCachedJson(getRealm(), cachedBe.getCode(), JsonUtils.toJson(cachedBe), this.token);
 
 		return cachedBe;
 	}
@@ -1381,7 +1380,7 @@ public class BaseEntityUtils implements Serializable {
 			return null;
 		}
 
-		String serviceToken = RulesUtils.generateServiceToken(realm,token);
+		String serviceToken = RulesUtils.generateServiceToken(realm, token);
 		if (serviceToken != null) {
 
 			BaseEntity beLayout = null;

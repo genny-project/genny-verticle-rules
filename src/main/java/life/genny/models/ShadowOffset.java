@@ -1,5 +1,6 @@
 package life.genny.models;
 
+import java.io.Serializable;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -10,7 +11,7 @@ import org.json.JSONObject;
 import com.google.gson.annotations.Expose;
 
 @Immutable
-public final class ShadowOffset {
+public final class ShadowOffset implements Serializable {
 
 	@Expose
 	private Integer width = null;

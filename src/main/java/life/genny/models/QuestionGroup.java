@@ -1,6 +1,7 @@
 package life.genny.models;
 
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
@@ -18,7 +19,7 @@ import life.genny.utils.VertxUtils;
 
 
 @Immutable
-public class QuestionGroup {
+public class QuestionGroup implements Serializable {
 	@Expose
 	private String code;
 	@Expose

@@ -1,5 +1,6 @@
 package life.genny.models;
 
+import java.io.Serializable;
 import java.util.function.Consumer;
 
 import javax.annotation.concurrent.Immutable;
@@ -9,7 +10,7 @@ import org.json.JSONObject;
 import com.google.gson.annotations.Expose;
 
 @Immutable
-public final class ThemeAttribute {
+public final class ThemeAttribute implements Serializable {
 	@Expose
 	private String code;
 
