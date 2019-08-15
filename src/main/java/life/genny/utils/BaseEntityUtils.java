@@ -276,7 +276,9 @@ public class BaseEntityUtils implements Serializable {
 
 		try {
 			this.updateCachedBaseEntity(answer);
-			QwandaUtils.apiPostEntity(qwandaServiceUrl + "/qwanda/answers", JsonUtils.toJson(answer), this.token);
+			if (!VertxUtils.cachedEnabled) {  // only post if not in junit
+				QwandaUtils.apiPostEntity(qwandaServiceUrl + "/qwanda/answers", JsonUtils.toJson(answer), this.token);
+			}
 			// Now update the Cache
 
 		} catch (IOException e) {
@@ -303,7 +305,9 @@ public class BaseEntityUtils implements Serializable {
 			// jsonAnswer.replace("\\\"", "\"");
 
 			try {
-				QwandaUtils.apiPostEntity(this.qwandaServiceUrl + "/qwanda/answers/bulk2", jsonAnswer, token);
+				if (!VertxUtils.cachedEnabled) {  // only post if not in junit
+					QwandaUtils.apiPostEntity(this.qwandaServiceUrl + "/qwanda/answers/bulk2", jsonAnswer, token);
+				}
 			} catch (IOException e) {
 				log.error("Socket error trying to post answer");
 			}
