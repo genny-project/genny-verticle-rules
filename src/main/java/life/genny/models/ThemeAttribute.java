@@ -249,7 +249,7 @@ public final class ThemeAttribute implements Serializable {
 	}
 	
 	/**
-	 * @return the widthPercent
+	 * @return the margin
 	 */
 	public String getMarginAuto() {
 		if (margin == null) {
