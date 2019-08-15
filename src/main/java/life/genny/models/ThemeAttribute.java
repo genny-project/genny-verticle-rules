@@ -28,9 +28,17 @@ public final class ThemeAttribute {
 	@Expose
 	private Integer margin = null;
 	@Expose
-	private Integer marginBottom = null;
+	private Integer marginLeft = null;
+	@Expose
+	private String marginLeftString = null;
 	@Expose
 	private Integer marginRight = null;
+	@Expose
+	private String marginRightString = null;
+	@Expose
+	private Integer marginTop = null;
+	@Expose
+	private Integer marginBottom = null;
 	@Expose
 	private Integer width = null;
 	@Expose
@@ -209,6 +217,26 @@ public final class ThemeAttribute {
 			return width + "";
 		}
 	}
+	/**
+	 * @return the marginLeftString
+	 */
+	public String getmarginLeftString() {
+		if (marginLeft == null) {
+			return marginLeftString != null ? marginLeftString : "initial";
+		} else {
+			return marginLeft + "";
+		}
+	}
+	/**
+	 * @return the marginRightString
+	 */
+	public String getMarginRightString() {
+		if (marginRight == null) {
+			return marginRightString != null ? marginRightString : "initial";
+		} else {
+			return marginRight + "";
+		}
+	}
 
 	/**
 	 * @return the height
@@ -306,6 +334,12 @@ public final class ThemeAttribute {
 	}
 
 	/**
+	 * @return the marginTop
+	 */
+	public Integer getMarginTop() {
+		return marginTop;
+	}
+	/**
 	 * @return the marginBottom
 	 */
 	public Integer getMarginBottom() {
@@ -313,7 +347,13 @@ public final class ThemeAttribute {
 	}
 
 	/**
-	 * @return the marginRight
+	 * @return the marginLeft
+	 */
+	public Integer getMarginLeft() {
+		return marginLeft;
+	}
+	/**
+	 * @return the marginRightString
 	 */
 	public Integer getMarginRight() {
 		return marginRight;
@@ -628,13 +668,29 @@ public final class ThemeAttribute {
 			return this;
 		}
 
+		public Builder marginTop(Integer value) {
+			managedInstance.marginTop = value;
+			return this;
+		}
 		public Builder marginBottom(Integer value) {
 			managedInstance.marginBottom = value;
 			return this;
 		}
 
+		public Builder marginLeft(Integer value) {
+			managedInstance.marginLeft = value;
+			return this;
+		}
+		public Builder marginLeft(String value) {
+			managedInstance.marginLeftString = value; // should check format
+			return this;
+		}
 		public Builder marginRight(Integer value) {
 			managedInstance.marginRight = value;
+			return this;
+		}
+		public Builder marginRight(String value) {
+			managedInstance.marginRightString = value; // should check format
 			return this;
 		}
 
@@ -715,8 +771,24 @@ public final class ThemeAttribute {
 		}
 		if (margin != null)
 			json.put("margin", margin);
-		if (marginRight != null)
+		if (marginLeft != null){
+			json.put("marginLeft", marginLeft);
+		}else {
+			if (marginLeftString != null) {
+				json.put("marginLeft", marginLeftString);
+			}
+		}
+		if (marginRight != null){
 			json.put("marginRight", marginRight);
+		}else {
+			if (marginRightString != null) {
+				json.put("marginRight", marginRightString);
+			}
+		}
+		if (marginTop != null)
+			json.put("marginTop", marginTop);
+		if (marginBottom != null)
+			json.put("marginBottom", marginBottom);
 		if (maxWidth != null)
 			json.put("maxWidth", maxWidth);
 		if (minWidth != null)
