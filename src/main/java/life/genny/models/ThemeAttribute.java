@@ -29,6 +29,8 @@ public final class ThemeAttribute implements Serializable {
 	@Expose
 	private Integer margin = null;
 	@Expose
+	private String marginStr = null;
+	@Expose
 	private Integer marginLeft = null;
 	@Expose
 	private String marginLeftString = null;
@@ -222,6 +224,14 @@ public final class ThemeAttribute implements Serializable {
 	 */
 	public Integer getMargin() {
 		return margin;
+	}
+
+	
+	/**
+	 * @return the marginStr
+	 */
+	public String getMarginStr() {
+		return marginStr;
 	}
 
 	/**
@@ -606,6 +616,11 @@ public final class ThemeAttribute implements Serializable {
 			return this;
 		}
 
+		public Builder margin(String value) {
+			managedInstance.marginStr = value;
+			return this;
+		}
+
 		public Builder width(Integer value) {
 			managedInstance.width = value;
 			return this;
@@ -766,6 +781,7 @@ public final class ThemeAttribute implements Serializable {
 			return this;
 		}
 
+
 		public Builder marginTop(Integer value) {
 			managedInstance.marginTop = value;
 			return this;
@@ -878,8 +894,14 @@ public final class ThemeAttribute implements Serializable {
 				json.put("height", heightPercent);
 			}
 		}
-		if (margin != null)
+		if (margin != null) {
 			json.put("margin", margin);
+		} else {
+			if (marginStr != null) {
+				json.put("margin", marginStr);
+			}
+			
+		}
 		if (marginLeft != null){
 			json.put("marginLeft", marginLeft);
 		}else {
