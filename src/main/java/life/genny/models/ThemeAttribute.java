@@ -114,6 +114,22 @@ public final class ThemeAttribute implements Serializable {
 	private Double valueDouble = null;
 	@Expose
 	private String alignItems = null;
+	@Expose
+	private String display=null;
+	
+	/**
+	 * @return the display
+	 */
+	public String getDisplay() {
+		return display;
+	}
+
+	/**
+	 * @param display the display to set
+	 */
+	public void setDisplay(String display) {
+		this.display = display;
+	}
 
 	/**
 	 * static factory method for builder
@@ -227,6 +243,7 @@ public final class ThemeAttribute implements Serializable {
 	public Integer getWidth() {
 		return width;
 	}
+	
 	/**
 	 * @return the dynamicWidth
 	 */
@@ -555,6 +572,11 @@ public final class ThemeAttribute implements Serializable {
 			managedInstance.flexBasis = value;
 			return this;
 		}
+		
+		public Builder display(String value) {
+			managedInstance.flexBasis = value;
+			return this;
+		}
 
 		public Builder justifyContent(String value) {
 			managedInstance.justifyContent = value;
@@ -590,6 +612,7 @@ public final class ThemeAttribute implements Serializable {
 			managedInstance.width = value;
 			return this;
 		}
+
 		public Builder dynamicWidth(Boolean value) {
 			managedInstance.dynamicWidth = value;
 			return this;
@@ -809,6 +832,8 @@ public final class ThemeAttribute implements Serializable {
 
 	public JSONObject getJsonObject() {
 		JSONObject json = new JSONObject();
+		if (display != null)
+			json.put("display", display);
 		if (fit != null)
 			json.put("fit", fit);
 		if (overflowX != null)
