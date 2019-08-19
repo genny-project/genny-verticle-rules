@@ -265,11 +265,11 @@ public interface EventBusInterface {
 						JsonArray items = json.getJsonArray("items");
 						JsonObject be = items.getJsonObject(0);
 						String code = be.getString("code");
-						log.info(RulesUtils.ANSI_GREEN + channel + ":" + user.getCode() + ":" + ":"
-								+ payload.toString().length() + ":" + code);
+//						log.info(RulesUtils.ANSI_GREEN + channel + ":" + user.getCode() + ":" + ":"
+//								+ payload.toString().length() + ":" + code);
 					} else {
-						log.info(RulesUtils.ANSI_CYAN + channel + ":" + user.getCode() + ":" + ":"
-								+ payload.toString().length());
+//						log.info(RulesUtils.ANSI_CYAN + channel + ":" + user.getCode() + ":" + ":"
+//								+ payload.toString().length());
 					}
 				} else {
 					log.info(RulesUtils.ANSI_CYAN + channel + ":" + user.getCode() + ":"
