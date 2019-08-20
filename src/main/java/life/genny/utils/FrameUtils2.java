@@ -61,6 +61,11 @@ public class FrameUtils2 {
 	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken) {
 		Map<String, ContextList> contextListMap = new HashMap<String, ContextList>();
 		toMessage(rootFrame, serviceToken, contextListMap);
+		
+		// check that the MSG got saved
+		
+		
+		
 	}
 
 	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
@@ -80,9 +85,10 @@ public class FrameUtils2 {
 		// rootFrame, serviceToken.getToken());
 
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "-MSG", msg, serviceToken.getToken());
-
+		if (!askMsgs.isEmpty()) {
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "-ASKS", askMsgsStr,
 				serviceToken.getToken());
+		}
 	}
 
 	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
@@ -112,8 +118,14 @@ public class FrameUtils2 {
 					targetAliasCode = ask.getTargetCode();
 					log.info("Setting targetAliasCode "+targetAliasCode+" for "+ask.getQuestionCode());
 				}
-				QDataAskMessage askMsg = QuestionUtils.getAsks(sourceAliasCode, targetAliasCode,
-						ask.getQuestionCode(), serviceToken.getToken());
+				QDataAskMessage askMsg = null;
+				
+				try {
+					askMsg = QuestionUtils.getAsks(sourceAliasCode, targetAliasCode,
+							ask.getQuestionCode(), serviceToken.getToken());
+				} catch (NullPointerException e) {
+					log.error("Null pointer in getAsks "+ask.getQuestionCode());
+				}
 				
 				if (null == askMsg) {
 					askMsg = new QDataAskMessage(new Ask[0]);

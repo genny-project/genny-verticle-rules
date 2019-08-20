@@ -174,11 +174,17 @@ public class VertxUtils {
 
 					resultStr = (String) localCache.get(realm + ":" + key);
 					if ((resultStr != null)&&(!"\"null\"".equals(resultStr))) {
+						String resultStr6 = null;
+						if (false) {
+							// ugly way to fix json
 						String resultStr2 = resultStr.replaceAll(Pattern.quote("\\\""), Matcher.quoteReplacement("\""));
 						String resultStr3 = resultStr2.replaceAll(Pattern.quote("\\n"), Matcher.quoteReplacement("\n"));
 						String resultStr4 = resultStr3.replaceAll(Pattern.quote("\\\n"), Matcher.quoteReplacement("\n"));
 						String resultStr5 = resultStr4.replaceAll(Pattern.quote("\"{"), Matcher.quoteReplacement("{"));
-						String resultStr6 = resultStr5.replaceAll(Pattern.quote("}\""), Matcher.quoteReplacement("}"));
+						       resultStr6 = resultStr5.replaceAll(Pattern.quote("}\""), Matcher.quoteReplacement("}"));
+						} else {
+							resultStr6 = resultStr;
+						}
 					//	JsonObject rs2 = new JsonObject(resultStr6);
 						//String resultStr2 = resultStr.replaceAll("\\","");
 						//.replace("\\\"","\"");
