@@ -175,7 +175,7 @@ public class VertxUtils {
 					resultStr = (String) localCache.get(realm + ":" + key);
 					if ((resultStr != null)&&(!"\"null\"".equals(resultStr))) {
 						String resultStr6 = null;
-						if (false) {
+						if (true) {
 							// ugly way to fix json
 						String resultStr2 = resultStr.replaceAll(Pattern.quote("\\\""), Matcher.quoteReplacement("\""));
 						String resultStr3 = resultStr2.replaceAll(Pattern.quote("\\n"), Matcher.quoteReplacement("\n"));

@@ -64,7 +64,12 @@ public class FrameUtils2 {
 		
 		// check that the MSG got saved
 		
-		
+		QDataBaseEntityMessage FRM_MSG = VertxUtils.getObject(serviceToken.getRealm(), "", rootFrame.getCode() + "-MSG",
+				QDataBaseEntityMessage.class, serviceToken.getToken());
+
+		if (FRM_MSG == null) {
+			System.out.println("ERROR: rootFrame:"+rootFrame.getCode()+" NOT CREATED");
+		}
 		
 	}
 
@@ -86,7 +91,7 @@ public class FrameUtils2 {
 
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "-MSG", msg, serviceToken.getToken());
 		if (!askMsgs.isEmpty()) {
-		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "-ASKS", askMsgsStr,
+			VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "-ASKS", askMsgsStr,
 				serviceToken.getToken());
 		}
 	}
