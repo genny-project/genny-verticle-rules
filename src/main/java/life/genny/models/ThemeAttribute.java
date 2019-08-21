@@ -89,6 +89,10 @@ public final class ThemeAttribute implements Serializable {
 	@Expose
 	private String borderColor = null;
 	@Expose
+	private Integer borderRadius = null;
+	@Expose
+	private String borderRadiusString = null;
+	@Expose
 	private String color = null;
 	@Expose
 	private Integer size = null;
@@ -235,6 +239,20 @@ public final class ThemeAttribute implements Serializable {
 	 */
 	public String getMarginStr() {
 		return marginStr;
+	}
+	/**
+	 * @return the margin
+	 */
+	public Integer getBorderRadius() {
+		return borderRadius;
+	}
+
+	
+	/**
+	 * @return the marginStr
+	 */
+	public String getBorderRadiusString() {
+		return borderRadiusString;
 	}
 
 	/**
@@ -607,6 +625,15 @@ public final class ThemeAttribute implements Serializable {
 			managedInstance.marginStr = value;
 			return this;
 		}
+		public Builder borderRadius(Integer value) {
+			managedInstance.borderRadius = value;
+			return this;
+		}
+
+		public Builder borderRadius(String value) {
+			managedInstance.borderRadiusString = value;
+			return this;
+		}
 
 		public Builder width(Integer value) {
 			managedInstance.width = value;
@@ -874,6 +901,14 @@ public final class ThemeAttribute implements Serializable {
 			if (heightPercent != null) {
 				json.put("height", heightPercent);
 			}
+		}
+		if (borderRadius != null) {
+			json.put("borderRadius", borderRadius);
+		} else {
+			if (borderRadiusString != null) {
+				json.put("borderRadius", borderRadiusString);
+			}
+			
 		}
 		if (margin != null) {
 			json.put("margin", margin);
