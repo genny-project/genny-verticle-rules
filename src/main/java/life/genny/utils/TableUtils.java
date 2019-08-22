@@ -1,5 +1,6 @@
 package life.genny.utils;
 
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,6 +9,7 @@ import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 
+import life.genny.models.GennyToken;
 import life.genny.qwanda.Ask;
 import life.genny.qwanda.ContextType;
 import life.genny.qwanda.Question;
@@ -16,8 +18,12 @@ import life.genny.qwanda.attribute.EntityAttribute;
 import life.genny.qwanda.datatype.DataType;
 import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.entity.SearchEntity;
+import life.genny.qwanda.message.QDataBaseEntityMessage;
 import life.genny.qwanda.validation.Validation;
 import life.genny.qwanda.validation.ValidationList;
+import life.genny.qwandautils.GennySettings;
+import life.genny.qwandautils.JsonUtils;
+import life.genny.qwandautils.QwandaUtils;
 
 public class TableUtils {
 
@@ -51,6 +57,60 @@ public class TableUtils {
 		return columns;
 	}
 	
+	
+	public static QDataBaseEntityMessage  fetchSearchResults(SearchEntity searchBE, GennyToken gennyToken)
+	{
+		QDataBaseEntityMessage msg = new QDataBaseEntityMessage(new ArrayList<BaseEntity>());
+
+		if (gennyToken == null) {
+			log.error("GENNY TOKEN IS NULL!!! in getSearchResults");
+			return msg;
+		}
+		log.info("The search BE is :: " + JsonUtils.toJson(searchBE));
+
+		if (VertxUtils.cachedEnabled) {
+			
+			return msg;
+		}
+		
+		String jsonSearchBE = JsonUtils.toJson(searchBE);
+		String resultJson;
+		try {
+			resultJson = QwandaUtils.apiPostEntity(GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/search",
+					jsonSearchBE, gennyToken.getToken());
+			final BaseEntity[] items = new BaseEntity[0];
+			final String parentCode = "GRP_ROOT";
+			final String linkCode = "LINK";
+			final Long total = 0L;
+
+			if (resultJson == null) {
+				msg = new QDataBaseEntityMessage(items, parentCode, linkCode, total);
+				log.info("The result of getSearchResults was null  ::  " + msg);
+			} else {
+				try {
+					msg = JsonUtils.fromJson(resultJson, QDataBaseEntityMessage.class);
+					if (msg == null) {
+						msg = new QDataBaseEntityMessage(items, parentCode, linkCode, total);
+						log.info("The result of getSearchResults was null Exception ::  " + msg);
+					} else {
+						log.info("The result of getSearchResults was not null  ::  " + msg);
+					}
+				} catch (Exception e) {
+					log.info("The result of getSearchResults was null Exception ::  " + msg);
+					msg = new QDataBaseEntityMessage(items, parentCode, linkCode, total);
+				}
+
+			}
+
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		return msg;	
+	
+	}
+
 	
 //	public Ask generateTableHeaderAsks(SearchEntity searchBe) {
 //

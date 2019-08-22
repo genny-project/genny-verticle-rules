@@ -31,4 +31,8 @@ public class TableTest {
 		Map<String, String> columns = TableUtils.getTableColumns(searchBE);
 		log.info(columns);
 	}
+	
+	
+	
+	
 }
