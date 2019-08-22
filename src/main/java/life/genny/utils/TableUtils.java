@@ -41,10 +41,17 @@ public class TableUtils {
 	public static void sendQuestions(SearchEntity searchBe, GennyToken gennyToken,  QDataBaseEntityMessage msg)
 	{
 		log.info("Search Results for "+searchBe.getCode()+" and user "+gennyToken.getUserCode()+" = "+msg); //use  QUE_TABLE_VIEW_TEST
+		log.info("Search result items = "+msg.getReturnCount());
+		if (msg.getReturnCount()>0) {
+			BaseEntity result0 = msg.getItems()[0];
+			log.info("Search first result = "+result0);
+			if (msg.getReturnCount()>1) {
+				BaseEntity result1 = msg.getItems()[1];
+				log.info("Search second result = "+result1);
+			}
+		}
 		
-	}
-	
-	
+	}	
 	public static Map<String, String> getTableColumns(SearchEntity searchBe) {
 
 		Map<String, String> columns = new HashMap<>();
