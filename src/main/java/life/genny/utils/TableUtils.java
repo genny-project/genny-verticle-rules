@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 
+
 import life.genny.models.GennyToken;
 import life.genny.qwanda.Ask;
 import life.genny.qwanda.ContextType;
@@ -25,6 +26,7 @@ import life.genny.qwandautils.GennySettings;
 import life.genny.qwandautils.JsonUtils;
 import life.genny.qwandautils.QwandaUtils;
 
+
 public class TableUtils {
 
 	protected static final Logger log = org.apache.logging.log4j.LogManager
@@ -36,6 +38,13 @@ public class TableUtils {
 		this.beUtils = beUtils;
 	}
 
+	public static void sendQuestions(SearchEntity searchBe, GennyToken gennyToken,  QDataBaseEntityMessage msg)
+	{
+		log.info("Search Results for "+searchBe.getCode()+" and user "+gennyToken.getUserCode()+" = "+msg); //use  QUE_TABLE_VIEW_TEST
+		
+	}
+	
+	
 	public static Map<String, String> getTableColumns(SearchEntity searchBe) {
 
 		Map<String, String> columns = new HashMap<>();
@@ -66,12 +75,9 @@ public class TableUtils {
 			log.error("GENNY TOKEN IS NULL!!! in getSearchResults");
 			return msg;
 		}
+		searchBE.setRealm(gennyToken.getRealm());
 		log.info("The search BE is :: " + JsonUtils.toJson(searchBE));
 
-		if (VertxUtils.cachedEnabled) {
-			
-			return msg;
-		}
 		
 		String jsonSearchBE = JsonUtils.toJson(searchBE);
 		String resultJson;
@@ -110,6 +116,7 @@ public class TableUtils {
 		return msg;	
 	
 	}
+
 
 	
 //	public Ask generateTableHeaderAsks(SearchEntity searchBe) {
