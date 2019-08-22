@@ -21,3 +21,4 @@ src/main/resources/genny-verticle-rules-git.properties
 /.apt_generated/
 **/bin/*
 bin/
+/bin

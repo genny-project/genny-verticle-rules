@@ -157,11 +157,11 @@ public interface EventBusInterface {
 	}
 
 	public default void write(final String channel, final Object payload) throws NamingException {
-		log.info("MOCK EVT BUS WRITE: " + channel + ":" + payload);
+		log.debug("MOCK EVT BUS WRITE: " + channel + ":" + payload);
 	}
 
 	public default void send(final String channel, final Object payload) throws NamingException {
-		log.info("MOCK EVT BUS SEND: " + channel + ":" + payload);
+		log.debug("MOCK EVT BUS SEND: " + channel + ":" + payload);
 	}
 
 	public default void writeMsg(final String channel, final Object msg) throws NamingException {

@@ -38,6 +38,7 @@
 		<version.maven-source-plugin>3.0.1</version.maven-source-plugin>
 		<dropwizard.version>3.5.1</dropwizard.version>
 		<vertx-concurrent.version>1.0.0</vertx-concurrent.version>
+		<junit-version>4.12</junit-version>
 
 	</properties>
 
@@ -53,6 +54,13 @@
 	</distributionManagement>
 
 	<dependencies>
+			<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit-version}</version>
+			<scope>test</scope>
+		</dependency>
+	
 		<!-- <dependency> <groupId>org.jboss.weld.vertx</groupId> <artifactId>weld-vertx-core</artifactId> 
 			<version>${weld-vertx.version}</version> </dependency> -->
 		<dependency>

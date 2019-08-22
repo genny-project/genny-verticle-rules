@@ -13,6 +13,7 @@ import com.google.gson.annotations.Expose;
 
 import life.genny.qwanda.ContextType;
 import life.genny.qwanda.VisualControlType;
+import life.genny.qwanda.datatype.DataType;
 
 
 @Immutable
@@ -27,6 +28,8 @@ public final class QuestionTheme implements Serializable {
 	private ContextType contextType=null;
 	@Expose
 	private Double weight=null;
+	@Expose
+	private DataType dataType = null;
 	
 
 	
@@ -59,6 +62,15 @@ public final class QuestionTheme implements Serializable {
 		return theme;
 	}
 
+	
+	
+
+	/**
+	 * @return the dataType
+	 */
+	public DataType getDataType() {
+		return dataType;
+	}
 
 	/**
 	 * @return the vcl
@@ -136,6 +148,12 @@ public final class QuestionTheme implements Serializable {
 			managedInstance.vcl = value;
 			return this;
 		}
+		
+		public Builder dataType(DataType dataType) {
+			managedInstance.dataType = dataType;
+			return this;
+		}
+		
 
 		public Builder weight(Double value) { 
 			managedInstance.weight = value;
@@ -172,6 +190,7 @@ public final class QuestionTheme implements Serializable {
 		if (contextType != null) json.put("name", contextType);
 		if (vcl != null) json.put("visualControlType", vcl);
 		if (weight != null) json.put("weight", weight);
+		if (dataType != null) json.put("dataType", dataType.getTypeName());
 
 		return json;
 	}

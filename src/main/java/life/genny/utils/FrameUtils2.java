@@ -451,7 +451,7 @@ public class FrameUtils2 {
 								|| (qTheme.getCode().equals("THM_FORM_CONTAINER_DEFAULT")))) {
 							vcl = qTheme.getVcl();
 						}
-						createVirtualContext(ask, themeSet, ContextType.THEME, vcl, qTheme.getWeight());
+						Ask vAsk = createVirtualContext(ask, themeSet, ContextType.THEME, vcl, qTheme.getWeight());
 					}
 
 				}
@@ -733,6 +733,7 @@ public class FrameUtils2 {
 			if (!contextMap.containsKey(contextType)) {
 				contextMap.put(contextType, new HashSet<BaseEntity>());
 			}
+			
 			contextMap.get(contextType).add(themeBe);
 			vclMap.put(contextType, vcl);
 

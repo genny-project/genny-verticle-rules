@@ -407,7 +407,7 @@ public class BaseEntityUtils implements Serializable {
 			// log.info("Fetching BaseEntityByCode, code="+code);
 			be = VertxUtils.readFromDDT(getRealm(), code, withAttributes, this.token);
 			if (be == null) {
-				log.info("ERROR - be (" + code + ") fetched is NULL ");
+				log.info("be (" + code + ") fetched is NULL ");
 			} else {
 				this.addAttributes(be);
 			}
