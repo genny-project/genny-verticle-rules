@@ -28,8 +28,6 @@ public class TableTest {
   	     .setPageSize(10000);
 
 		
-		Map<String, String> columns = TableUtils.getTableColumns(searchBE);
-		log.info(columns);
 	}
 	
 	
