@@ -584,7 +584,7 @@ public class FrameUtils2 {
 				e1.printStackTrace();
 			}
 
-			if ((theme != null)&&(!theme.getAttributes().isEmpty())) {
+			if ((theme != null)&&(theme.getAttributes()!=null)&&(!theme.getAttributes().isEmpty())) {
 			
 			for (ThemeAttribute themeAttribute : theme.getAttributes()) {
 				Attribute attribute = null;
