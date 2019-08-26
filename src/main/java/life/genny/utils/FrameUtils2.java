@@ -68,7 +68,7 @@ public class FrameUtils2 {
 				QDataBaseEntityMessage.class, serviceToken.getToken());
 
 		if (FRM_MSG == null) {
-			System.out.println("ERROR: rootFrame:"+rootFrame.getCode()+" NOT CREATED");
+			log.info("ERROR: rootFrame:"+rootFrame.getCode()+" NOT CREATED");
 		}
 		
 	}
@@ -260,7 +260,7 @@ public class FrameUtils2 {
 		// Go through the frames and fetch them
 		for (FrameTuple3 frameTuple3 : frame.getFrames()) {
 			if (showLogs) {
-				System.out.println("Processing Frame     " + frameTuple3.getFrame().getCode());
+				log.info("Processing Frame     " + frameTuple3.getFrame().getCode());
 			}
 			Frame3 childFrame = frameTuple3.getFrame();
 			FramePosition position = frameTuple3.getFramePosition();
@@ -299,7 +299,7 @@ public class FrameUtils2 {
 
 		if (frame.getQuestionGroup() != null) {
 			if (showLogs) {
-				System.out.println("Processing Question  " + frame.getQuestionCode());
+				log.info("Processing Question  " + frame.getQuestionCode());
 			}
 			if ("PRI_FIRSTNAME".equals(frame.getQuestionCode())) {
 				log.info("Detected");
@@ -331,7 +331,7 @@ public class FrameUtils2 {
 			if (!frame.getQuestionGroup().getQuestionThemes().isEmpty()) {
 				for (QuestionTheme qTheme : frame.getQuestionGroup().getQuestionThemes()) {
 					if (showLogs) {
-						System.out.println("Question Theme: " + qTheme.getCode() + ":" + qTheme.getJson());
+						log.info("Question Theme: " + qTheme.getCode() + ":" + qTheme.getJson());
 					}
 					processQuestionThemes(askBe, qTheme, serviceToken, ask, baseEntityList, contextMap, vclMap);
 					Set<BaseEntity> themeSet = new HashSet<BaseEntity>();
@@ -406,7 +406,7 @@ public class FrameUtils2 {
 
 		if (childFrame.getQuestionGroup() != null) {
 			if (showLogs) {
-				System.out.println("Processing Question  " + childFrame.getQuestionCode());
+				log.info("Processing Question  " + childFrame.getQuestionCode());
 			}
 			if ("PRI_FIRSTNAME".equals(childFrame.getQuestionCode())) {
 				log.info("Detected");
@@ -438,7 +438,7 @@ public class FrameUtils2 {
 			if (!childFrame.getQuestionGroup().getQuestionThemes().isEmpty()) {
 				for (QuestionTheme qTheme : childFrame.getQuestionGroup().getQuestionThemes()) {
 					if (showLogs) {
-						System.out.println("Question Theme: " + qTheme.getCode() + ":" + qTheme.getJson());
+						log.info("Question Theme: " + qTheme.getCode() + ":" + qTheme.getJson());
 					}
 					processQuestionThemes(askBe, qTheme, serviceToken, ask, baseEntityList, contextMap, vclMap);
 					Set<BaseEntity> themeSet = new HashSet<BaseEntity>();
@@ -504,7 +504,7 @@ public class FrameUtils2 {
 		// Go through the theme codes and fetch the
 		for (ThemeTuple4 themeTuple4 : frame.getThemeObjects()) {
 			if (showLogs) {
-				System.out.println("Processing Theme     " + themeTuple4.getThemeCode());
+				log.info("Processing Theme     " + themeTuple4.getThemeCode());
 			}
 			String themeCode = themeTuple4.getThemeCode();
 			ThemeAttributeType themeAttribute = themeTuple4.getThemeAttributeType();
@@ -566,7 +566,7 @@ public class FrameUtils2 {
 		// Go through the theme codes and fetch the
 		for (ThemeDouble themeTuple2 : frame.getThemes()) {
 			if (showLogs) {
-				System.out.println("Processing Theme     " + themeTuple2.getTheme().getCode());
+				log.info("Processing Theme     " + themeTuple2.getTheme().getCode());
 			}
 			Theme theme = themeTuple2.getTheme();
 			Double weight = themeTuple2.getWeight();
@@ -584,13 +584,13 @@ public class FrameUtils2 {
 				e1.printStackTrace();
 			}
 
-			if (!theme.getAttributes().isEmpty()) {
+			if ((theme != null)&&(!theme.getAttributes().isEmpty())) {
 			
 			for (ThemeAttribute themeAttribute : theme.getAttributes()) {
 				Attribute attribute = null;
 
 				if (themeAttribute.getCode() == null) {
-					System.out.println("themeAttribute code is null");
+					log.info("themeAttribute code is null");
 				} else {
 					if (!VertxUtils.cachedEnabled) {
 						attribute = RulesUtils.getAttribute(themeAttribute.getCode(), gennyToken.getToken());
@@ -656,7 +656,11 @@ public class FrameUtils2 {
 
 			}
 			} else {
+				if (theme==null) {
+					log.error("Theme is null");
+				} else {
 				log.error("Theme has no attributes ");
+				}
 			}
 		}
 
@@ -676,7 +680,7 @@ public class FrameUtils2 {
 			Theme theme = qTheme.getTheme();
 			theme.setRealm(fquestion.getRealm());
 			if (showLogs) {
-				System.out.println("Processing Theme     " + theme.getCode());
+				log.info("Processing Theme     " + theme.getCode());
 			}
 			Double weight = qTheme.getWeight();
 
