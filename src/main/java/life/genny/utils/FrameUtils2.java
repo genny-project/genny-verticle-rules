@@ -574,7 +574,7 @@ public class FrameUtils2 {
 
 			if (theme == null) {
 				log.error("null pointer!");
-				;
+				return;
 			}
 			BaseEntity themeBe = null;
 			try {
@@ -584,6 +584,8 @@ public class FrameUtils2 {
 				e1.printStackTrace();
 			}
 
+			if (!theme.getAttributes().isEmpty()) {
+			
 			for (ThemeAttribute themeAttribute : theme.getAttributes()) {
 				Attribute attribute = null;
 
@@ -652,6 +654,9 @@ public class FrameUtils2 {
 				}
 				baseEntityList.add(themeBe);
 
+			}
+			} else {
+				log.error("Theme has no attributes ");
 			}
 		}
 
