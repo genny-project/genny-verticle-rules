@@ -86,8 +86,8 @@ public class FrameUtils2 {
 		QDataBaseEntityMessage msg = toMessage(rootFrame, serviceToken, askMsgs, contextListMap);
 		String askMsgsStr = JsonUtils.toJson(askMsgs);
 		// TODO, this is NOT needed, only enabkled for testing
-		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(),
-		 rootFrame, serviceToken.getToken());
+//		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(),
+//		 rootFrame, serviceToken.getToken());
 
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "-MSG", msg, serviceToken.getToken());
 		if (!askMsgs.isEmpty()) {
