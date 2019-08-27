@@ -150,7 +150,7 @@ public class FrameUtils2 {
 						}
 					}
 				}
-
+				askMsg.setToken(serviceToken.getToken());
 				asks.add(askMsg);
 			}
 		}
@@ -292,6 +292,7 @@ public class FrameUtils2 {
 
 		if (!frame.getThemes().isEmpty()) {
 			processThemes(frame, position, serviceToken, baseEntityList, childBe);
+			parent.getLinks().addAll(childBe.getLinks());
 		}
 
 		if (!frame.getThemeObjects().isEmpty()) {
