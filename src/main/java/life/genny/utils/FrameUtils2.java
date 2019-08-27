@@ -762,11 +762,29 @@ public class FrameUtils2 {
 	 */
 	public static Ask createVirtualContext(Ask ask, Set<BaseEntity> themes, ContextType linkCode,
 			life.genny.qwanda.VisualControlType visualControlType, Double weight) {
+		return createVirtualContext(ask, themes, linkCode,
+				visualControlType, weight,null);
+	}
+	/**
+	 * Embeds the list of contexts (themes, icon) into an ask and also publishes the
+	 * themes
+	 *
+	 * @param ask
+	 * @param themes
+	 * @param linkCode
+	 * @param weight
+	 * @return
+	 */
+	public static Ask createVirtualContext(Ask ask, Set<BaseEntity> themes, ContextType linkCode,
+			life.genny.qwanda.VisualControlType visualControlType, Double weight, DataType dataType) {
 
 		List<Context> completeContext = new ArrayList<>();
 
 		for (BaseEntity theme : themes) {
 			Context context = new Context(linkCode, theme, visualControlType, weight);
+			if (dataType != null) {
+				context.setDataType(dataType.getTypeName());
+			}
 			context.setRealm(ask.getRealm());
 			completeContext.add(context);
 
