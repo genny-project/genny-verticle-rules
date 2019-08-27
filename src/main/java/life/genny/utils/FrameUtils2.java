@@ -344,7 +344,7 @@ public class FrameUtils2 {
 								|| (qTheme.getCode().equals("THM_FORM_CONTAINER_DEFAULT")))) {
 							vcl = qTheme.getVcl();
 						}
-						createVirtualContext(ask, themeSet, ContextType.THEME, vcl, qTheme.getWeight());
+						createVirtualContext(ask, themeSet, ContextType.THEME, vcl, qTheme.getWeight(),qTheme.getDataType());
 					}
 
 				}
@@ -451,7 +451,7 @@ public class FrameUtils2 {
 								|| (qTheme.getCode().equals("THM_FORM_CONTAINER_DEFAULT")))) {
 							vcl = qTheme.getVcl();
 						}
-						Ask vAsk = createVirtualContext(ask, themeSet, ContextType.THEME, vcl, qTheme.getWeight());
+						Ask vAsk = createVirtualContext(ask, themeSet, ContextType.THEME, vcl, qTheme.getWeight(),qTheme.getDataType());
 					}
 
 				}
