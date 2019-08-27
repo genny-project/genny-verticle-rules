@@ -154,6 +154,7 @@ public class FrameUtils2 {
 				asks.add(askMsg);
 			}
 		}
+		msg.setToken(serviceToken.getToken());
 		return msg;
 	}
 
@@ -459,7 +460,7 @@ public class FrameUtils2 {
 			}
 			Set<EntityQuestion> entityQuestionList = askBe.getQuestions();
 
-			Link linkAsk = new Link(frame.getCode(), childFrame.getQuestionCode(), "LNK_ASK",
+			Link linkAsk = new Link(childFrame.getCode(), childFrame.getQuestionCode(), "LNK_ASK",
 					FramePosition.CENTRE.name());
 			linkAsk.setWeight(ask.getWeight());
 			EntityQuestion ee = new EntityQuestion(linkAsk);
