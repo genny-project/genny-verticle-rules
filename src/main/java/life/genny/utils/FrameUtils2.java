@@ -661,7 +661,7 @@ public class FrameUtils2 {
 				if (theme==null) {
 					log.error("Theme is null");
 				} else {
-				log.error("Theme has no attributes ");
+				log.warn("Theme has no attributes ");
 				}
 			}
 		}
