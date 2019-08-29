@@ -186,7 +186,7 @@ public class QuestionGroup implements Serializable {
 				}
 
 			} else {
-				throw new Exception("Could not load Theme - Does it exist yet?");
+				throw new Exception("Could not load Theme "+themeCode+" - Does it exist yet?");
 			}
 			Consumer<QuestionTheme> f = obj -> { managedInstance.questionThemes.add(obj);};
 
