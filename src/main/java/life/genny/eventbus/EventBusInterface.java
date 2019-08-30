@@ -157,11 +157,11 @@ public interface EventBusInterface {
 	}
 
 	public default void write(final String channel, final Object payload) throws NamingException {
-		log.info("MOCK EVT BUS WRITE: " + channel + ":" + payload);
+		log.debug("MOCK EVT BUS WRITE: " + channel + ":" + payload);
 	}
 
 	public default void send(final String channel, final Object payload) throws NamingException {
-		log.info("MOCK EVT BUS SEND: " + channel + ":" + payload);
+		log.debug("MOCK EVT BUS SEND: " + channel + ":" + payload);
 	}
 
 	public default void writeMsg(final String channel, final Object msg) throws NamingException {
@@ -239,44 +239,6 @@ public interface EventBusInterface {
 	
 	public default void publish(BaseEntity user, String channel, Object payload, final String[] filterAttributes) {
 		try {
-			JsonObject json = null;
-			try {
-				if (payload instanceof String) {
-					json = new JsonObject(payload.toString());
-				} else if (payload instanceof JsonObject) {
-					json = (JsonObject) payload;
-				} else {
-					json = new JsonObject(JsonUtils.toJson(payload));
-				}
-			} catch (Exception e) {
-				return;
-			}
-			String payloadType = json.getString("data_type");
-			if ("Ask".equals(payloadType)) {
-				JsonArray items = json.getJsonArray("items");
-				JsonObject ask = items.getJsonObject(0);
-				String targetCode = ask.getString("targetCode");
-				String questionCode = ask.getString("questionCode");
-				log.info(RulesUtils.ANSI_PURPLE + channel + ":" + user.getCode() + ":Ask:" + payload.toString().length()
-						+ ": ask about " + targetCode + ":" + questionCode);
-			} else {
-				if ("webcmds".equals(channel) || ("cmds".equals(channel))) {
-					if ("BaseEntity".equals(json.getString("data_type"))) {
-						JsonArray items = json.getJsonArray("items");
-						JsonObject be = items.getJsonObject(0);
-						String code = be.getString("code");
-						log.info(RulesUtils.ANSI_GREEN + channel + ":" + user.getCode() + ":" + ":"
-								+ payload.toString().length() + ":" + code);
-					} else {
-						log.info(RulesUtils.ANSI_CYAN + channel + ":" + user.getCode() + ":" + ":"
-								+ payload.toString().length());
-					}
-				} else {
-					log.info(RulesUtils.ANSI_CYAN + channel + ":" + user.getCode() + ":"
-							+ (json.getString("data_type") != null ? json.getString("data_type") : "") + ":"
-							+ payload.toString().length());
-				}
-			}
 			// Actually Send ....
 			switch (channel) {
 			case "event":
@@ -294,7 +256,7 @@ public interface EventBusInterface {
 			case "cmds":
 			case "webcmds":
 				payload = EventBusInterface.privacyFilter(user,payload, filterAttributes); 
-				writeMsg("webcmds", json);
+				writeMsg("webcmds", payload);
 				break;
 			case "services":
 				writeMsg("services", payload);

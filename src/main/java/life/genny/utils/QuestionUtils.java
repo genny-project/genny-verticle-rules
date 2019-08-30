@@ -355,6 +355,13 @@ public class QuestionUtils {
 						new DataType("DTT_THEME")); // this helps junit testing
 		}
 
+		if (attribute == null) {
+			log.error("Attribute DOES NOT EXIST! "+attributeCode+" creating temp");
+			// ugly
+			attribute = new Attribute(attributeCode, attributeCode,
+					new DataType("DTT_THEME")); // this helps junit testing
+			
+		}
 
 		/* We generate the question */
 		Question newQuestion = new Question(be.getCode() , be.getName(), attribute, false);

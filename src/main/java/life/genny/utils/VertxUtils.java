@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 import javax.naming.NamingException;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.logging.log4j.Logger;
 import org.kie.api.KieBase;
@@ -96,7 +97,8 @@ public class VertxUtils {
 	static public <T> T getObject(final String realm, final String keyPrefix, final String key, final Class clazz,
 			final String token) {
 		T item = null;
-		JsonObject json = readCachedJson(realm, keyPrefix + ":" + key, token);
+		String prekey = (StringUtils.isBlank(keyPrefix))?"":(keyPrefix+":");
+		JsonObject json = readCachedJson(realm, prekey + key, token);
 		if (json.getString("status").equalsIgnoreCase("ok")) {
 			String data = json.getString("value");
 			try {
@@ -118,7 +120,8 @@ public class VertxUtils {
 	static public <T> T getObject(final String realm, final String keyPrefix, final String key, final Type clazz,
 			final String token) {
 		T item = null;
-		JsonObject json = readCachedJson(realm, keyPrefix + ":" + key, token);
+		String prekey = (StringUtils.isBlank(keyPrefix))?"":(keyPrefix+":");
+		JsonObject json = readCachedJson(realm, prekey + key, token);
 		if (json.getString("status").equalsIgnoreCase("ok")) {
 			String data = json.getString("value");
 			try {
@@ -139,7 +142,9 @@ public class VertxUtils {
 	static public void putObject(final String realm, final String keyPrefix, final String key, final Object obj,
 			final String token) {
 		String data = JsonUtils.toJson(obj);
-		writeCachedJson(realm, keyPrefix + ":" + key, data, token);
+		String prekey = (StringUtils.isBlank(keyPrefix))?"":(keyPrefix+":");
+
+		writeCachedJson(realm, prekey + key, data, token);
 	}
 
 	static public JsonObject readCachedJson(final String realm, final String key) {
@@ -174,11 +179,17 @@ public class VertxUtils {
 
 					resultStr = (String) localCache.get(realm + ":" + key);
 					if ((resultStr != null)&&(!"\"null\"".equals(resultStr))) {
+						String resultStr6 = null;
+						if (false) {
+							// ugly way to fix json
 						String resultStr2 = resultStr.replaceAll(Pattern.quote("\\\""), Matcher.quoteReplacement("\""));
 						String resultStr3 = resultStr2.replaceAll(Pattern.quote("\\n"), Matcher.quoteReplacement("\n"));
 						String resultStr4 = resultStr3.replaceAll(Pattern.quote("\\\n"), Matcher.quoteReplacement("\n"));
 						String resultStr5 = resultStr4.replaceAll(Pattern.quote("\"{"), Matcher.quoteReplacement("{"));
-						String resultStr6 = resultStr5.replaceAll(Pattern.quote("}\""), Matcher.quoteReplacement("}"));
+						       resultStr6 = resultStr5.replaceAll(Pattern.quote("}\""), Matcher.quoteReplacement("}"));
+						} else {
+							resultStr6 = resultStr;
+						}
 					//	JsonObject rs2 = new JsonObject(resultStr6);
 						//String resultStr2 = resultStr.replaceAll("\\","");
 						//.replace("\\\"","\"");

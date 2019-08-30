@@ -29,6 +29,8 @@ public final class ThemeAttribute implements Serializable {
 	@Expose
 	private Integer margin = null;
 	@Expose
+	private String marginStr = null;
+	@Expose
 	private Integer marginLeft = null;
 	@Expose
 	private String marginLeftString = null;
@@ -87,6 +89,10 @@ public final class ThemeAttribute implements Serializable {
 	@Expose
 	private String borderColor = null;
 	@Expose
+	private Integer borderRadius = null;
+	@Expose
+	private String borderRadiusString = null;
+	@Expose
 	private String color = null;
 	@Expose
 	private Integer size = null;
@@ -113,11 +119,12 @@ public final class ThemeAttribute implements Serializable {
 	@Expose
 	private String alignItems = null;
 	@Expose
+
 	private String display = null;
 	@Expose
 	private String marginAuto = null;
 	
-	
+
 
 	/**
 	 * static factory method for builder
@@ -224,12 +231,35 @@ public final class ThemeAttribute implements Serializable {
 		return margin;
 	}
 
+	
+	/**
+	 * @return the marginStr
+	 */
+	public String getMarginStr() {
+		return marginStr;
+	}
+	/**
+	 * @return the margin
+	 */
+	public Integer getBorderRadius() {
+		return borderRadius;
+	}
+
+	
+	/**
+	 * @return the marginStr
+	 */
+	public String getBorderRadiusString() {
+		return borderRadiusString;
+	}
+
 	/**
 	 * @return the width
 	 */
 	public Integer getWidth() {
 		return width;
 	}
+	
 	/**
 	 * @return the dynamicWidth
 	 */
@@ -577,7 +607,9 @@ public final class ThemeAttribute implements Serializable {
 		}
 		
 		public Builder display(String value) {
+
 			managedInstance.display = value;
+
 			return this;
 		}
 
@@ -606,10 +638,25 @@ public final class ThemeAttribute implements Serializable {
 			return this;
 		}
 
+		public Builder margin(String value) {
+			managedInstance.marginStr = value;
+			return this;
+		}
+		public Builder borderRadius(Integer value) {
+			managedInstance.borderRadius = value;
+			return this;
+		}
+
+		public Builder borderRadius(String value) {
+			managedInstance.borderRadiusString = value;
+			return this;
+		}
+
 		public Builder width(Integer value) {
 			managedInstance.width = value;
 			return this;
 		}
+
 		public Builder dynamicWidth(Boolean value) {
 			managedInstance.dynamicWidth = value;
 			return this;
@@ -766,6 +813,7 @@ public final class ThemeAttribute implements Serializable {
 			return this;
 		}
 
+
 		public Builder marginTop(Integer value) {
 			managedInstance.marginTop = value;
 			return this;
@@ -828,6 +876,8 @@ public final class ThemeAttribute implements Serializable {
 
 	public JSONObject getJsonObject() {
 		JSONObject json = new JSONObject();
+		if (display != null)
+			json.put("display", display);
 		if (fit != null)
 			json.put("fit", fit);
 		if (overflowX != null)
@@ -878,8 +928,22 @@ public final class ThemeAttribute implements Serializable {
 				json.put("height", heightPercent);
 			}
 		}
-		if (margin != null)
+		if (borderRadius != null) {
+			json.put("borderRadius", borderRadius);
+		} else {
+			if (borderRadiusString != null) {
+				json.put("borderRadius", borderRadiusString);
+			}
+			
+		}
+		if (margin != null) {
 			json.put("margin", margin);
+		} else {
+			if (marginStr != null) {
+				json.put("margin", marginStr);
+			}
+			
+		}
 		if (marginLeft != null){
 			json.put("marginLeft", marginLeft);
 		}else {

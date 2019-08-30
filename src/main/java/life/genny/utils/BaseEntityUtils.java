@@ -276,7 +276,9 @@ public class BaseEntityUtils implements Serializable {
 
 		try {
 			this.updateCachedBaseEntity(answer);
-			QwandaUtils.apiPostEntity(qwandaServiceUrl + "/qwanda/answers", JsonUtils.toJson(answer), this.token);
+			if (!VertxUtils.cachedEnabled) {  // only post if not in junit
+				QwandaUtils.apiPostEntity(qwandaServiceUrl + "/qwanda/answers", JsonUtils.toJson(answer), this.token);
+			}
 			// Now update the Cache
 
 		} catch (IOException e) {
@@ -303,7 +305,9 @@ public class BaseEntityUtils implements Serializable {
 			// jsonAnswer.replace("\\\"", "\"");
 
 			try {
-				QwandaUtils.apiPostEntity(this.qwandaServiceUrl + "/qwanda/answers/bulk2", jsonAnswer, token);
+				if (!VertxUtils.cachedEnabled) {  // only post if not in junit
+					QwandaUtils.apiPostEntity(this.qwandaServiceUrl + "/qwanda/answers/bulk2", jsonAnswer, token);
+				}
 			} catch (IOException e) {
 				log.error("Socket error trying to post answer");
 			}
@@ -403,7 +407,7 @@ public class BaseEntityUtils implements Serializable {
 			// log.info("Fetching BaseEntityByCode, code="+code);
 			be = VertxUtils.readFromDDT(getRealm(), code, withAttributes, this.token);
 			if (be == null) {
-				log.info("ERROR - be (" + code + ") fetched is NULL ");
+				log.info("be (" + code + ") fetched is NULL ");
 			} else {
 				this.addAttributes(be);
 			}
