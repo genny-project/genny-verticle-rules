@@ -109,6 +109,8 @@ public final class ThemeAttribute implements Serializable {
 	@Expose
 	private String textAlign = null;
 	@Expose
+	private String alignSelf = null;
+	@Expose
 	private Boolean valueBoolean = null;
 	@Expose
 	private Integer valueInteger = null;
@@ -119,21 +121,12 @@ public final class ThemeAttribute implements Serializable {
 	@Expose
 	private String alignItems = null;
 	@Expose
-	private String display=null;
-	
-	/**
-	 * @return the display
-	 */
-	public String getDisplay() {
-		return display;
-	}
 
-	/**
-	 * @param display the display to set
-	 */
-	public void setDisplay(String display) {
-		this.display = display;
-	}
+	private String display = null;
+	@Expose
+	private String marginAuto = null;
+	
+
 
 	/**
 	 * static factory method for builder
@@ -164,6 +157,13 @@ public final class ThemeAttribute implements Serializable {
 	 */
 	public Integer getFlexGrow() {
 		return flexGrow;
+	}
+	
+	/**
+	 * @return the display
+	 */
+	public String getDisplay() {
+		return display;
 	}
 
 	/**
@@ -279,6 +279,18 @@ public final class ThemeAttribute implements Serializable {
 			return width + "";
 		}
 	}
+	
+	/**
+	 * @return the margin
+	 */
+	public String getMarginAuto() {
+		if (margin == null) {
+			return marginAuto != null ? marginAuto : "auto";
+		} else {
+			return margin + "";
+		}
+	}
+	
 	/**
 	 * @return the marginLeftString
 	 */
@@ -500,6 +512,12 @@ public final class ThemeAttribute implements Serializable {
 	public String getTextAlign() {
 		return textAlign;
 	}
+	/**
+	 * @return the alignSelf
+	 */
+	public String getAlignSelf() {
+		return alignSelf;
+	}
 
 	/**
 	 * @return the valueBoolean
@@ -585,6 +603,11 @@ public final class ThemeAttribute implements Serializable {
 			managedInstance.flexShrink = value;
 			return this;
 		}
+		
+		public Builder margin(String value) {
+			managedInstance.marginAuto = value; // should check format
+			return this;
+		}
 
 		public Builder flexBasis(String value) {
 			managedInstance.flexBasis = value;
@@ -592,7 +615,9 @@ public final class ThemeAttribute implements Serializable {
 		}
 		
 		public Builder display(String value) {
-			managedInstance.flexBasis = value;
+
+			managedInstance.display = value;
+
 			return this;
 		}
 
@@ -785,6 +810,10 @@ public final class ThemeAttribute implements Serializable {
 			managedInstance.textAlign = value;
 			return this;
 		}
+		public Builder alignSelf(String value) {
+			managedInstance.alignSelf = value;
+			return this;
+		}
 
 		public Builder size(Integer value) {
 			managedInstance.size = value;
@@ -869,6 +898,8 @@ public final class ThemeAttribute implements Serializable {
 			json.put("overflowY", overflowY);
 		if (textAlign != null)
 			json.put("textAlign", textAlign);
+		if (alignSelf != null)
+			json.put("alignSelf", alignSelf);
 		if (flexDirection != null)
 			json.put("flexDirection", flexDirection);
 		if (flexGrow != null)
@@ -879,6 +910,8 @@ public final class ThemeAttribute implements Serializable {
 			json.put("flexBasis", flexBasis);
 		if (justifyContent != null)
 			json.put("justifyContent", justifyContent);
+		if (display != null)
+			json.put("display", display);
 		if (backgroundColor != null)
 			json.put("backgroundColor", backgroundColor);
 		if (shadowColor != null)
@@ -892,6 +925,13 @@ public final class ThemeAttribute implements Serializable {
 		} else {
 			if (widthPercent != null) {
 				json.put("width", widthPercent);
+			}
+		}
+		if (margin != null) {
+			json.put("margin", margin);
+		} else {
+			if (marginAuto != null) {
+				json.put("margin", marginAuto);
 			}
 		}
 
