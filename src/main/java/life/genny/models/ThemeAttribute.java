@@ -109,6 +109,8 @@ public final class ThemeAttribute implements Serializable {
 	@Expose
 	private String textAlign = null;
 	@Expose
+	private String alignSelf = null;
+	@Expose
 	private Boolean valueBoolean = null;
 	@Expose
 	private Integer valueInteger = null;
@@ -510,6 +512,12 @@ public final class ThemeAttribute implements Serializable {
 	public String getTextAlign() {
 		return textAlign;
 	}
+	/**
+	 * @return the alignSelf
+	 */
+	public String getAlignSelf() {
+		return alignSelf;
+	}
 
 	/**
 	 * @return the valueBoolean
@@ -802,6 +810,10 @@ public final class ThemeAttribute implements Serializable {
 			managedInstance.textAlign = value;
 			return this;
 		}
+		public Builder alignSelf(String value) {
+			managedInstance.alignSelf = value;
+			return this;
+		}
 
 		public Builder size(Integer value) {
 			managedInstance.size = value;
@@ -886,6 +898,8 @@ public final class ThemeAttribute implements Serializable {
 			json.put("overflowY", overflowY);
 		if (textAlign != null)
 			json.put("textAlign", textAlign);
+		if (alignSelf != null)
+			json.put("alignSelf", alignSelf);
 		if (flexDirection != null)
 			json.put("flexDirection", flexDirection);
 		if (flexGrow != null)
