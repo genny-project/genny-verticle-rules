@@ -604,10 +604,6 @@ public final class ThemeAttribute implements Serializable {
 			return this;
 		}
 		
-		public Builder margin(String value) {
-			managedInstance.marginAuto = value; // should check format
-			return this;
-		}
 
 		public Builder flexBasis(String value) {
 			managedInstance.flexBasis = value;
