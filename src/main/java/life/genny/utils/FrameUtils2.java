@@ -64,7 +64,7 @@ public class FrameUtils2 {
 		
 		// check that the MSG got saved
 		
-		QDataBaseEntityMessage FRM_MSG = VertxUtils.getObject(serviceToken.getRealm(), "", rootFrame.getCode() + "-MSG",
+		QDataBaseEntityMessage FRM_MSG = VertxUtils.getObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG",
 				QDataBaseEntityMessage.class, serviceToken.getToken());
 
 		if (FRM_MSG == null) {
@@ -89,9 +89,9 @@ public class FrameUtils2 {
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(),
 		 rootFrame, serviceToken.getToken());
 
-		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "-MSG", msg, serviceToken.getToken());
+		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG", msg, serviceToken.getToken());
 		if (!askMsgs.isEmpty()) {
-			VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "-ASKS", askMsgsStr,
+			VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_ASKS", askMsgsStr,
 				serviceToken.getToken());
 		}
 	}
