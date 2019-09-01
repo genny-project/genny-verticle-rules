@@ -18,7 +18,7 @@ import life.genny.utils.VertxUtils;
 
 
 
-@Immutable
+//@Immutable
 public class QuestionGroup implements Serializable {
 	@Expose
 	private String code;
@@ -53,6 +53,13 @@ public class QuestionGroup implements Serializable {
 	}
 
 
+
+	/**
+	 * @param code the code to set
+	 */
+	public void setCode(String code) {
+		this.code = code;
+	}
 
 	/**
 	 * @return the name

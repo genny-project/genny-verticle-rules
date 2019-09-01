@@ -59,6 +59,16 @@ public class Frame3 extends BaseEntity implements Serializable {
 	private List<Frame3> frame3s;
 	@Expose
 	private List<Theme> theme3s;
+	
+	/**
+	 * @return the questionCode
+	 */
+	public void setQuestionCode(final String questionCode) {
+		this.questionCode = questionCode;
+		if (this.questionGroup!=null) {
+			this.questionGroup.setCode(questionCode);
+		}
+	}
 
 	/**
 	 * static factory method for builder that never needs to load in a theme or a
@@ -74,6 +84,9 @@ public class Frame3 extends BaseEntity implements Serializable {
 	private Frame3() {
 	}
 
+
+	
+	
 	/**
 	 * @return the questionCode
 	 */

@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import life.genny.models.Frame3;
 import life.genny.models.GennyToken;
 import life.genny.models.TableData;
+import life.genny.models.Theme;
 import life.genny.qwanda.Ask;
 import life.genny.qwanda.Context;
 import life.genny.qwanda.ContextList;
@@ -35,7 +36,6 @@ import life.genny.qwanda.validation.ValidationList;
 import life.genny.qwandautils.GennySettings;
 import life.genny.qwandautils.JsonUtils;
 import life.genny.qwandautils.QwandaUtils;
-
 
 public class TableUtils {
 
@@ -186,6 +186,7 @@ public class TableUtils {
 
 		Attribute eventAttribute = RulesUtils.attributeMap.get("PRI_SORT");
 		Attribute questionAttribute = RulesUtils.attributeMap.get("QQQ_QUESTION_GROUP");
+		Attribute tableCellAttribute = RulesUtils.attributeMap.get("QQQ_QUESTION_GROUP_TABLE_CELL");
 
 		/* get table columns */
 		Map<String, String> columns = getTableColumns(searchBe);
@@ -204,7 +205,7 @@ public class TableUtils {
 
 			/* Initialize Column Header Ask group */
 			Question columnHeaderQuestion = new Question("QUE_" + attributeCode + "_GRP", attributeName,
-					questionAttribute, true);
+			tableCellAttribute, true);
 			Ask columnHeaderAsk = new Ask(columnHeaderQuestion, beUtils.getGennyToken().getUserCode(), searchBe.getCode());
 
 			/* creating ask for table header label-sort */
@@ -352,18 +353,37 @@ public class TableUtils {
 	 * @param serviceToken
 	 * @return
 	 */
-	public static QDataBaseEntityMessage changeQuestion(final String frameCode, final String questionCode,GennyToken serviceToken) {
-		Frame3 FRM_TABLE_HEADER = null;
+	public static QDataBaseEntityMessage changeQuestion(final String frameCode, final String questionCode,GennyToken serviceToken,GennyToken userToken,Set<QDataAskMessage> askMsgs ) {
+		Frame3 frame = null;
 		try {
-			FRM_TABLE_HEADER = Frame3.builder("FRM_TABLE_HEADER")
-			        .addTheme("THM_TABLE_HEADER",serviceToken).end()
+
+			Validation tableCellValidation = new Validation("VLD_ANYTHING", "Anything", ".*");
+        
+			List<Validation> tableCellValidations = new ArrayList<>();
+			tableCellValidations.add(tableCellValidation);
+			
+			ValidationList tableCellValidationList = new ValidationList();
+			tableCellValidationList.setValidationList(tableCellValidations);
+
+			DataType tableCellDataType = new DataType("DTT_TABLE_CELL_GRP", tableCellValidationList, "Table Cell Group", "");
+
+//			frame = VertxUtils.getObject(serviceToken.getRealm(), "", frameCode,
+//					Frame3.class, userToken.getToken());//generateHeader();
+
+//			frame.setQuestionCode(questionCode);
+			
+			frame = Frame3.builder(frameCode)
 			        .addTheme("THM_TABLE_BORDER",serviceToken).end()
 			         .question(questionCode) // QUE_NAME_GRP //QUE_POWERED_BY_GRP
-			              .addTheme("THM_DISPLAY_HORIZONTAL", serviceToken).end()
-			              .addTheme("THM_TABLE_HEADER_CELL_WRAPPER",serviceToken).vcl(VisualControlType.VCL_WRAPPER).end()
-			              .addTheme("THM_TABLE_HEADER_CELL_INPUT",serviceToken).vcl(VisualControlType.VCL_INPUT).end()
+									.addTheme("THM_QUESTION_GRP_LABEL", serviceToken).vcl(VisualControlType.GROUP).dataType(tableCellDataType).end()
+									.addTheme("THM_DISPLAY_HORIZONTAL", serviceToken).weight(2.0).end()
+									.addTheme("THM_TABLE_HEADER_CELL_WRAPPER", serviceToken).vcl(VisualControlType.VCL_WRAPPER).end()
+									.addTheme("THM_TABLE_HEADER_CELL_GROUP_LABEL", serviceToken).vcl(VisualControlType.GROUP_LABEL).end()
+									.addTheme("THM_DISPLAY_VERTICAL", serviceToken).dataType(tableCellDataType).weight(1.0).end()
 			         .end()
 			         .build();
+			
+ 
 			
 			
 		} catch (Exception e1) {
@@ -371,14 +391,9 @@ public class TableUtils {
 			e1.printStackTrace();
 		}
 	 			     
-		Set<QDataAskMessage> askMsgs = new HashSet<QDataAskMessage>();      	                
-		QDataBaseEntityMessage msg = FrameUtils2.toMessage(FRM_TABLE_HEADER, serviceToken, askMsgs);
+		QDataBaseEntityMessage msg = FrameUtils2.toMessage(frame, serviceToken, askMsgs);
 		msg.setReplace(true);
 		
-	    for (QDataAskMessage askMsg : askMsgs) {
-	    	askMsg.setToken(serviceToken.getToken());
-	    	VertxUtils.writeMsg("webcmds", JsonUtils.toJson(askMsg));
-	    }
 
 		
 		String rootFrameCode = frameCode;
@@ -391,10 +406,10 @@ public class TableUtils {
 				/* Adding the links in the targeted BaseEntity */
 				Attribute attribute = new Attribute("LNK_ASK", "LNK_ASK", new DataType(String.class));
 
-				for (BaseEntity sourceFrame : msg.getItems()) {
+ 				for (BaseEntity sourceFrame : msg.getItems()) {
 					if (sourceFrame.getCode().equals(rootFrameCode)) {
 
-						System.out.println("ShowFrame : Found Source Frame BaseEntity : " + sourceFrame);
+						log.info("ShowFrame : Found Source Frame BaseEntity : " + sourceFrame);
 						EntityEntity entityEntity = new EntityEntity(sourceFrame, targetFrame, attribute,
 								1.0, "CENTRE");
 						//Set<EntityEntity> entEntList = sourceFrame.getLinks();
@@ -409,6 +424,7 @@ public class TableUtils {
 				break;
 			}
 		}
+		msg.setToken(userToken.getToken());
 		return msg;
 	}
 }
