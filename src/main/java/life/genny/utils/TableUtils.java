@@ -427,4 +427,35 @@ public class TableUtils {
 		msg.setToken(userToken.getToken());
 		return msg;
 	}
+	
+	public static void performSearch(GennyToken serviceToken , BaseEntityUtils beUtils, SearchEntity searchBE)
+	{
+		TableUtils tableUtils = new TableUtils(beUtils);
+ 	     QDataBaseEntityMessage  msg = tableUtils.fetchSearchResults(searchBE,beUtils.getGennyToken());
+  	     
+  	     
+  	     TableData tableData = tableUtils.generateTableAsks(searchBE,beUtils.getGennyToken(),  msg);
+  	     VertxUtils.writeMsg("webcmds", JsonUtils.toJson(msg));
+  	     
+      		  		
+         Ask headerAsk = tableData.getAsk();
+      	 Ask[] askArray = new Ask[1];
+      	 askArray[0] = headerAsk;
+      	 QDataAskMessage headerAskMsg = new QDataAskMessage(askArray);
+      	 headerAskMsg.setToken(beUtils.getGennyToken().getToken());
+      	 VertxUtils.writeMsg("webcmds", JsonUtils.toJson(headerAskMsg));
+      	 String headerAskCode = headerAsk.getQuestionCode();
+  	     
+    		Set<QDataAskMessage> askMsgs = new HashSet<QDataAskMessage>();
+  		  	msg = TableUtils.changeQuestion("FRM_TABLE_HEADER",headerAskCode,serviceToken,beUtils.getGennyToken(),askMsgs);
+  			    for (QDataAskMessage askMsg : askMsgs) {
+  			    	askMsg.setToken(beUtils.getGennyToken().getToken());
+  			    	askMsg.getItems()[0] = headerAsk;
+  			    	VertxUtils.writeMsg("webcmds", JsonUtils.toJson(askMsg));
+  			    }
+                
+      	                
+      	 VertxUtils.writeMsg("webcmds", JsonUtils.toJson(msg));
+	}
+	
 }
