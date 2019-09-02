@@ -273,7 +273,9 @@ public class FrameUtils2 {
 			Frame3 childFrame = frameTuple3.getFrame();
 			FramePosition position = frameTuple3.getFramePosition();
 			Double weight = frameTuple3.getWeight();
-
+			if (frame.getWeight()!=null) {
+				weight = frame.getWeight();
+			}
 			childFrame.setParent(parent); // Set the parent sop that we can link the childs themes to it.
 
 			processAskAlias(frame, serviceToken, baseEntityList, parent, askList, childFrame, position, weight);

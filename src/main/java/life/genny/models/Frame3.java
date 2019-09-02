@@ -244,6 +244,7 @@ public class Frame3 extends BaseEntity implements Serializable {
 			return addFrame(frameCode, FramePosition.CENTRE, serviceToken);
 		}
 
+	
 		/**
 		 * fluent setter for frameCodes in the list
 		 *
