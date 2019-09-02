@@ -59,6 +59,8 @@ public class Frame3 extends BaseEntity implements Serializable {
 	private List<Frame3> frame3s;
 	@Expose
 	private List<Theme> theme3s;
+	@Expose
+	private Double weight;
 	
 	/**
 	 * @return the questionCode
@@ -69,6 +71,20 @@ public class Frame3 extends BaseEntity implements Serializable {
 			this.questionGroup.setCode(questionCode);
 		}
 	}
+
+	
+	
+	public Double getWeight() {
+		return weight;
+	}
+
+
+
+	public void setWeight(Double weight) {
+		this.weight = weight;
+	}
+
+
 
 	/**
 	 * static factory method for builder that never needs to load in a theme or a
@@ -189,7 +205,7 @@ public class Frame3 extends BaseEntity implements Serializable {
 			FrameTuple3 frameTuple = new FrameTuple3(managedInstance, FramePosition.CENTRE, b.frameWeight);
 			b.managedInstance.frames.add(frameTuple);
 			b.frameWeight = b.frameWeight + 1.0;
-
+			managedInstance.setWeight(frameWeight);
 			parentBuilder = b;
 			callback = c;
 		}
@@ -199,6 +215,7 @@ public class Frame3 extends BaseEntity implements Serializable {
 			FrameTuple3 frameTuple = new FrameTuple3(managedInstance, position, b.frameWeight);
 			b.managedInstance.frames.add(frameTuple);
 			b.frameWeight = b.frameWeight + 1.0;
+			managedInstance.setWeight(frameWeight);
 
 			parentBuilder = b;
 			callback = c;
@@ -209,6 +226,7 @@ public class Frame3 extends BaseEntity implements Serializable {
 			FrameTuple3 frameTuple = new FrameTuple3(managedInstance, position, b.frameWeight);
 			b.managedInstance.frames.add(frameTuple);
 			b.frameWeight = b.frameWeight + 1.0;
+			managedInstance.setWeight(frameWeight);
 
 			parentBuilder = b;
 			callback = c;
