@@ -29,6 +29,7 @@ import life.genny.models.ThemeAttributeType;
 import life.genny.models.ThemeDouble;
 import life.genny.models.ThemePosition;
 import life.genny.models.ThemeTuple4;
+import life.genny.qwanda.Answer;
 import life.genny.qwanda.Ask;
 import life.genny.qwanda.Context;
 
@@ -81,6 +82,7 @@ public class FrameUtils2 {
 
 	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken,
 			Map<String, ContextList> contextListMap) {
+		BaseEntityUtils beUtils = new BaseEntityUtils(serviceToken);
 
 		Set<QDataAskMessage> askMsgs = new HashSet<QDataAskMessage>();
 		QDataBaseEntityMessage msg = toMessage(rootFrame, serviceToken, askMsgs, contextListMap);
@@ -88,11 +90,16 @@ public class FrameUtils2 {
 		// TODO, this is NOT needed, only enabkled for testing
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(),
 		 rootFrame, serviceToken.getToken());
+		beUtils.saveAnswer(new Answer("RUL_"+rootFrame.getCode().toUpperCase(), "RUL_"+rootFrame.getCode().toUpperCase(), "PRI_FRM",JsonUtils.toJson(rootFrame)));
+
 
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG", msg, serviceToken.getToken());
+		beUtils.saveAnswer(new Answer("RUL_"+rootFrame.getCode().toUpperCase(), "RUL_"+rootFrame.getCode().toUpperCase(), "PRI_MSG",JsonUtils.toJson(msg)));
 		if (!askMsgs.isEmpty()) {
 			VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_ASKS", askMsgsStr,
 				serviceToken.getToken());
+			beUtils.saveAnswer(new Answer("RUL_"+rootFrame.getCode().toUpperCase(), "RUL_"+rootFrame.getCode().toUpperCase(), "PRI_ASKS",askMsgsStr));
+
 		}
 	}
 
