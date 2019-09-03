@@ -874,6 +874,11 @@ public final class ThemeAttribute implements Serializable {
 			managedInstance.flexBasis = value;
 			return this;
 		}
+		public Builder flexBasis(String value) {
+			managedInstance.flexBasisString = value;
+			return this;
+		}
+
 		public Builder flex(Integer value) {
 			managedInstance.flex = value;
 			return this;

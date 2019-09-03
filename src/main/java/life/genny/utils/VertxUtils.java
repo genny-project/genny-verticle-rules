@@ -40,6 +40,7 @@ import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.message.QBulkMessage;
 import life.genny.qwanda.message.QDataBaseEntityMessage;
 import life.genny.qwanda.message.QEventMessage;
+import life.genny.qwanda.message.QMessage;
 import life.genny.qwandautils.GennyCacheInterface;
 import life.genny.qwandautils.GennySettings;
 import life.genny.qwandautils.JsonUtils;
@@ -97,14 +98,14 @@ public class VertxUtils {
 	static public <T> T getObject(final String realm, final String keyPrefix, final String key, final Class clazz,
 			final String token) {
 		T item = null;
-		String prekey = (StringUtils.isBlank(keyPrefix))?"":(keyPrefix+":");
+		String prekey = (StringUtils.isBlank(keyPrefix)) ? "" : (keyPrefix + ":");
 		JsonObject json = readCachedJson(realm, prekey + key, token);
 		if (json.getString("status").equalsIgnoreCase("ok")) {
 			String data = json.getString("value");
 			try {
 				item = (T) JsonUtils.fromJson(data, clazz);
 			} catch (Exception e) {
-				System.out.println("Bad JsonUtils "+realm+":"+key+":"+clazz.getTypeName());
+				System.out.println("Bad JsonUtils " + realm + ":" + key + ":" + clazz.getTypeName());
 			}
 			return item;
 		} else {
@@ -120,14 +121,14 @@ public class VertxUtils {
 	static public <T> T getObject(final String realm, final String keyPrefix, final String key, final Type clazz,
 			final String token) {
 		T item = null;
-		String prekey = (StringUtils.isBlank(keyPrefix))?"":(keyPrefix+":");
+		String prekey = (StringUtils.isBlank(keyPrefix)) ? "" : (keyPrefix + ":");
 		JsonObject json = readCachedJson(realm, prekey + key, token);
 		if (json.getString("status").equalsIgnoreCase("ok")) {
 			String data = json.getString("value");
 			try {
 				item = (T) JsonUtils.fromJson(data, clazz);
 			} catch (Exception e) {
-				System.out.println("Bad JsonUtils "+realm+":"+key+":"+clazz.getTypeName());
+				System.out.println("Bad JsonUtils " + realm + ":" + key + ":" + clazz.getTypeName());
 			}
 			return item;
 		} else {
@@ -142,7 +143,7 @@ public class VertxUtils {
 	static public void putObject(final String realm, final String keyPrefix, final String key, final Object obj,
 			final String token) {
 		String data = JsonUtils.toJson(obj);
-		String prekey = (StringUtils.isBlank(keyPrefix))?"":(keyPrefix+":");
+		String prekey = (StringUtils.isBlank(keyPrefix)) ? "" : (keyPrefix + ":");
 
 		writeCachedJson(realm, prekey + key, data, token);
 	}
@@ -178,27 +179,31 @@ public class VertxUtils {
 					realm = temp.getRealm();
 
 					resultStr = (String) localCache.get(realm + ":" + key);
-					if ((resultStr != null)&&(!"\"null\"".equals(resultStr))) {
+					if ((resultStr != null) && (!"\"null\"".equals(resultStr))) {
 						String resultStr6 = null;
 						if (false) {
 							// ugly way to fix json
-						String resultStr2 = resultStr.replaceAll(Pattern.quote("\\\""), Matcher.quoteReplacement("\""));
-						String resultStr3 = resultStr2.replaceAll(Pattern.quote("\\n"), Matcher.quoteReplacement("\n"));
-						String resultStr4 = resultStr3.replaceAll(Pattern.quote("\\\n"), Matcher.quoteReplacement("\n"));
-						String resultStr5 = resultStr4.replaceAll(Pattern.quote("\"{"), Matcher.quoteReplacement("{"));
-						       resultStr6 = resultStr5.replaceAll(Pattern.quote("}\""), Matcher.quoteReplacement("}"));
+							String resultStr2 = resultStr.replaceAll(Pattern.quote("\\\""),
+									Matcher.quoteReplacement("\""));
+							String resultStr3 = resultStr2.replaceAll(Pattern.quote("\\n"),
+									Matcher.quoteReplacement("\n"));
+							String resultStr4 = resultStr3.replaceAll(Pattern.quote("\\\n"),
+									Matcher.quoteReplacement("\n"));
+							String resultStr5 = resultStr4.replaceAll(Pattern.quote("\"{"),
+									Matcher.quoteReplacement("{"));
+							resultStr6 = resultStr5.replaceAll(Pattern.quote("}\""), Matcher.quoteReplacement("}"));
 						} else {
 							resultStr6 = resultStr;
 						}
-					//	JsonObject rs2 = new JsonObject(resultStr6);
-						//String resultStr2 = resultStr.replaceAll("\\","");
-						//.replace("\\\"","\"");
+						// JsonObject rs2 = new JsonObject(resultStr6);
+						// String resultStr2 = resultStr.replaceAll("\\","");
+						// .replace("\\\"","\"");
 						JsonObject resultJson = new JsonObject().put("status", "ok").put("value", resultStr6);
 						resultStr = resultJson.toString();
-					}  else {
+					} else {
 						resultStr = null;
 					}
-					
+
 				} else {
 					resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/" + realm + "/" + key, token);
 				}
@@ -279,7 +284,8 @@ public class VertxUtils {
 			}
 		} else {
 			// fetch normally
-			//System.out.println("Cache MISS for " + code + " with attributes in realm  " + realm);
+			// System.out.println("Cache MISS for " + code + " with attributes in realm " +
+			// realm);
 			if (cachedEnabled) {
 				log.info("Local Cache being used.. this is NOT production");
 				// force
@@ -293,21 +299,22 @@ public class VertxUtils {
 				}
 			} else {
 
-			try {
-				if (withAttributes) {
-					be = QwandaUtils.getBaseEntityByCodeWithAttributes(code, token);
-				} else {
-					be = QwandaUtils.getBaseEntityByCode(code, token);
-				}
-			} catch (Exception e) {
-				// Okay, this is bad. Usually the code is not in the database but in keycloak
-				// So lets leave it to the rules to sort out... (new user)
-				log.error("BE " + code + " for realm " + realm + " is NOT IN CACHE OR DB " + e.getLocalizedMessage());
-				return null;
+				try {
+					if (withAttributes) {
+						be = QwandaUtils.getBaseEntityByCodeWithAttributes(code, token);
+					} else {
+						be = QwandaUtils.getBaseEntityByCode(code, token);
+					}
+				} catch (Exception e) {
+					// Okay, this is bad. Usually the code is not in the database but in keycloak
+					// So lets leave it to the rules to sort out... (new user)
+					log.error(
+							"BE " + code + " for realm " + realm + " is NOT IN CACHE OR DB " + e.getLocalizedMessage());
+					return null;
 
-			}
-			
-			writeCachedJson(realm, code, JsonUtils.toJson(be));
+				}
+
+				writeCachedJson(realm, code, JsonUtils.toJson(be));
 			}
 		}
 		return be;
@@ -491,17 +498,23 @@ public class VertxUtils {
 		msg.setToken(token);
 		eb.publish(user, channel, msg, null);
 	}
+
 	static public JsonObject writeMsg(String channel, Object payload) {
+		JsonObject result = null;
+		JsonObject msg = (JsonObject) JsonUtils.fromJson(((JsonObject)payload).toString(),JsonObject.class);
+		if (!StringUtils.isBlank(msg.getString("token"))) {
+			try {
+				eb.writeMsg(channel, payload);
+			} catch (NamingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
-		try {
-			eb.writeMsg(channel, payload);
-		} catch (NamingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			result = new JsonObject().put("status", "ok");
+		} else {
+			result = new JsonObject().put("status", "error");
 		}
-
-		JsonObject ok = new JsonObject().put("status", "ok");
-		return ok;
+		return result;
 
 	}
 
