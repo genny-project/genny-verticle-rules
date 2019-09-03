@@ -21,7 +21,13 @@ public final class ThemeAttribute implements Serializable {
 	@Expose
 	private Integer flexShrink = null;
 	@Expose
-	private String flexBasis = null;
+	private Integer flexBasis = null;
+	@Expose
+	private String flexBasisString = null;
+	@Expose
+	private Integer flex = null;
+	@Expose
+	private String flexString = null;
 	@Expose
 	private String justifyContent = null;
 	@Expose
@@ -178,7 +184,7 @@ public final class ThemeAttribute implements Serializable {
 	/**
 	 * @return the flexBasis
 	 */
-	public String getFlexBasis() {
+	public Integer getFlexBasis() {
 		return flexBasis;
 	}
 
@@ -289,6 +295,26 @@ public final class ThemeAttribute implements Serializable {
 			return marginLeftString != null ? marginLeftString : "initial";
 		} else {
 			return marginLeft + "";
+		}
+	}
+	/**
+	 * @return the flexBasisString
+	 */
+	public String getflexBasisString() {
+		if (flexBasis == null) {
+			return flexBasisString != null ? flexBasisString : "auto";
+		} else {
+			return flexBasis + "";
+		}
+	}
+	/**
+	 * @return the flexString
+	 */
+	public String getflexString() {
+		if (flex == null) {
+			return flexString != null ? flexString : "auto";
+		} else {
+			return flex + "";
 		}
 	}
 	/**
@@ -443,6 +469,19 @@ public final class ThemeAttribute implements Serializable {
 		return marginLeft;
 	}
 	/**
+	 * @return the flexBasis
+	 */
+	public Integer getflexBasis() {
+		return flexBasis;
+	}
+
+	/**
+	 * @return the flex
+	 */
+	public Integer getflex() {
+		return flex;
+	}
+	/**
 	 * @return the marginRightString
 	 */
 	public Integer getMarginRight() {
@@ -593,14 +632,9 @@ public final class ThemeAttribute implements Serializable {
 			managedInstance.flexShrink = value;
 			return this;
 		}
-
-		public Builder flexBasis(String value) {
-			managedInstance.flexBasis = value;
-			return this;
-		}
 		
 		public Builder display(String value) {
-			managedInstance.flexBasis = value;
+			managedInstance.display = value;
 			return this;
 		}
 
@@ -826,6 +860,22 @@ public final class ThemeAttribute implements Serializable {
 			managedInstance.marginLeftString = value; // should check format
 			return this;
 		}
+		public Builder flexBasis(Integer value) {
+			managedInstance.flexBasis = value;
+			return this;
+		}
+		public Builder flexBasis(String value) {
+			managedInstance.flexBasisString = value; // should check format
+			return this;
+		}
+		public Builder flex(Integer value) {
+			managedInstance.flex = value;
+			return this;
+		}
+		public Builder flex(String value) {
+			managedInstance.flexString = value; // should check format
+			return this;
+		}
 		public Builder marginRight(Integer value) {
 			managedInstance.marginRight = value;
 			return this;
@@ -889,8 +939,6 @@ public final class ThemeAttribute implements Serializable {
 			json.put("flexGrow", flexGrow);
 		if (flexShrink != null)
 			json.put("flexShrink", flexShrink);
-		if (flexBasis != null)
-			json.put("flexBasis", flexBasis);
 		if (justifyContent != null)
 			json.put("justifyContent", justifyContent);
 		if (backgroundColor != null)
@@ -937,6 +985,20 @@ public final class ThemeAttribute implements Serializable {
 		}else {
 			if (marginLeftString != null) {
 				json.put("marginLeft", marginLeftString);
+			}
+		}
+		if (flexBasis != null){
+			json.put("flexBasis", flexBasis);
+		}else {
+			if (flexBasisString != null) {
+				json.put("flexBasis", flexBasisString);
+			}
+		}
+		if (flex != null){
+			json.put("flex", flex);
+		}else {
+			if (flexString != null) {
+				json.put("flex", flexString);
 			}
 		}
 		if (marginRight != null){
