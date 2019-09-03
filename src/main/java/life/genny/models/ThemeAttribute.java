@@ -642,12 +642,6 @@ public final class ThemeAttribute implements Serializable {
 			managedInstance.flexShrink = value;
 			return this;
 		}
-
-
-		public Builder flexBasis(String value) {
-			managedInstance.flexBasis = value;
-			return this;
-		}
 		
 		public Builder display(String value) {
 			managedInstance.display = value;
@@ -878,10 +872,6 @@ public final class ThemeAttribute implements Serializable {
 		}
 		public Builder flexBasis(Integer value) {
 			managedInstance.flexBasis = value;
-			return this;
-		}
-		public Builder flexBasis(String value) {
-			managedInstance.flexBasisString = value; // should check format
 			return this;
 		}
 		public Builder flex(Integer value) {
