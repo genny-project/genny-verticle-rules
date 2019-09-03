@@ -501,8 +501,8 @@ public class VertxUtils {
 
 	static public JsonObject writeMsg(String channel, Object payload) {
 		JsonObject result = null;
-		JsonObject msg = (JsonObject) JsonUtils.fromJson(((JsonObject)payload).toString(),JsonObject.class);
-		if (!StringUtils.isBlank(msg.getString("token"))) {
+//		JsonObject msg = (JsonObject) JsonUtils.fromJson(((JsonObject)payload).toString(),JsonObject.class);
+//		if (!StringUtils.isBlank(msg.getString("token"))) {
 			try {
 				eb.writeMsg(channel, payload);
 			} catch (NamingException e) {
@@ -511,9 +511,9 @@ public class VertxUtils {
 			}
 
 			result = new JsonObject().put("status", "ok");
-		} else {
-			result = new JsonObject().put("status", "error");
-		}
+	//	} else {
+	//		result = new JsonObject().put("status", "error");
+	//	}
 		return result;
 
 	}
