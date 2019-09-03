@@ -18,7 +18,7 @@ import life.genny.utils.VertxUtils;
 
 
 
-@Immutable
+//@Immutable
 public class QuestionGroup implements Serializable {
 	@Expose
 	private String code;
@@ -53,6 +53,13 @@ public class QuestionGroup implements Serializable {
 	}
 
 
+
+	/**
+	 * @param code the code to set
+	 */
+	public void setCode(String code) {
+		this.code = code;
+	}
 
 	/**
 	 * @return the name
@@ -186,7 +193,7 @@ public class QuestionGroup implements Serializable {
 				}
 
 			} else {
-				throw new Exception("Could not load Theme - Does it exist yet?");
+				throw new Exception("Could not load Theme "+themeCode+" - Does it exist yet?");
 			}
 			Consumer<QuestionTheme> f = obj -> { managedInstance.questionThemes.add(obj);};
 

@@ -29,6 +29,7 @@ import life.genny.models.ThemeAttributeType;
 import life.genny.models.ThemeDouble;
 import life.genny.models.ThemePosition;
 import life.genny.models.ThemeTuple4;
+import life.genny.qwanda.Answer;
 import life.genny.qwanda.Ask;
 import life.genny.qwanda.Context;
 
@@ -64,7 +65,7 @@ public class FrameUtils2 {
 		
 		// check that the MSG got saved
 		
-		QDataBaseEntityMessage FRM_MSG = VertxUtils.getObject(serviceToken.getRealm(), "", rootFrame.getCode() + "-MSG",
+		QDataBaseEntityMessage FRM_MSG = VertxUtils.getObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG",
 				QDataBaseEntityMessage.class, serviceToken.getToken());
 
 		if (FRM_MSG == null) {
@@ -81,18 +82,24 @@ public class FrameUtils2 {
 
 	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken,
 			Map<String, ContextList> contextListMap) {
+		BaseEntityUtils beUtils = new BaseEntityUtils(serviceToken);
 
 		Set<QDataAskMessage> askMsgs = new HashSet<QDataAskMessage>();
 		QDataBaseEntityMessage msg = toMessage(rootFrame, serviceToken, askMsgs, contextListMap);
 		String askMsgsStr = JsonUtils.toJson(askMsgs);
 		// TODO, this is NOT needed, only enabkled for testing
-//		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(),
-//		 rootFrame, serviceToken.getToken());
+		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(),
+		 rootFrame, serviceToken.getToken());
+		beUtils.saveAnswer(new Answer("RUL_"+rootFrame.getCode().toUpperCase(), "RUL_"+rootFrame.getCode().toUpperCase(), "PRI_FRM",JsonUtils.toJson(rootFrame),false));
 
-		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "-MSG", msg, serviceToken.getToken());
+
+		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG", msg, serviceToken.getToken());
+		beUtils.saveAnswer(new Answer("RUL_"+rootFrame.getCode().toUpperCase(), "RUL_"+rootFrame.getCode().toUpperCase(), "PRI_MSG",JsonUtils.toJson(msg),false));
 		if (!askMsgs.isEmpty()) {
-			VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "-ASKS", askMsgsStr,
+			VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_ASKS", askMsgsStr,
 				serviceToken.getToken());
+			beUtils.saveAnswer(new Answer("RUL_"+rootFrame.getCode().toUpperCase(), "RUL_"+rootFrame.getCode().toUpperCase(), "PRI_ASKS",askMsgsStr,false));
+
 		}
 	}
 
@@ -266,7 +273,9 @@ public class FrameUtils2 {
 			Frame3 childFrame = frameTuple3.getFrame();
 			FramePosition position = frameTuple3.getFramePosition();
 			Double weight = frameTuple3.getWeight();
-
+			if (frame.getWeight()!=null) {
+				weight = frame.getWeight();
+			}
 			childFrame.setParent(parent); // Set the parent sop that we can link the childs themes to it.
 
 			processAskAlias(frame, serviceToken, baseEntityList, parent, askList, childFrame, position, weight);

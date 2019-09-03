@@ -127,21 +127,12 @@ public final class ThemeAttribute implements Serializable {
 	@Expose
 	private String alignItems = null;
 	@Expose
-	private String display=null;
-	
-	/**
-	 * @return the display
-	 */
-	public String getDisplay() {
-		return display;
-	}
 
-	/**
-	 * @param display the display to set
-	 */
-	public void setDisplay(String display) {
-		this.display = display;
-	}
+	private String display = null;
+	@Expose
+	private String marginAuto = null;
+	
+
 
 	/**
 	 * static factory method for builder
@@ -172,6 +163,13 @@ public final class ThemeAttribute implements Serializable {
 	 */
 	public Integer getFlexGrow() {
 		return flexGrow;
+	}
+	
+	/**
+	 * @return the display
+	 */
+	public String getDisplay() {
+		return display;
 	}
 
 	/**
@@ -287,6 +285,18 @@ public final class ThemeAttribute implements Serializable {
 			return width + "";
 		}
 	}
+	
+	/**
+	 * @return the margin
+	 */
+	public String getMarginAuto() {
+		if (margin == null) {
+			return marginAuto != null ? marginAuto : "auto";
+		} else {
+			return margin + "";
+		}
+	}
+	
 	/**
 	 * @return the marginLeftString
 	 */
@@ -632,6 +642,12 @@ public final class ThemeAttribute implements Serializable {
 			managedInstance.flexShrink = value;
 			return this;
 		}
+
+
+		public Builder flexBasis(String value) {
+			managedInstance.flexBasis = value;
+			return this;
+		}
 		
 		public Builder display(String value) {
 			managedInstance.display = value;
@@ -941,6 +957,8 @@ public final class ThemeAttribute implements Serializable {
 			json.put("flexShrink", flexShrink);
 		if (justifyContent != null)
 			json.put("justifyContent", justifyContent);
+		if (display != null)
+			json.put("display", display);
 		if (backgroundColor != null)
 			json.put("backgroundColor", backgroundColor);
 		if (shadowColor != null)
@@ -954,6 +972,13 @@ public final class ThemeAttribute implements Serializable {
 		} else {
 			if (widthPercent != null) {
 				json.put("width", widthPercent);
+			}
+		}
+		if (margin != null) {
+			json.put("margin", margin);
+		} else {
+			if (marginAuto != null) {
+				json.put("margin", marginAuto);
 			}
 		}
 
