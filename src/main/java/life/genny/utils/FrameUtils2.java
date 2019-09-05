@@ -158,6 +158,7 @@ public class FrameUtils2 {
 					}
 				}
 				askMsg.setToken(serviceToken.getToken());
+				askMsg.setReplace(true);
 				asks.add(askMsg);
 			}
 		}
