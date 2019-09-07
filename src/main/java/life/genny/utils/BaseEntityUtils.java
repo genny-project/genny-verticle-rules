@@ -123,6 +123,9 @@ public class BaseEntityUtils implements Serializable {
 		return newBaseEntity;
 	}
 
+	
+	
+	
 	public List<BaseEntity> getBaseEntityFromSelectionAttribute(BaseEntity be, String attributeCode) {
 
 		List<BaseEntity> bes = new ArrayList<>();
@@ -275,8 +278,8 @@ public class BaseEntityUtils implements Serializable {
 
 	public void saveAnswer(Answer answer) {
 
+		addAnswer(answer);
 		try {
-			this.updateCachedBaseEntity(answer);
 			if (!VertxUtils.cachedEnabled) {  // only post if not in junit
 				QwandaUtils.apiPostEntity(qwandaServiceUrl + "/qwanda/answers", JsonUtils.toJson(answer), this.token);
 			}
@@ -285,6 +288,11 @@ public class BaseEntityUtils implements Serializable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void addAnswer(Answer answer) {
+
+			this.updateCachedBaseEntity(answer);
 	}
 
 	public void saveAnswers(List<Answer> answers, final boolean changeEvent) {
