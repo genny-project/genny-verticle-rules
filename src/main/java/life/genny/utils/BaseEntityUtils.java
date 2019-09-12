@@ -294,6 +294,18 @@ public class BaseEntityUtils implements Serializable {
 
 			this.updateCachedBaseEntity(answer);
 	}
+	
+	public void updateBaseEntity(BaseEntity be, Answer answer) {
+
+			this.updateCachedBaseEntity(answer);
+			try {
+				Attribute attr = RulesUtils.getAttribute(answer.getAttributeCode(), this.getGennyToken().getToken());
+				be.setValue(attr, answer.getValue());
+			} catch (BadDataException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}
 
 	public void saveAnswers(List<Answer> answers, final boolean changeEvent) {
 
