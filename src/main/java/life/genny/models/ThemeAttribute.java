@@ -127,12 +127,15 @@ public final class ThemeAttribute implements Serializable {
 	@Expose
 	private String alignItems = null;
 	@Expose
-
 	private String display = null;
 	@Expose
 	private String marginAuto = null;
-	
-
+	@Expose
+	private Integer imageHeight = null;
+	@Expose
+	private Integer imageWidth = null;
+	@Expose
+	private Boolean showName = null; 
 
 	/**
 	 * static factory method for builder
@@ -586,6 +589,28 @@ public final class ThemeAttribute implements Serializable {
 		return valueDouble;
 	}
 
+	/**
+	 * @return the image width
+	 */
+	public Integer getImageWidth() {
+		return imageWidth;
+	}
+	
+	/**
+	 * @return the image height
+	 */
+	public Integer getImageHeight() {
+		return imageHeight;
+	}
+	
+	/**
+	 * @return the image height
+	 */
+	public Boolean getShowName() {
+		return showName;
+	}
+	
+	
 	public static class Builder {
 		private ThemeAttribute managedInstance = new ThemeAttribute();
 		private Theme.Builder parentBuilder;
@@ -901,7 +926,22 @@ public final class ThemeAttribute implements Serializable {
 			managedInstance.valueBoolean = value;
 			return this;
 		}
-
+		
+		public Builder imageHeight(Integer value) {
+			managedInstance.imageHeight = value;
+			return this;
+		}
+		
+		public Builder imageWidth(Integer value) {
+			managedInstance.imageWidth = value;
+			return this;
+		}
+		
+		public Builder showName(Boolean value) {
+			managedInstance.showName = value;
+			return this;
+		}
+		
 		public ThemeAttribute build() {
 			return managedInstance;
 		}
@@ -922,6 +962,8 @@ public final class ThemeAttribute implements Serializable {
 			callback.accept(managedInstance);
 			return parentBuilder;
 		}
+		
+		
 
 	}
 
@@ -1077,7 +1119,6 @@ public final class ThemeAttribute implements Serializable {
 				json.put("size", sizeText);
 			}
 		}
-
 		if (bold != null)
 			json.put("bold", bold);
 
@@ -1089,7 +1130,13 @@ public final class ThemeAttribute implements Serializable {
 			json.put("valueString", valueString);
 		if (valueDouble != null)
 			json.put("valueDouble", valueDouble);
-
+		if (imageHeight != null)
+			json.put("imageHeight", imageHeight);
+		if (imageWidth != null)
+			json.put("imageWidth", imageWidth);
+		if (showName != null) {
+			json.put("showName", showName);
+		}
 		return json;
 	}
 
