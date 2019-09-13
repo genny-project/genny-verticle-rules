@@ -136,6 +136,8 @@ public final class ThemeAttribute implements Serializable {
 	private Integer imageWidth = null;
 	@Expose
 	private Boolean showName = null; 
+	@Expose
+	private Integer maxNumberOfFiles = null;
 
 	/**
 	 * static factory method for builder
@@ -604,10 +606,17 @@ public final class ThemeAttribute implements Serializable {
 	}
 	
 	/**
-	 * @return the image height
+	 * @return the show filename
 	 */
 	public Boolean getShowName() {
 		return showName;
+	}
+	
+	/**
+	 * @return the max number of file
+	 */
+	public Integer getMaxNumberOfFiles() {
+		return maxNumberOfFiles;
 	}
 	
 	
@@ -942,6 +951,11 @@ public final class ThemeAttribute implements Serializable {
 			return this;
 		}
 		
+		public Builder maxNumberOfFiles(Integer value) {
+			managedInstance.maxNumberOfFiles = value;
+			return this;
+		}
+		
 		public ThemeAttribute build() {
 			return managedInstance;
 		}
@@ -1136,6 +1150,9 @@ public final class ThemeAttribute implements Serializable {
 			json.put("imageWidth", imageWidth);
 		if (showName != null) {
 			json.put("showName", showName);
+		}
+		if (maxNumberOfFiles != null) {
+			json.put("maxNumberOfFiles", maxNumberOfFiles);
 		}
 		return json;
 	}
