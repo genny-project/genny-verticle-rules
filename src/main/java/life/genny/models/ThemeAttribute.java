@@ -138,7 +138,12 @@ public final class ThemeAttribute implements Serializable {
 	private Boolean showName = null; 
 	@Expose
 	private Integer maxNumberOfFiles = null;
-
+	@Expose
+	private String name = null;
+	@Expose
+	private String transform = null;
+	@Expose
+	private String type = null;
 	/**
 	 * static factory method for builder
 	 */
@@ -619,6 +624,28 @@ public final class ThemeAttribute implements Serializable {
 		return maxNumberOfFiles;
 	}
 	
+	/**
+	 * @return the name of item
+	 */
+	public String getName() {
+		return name;
+	}
+	
+	/**
+	 * @return the transform item
+	 */
+	public String getTransform() {
+		return transform;
+	}
+	
+	/**
+	 * @return the component type
+	 */
+	public String getType() {
+		return type;
+	}
+	
+	
 	
 	public static class Builder {
 		private ThemeAttribute managedInstance = new ThemeAttribute();
@@ -955,7 +982,18 @@ public final class ThemeAttribute implements Serializable {
 			managedInstance.maxNumberOfFiles = value;
 			return this;
 		}
-		
+		public Builder name(String value) {
+			managedInstance.name = value;
+			return this;
+		}
+		public Builder transform(String value) {
+			managedInstance.transform = value;
+			return this;
+		}
+		public Builder type(String value) {
+			managedInstance.type = value;
+			return this;
+		}
 		public ThemeAttribute build() {
 			return managedInstance;
 		}
@@ -1154,6 +1192,16 @@ public final class ThemeAttribute implements Serializable {
 		if (maxNumberOfFiles != null) {
 			json.put("maxNumberOfFiles", maxNumberOfFiles);
 		}
+		if (name != null) {
+			json.put("name", name);
+		}
+		if (transform != null) {
+			json.put("transform", transform);
+		}
+		if (type != null) {
+			json.put("type", type);
+		}
+		
 		return json;
 	}
 
