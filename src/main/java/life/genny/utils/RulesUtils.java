@@ -859,6 +859,9 @@ public class RulesUtils {
 			} else {
 				loadAllAttributesIntoCache(token);
 				ret = attributeMap.get(attributeCode);
+				if (ret == null) {
+					log.error("Attribute NOT FOUND :"+attributeCode);
+				}
 			}
 		}
 		return ret;
