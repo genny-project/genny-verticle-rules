@@ -74,7 +74,7 @@ public class FrameUtils2 {
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(),
 				 rootFrame, serviceToken.getToken());
 
-		log.info(rootFrame.getCode()+" RULE SAVED FRAME TO CACHE");
+		//log.info(rootFrame.getCode()+" RULE SAVED FRAME TO CACHE");
 	}
 	
 	static public void toMessage2(final Frame3 rootFrame, GennyToken serviceToken) {
