@@ -148,6 +148,24 @@ public class VertxUtils {
 		writeCachedJson(realm, prekey + key, data, token);
 	}
 
+	static public void clearCache(final String realm, final String token)
+	{
+		if (!GennySettings.forceCacheApi) {
+				cacheInterface.clear(realm);
+		} else {
+			if (cachedEnabled) {
+				localCache.clear();
+			} else {
+				try {
+					QwandaUtils.apiGet(GennySettings.ddtUrl + "/clear/" + realm , token);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
 	static public JsonObject readCachedJson(final String realm, final String key) {
 		return readCachedJson(realm, key, DEFAULT_TOKEN);
 	}
