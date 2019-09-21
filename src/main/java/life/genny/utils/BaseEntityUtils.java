@@ -420,6 +420,10 @@ public class BaseEntityUtils implements Serializable {
 		return this.getBaseEntityByCode(code, true);
 	}
 
+	public Optional<BaseEntity> getOptionalBaseEntityByCode(final String code) {
+		return this.getOptionalBaseEntityByCode(code, true);
+	}
+
 	public BaseEntity getBaseEntityByCode(final String code, Boolean withAttributes) {
 
 		BaseEntity be = null;
@@ -431,6 +435,23 @@ public class BaseEntityUtils implements Serializable {
 				log.info("be (" + code + ") fetched is NULL ");
 			} else {
 				this.addAttributes(be);
+			}
+		} catch (Exception e) {
+			log.info("Failed to read cache for baseentity " + code);
+		}
+
+		return be;
+	}
+	
+	public Optional<BaseEntity> getOptionalBaseEntityByCode(final String code, Boolean withAttributes) {
+
+		Optional<BaseEntity> be = Optional.empty();
+
+		try {
+			// log.info("Fetching BaseEntityByCode, code="+code);
+			be = Optional.ofNullable(VertxUtils.readFromDDT(getRealm(), code, withAttributes, this.token));
+			if (be.isPresent()) {
+				this.addAttributes(be.orElse(null));
 			}
 		} catch (Exception e) {
 			log.info("Failed to read cache for baseentity " + code);
