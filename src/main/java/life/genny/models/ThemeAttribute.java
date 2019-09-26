@@ -1038,6 +1038,8 @@ public final class ThemeAttribute implements Serializable {
 			json.put("textAlign", textAlign);
 		if (alignSelf != null)
 			json.put("alignSelf", alignSelf);
+		if (alignItems != null)
+			json.put("alignItems", alignItems);
 		if (flexDirection != null)
 			json.put("flexDirection", flexDirection);
 		if (flexGrow != null)
