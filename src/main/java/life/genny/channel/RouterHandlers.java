@@ -52,7 +52,7 @@ public class RouterHandlers {
 
 		}
 
-		if (paramToken != null  && TokenIntrospection.checkAuthForRoles(avertx,roles, paramToken) ) { // do not allow
+		if (paramToken != null /* && TokenIntrospection.checkAuthForRoles(avertx,roles, paramToken)*/ ) { // do not allow
 																										// empty tokens
 
 			GennyToken userToken = new GennyToken(paramToken);
@@ -113,7 +113,7 @@ public class RouterHandlers {
 
 		}
 
-		if (token != null  && TokenIntrospection.checkAuthForRoles(avertx,roles, token) ) { // do not allow empty
+		if (token != null /* && TokenIntrospection.checkAuthForRoles(avertx,roles, token)*/ ) { // do not allow empty
 																								// tokens
 
 			JSONObject tokenJSON = KeycloakUtils.getDecodedToken(token);
@@ -151,7 +151,7 @@ public class RouterHandlers {
 	public static void apiClearGetHandler(final RoutingContext context) {
 		final HttpServerRequest req = context.request();
 		String token = context.request().getParam("token");
-		if (token != null && TokenIntrospection.checkAuthForRoles(avertx,roles, token) ) { // do not allow empty
+		if (token != null /*&& TokenIntrospection.checkAuthForRoles(avertx,roles, token)*/ ) { // do not allow empty
 			// tokens
 			GennyToken gt = new GennyToken(token);
 			VertxUtils.clearDDT(gt.getRealm());
