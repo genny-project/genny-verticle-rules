@@ -108,6 +108,11 @@ public class FrameUtils2 {
 		// TODO, this is NOT needed, only enabkled for testing
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(),
 		 rootFrame, serviceToken.getToken());
+		BaseEntity ruleEntity = beUtils.getBaseEntityByCode("RUL_"+rootFrame.getCode().toUpperCase());
+		if (ruleEntity == null) {
+			beUtils.create("RUL_"+rootFrame.getCode().toUpperCase(), "RUL_"+rootFrame.getCode().toUpperCase());
+			log.error("!!!!!!!!!!!!!!!!!!!!!!!! RUL_"+rootFrame.getCode().toUpperCase()+" WAS NOT IN DB????");
+		}
 		beUtils.saveAnswer(new Answer("RUL_"+rootFrame.getCode().toUpperCase(), "RUL_"+rootFrame.getCode().toUpperCase(), "PRI_FRM",JsonUtils.toJson(rootFrame),false));
 
 
