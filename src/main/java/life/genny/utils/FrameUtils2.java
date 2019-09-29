@@ -60,21 +60,21 @@ public class FrameUtils2 {
 	static public Boolean showLogs = false;
 
 	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken) {
-//		Map<String, ContextList> contextListMap = new HashMap<String, ContextList>();
-//		toMessage(rootFrame, serviceToken, contextListMap);
-//		
-//		// check that the MSG got saved
-//		
-//		QDataBaseEntityMessage FRM_MSG = VertxUtils.getObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG",
-//				QDataBaseEntityMessage.class, serviceToken.getToken());
+		Map<String, ContextList> contextListMap = new HashMap<String, ContextList>();
+		toMessage(rootFrame, serviceToken, contextListMap);
+		
+		// check that the MSG got saved
+		
+		QDataBaseEntityMessage FRM_MSG = VertxUtils.getObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG",
+				QDataBaseEntityMessage.class, serviceToken.getToken());
 
-//		if (FRM_MSG == null) {
-//			log.info("ERROR: rootFrame:"+rootFrame.getCode()+" NOT CREATED");
-//		}
+		if (FRM_MSG == null) {
+			log.info("ERROR: rootFrame:"+rootFrame.getCode()+" NOT CREATED");
+		}
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(),
 				 rootFrame, serviceToken.getToken());
 
-		//log.info(rootFrame.getCode()+" RULE SAVED FRAME TO CACHE");
+		log.info(rootFrame.getCode()+" RULE SAVED FRAME TO CACHE");
 	}
 	
 	static public void toMessage2(final Frame3 rootFrame, GennyToken serviceToken) {
@@ -108,15 +108,15 @@ public class FrameUtils2 {
 		// TODO, this is NOT needed, only enabkled for testing
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(),
 		 rootFrame, serviceToken.getToken());
-	//	beUtils.saveAnswer(new Answer("RUL_"+rootFrame.getCode().toUpperCase(), "RUL_"+rootFrame.getCode().toUpperCase(), "PRI_FRM",JsonUtils.toJson(rootFrame),false));
+		beUtils.saveAnswer(new Answer("RUL_"+rootFrame.getCode().toUpperCase(), "RUL_"+rootFrame.getCode().toUpperCase(), "PRI_FRM",JsonUtils.toJson(rootFrame),false));
 
 
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG", msg, serviceToken.getToken());
-	//	beUtils.saveAnswer(new Answer("RUL_"+rootFrame.getCode().toUpperCase(), "RUL_"+rootFrame.getCode().toUpperCase(), "PRI_MSG",JsonUtils.toJson(msg),false));
+		beUtils.saveAnswer(new Answer("RUL_"+rootFrame.getCode().toUpperCase(), "RUL_"+rootFrame.getCode().toUpperCase(), "PRI_MSG",JsonUtils.toJson(msg),false));
 		if (!askMsgs.isEmpty()) {
 			VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_ASKS", askMsgsStr,
 				serviceToken.getToken());
-	//		beUtils.saveAnswer(new Answer("RUL_"+rootFrame.getCode().toUpperCase(), "RUL_"+rootFrame.getCode().toUpperCase(), "PRI_ASKS",askMsgsStr,false));
+			beUtils.saveAnswer(new Answer("RUL_"+rootFrame.getCode().toUpperCase(), "RUL_"+rootFrame.getCode().toUpperCase(), "PRI_ASKS",askMsgsStr,false));
 
 		}
 	}
