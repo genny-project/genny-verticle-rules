@@ -71,9 +71,15 @@ public class BaseEntityUtils implements Serializable {
 
 	private CacheUtils cacheUtil;
 	private GennyToken gennyToken;
+	private GennyToken serviceToken;
 
-	public BaseEntityUtils(GennyToken gennyToken) {
-		this(GennySettings.qwandaServiceUrl, gennyToken);
+	public BaseEntityUtils(GennyToken userToken) {
+		this(GennySettings.qwandaServiceUrl, userToken);
+	}
+	
+	public BaseEntityUtils(GennyToken serviceToken, GennyToken userToken) {
+		this(GennySettings.qwandaServiceUrl, userToken);
+		this.serviceToken = serviceToken;
 	}
 
 	public BaseEntityUtils(String qwandaServiceUrl, GennyToken gennyToken) {
@@ -1698,6 +1704,20 @@ public class BaseEntityUtils implements Serializable {
 	public String toString() {
 		return "BaseEntityUtils [" + (realm != null ? "realm=" + realm : "") + ": "+StringUtils.abbreviateMiddle(
                 token, "...", 30)+"]";
+	}
+
+	/**
+	 * @return the serviceToken
+	 */
+	public GennyToken getServiceToken() {
+		return serviceToken;
+	}
+
+	/**
+	 * @param serviceToken the serviceToken to set
+	 */
+	public void setServiceToken(GennyToken serviceToken) {
+		this.serviceToken = serviceToken;
 	}
 
 	
