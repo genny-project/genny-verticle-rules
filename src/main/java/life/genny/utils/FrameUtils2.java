@@ -62,12 +62,12 @@ public class FrameUtils2 {
 	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken) {
 		Map<String, ContextList> contextListMap = new HashMap<String, ContextList>();
 		toMessage(rootFrame, serviceToken, contextListMap);
-		
-		// check that the MSG got saved
-		
+//		
+//		// check that the MSG got saved
+//		
 		QDataBaseEntityMessage FRM_MSG = VertxUtils.getObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG",
 				QDataBaseEntityMessage.class, serviceToken.getToken());
-
+//
 		if (FRM_MSG == null) {
 			log.info("ERROR: rootFrame:"+rootFrame.getCode()+" NOT CREATED");
 		}
