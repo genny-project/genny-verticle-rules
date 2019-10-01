@@ -119,7 +119,7 @@ public class FrameUtils2 {
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG", msg, serviceToken.getToken());
 		beUtils.saveAnswer(new Answer("RUL_"+rootFrame.getCode().toUpperCase(), "RUL_"+rootFrame.getCode().toUpperCase(), "PRI_MSG",JsonUtils.toJson(msg),false));
 		if (!askMsgs.isEmpty()) {
-			VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_ASKS", askMsgsStr,
+			VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode().toUpperCase() + "_ASKS", askMsgsStr,
 				serviceToken.getToken());
 			beUtils.saveAnswer(new Answer("RUL_"+rootFrame.getCode().toUpperCase(), "RUL_"+rootFrame.getCode().toUpperCase(), "PRI_ASKS",askMsgsStr,false));
 
