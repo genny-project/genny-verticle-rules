@@ -60,36 +60,39 @@ public class FrameUtils2 {
 	static public Boolean showLogs = false;
 
 	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken) {
-		Map<String, ContextList> contextListMap = new HashMap<String, ContextList>();
-		toMessage(rootFrame, serviceToken, contextListMap);
+		if (!GennySettings.framesOnDemand) {
+			Map<String, ContextList> contextListMap = new HashMap<String, ContextList>();
+			toMessage(rootFrame, serviceToken, contextListMap);
 //		
 //		// check that the MSG got saved
 //		
-		QDataBaseEntityMessage FRM_MSG = VertxUtils.getObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG",
-				QDataBaseEntityMessage.class, serviceToken.getToken());
+			QDataBaseEntityMessage FRM_MSG = VertxUtils.getObject(serviceToken.getRealm(), "",
+					rootFrame.getCode() + "_MSG", QDataBaseEntityMessage.class, serviceToken.getToken());
 //
-		if (FRM_MSG == null) {
-			log.info("ERROR: rootFrame:"+rootFrame.getCode()+" NOT CREATED");
+			if (FRM_MSG == null) {
+				log.info("ERROR: rootFrame:" + rootFrame.getCode() + " NOT CREATED");
+			}
 		}
-		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(),
-				 rootFrame, serviceToken.getToken());
+		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(), rootFrame, serviceToken.getToken());
 
-		log.info(rootFrame.getCode()+" RULE SAVED FRAME TO CACHE");
+		if (!GennySettings.framesOnDemand) {
+			log.info(rootFrame.getCode() + " RULE SAVED FRAME TO CACHE");
+		}
 	}
-	
+
 	static public void toMessage2(final Frame3 rootFrame, GennyToken serviceToken) {
 		Map<String, ContextList> contextListMap = new HashMap<String, ContextList>();
 		toMessage(rootFrame, serviceToken, contextListMap);
-		
+
 		// check that the MSG got saved
-		
+
 		QDataBaseEntityMessage FRM_MSG = VertxUtils.getObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG",
 				QDataBaseEntityMessage.class, serviceToken.getToken());
 
 		if (FRM_MSG == null) {
-			log.info("ERROR: rootFrame:"+rootFrame.getCode()+" NOT CREATED");
+			log.info("ERROR: rootFrame:" + rootFrame.getCode() + " NOT CREATED");
 		}
-		
+
 	}
 
 	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
@@ -106,22 +109,23 @@ public class FrameUtils2 {
 		QDataBaseEntityMessage msg = toMessage(rootFrame, serviceToken, askMsgs, contextListMap);
 		String askMsgsStr = JsonUtils.toJson(askMsgs);
 		// TODO, this is NOT needed, only enabkled for testing
-		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(),
-		 rootFrame, serviceToken.getToken());
-		BaseEntity ruleEntity = beUtils.getBaseEntityByCode("RUL_"+rootFrame.getCode().toUpperCase());
+		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(), rootFrame, serviceToken.getToken());
+		BaseEntity ruleEntity = beUtils.getBaseEntityByCode("RUL_" + rootFrame.getCode().toUpperCase());
 		if (ruleEntity == null) {
-			beUtils.create("RUL_"+rootFrame.getCode().toUpperCase(), "RUL_"+rootFrame.getCode().toUpperCase());
-			log.error("!!!!!!!!!!!!!!!!!!!!!!!! RUL_"+rootFrame.getCode().toUpperCase()+" WAS NOT IN DB????");
+			beUtils.create("RUL_" + rootFrame.getCode().toUpperCase(), "RUL_" + rootFrame.getCode().toUpperCase());
+			log.error("!!!!!!!!!!!!!!!!!!!!!!!! RUL_" + rootFrame.getCode().toUpperCase() + " WAS NOT IN DB????");
 		}
-		beUtils.saveAnswer(new Answer("RUL_"+rootFrame.getCode().toUpperCase(), "RUL_"+rootFrame.getCode().toUpperCase(), "PRI_FRM",JsonUtils.toJson(rootFrame),false));
-
+		beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
+				"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_FRM", JsonUtils.toJson(rootFrame), false));
 
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG", msg, serviceToken.getToken());
-		beUtils.saveAnswer(new Answer("RUL_"+rootFrame.getCode().toUpperCase(), "RUL_"+rootFrame.getCode().toUpperCase(), "PRI_MSG",JsonUtils.toJson(msg),false));
+		beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
+				"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_MSG", JsonUtils.toJson(msg), false));
 		if (!askMsgs.isEmpty()) {
 			VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode().toUpperCase() + "_ASKS", askMsgsStr,
-				serviceToken.getToken());
-			beUtils.saveAnswer(new Answer("RUL_"+rootFrame.getCode().toUpperCase(), "RUL_"+rootFrame.getCode().toUpperCase(), "PRI_ASKS",askMsgsStr,false));
+					serviceToken.getToken());
+			beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
+					"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_ASKS", askMsgsStr, false));
 
 		}
 	}
@@ -149,19 +153,20 @@ public class FrameUtils2 {
 			for (Ask ask : askList) {
 				String sourceAliasCode = serviceToken.getUserCode();
 				String targetAliasCode = serviceToken.getUserCode();
-				if ((!ask.getTargetCode().equals(serviceToken.getUserCode()))&&(!ask.getTargetCode().startsWith("QUE_"))) {
+				if ((!ask.getTargetCode().equals(serviceToken.getUserCode()))
+						&& (!ask.getTargetCode().startsWith("QUE_"))) {
 					targetAliasCode = ask.getTargetCode();
-					log.info("Setting targetAliasCode "+targetAliasCode+" for "+ask.getQuestionCode());
+					log.info("Setting targetAliasCode " + targetAliasCode + " for " + ask.getQuestionCode());
 				}
 				QDataAskMessage askMsg = null;
-				
+
 				try {
-					askMsg = QuestionUtils.getAsks(sourceAliasCode, targetAliasCode,
-							ask.getQuestionCode(), serviceToken.getToken());
+					askMsg = QuestionUtils.getAsks(sourceAliasCode, targetAliasCode, ask.getQuestionCode(),
+							serviceToken.getToken());
 				} catch (NullPointerException e) {
-					log.error("Null pointer in getAsks "+ask.getQuestionCode());
+					log.error("Null pointer in getAsks " + ask.getQuestionCode());
 				}
-				
+
 				if (null == askMsg) {
 					askMsg = new QDataAskMessage(new Ask[0]);
 				}
@@ -188,16 +193,16 @@ public class FrameUtils2 {
 		msg.setToken(serviceToken.getToken());
 		return msg;
 	}
-	
-	
+
 	/*
-	 * These method checks if the question are inside the virtualAskMap or not 
-	 * If Yes it grabs from the virtual asks. this allows to override the Question from database  
-	 * on the fly to changes the behavior of the question in frame
+	 * These method checks if the question are inside the virtualAskMap or not If
+	 * Yes it grabs from the virtual asks. this allows to override the Question from
+	 * database on the fly to changes the behavior of the question in frame
 	 */
 
 	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
-			Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap, Map<String, QDataAskMessage> virtualAskMap) {
+			Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap,
+			Map<String, QDataAskMessage> virtualAskMap) {
 
 		Set<BaseEntity> baseEntityList = new HashSet<BaseEntity>();
 		Set<Ask> askList = new HashSet<>();
@@ -219,34 +224,35 @@ public class FrameUtils2 {
 			for (Ask ask : askList) {
 				String sourceAliasCode = serviceToken.getUserCode();
 				String targetAliasCode = serviceToken.getUserCode();
-				if ((!ask.getTargetCode().equals(serviceToken.getUserCode()))&&(!ask.getTargetCode().startsWith("QUE_"))) {
+				if ((!ask.getTargetCode().equals(serviceToken.getUserCode()))
+						&& (!ask.getTargetCode().startsWith("QUE_"))) {
 					targetAliasCode = ask.getTargetCode();
-					log.info("Setting targetAliasCode "+targetAliasCode+" for "+ask.getQuestionCode());
+					log.info("Setting targetAliasCode " + targetAliasCode + " for " + ask.getQuestionCode());
 				}
-				
+
 				QDataAskMessage askMsg = null;
-				
-				/* check if the question exist in virtual Question list map*/
-				
-				if(virtualAskMap.containsKey(ask.getQuestionCode())) {
-					
+
+				/* check if the question exist in virtual Question list map */
+
+				if (virtualAskMap.containsKey(ask.getQuestionCode())) {
+
 					askMsg = virtualAskMap.get(ask.getQuestionCode());
-					log.info("Getting  "+ask.getQuestionCode()+" from virtual asks");
-				}else {
-				
+					log.info("Getting  " + ask.getQuestionCode() + " from virtual asks");
+				} else {
+
 					try {
-						askMsg = QuestionUtils.getAsks(sourceAliasCode, targetAliasCode,
-								ask.getQuestionCode(), serviceToken.getToken());
+						askMsg = QuestionUtils.getAsks(sourceAliasCode, targetAliasCode, ask.getQuestionCode(),
+								serviceToken.getToken());
 					} catch (NullPointerException e) {
-						log.error("Null pointer in getAsks "+ask.getQuestionCode());
+						log.error("Null pointer in getAsks " + ask.getQuestionCode());
 					}
-					
+
 					if (null == askMsg) {
 						askMsg = new QDataAskMessage(new Ask[0]);
 					}
-				
+
 				}
-			
+
 				askMsg = processQDataAskMessage(askMsg, ask, serviceToken);
 
 				if ((contextListMap != null) && (!contextListMap.isEmpty())) {
@@ -270,6 +276,7 @@ public class FrameUtils2 {
 		msg.setToken(serviceToken.getToken());
 		return msg;
 	}
+
 	private static QDataAskMessage processQDataAskMessage(QDataAskMessage askMsg, Ask contextAsk,
 			GennyToken serviceToken) {
 		List<Ask> asks = new ArrayList<Ask>();
@@ -365,11 +372,11 @@ public class FrameUtils2 {
 
 		if (frame.getFrames().isEmpty()) {
 			// create the ask
-			if (frame.getQuestionGroup()!=null) {
-				processAskAliasEmpty(frame, serviceToken, baseEntityList, parent,askList, frame.getPosition(), 1.0);
+			if (frame.getQuestionGroup() != null) {
+				processAskAliasEmpty(frame, serviceToken, baseEntityList, parent, askList, frame.getPosition(), 1.0);
 			}
 		}
-		
+
 		// Go through the frames and fetch them
 		for (FrameTuple3 frameTuple3 : frame.getFrames()) {
 			if (showLogs) {
@@ -378,7 +385,7 @@ public class FrameUtils2 {
 			Frame3 childFrame = frameTuple3.getFrame();
 			FramePosition position = frameTuple3.getFramePosition();
 			Double weight = frameTuple3.getWeight();
-			if (frame.getWeight()!=null) {
+			if (frame.getWeight() != null) {
 				weight = frame.getWeight();
 			}
 			childFrame.setParent(parent); // Set the parent sop that we can link the childs themes to it.
@@ -398,11 +405,10 @@ public class FrameUtils2 {
 	 * @param position
 	 * @param weight
 	 */
-	private static void processAskAliasEmpty(final Frame3 frame, GennyToken serviceToken, Set<BaseEntity> baseEntityList,
-			BaseEntity parent,Set<Ask> askList, FramePosition position, Double weight) {
+	private static void processAskAliasEmpty(final Frame3 frame, GennyToken serviceToken,
+			Set<BaseEntity> baseEntityList, BaseEntity parent, Set<Ask> askList, FramePosition position,
+			Double weight) {
 		BaseEntity childBe = getBaseEntity(frame, serviceToken);
-
-
 
 		if (!frame.getThemes().isEmpty()) {
 			processThemes(frame, position, serviceToken, baseEntityList, childBe);
@@ -421,23 +427,21 @@ public class FrameUtils2 {
 				log.info("Detected");
 			}
 			/* create an ask */
-			BaseEntity askBe = new BaseEntity(frame.getQuestionGroup().getCode(),
-					frame.getQuestionGroup().getCode());
+			BaseEntity askBe = new BaseEntity(frame.getQuestionGroup().getCode(), frame.getQuestionGroup().getCode());
 			askBe.setRealm(parent.getRealm());
 
 			Ask ask = null;
 
 			if (frame.getQuestionName() != null) {
 				ask = createVirtualAsk(frame.getQuestionCode(), frame.getQuestionName(),
-						frame.getQuestionGroup().getSourceAlias(),
-						frame.getQuestionGroup().getTargetAlias(), serviceToken);
+						frame.getQuestionGroup().getSourceAlias(), frame.getQuestionGroup().getTargetAlias(),
+						serviceToken);
 				ask.setRealm(parent.getRealm());
 
 			} else {
 
-				ask = QuestionUtils.createQuestionForBaseEntity2(askBe,
-						StringUtils.endsWith(askBe.getCode(), "GRP"), serviceToken,
-						frame.getQuestionGroup().getSourceAlias(),
+				ask = QuestionUtils.createQuestionForBaseEntity2(askBe, StringUtils.endsWith(askBe.getCode(), "GRP"),
+						serviceToken, frame.getQuestionGroup().getSourceAlias(),
 						frame.getQuestionGroup().getTargetAlias());
 			}
 
@@ -455,12 +459,12 @@ public class FrameUtils2 {
 						themeSet.add(qTheme.getTheme().getBaseEntity());
 						// Hack
 						VisualControlType vcl = null;
-						if (!((qTheme.getCode().equals("THM_FORM_DEFAULT"))
-								|| (qTheme.getCode().equals("THM_BUTTONS"))
+						if (!((qTheme.getCode().equals("THM_FORM_DEFAULT")) || (qTheme.getCode().equals("THM_BUTTONS"))
 								|| (qTheme.getCode().equals("THM_FORM_CONTAINER_DEFAULT")))) {
 							vcl = qTheme.getVcl();
 						}
-						createVirtualContext(ask, themeSet, ContextType.THEME, vcl, qTheme.getWeight(),qTheme.getDataType());
+						createVirtualContext(ask, themeSet, ContextType.THEME, vcl, qTheme.getWeight(),
+								qTheme.getDataType());
 					}
 
 				}
@@ -468,8 +472,7 @@ public class FrameUtils2 {
 			}
 			Set<EntityQuestion> entityQuestionList = askBe.getQuestions();
 
-			Link linkAsk = new Link(frame.getCode(), frame.getQuestionCode(), "LNK_ASK",
-					FramePosition.CENTRE.name());
+			Link linkAsk = new Link(frame.getCode(), frame.getQuestionCode(), "LNK_ASK", FramePosition.CENTRE.name());
 			linkAsk.setWeight(ask.getWeight());
 			EntityQuestion ee = new EntityQuestion(linkAsk);
 			entityQuestionList.add(ee);
@@ -483,7 +486,6 @@ public class FrameUtils2 {
 		}
 	}
 
-	
 	/**
 	 * @param frame
 	 * @param serviceToken
@@ -536,15 +538,14 @@ public class FrameUtils2 {
 
 			if (childFrame.getQuestionName() != null) {
 				ask = createVirtualAsk(childFrame.getQuestionCode(), childFrame.getQuestionName(),
-						childFrame.getQuestionGroup().getSourceAlias(),
-						childFrame.getQuestionGroup().getTargetAlias(), serviceToken);
+						childFrame.getQuestionGroup().getSourceAlias(), childFrame.getQuestionGroup().getTargetAlias(),
+						serviceToken);
 				ask.setRealm(parent.getRealm());
 
 			} else {
 
-				ask = QuestionUtils.createQuestionForBaseEntity2(askBe,
-						StringUtils.endsWith(askBe.getCode(), "GRP"), serviceToken,
-						childFrame.getQuestionGroup().getSourceAlias(),
+				ask = QuestionUtils.createQuestionForBaseEntity2(askBe, StringUtils.endsWith(askBe.getCode(), "GRP"),
+						serviceToken, childFrame.getQuestionGroup().getSourceAlias(),
 						childFrame.getQuestionGroup().getTargetAlias());
 			}
 
@@ -562,12 +563,12 @@ public class FrameUtils2 {
 						themeSet.add(qTheme.getTheme().getBaseEntity());
 						// Hack
 						VisualControlType vcl = null;
-						if (!((qTheme.getCode().equals("THM_FORM_DEFAULT"))
-								|| (qTheme.getCode().equals("THM_BUTTONS"))
+						if (!((qTheme.getCode().equals("THM_FORM_DEFAULT")) || (qTheme.getCode().equals("THM_BUTTONS"))
 								|| (qTheme.getCode().equals("THM_FORM_CONTAINER_DEFAULT")))) {
 							vcl = qTheme.getVcl();
 						}
-						Ask vAsk = createVirtualContext(ask, themeSet, ContextType.THEME, vcl, qTheme.getWeight(),qTheme.getDataType());
+						Ask vAsk = createVirtualContext(ask, themeSet, ContextType.THEME, vcl, qTheme.getWeight(),
+								qTheme.getDataType());
 					}
 
 				}
@@ -700,82 +701,84 @@ public class FrameUtils2 {
 				e1.printStackTrace();
 			}
 
-			if ((theme != null)&&(theme.getAttributes()!=null)&&(!theme.getAttributes().isEmpty())) {
-			
-			for (ThemeAttribute themeAttribute : theme.getAttributes()) {
-				Attribute attribute = null;
+			if ((theme != null) && (theme.getAttributes() != null) && (!theme.getAttributes().isEmpty())) {
 
-				if (themeAttribute.getCode() == null) {
-					log.info("themeAttribute code is null");
-				} else {
-					if (!VertxUtils.cachedEnabled) {
-						attribute = RulesUtils.getAttribute(themeAttribute.getCode(), gennyToken.getToken());
-					}
-				}
+				for (ThemeAttribute themeAttribute : theme.getAttributes()) {
+					Attribute attribute = null;
 
-				if (attribute == null) {
-					attribute = new Attribute(themeAttribute.getCode(), themeAttribute.getCode(),
-							new DataType("DTT_THEME"));
-				}
-
-				try {
-					if (themeBe.containsEntityAttribute(themeAttribute.getCode())) {
-						EntityAttribute themeEA = themeBe.findEntityAttribute(themeAttribute.getCode()).get();
-						String existingSetValue = themeEA.getAsString();
-						JSONObject json = new JSONObject(existingSetValue);
-						JSONObject merged = new JSONObject(json, JSONObject.getNames(json));
-						JSONObject jo = themeAttribute.getJsonObject();
-						for (Object key : jo.names()/* JSONObject.getNames(themeAttribute.getJsonObject()) */) {
-							merged.put((String) key, themeAttribute.getJsonObject().get((String) key));
-						}
-
-						themeEA.setValue(merged.toString());
-						themeEA.setWeight(weight);
+					if (themeAttribute.getCode() == null) {
+						log.info("themeAttribute code is null");
 					} else {
-						if (attribute.dataType.getClassName().equals(Boolean.class.getCanonicalName())) {
-							themeBe.addAttribute(
-									new EntityAttribute(themeBe, attribute, weight, themeAttribute.getValueBoolean()));
-						} else if (attribute.dataType.getClassName().equals(Double.class.getCanonicalName())) {
-							themeBe.addAttribute(
-									new EntityAttribute(themeBe, attribute, weight, themeAttribute.getValueDouble()));
-						} else if (attribute.dataType.getClassName().equals(String.class.getCanonicalName())) {
-							themeBe.addAttribute(
-									new EntityAttribute(themeBe, attribute, weight, themeAttribute.getValueString()));
-						} else {
-							themeBe.addAttribute(new EntityAttribute(themeBe, new Attribute(themeAttribute.getCode(),
-									themeAttribute.getCode(), new DataType("DTT_THEME")), weight,
-									themeAttribute.getJson()));
+						if (!VertxUtils.cachedEnabled) {
+							attribute = RulesUtils.getAttribute(themeAttribute.getCode(), gennyToken.getToken());
 						}
 					}
-				} catch (BadDataException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				// link to the parent
-				EntityEntity link = null;
-				Attribute linkFrame = new AttributeLink("LNK_THEME", "theme");
 
-				if (theme.getDirectLink()) {
-					link = new EntityEntity(parent, themeBe, linkFrame, themePosition.name(), weight);
-					if (!parent.getLinks().contains(link)) {
-						parent.getLinks().add(link);
+					if (attribute == null) {
+						attribute = new Attribute(themeAttribute.getCode(), themeAttribute.getCode(),
+								new DataType("DTT_THEME"));
 					}
 
-				} else {
+					try {
+						if (themeBe.containsEntityAttribute(themeAttribute.getCode())) {
+							EntityAttribute themeEA = themeBe.findEntityAttribute(themeAttribute.getCode()).get();
+							String existingSetValue = themeEA.getAsString();
+							JSONObject json = new JSONObject(existingSetValue);
+							JSONObject merged = new JSONObject(json, JSONObject.getNames(json));
+							JSONObject jo = themeAttribute.getJsonObject();
+							for (Object key : jo.names()/* JSONObject.getNames(themeAttribute.getJsonObject()) */) {
+								merged.put((String) key, themeAttribute.getJsonObject().get((String) key));
+							}
 
-					link = new EntityEntity(frame.getParent(), themeBe, linkFrame, position.name(), weight);
-					if (!frame.getParent().getLinks().contains(link)) {
-						frame.getParent().getLinks().add(link);
+							themeEA.setValue(merged.toString());
+							themeEA.setWeight(weight);
+						} else {
+							if (attribute.dataType.getClassName().equals(Boolean.class.getCanonicalName())) {
+								themeBe.addAttribute(new EntityAttribute(themeBe, attribute, weight,
+										themeAttribute.getValueBoolean()));
+							} else if (attribute.dataType.getClassName().equals(Double.class.getCanonicalName())) {
+								themeBe.addAttribute(new EntityAttribute(themeBe, attribute, weight,
+										themeAttribute.getValueDouble()));
+							} else if (attribute.dataType.getClassName().equals(String.class.getCanonicalName())) {
+								themeBe.addAttribute(new EntityAttribute(themeBe, attribute, weight,
+										themeAttribute.getValueString()));
+							} else {
+								themeBe.addAttribute(
+										new EntityAttribute(
+												themeBe, new Attribute(themeAttribute.getCode(),
+														themeAttribute.getCode(), new DataType("DTT_THEME")),
+												weight, themeAttribute.getJson()));
+							}
+						}
+					} catch (BadDataException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-				}
-				baseEntityList.add(themeBe);
+					// link to the parent
+					EntityEntity link = null;
+					Attribute linkFrame = new AttributeLink("LNK_THEME", "theme");
 
-			}
+					if (theme.getDirectLink()) {
+						link = new EntityEntity(parent, themeBe, linkFrame, themePosition.name(), weight);
+						if (!parent.getLinks().contains(link)) {
+							parent.getLinks().add(link);
+						}
+
+					} else {
+
+						link = new EntityEntity(frame.getParent(), themeBe, linkFrame, position.name(), weight);
+						if (!frame.getParent().getLinks().contains(link)) {
+							frame.getParent().getLinks().add(link);
+						}
+					}
+					baseEntityList.add(themeBe);
+
+				}
 			} else {
-				if (theme==null) {
+				if (theme == null) {
 					log.error("Theme is null");
 				} else {
-				log.warn("Theme has no attributes ");
+					log.warn("Theme has no attributes ");
 				}
 			}
 		}
@@ -858,7 +861,7 @@ public class FrameUtils2 {
 			if (!contextMap.containsKey(contextType)) {
 				contextMap.put(contextType, new HashSet<BaseEntity>());
 			}
-			
+
 			contextMap.get(contextType).add(themeBe);
 			vclMap.put(contextType, vcl);
 
@@ -878,9 +881,9 @@ public class FrameUtils2 {
 	 */
 	public static Ask createVirtualContext(Ask ask, Set<BaseEntity> themes, ContextType linkCode,
 			life.genny.qwanda.VisualControlType visualControlType, Double weight) {
-		return createVirtualContext(ask, themes, linkCode,
-				visualControlType, weight,null);
+		return createVirtualContext(ask, themes, linkCode, visualControlType, weight, null);
 	}
+
 	/**
 	 * Embeds the list of contexts (themes, icon) into an ask and also publishes the
 	 * themes
