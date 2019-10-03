@@ -17,7 +17,7 @@
 
 	<properties>
 
-		<qwanda-utils.version>3.1.0</qwanda-utils.version>
+		<qwanda-utils.version>${project.version}</qwanda-utils.version>
 		<vertx.version>3.5.1</vertx.version>
 		<kie.version>7.26.0.Final</kie.version>
 		<hazelcast.version>3.8.2</hazelcast.version>
@@ -34,8 +34,8 @@
 		<war-plugin-version>2.4</war-plugin-version>
 		<ear-plugin-version>2.9</ear-plugin-version>
 		<compiler-plugin-version>3.1</compiler-plugin-version>
-		<version.maven-jar-plugin>3.0.2</version.maven-jar-plugin>
-		<version.maven-source-plugin>3.0.1</version.maven-source-plugin>
+		<version.maven-jar-plugin>3.1.2</version.maven-jar-plugin>
+		<version.maven-source-plugin>3.1.0</version.maven-source-plugin>
 		<dropwizard.version>3.5.1</dropwizard.version>
 		<vertx-concurrent.version>1.0.0</vertx-concurrent.version>
 		<junit-version>4.12</junit-version>
@@ -54,13 +54,13 @@
 	</distributionManagement>
 
 	<dependencies>
-			<dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>${junit-version}</version>
 			<scope>test</scope>
 		</dependency>
-	
+
 		<!-- <dependency> <groupId>org.jboss.weld.vertx</groupId> <artifactId>weld-vertx-core</artifactId> 
 			<version>${weld-vertx.version}</version> </dependency> -->
 		<dependency>
@@ -73,16 +73,16 @@
 			<artifactId>hazelcast-client</artifactId>
 			<version>${hazelcast.version}</version>
 		</dependency>
-                <dependency>
-                        <groupId>io.vertx</groupId>
-                        <artifactId>vertx-auth-oauth2</artifactId>
-                        <version>${vertx.version}</version>
-                </dependency>
-                <dependency>
-                        <groupId>io.vertx</groupId>
-                        <artifactId>vertx-auth-jwt</artifactId>
-                        <version>${vertx.version}</version>
-                </dependency>
+		<dependency>
+			<groupId>io.vertx</groupId>
+			<artifactId>vertx-auth-oauth2</artifactId>
+			<version>${vertx.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.vertx</groupId>
+			<artifactId>vertx-auth-jwt</artifactId>
+			<version>${vertx.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>io.vertx</groupId>
 			<artifactId>vertx-redis-client</artifactId>
