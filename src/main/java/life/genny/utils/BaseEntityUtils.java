@@ -300,17 +300,22 @@ public class BaseEntityUtils implements Serializable {
 
 			this.updateCachedBaseEntity(answer);
 	}
-	
-	public void updateBaseEntity(BaseEntity be, Answer answer) {
 
-			this.updateCachedBaseEntity(answer);
-			try {
-				Attribute attr = RulesUtils.getAttribute(answer.getAttributeCode(), this.getGennyToken().getToken());
-				be.setValue(attr, answer.getValue());
-			} catch (BadDataException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+	public <T extends BaseEntity> T updateBaseEntity(T be, Answer answer,Class clazz) {
+
+		T be2 = this.updateCachedBaseEntity(answer,clazz);
+//		try {
+//			Attribute attr = RulesUtils.getAttribute(answer.getAttributeCode(), this.getGennyToken().getToken());				
+//			be.setValue(attr, answer.getValue());
+//		} catch (BadDataException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		return be2;
+}
+	public <T extends BaseEntity> T updateBaseEntity(T be, Answer answer) {
+
+		return updateBaseEntity(be,answer,BaseEntity.class);
 	}
 
 	public void saveAnswers(List<Answer> answers, final boolean changeEvent) {
@@ -422,7 +427,7 @@ public class BaseEntityUtils implements Serializable {
 		return searchBe;
 	}
 
-	public BaseEntity getBaseEntityByCode(final String code) {
+	public <T extends BaseEntity> T  getBaseEntityByCode(final String code) {
 		return this.getBaseEntityByCode(code, true);
 	}
 
@@ -430,13 +435,13 @@ public class BaseEntityUtils implements Serializable {
 		return this.getOptionalBaseEntityByCode(code, true);
 	}
 
-	public BaseEntity getBaseEntityByCode(final String code, Boolean withAttributes) {
+	public <T extends BaseEntity> T  getBaseEntityByCode(final String code, Boolean withAttributes, Class clazz) {
 
-		BaseEntity be = null;
+		T be = null;
 
 		try {
 			// log.info("Fetching BaseEntityByCode, code="+code);
-			be = VertxUtils.readFromDDT(getRealm(), code, withAttributes, this.token);
+			be = VertxUtils.readFromDDT(getRealm(), code, withAttributes, this.token,clazz);
 			if (be == null) {
 				log.info("be (" + code + ") fetched is NULL ");
 			} else {
@@ -447,6 +452,11 @@ public class BaseEntityUtils implements Serializable {
 		}
 
 		return be;
+	}
+	
+	public <T extends BaseEntity> T  getBaseEntityByCode(final String code, Boolean withAttributes) {
+
+		return getBaseEntityByCode(code,withAttributes,BaseEntity.class);
 	}
 	
 	public Optional<BaseEntity> getOptionalBaseEntityByCode(final String code, Boolean withAttributes) {
@@ -1155,8 +1165,8 @@ public class BaseEntityUtils implements Serializable {
 		this.saveAnswers(answers);
 	}
 
-	public BaseEntity updateCachedBaseEntity(final Answer answer) {
-		BaseEntity cachedBe = this.getBaseEntityByCode(answer.getTargetCode());
+	public <T extends BaseEntity> T  updateCachedBaseEntity(final Answer answer,Class clazz) {
+		T cachedBe = this.getBaseEntityByCode(answer.getTargetCode(),true,clazz);
 		// Add an attribute if not already there
 		try {
 			String attributeCode = answer.getAttributeCode();
@@ -1164,6 +1174,9 @@ public class BaseEntityUtils implements Serializable {
 				Attribute attribute = null;
 
 				if (RulesUtils.attributeMap != null) {
+					if (RulesUtils.attributeMap.isEmpty()) {
+						RulesUtils.loadAllAttributesIntoCache(token);
+					}
 					attribute = RulesUtils.attributeMap.get(attributeCode);
 
 					if (attribute != null) {
@@ -1192,6 +1205,9 @@ public class BaseEntityUtils implements Serializable {
 			e.printStackTrace();
 		}
 		return cachedBe;
+	}
+	public <T extends BaseEntity> T  updateCachedBaseEntity(final Answer answer) {
+		return updateCachedBaseEntity(answer,BaseEntity.class);
 	}
 
 	public BaseEntity updateCachedBaseEntity(List<Answer> answers) {

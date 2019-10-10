@@ -288,14 +288,15 @@ public class VertxUtils {
 		cacheInterface.clear(realm);
 	}
 
-	static public BaseEntity readFromDDT(String realm, final String code, final boolean withAttributes,
-			final String token) {
-		BaseEntity be = null;
+	
+	static public <T extends BaseEntity> T  readFromDDT(String realm, final String code, final boolean withAttributes,
+			final String token, Class clazz) {
+		T be = null;
 
 		JsonObject json = readCachedJson(realm, code, token);
 
 		if ("ok".equals(json.getString("status"))) {
-			be = JsonUtils.fromJson(json.getString("value"), BaseEntity.class);
+			be = JsonUtils.fromJson(json.getString("value"), clazz);
 			if (be != null && be.getCode() == null) {
 				log.error("readFromDDT baseEntity for realm " + realm + " has null code! json is ["
 						+ json.getString("value") + "]");
@@ -338,9 +339,15 @@ public class VertxUtils {
 		return be;
 	}
 
+	
+	static public <T extends BaseEntity> T  readFromDDT(String realm, final String code, final boolean withAttributes,
+			final String token) {
+		return readFromDDT(realm, code, withAttributes,token,BaseEntity.class);
+	}
+
 	static boolean cacheDisabled = System.getenv("NO_CACHE") != null ? true : false;
 
-	static public BaseEntity readFromDDT(final String realm, final String code, final String token) {
+	static public <T extends BaseEntity> T readFromDDT(final String realm, final String code, final String token) {
 		// if ("PER_SHARONCROW66_AT_GMAILCOM".equals(code)) {
 		// log.info("DEBUG");
 		// }
