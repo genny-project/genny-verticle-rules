@@ -193,8 +193,12 @@ public class VertxUtils {
 			try {
 				// log.info("VERTX READING FROM CACHE API!");
 				if (cachedEnabled) {
-					GennyToken temp = new GennyToken(token);
-					realm = temp.getRealm();
+					if ("DUMMY".contentEquals(token)) {
+						// leave realm as it
+					} else {
+						GennyToken temp = new GennyToken(token);
+						realm = temp.getRealm();
+					}
 
 					resultStr = (String) localCache.get(realm + ":" + key);
 					if ((resultStr != null) && (!"\"null\"".equals(resultStr))) {
@@ -257,8 +261,12 @@ public class VertxUtils {
 			try {
 				if (cachedEnabled) {
 					// force
-					GennyToken temp = new GennyToken(token);
-					realm = temp.getRealm();
+					if ("DUMMY".equals(token)) {
+						
+					} else {
+						GennyToken temp = new GennyToken(token);
+						realm = temp.getRealm();
+					}
 					if (value == null) {
 						localCache.remove(realm + ":" + key);
 					} else {
@@ -306,7 +314,7 @@ public class VertxUtils {
 			// System.out.println("Cache MISS for " + code + " with attributes in realm " +
 			// realm);
 			if (cachedEnabled) {
-				log.info("Local Cache being used.. this is NOT production");
+				log.debug("Local Cache being used.. this is NOT production");
 				// force
 				GennyToken temp = new GennyToken(token);
 				realm = temp.getRealm();
