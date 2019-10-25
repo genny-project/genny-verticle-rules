@@ -103,6 +103,10 @@ public class FrameUtils2 {
 
 	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken,
 			Map<String, ContextList> contextListMap) {
+		if (rootFrame == null) {
+			log.error("Null rootframe passed by "+serviceToken.getUserCode());
+			return;
+		}
 		BaseEntityUtils beUtils = new BaseEntityUtils(serviceToken);
 
 		Set<QDataAskMessage> askMsgs = new HashSet<QDataAskMessage>();
@@ -110,7 +114,14 @@ public class FrameUtils2 {
 		String askMsgsStr = JsonUtils.toJson(askMsgs);
 		// TODO, this is NOT needed, only enabkled for testing
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(), rootFrame, serviceToken.getToken());
-		BaseEntity ruleEntity = beUtils.getBaseEntityByCode("RUL_" + rootFrame.getCode().toUpperCase());
+		BaseEntity ruleEntity = null;
+		try {
+			ruleEntity = beUtils.getBaseEntityByCode("RUL_" + rootFrame.getCode().toUpperCase());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			log.error("Error in getting rule "+e.getLocalizedMessage());
+			return;
+		}
 		if (ruleEntity == null) {
 			beUtils.create("RUL_" + rootFrame.getCode().toUpperCase(), "RUL_" + rootFrame.getCode().toUpperCase());
 			log.error("!!!!!!!!!!!!!!!!!!!!!!!! RUL_" + rootFrame.getCode().toUpperCase() + " WAS NOT IN DB????");
