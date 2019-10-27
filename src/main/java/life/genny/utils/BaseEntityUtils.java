@@ -341,6 +341,10 @@ public class BaseEntityUtils implements Serializable {
 				} catch (IOException e) {
 					log.error("Socket error trying to post answer");
 				}
+			} else {
+				for (Answer answer : answers) {
+					log.info("Saving Answer :"+answer);
+				}
 			}
 		}
 	}
