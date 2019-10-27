@@ -76,7 +76,7 @@ public class BaseEntityUtils implements Serializable {
 	public BaseEntityUtils(GennyToken userToken) {
 		this(GennySettings.qwandaServiceUrl, userToken);
 	}
-	
+
 	public BaseEntityUtils(GennyToken serviceToken, GennyToken userToken) {
 		this(GennySettings.qwandaServiceUrl, userToken);
 		this.serviceToken = serviceToken;
@@ -129,9 +129,6 @@ public class BaseEntityUtils implements Serializable {
 		return newBaseEntity;
 	}
 
-	
-	
-	
 	public List<BaseEntity> getBaseEntityFromSelectionAttribute(BaseEntity be, String attributeCode) {
 
 		List<BaseEntity> bes = new ArrayList<>();
@@ -286,7 +283,7 @@ public class BaseEntityUtils implements Serializable {
 
 		addAnswer(answer);
 		try {
-			if (!VertxUtils.cachedEnabled) {  // only post if not in junit
+			if (!VertxUtils.cachedEnabled) { // only post if not in junit
 				QwandaUtils.apiPostEntity(qwandaServiceUrl + "/qwanda/answers", JsonUtils.toJson(answer), this.token);
 			}
 			// Now update the Cache
@@ -295,15 +292,15 @@ public class BaseEntityUtils implements Serializable {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void addAnswer(Answer answer) {
 
-			this.updateCachedBaseEntity(answer);
+		this.updateCachedBaseEntity(answer);
 	}
 
-	public <T extends BaseEntity> T updateBaseEntity(T be, Answer answer,Class clazz) {
+	public <T extends BaseEntity> T updateBaseEntity(T be, Answer answer, Class clazz) {
 
-		T be2 = this.updateCachedBaseEntity(answer,clazz);
+		T be2 = this.updateCachedBaseEntity(answer, clazz);
 //		try {
 //			Attribute attr = RulesUtils.getAttribute(answer.getAttributeCode(), this.getGennyToken().getToken());				
 //			be.setValue(attr, answer.getValue());
@@ -312,36 +309,38 @@ public class BaseEntityUtils implements Serializable {
 //			e.printStackTrace();
 //		}
 		return be2;
-}
+	}
+
 	public <T extends BaseEntity> T updateBaseEntity(T be, Answer answer) {
 
-		return updateBaseEntity(be,answer,BaseEntity.class);
+		return updateBaseEntity(be, answer, BaseEntity.class);
 	}
 
 	public void saveAnswers(List<Answer> answers, final boolean changeEvent) {
-
-		if (!changeEvent) {
-			for (Answer answer : answers) {
-				answer.setChangeEvent(false);
-			}
-		}
-		Answer items[] = new Answer[answers.size()];
-		items = answers.toArray(items);
-
-		QDataAnswerMessage msg = new QDataAnswerMessage(items);
-
-		this.updateCachedBaseEntity(answers);
-
-		if (!VertxUtils.cachedEnabled) { // if not running junit, no need for api
-			String jsonAnswer = JsonUtils.toJson(msg);
-			// jsonAnswer.replace("\\\"", "\"");
-
-			try {
-				if (!VertxUtils.cachedEnabled) {  // only post if not in junit
-					QwandaUtils.apiPostEntity(this.qwandaServiceUrl + "/qwanda/answers/bulk2", jsonAnswer, token);
+		if (!((answers == null) || (answers.isEmpty()))) {
+			if (!changeEvent) {
+				for (Answer answer : answers) {
+					answer.setChangeEvent(false);
 				}
-			} catch (IOException e) {
-				log.error("Socket error trying to post answer");
+			}
+			Answer items[] = new Answer[answers.size()];
+			items = answers.toArray(items);
+
+			QDataAnswerMessage msg = new QDataAnswerMessage(items);
+
+			this.updateCachedBaseEntity(answers);
+
+			if (!VertxUtils.cachedEnabled) { // if not running junit, no need for api
+				String jsonAnswer = JsonUtils.toJson(msg);
+				// jsonAnswer.replace("\\\"", "\"");
+
+				try {
+					if (!VertxUtils.cachedEnabled) { // only post if not in junit
+						QwandaUtils.apiPostEntity(this.qwandaServiceUrl + "/qwanda/answers/bulk2", jsonAnswer, token);
+					}
+				} catch (IOException e) {
+					log.error("Socket error trying to post answer");
+				}
 			}
 		}
 	}
@@ -427,7 +426,7 @@ public class BaseEntityUtils implements Serializable {
 		return searchBe;
 	}
 
-	public <T extends BaseEntity> T  getBaseEntityByCode(final String code) {
+	public <T extends BaseEntity> T getBaseEntityByCode(final String code) {
 		return this.getBaseEntityByCode(code, true);
 	}
 
@@ -435,13 +434,13 @@ public class BaseEntityUtils implements Serializable {
 		return this.getOptionalBaseEntityByCode(code, true);
 	}
 
-	public <T extends BaseEntity> T  getBaseEntityByCode(final String code, Boolean withAttributes, Class clazz) {
+	public <T extends BaseEntity> T getBaseEntityByCode(final String code, Boolean withAttributes, Class clazz) {
 
 		T be = null;
 
 		try {
 			// log.info("Fetching BaseEntityByCode, code="+code);
-			be = VertxUtils.readFromDDT(getRealm(), code, withAttributes, this.token,clazz);
+			be = VertxUtils.readFromDDT(getRealm(), code, withAttributes, this.token, clazz);
 			if (be == null) {
 				log.info("be (" + code + ") fetched is NULL ");
 			} else {
@@ -453,12 +452,12 @@ public class BaseEntityUtils implements Serializable {
 
 		return be;
 	}
-	
-	public <T extends BaseEntity> T  getBaseEntityByCode(final String code, Boolean withAttributes) {
 
-		return getBaseEntityByCode(code,withAttributes,BaseEntity.class);
+	public <T extends BaseEntity> T getBaseEntityByCode(final String code, Boolean withAttributes) {
+
+		return getBaseEntityByCode(code, withAttributes, BaseEntity.class);
 	}
-	
+
 	public Optional<BaseEntity> getOptionalBaseEntityByCode(final String code, Boolean withAttributes) {
 
 		Optional<BaseEntity> be = Optional.empty();
@@ -1165,8 +1164,8 @@ public class BaseEntityUtils implements Serializable {
 		this.saveAnswers(answers);
 	}
 
-	public <T extends BaseEntity> T  updateCachedBaseEntity(final Answer answer,Class clazz) {
-		T cachedBe = this.getBaseEntityByCode(answer.getTargetCode(),true,clazz);
+	public <T extends BaseEntity> T updateCachedBaseEntity(final Answer answer, Class clazz) {
+		T cachedBe = this.getBaseEntityByCode(answer.getTargetCode(), true, clazz);
 		// Add an attribute if not already there
 		try {
 			String attributeCode = answer.getAttributeCode();
@@ -1206,8 +1205,9 @@ public class BaseEntityUtils implements Serializable {
 		}
 		return cachedBe;
 	}
-	public <T extends BaseEntity> T  updateCachedBaseEntity(final Answer answer) {
-		return updateCachedBaseEntity(answer,BaseEntity.class);
+
+	public <T extends BaseEntity> T updateCachedBaseEntity(final Answer answer) {
+		return updateCachedBaseEntity(answer, BaseEntity.class);
 	}
 
 	public BaseEntity updateCachedBaseEntity(List<Answer> answers) {
@@ -1718,8 +1718,8 @@ public class BaseEntityUtils implements Serializable {
 
 	@Override
 	public String toString() {
-		return "BaseEntityUtils [" + (realm != null ? "realm=" + realm : "") + ": "+StringUtils.abbreviateMiddle(
-                token, "...", 30)+"]";
+		return "BaseEntityUtils [" + (realm != null ? "realm=" + realm : "") + ": "
+				+ StringUtils.abbreviateMiddle(token, "...", 30) + "]";
 	}
 
 	/**
@@ -1736,6 +1736,4 @@ public class BaseEntityUtils implements Serializable {
 		this.serviceToken = serviceToken;
 	}
 
-	
-	
 }
