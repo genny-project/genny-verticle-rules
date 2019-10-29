@@ -87,6 +87,12 @@ public final class ThemeAttribute implements Serializable {
 	@Expose
 	private Integer borderBottomWidth = null;
 	@Expose
+	private Integer borderTopWidth = null;
+	@Expose
+	private Integer borderRightWidth = null;
+	@Expose
+	private Integer borderLeftWidth = null;
+	@Expose
 	private Integer borderWidth = null;
 	@Expose
 	private String placeholderColor = null;
@@ -232,6 +238,24 @@ public final class ThemeAttribute implements Serializable {
 	 * @return the borderBottomWidth
 	 */
 	public Integer getBorderBottomWidth() {
+		return borderBottomWidth;
+	}
+	/**
+	 * @return the borderBottomWidth
+	 */
+	public Integer getBorderTopWidth() {
+		return borderBottomWidth;
+	}
+	/**
+	 * @return the borderBottomWidth
+	 */
+	public Integer getBorderRightWidth() {
+		return borderBottomWidth;
+	}
+	/**
+	 * @return the borderBottomWidth
+	 */
+	public Integer getBorderLeftWidth() {
 		return borderBottomWidth;
 	}
 
@@ -838,6 +862,19 @@ public final class ThemeAttribute implements Serializable {
 			managedInstance.borderBottomWidth = value;
 			return this;
 		}
+		
+		public Builder borderTopWidth(Integer value) {
+			managedInstance.borderTopWidth = value;
+			return this;
+		}
+		public Builder borderLeftWidth(Integer value) {
+			managedInstance.borderLeftWidth = value;
+			return this;
+		}
+		public Builder borderRightWidth(Integer value) {
+			managedInstance.borderRightWidth = value;
+			return this;
+		}
 
 		public Builder borderWidth(Integer value) {
 			managedInstance.borderWidth = value;
@@ -1156,6 +1193,12 @@ public final class ThemeAttribute implements Serializable {
 			json.put("shadowOffset", shadowOffset.getJsonObject());
 		if (borderBottomWidth != null)
 			json.put("borderBottomWidth", borderBottomWidth);
+		if (borderTopWidth != null)
+			json.put("borderTopWidth", borderTopWidth);
+		if (borderLeftWidth != null)
+			json.put("borderLeftWidth", borderLeftWidth);
+		if (borderRightWidth != null)
+			json.put("borderRightWidth", borderRightWidth);
 		if (borderWidth != null)
 			json.put("borderWidth", borderWidth);
 		if (placeholderColor != null)
