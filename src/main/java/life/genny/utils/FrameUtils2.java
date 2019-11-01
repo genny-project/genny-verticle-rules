@@ -76,7 +76,9 @@ public class FrameUtils2 {
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(), rootFrame, serviceToken.getToken());
 
 		if (!GennySettings.framesOnDemand) {
-			log.info(rootFrame.getCode() + " RULE SAVED FRAME TO CACHE");
+			if (!VertxUtils.cachedEnabled) {
+				log.info(rootFrame.getCode() + " RULE SAVED FRAME TO CACHE");
+			}
 		}
 	}
 

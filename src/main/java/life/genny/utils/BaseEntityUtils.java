@@ -446,7 +446,9 @@ public class BaseEntityUtils implements Serializable {
 			// log.info("Fetching BaseEntityByCode, code="+code);
 			be = VertxUtils.readFromDDT(getRealm(), code, withAttributes, this.token, clazz);
 			if (be == null) {
-				log.info("be (" + code + ") fetched is NULL ");
+				if (!VertxUtils.cachedEnabled) {  // because during junit it annoys me
+					log.info("be (" + code + ") fetched is NULL ");
+				}
 			} else {
 				this.addAttributes(be);
 			}
