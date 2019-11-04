@@ -44,7 +44,7 @@ public class EmailHelper extends NotificationHelper {
     mailServerProperties = getProperties();
     mailServerProperties.put("mail.smtp.port", System.getenv("EMAIL_SMTP_PORT"));
     mailServerProperties.put("mail.smtp.auth", System.getenv("EMAIL_SMTP_AUTH"));
-    mailServerProperties.put("mail.smtp.starttls.enable", System.getenv("EMAIL_SMTP_STARTTTLS"));
+    mailServerProperties.put("mail.smtp.starttls.enable", System.getenv("EMAIL_SMTP_STARTTLS"));
     getMailSession = getDefaultInstance(mailServerProperties, null);
     generateMailMessage = new MimeMessage(getMailSession);
     generateMailMessage.addRecipient(TO, new InternetAddress(recipient));
