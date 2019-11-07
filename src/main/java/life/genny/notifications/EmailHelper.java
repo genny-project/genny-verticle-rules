@@ -22,14 +22,78 @@ public class EmailHelper extends NotificationHelper {
 
   public EmailHelper() {
     super("PRI_EMAIL");
+    this.setEMAIL_SMTP_HOST(System.getenv("EMAIL_SMTP_HOST"));
+    this.setEMAIL_SMTP_USER(System.getenv("EMAIL_SMTP_USER"));
+    this.setEMAIL_SMTP_PASS(System.getenv("EMAIL_SMTP_PASS"));
+    this.setEMAIL_SMTP_PORT(System.getenv("EMAIL_SMTP_PORT"));
+    this.setEMAIL_SMTP_AUTH(System.getenv("EMAIL_SMTP_AUTH"));
+    this.setEMAIL_SMTP_STARTTLS(System.getenv("EMAIL_SMTP_STARTTLS"));
   }
 
   private Properties mailServerProperties;
   private Session getMailSession;
   private MimeMessage generateMailMessage;
 
+  private static String EMAIL_SMTP_HOST;
+  private static String EMAIL_SMTP_USER;
+  private static String EMAIL_SMTP_PASS;
+  private static String EMAIL_SMTP_PORT;
+  private static String EMAIL_SMTP_AUTH;
+  private static String EMAIL_SMTP_STARTTLS;
+
+  public String getEMAIL_SMTP_HOST() {
+    return EMAIL_SMTP_HOST;
+  }
+
+  public void setEMAIL_SMTP_HOST(String eMAIL_SMTP_HOST) {
+    EMAIL_SMTP_HOST = eMAIL_SMTP_HOST;
+  }
+
+  public String getEMAIL_SMTP_USER() {
+    return EMAIL_SMTP_USER;
+  }
+
+  public void setEMAIL_SMTP_USER(String eMAIL_SMTP_USER) {
+    EMAIL_SMTP_USER = eMAIL_SMTP_USER;
+  }
+
+  public String getEMAIL_SMTP_PASS() {
+    return EMAIL_SMTP_PASS;
+  }
+
+  public void setEMAIL_SMTP_PASS(String eMAIL_SMTP_PASS) {
+    EMAIL_SMTP_PASS = eMAIL_SMTP_PASS;
+  }
+
+  public String getEMAIL_SMTP_PORT() {
+    return EMAIL_SMTP_PORT;
+  }
+
+  public void setEMAIL_SMTP_PORT(String eMAIL_SMTP_PORT) {
+    EMAIL_SMTP_PORT = eMAIL_SMTP_PORT;
+  }
+
+  public String getEMAIL_SMTP_AUTH() {
+    return EMAIL_SMTP_AUTH;
+  }
+
+  public void setEMAIL_SMTP_AUTH(String eMAIL_SMTP_AUTH) {
+    EMAIL_SMTP_AUTH = eMAIL_SMTP_AUTH;
+  }
+
+  public String getEMAIL_SMTP_STARTTLS() {
+    return EMAIL_SMTP_STARTTLS;
+  }
+
+  public void setEMAIL_SMTP_STARTTLS(String eMAIL_SMTP_STARTTLS) {
+    EMAIL_SMTP_STARTTLS = eMAIL_SMTP_STARTTLS;
+  }
+
   /*
    * This function will send email by using JAVA Transport Class
+   *
+   * @param recipient Email recipient
+   * @param emailBody Email body text
    *
    */
   public void deliverEmailMsg(String recipient, String emailBody)
@@ -42,36 +106,34 @@ public class EmailHelper extends NotificationHelper {
     }
 
     mailServerProperties = getProperties();
-    mailServerProperties.put("mail.smtp.port", System.getenv("EMAIL_SMTP_PORT"));
-    mailServerProperties.put("mail.smtp.auth", System.getenv("EMAIL_SMTP_AUTH"));
-    mailServerProperties.put("mail.smtp.starttls.enable", System.getenv("EMAIL_SMTP_STARTTLS"));
+    mailServerProperties.put("mail.smtp.port", getEMAIL_SMTP_PORT());
+    mailServerProperties.put("mail.smtp.auth", getEMAIL_SMTP_AUTH());
+    mailServerProperties.put("mail.smtp.starttls.enable", getEMAIL_SMTP_STARTTLS());
     getMailSession = getDefaultInstance(mailServerProperties, null);
     generateMailMessage = new MimeMessage(getMailSession);
     generateMailMessage.addRecipient(TO, new InternetAddress(recipient));
     //      generateMailMessage.addRecipient(CC, new InternetAddress("email@emailaddress.email"));
-    generateMailMessage.setSubject("Greetings from Outcome.life");
+    generateMailMessage.setSubject(this.getEmailSubject());
 
     /*
      * Construct email Body
      */
-    emailBody =
-        "Test email from Project Genny<br><br>" + emailBody + "<br><br> Regards, <br>Project Genny";
     generateMailMessage.setContent(emailBody, "text/html");
 
     // Enter your correct gmail UserID and Password
     // if you have 2FA enabled then provide App Specific Password
     Transport transport = getMailSession.getTransport("smtp");
     transport.connect(
-        System.getenv("EMAIL_SMTP_HOST"),
-        System.getenv("EMAIL_SMTP_USER"),
-        System.getenv("EMAIL_SMTP_PASS"));
+        this.getEMAIL_SMTP_HOST(), this.getEMAIL_SMTP_USER(), this.getEMAIL_SMTP_PASS());
     transport.sendMessage(generateMailMessage, generateMailMessage.getAllRecipients());
     log.info("-------------EMAIL SENT---------------------");
-    log.info(System.getenv("EMAIL_SMTP_HOST"));
+    log.info(getEMAIL_SMTP_HOST());
     log.info("-------------EMAIL RECIPIENT---------------------");
     log.info(generateMailMessage.getAllRecipients());
     log.info("-------------EMAIL BODY---------------------");
     log.info(generateMailMessage);
+    log.info("-------------EMAIL PORT---------------------");
+    log.info(getEMAIL_SMTP_PORT());
 
     transport.close();
   }

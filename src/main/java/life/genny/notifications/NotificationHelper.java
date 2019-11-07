@@ -36,6 +36,7 @@ import life.genny.utils.VertxUtils;
 public abstract class NotificationHelper {
 
   private String msgTargetAttribute = null;
+  private String emailSubject = null;
 
   public static final Logger log =
       org.apache.logging.log4j.LogManager.getLogger(
@@ -109,6 +110,7 @@ public abstract class NotificationHelper {
         try {
 
           templateWordings = QwandaUtils.apiGet(loadTemplate.getEmail_templateId(), null);
+          this.setEmailSubject(loadTemplate.getSubject());
 
         } catch (ClientProtocolException e) { // TODO Auto-generated catch block
           e.printStackTrace();
@@ -178,5 +180,13 @@ public abstract class NotificationHelper {
     }
 
     return baseEntityContextMap;
+  }
+
+  public String getEmailSubject() {
+    return emailSubject;
+  }
+
+  public void setEmailSubject(String emailSubject) {
+    this.emailSubject = emailSubject;
   }
 }

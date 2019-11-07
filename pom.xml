@@ -76,6 +76,13 @@
 		  <version>7.42.0</version>
 		</dependency>
 
+		<!-- https://github.com/DiUS/java-faker -->
+		<dependency>
+			<groupId>com.github.javafaker</groupId>
+			<artifactId>javafaker</artifactId>
+			<version>1.0.1</version>
+		</dependency>
+		
 		<!-- <dependency> <groupId>org.jboss.weld.vertx</groupId> <artifactId>weld-vertx-core</artifactId> 
 			<version>${weld-vertx.version}</version> </dependency> -->
 		<dependency>

@@ -1,77 +1,82 @@
 package life.genny.test.qwandautils.notifications;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import java.io.UnsupportedEncodingException;
-
-import javax.mail.Folder;
 import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Store;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.omg.CORBA.UserException;
 
-import com.icegreen.greenmail.junit.GreenMailRule;
-import com.icegreen.greenmail.util.ServerSetupTest;
-import com.sun.mail.imap.IMAPStore;
+import com.github.javafaker.Faker;
+import com.icegreen.greenmail.util.GreenMail;
+import com.icegreen.greenmail.util.ServerSetup;
 
+import life.genny.notifications.EmailHelper;
 
-//TODO complate the test case
-/** 
- * This testing requires MAven 
- * Example using plain JavaMail for sending / receiving mails via GreenMail server.
- * 
- *  
- *  
- *  */
+// TODO complate the test case
+/**
+ * This testing requires MAven Example using plain JavaMail for sending / receiving mails via
+ * GreenMail server.
+ *
+ * http://www.icegreen.com/greenmail/
+ * https://www.hascode.com/2012/07/integration-testing-imap-smtp-and-pop3-with-greenmail/
+ */
 public class NotificaitonEmailTest {
 
-  @Rule public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP_IMAP);
+  private GreenMail mailServer;
+  private EmailHelper emailHelper;
 
   @Test
-  public void testSendAndReceive()
-      throws UnsupportedEncodingException, MessagingException, UserException {
-    Session smtpSession = greenMail.getSmtp().createSession();
+  public void sendShouldSetTheRightText() throws Exception {
 
-    Message msg = new MimeMessage(smtpSession);
-    msg.setFrom(new InternetAddress("foo@example.com"));
-    msg.addRecipient(Message.RecipientType.TO, new InternetAddress("bar@example.com"));
-    msg.setSubject("Email sent to GreenMail via plain JavaMail");
-    msg.setText("Fetch me via IMAP");
-    Transport.send(msg);
+    // Random faker
+    Faker faker = new Faker();
 
-    // Create user, as connect verifies pwd
-    greenMail.setUser("bar@example.com", "bar@example.com", "secret-pwd");
+    String SMTP_TEST_PORT = Integer.toString(faker.number().numberBetween(5000, 8000));
+    String USER_PASSWORD = faker.internet().password();
+    String USER_NAME = faker.internet().uuid();
+    String EMAIL_USER_ADDRESS = faker.internet().emailAddress();
+    String EMAIL_TO = "Recipient_" + faker.internet().emailAddress();
+    String EMAIL_SUBJECT = "SUBJECT: " + faker.buffy().episodes();
+    String EMAIL_TEXT = "BODY: " + faker.buffy().quotes();
+    String LOCALHOST = "127.0.0.1"; // must localhost
 
-    // Alternative 1: Create session and store or ...
-    Session imapSession = greenMail.getImap().createSession();
-    Store store = imapSession.getStore("imap");
-    store.connect("bar@example.com", "secret-pwd");
-    Folder inbox = store.getFolder("INBOX");
-    inbox.open(Folder.READ_ONLY);
-    Message msgReceived = inbox.getMessage(1);
-    assertEquals(msg.getSubject(), msgReceived.getSubject());
+    mailServer = new GreenMail(new ServerSetup(Integer.parseInt(SMTP_TEST_PORT), null, "smtp"));
+    mailServer.start();
 
-    // Alternative 2: ... let GreenMail create and configure a store:
-    IMAPStore imapStore = greenMail.getImap().createStore();
-    imapStore.connect("bar@example.com", "secret-pwd");
-    inbox = imapStore.getFolder("INBOX");
-    inbox.open(Folder.READ_ONLY);
-    msgReceived = inbox.getMessage(1);
-    assertEquals(msg.getSubject(), msgReceived.getSubject());
+    // Setting the Email Helper
+    emailHelper = new EmailHelper();
+    emailHelper.setEMAIL_SMTP_HOST(LOCALHOST);
+    emailHelper.setEMAIL_SMTP_PORT(SMTP_TEST_PORT);
+    emailHelper.setEMAIL_SMTP_AUTH("true");
+    emailHelper.setEMAIL_SMTP_USER(USER_NAME);
+    emailHelper.setEMAIL_SMTP_PASS(USER_PASSWORD);
+    emailHelper.setEmailSubject(EMAIL_SUBJECT);
 
-    // Alternative 3: ... directly fetch sent message using GreenMail API
-    assertEquals(1, greenMail.getReceivedMessagesForDomain("bar@example.com").length);
-    msgReceived = greenMail.getReceivedMessagesForDomain("bar@example.com")[0];
-    assertEquals(msg.getSubject(), msgReceived.getSubject());
+    // setup user on the mail server
+    mailServer.setUser(EMAIL_USER_ADDRESS, USER_NAME, USER_PASSWORD);
 
-    store.close();
-    imapStore.close();
+    // Send Email
+    emailHelper.deliverEmailMsg(EMAIL_TO, EMAIL_TEXT);
+
+    // fetch messages from server
+    MimeMessage[] messages = mailServer.getReceivedMessages();
+    assertNotNull(messages);
+    assertEquals(1, messages.length);
+    
+    //Check Recipient, Subject and body
+    MimeMessage m = messages[0];
+    assertEquals(EMAIL_TO, (m.getRecipients(Message.RecipientType.TO))[0].toString());
+    assertEquals(EMAIL_SUBJECT, m.getSubject());
+    assertTrue(String.valueOf(m.getContent()).contains(EMAIL_TEXT));
+
+    System.out.println((m.getRecipients(Message.RecipientType.TO))[0].toString());
+    System.out.println(m.getSubject());
+    System.out.println(m.getContent());
+
+    // Must Stop the mail server after test
+    mailServer.stop();
   }
 }
