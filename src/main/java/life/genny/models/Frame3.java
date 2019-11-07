@@ -270,6 +270,36 @@ public class Frame3 extends BaseEntity implements Serializable {
 
 			return new Frame3.Builder(this, f, frame, position);
 		}
+		/**
+		 * fluent setter for frameCodes in the list
+		 *
+		 * @param none
+		 * @return
+		 * @throws Exception
+		 */
+		public Frame3.Builder addFrame(List<String> frameCodes, FramePosition position, GennyToken serviceToken) throws Exception {
+			if (managedInstance.frame3s == null) {
+				managedInstance.frame3s = new ArrayList<Frame3>();
+			}
+
+			for (String frameCode : frameCodes) {
+				
+				Frame3 frame = null;
+				frame = VertxUtils.getObject(serviceToken.getRealm(), "", frameCode, Frame3.class, serviceToken.getToken());
+				if (frame != null) {
+
+				} else {
+					throw new Exception("Could not load Frame " + frameCode + " - Does it exist yet?");
+				}
+
+				Consumer<Frame3> f = obj -> {
+					managedInstance.frame3s.add(obj);
+				};
+				
+				this.addFrame(managedInstance.frame3s, position);
+			}
+			return this;
+		}
 
 		/**
 		 * fluent setter for frames in the list
@@ -303,6 +333,19 @@ public class Frame3 extends BaseEntity implements Serializable {
 		public Frame3.Builder addFrame(List<Frame3> frames) {
 			for (Frame3 frame : frames) {
 				addFrame(frame, FramePosition.CENTRE);
+			}
+			return this;
+		}
+
+		/**
+		 * fluent setter for frames in the list
+		 *
+		 * @param none
+		 * @return
+		 */
+		public Frame3.Builder addFrame(List<Frame3> frames, FramePosition position) {
+			for (Frame3 frame : frames) {
+				addFrame(frame, position);
 			}
 			return this;
 		}
