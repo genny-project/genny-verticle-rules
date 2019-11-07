@@ -53,6 +53,7 @@ public class NotificaitonEmailTest {
     emailHelper.setEMAIL_SMTP_AUTH("true");
     emailHelper.setEMAIL_SMTP_USER(USER_NAME);
     emailHelper.setEMAIL_SMTP_PASS(USER_PASSWORD);
+    emailHelper.setEMAIL_SMTP_STARTTLS("false");
     emailHelper.setEmailSubject(EMAIL_SUBJECT);
 
     // setup user on the mail server
