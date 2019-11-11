@@ -340,12 +340,12 @@ public class FrameUtils2 {
 		return askMsg;
 	}
 
-	private static BaseEntity getBaseEntity(final Frame3 rootFrame, final GennyToken serviceToken) {
+	public static BaseEntity getBaseEntity(final Frame3 rootFrame, final GennyToken serviceToken) {
 		return getBaseEntity(rootFrame.getCode(), rootFrame.getName(), serviceToken);
 
 	}
 
-	private static BaseEntity getBaseEntity(final String beCode, final String beName, final GennyToken serviceToken) {
+	public static BaseEntity getBaseEntity(final String beCode, final String beName, final GennyToken serviceToken) {
 		BaseEntity be = null; // VertxUtils.getObject(serviceToken.getRealm(), "", beCode, BaseEntity.class,
 		// serviceToken.getToken());
 		if (be == null) {
