@@ -213,7 +213,7 @@ public class QuestionGroup implements Serializable {
 		}
 	}
 	
-	public static QuestionGroup Clone(QuestionGroup obj) {
+	public static QuestionGroup clone(QuestionGroup obj) {
 		QuestionGroup newQuestionGroup = new QuestionGroup();
 		newQuestionGroup.code = obj.getCode();
 		newQuestionGroup.contexts = obj.getContexts();

@@ -132,7 +132,7 @@ public class Frame3 extends BaseEntity implements Serializable {
 		Frame3 newFrame = new Frame3();
 		newFrame.questionCode = object.getQuestionCode();
 		newFrame.questionName = object.getQuestionName();
-		newFrame.questionGroup = QuestionGroup.Clone(object.getQuestionGroup());
+		newFrame.questionGroup = QuestionGroup.clone(object.getQuestionGroup());
 		newFrame.position = object.getPosition();
 		newFrame.parent =object.getParent();
 		newFrame.themeObjects = (ArrayList<ThemeTuple4>) object.getThemeObjects();
@@ -328,7 +328,7 @@ public class Frame3 extends BaseEntity implements Serializable {
 					managedInstance.frame3s.add(obj);
 				};
 				
-				//this.addFrame(managedInstance.frame3s, position);
+				this.addFrame(managedInstance.frame3s, position);
 			}
 			return this;
 		}
@@ -368,6 +368,20 @@ public class Frame3 extends BaseEntity implements Serializable {
 			}
 			return this;
 		}
+		
+		/**
+		 * fluent setter for frames in the list
+		 *
+		 * @param none
+		 * @return
+		 */
+		public Frame3.Builder addFrame(List<Frame3> frames, FramePosition position) {
+			for (Frame3 frame : frames) {
+				addFrame(frame, position);
+			}
+			return this;
+		}
+
 
 		/**
 		 * fluent setter for frames in the list
