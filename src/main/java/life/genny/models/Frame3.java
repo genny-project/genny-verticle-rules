@@ -2,6 +2,7 @@ package life.genny.models;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -92,7 +93,7 @@ public class Frame3 extends BaseEntity implements Serializable {
 	 */
 	public static Builder builder(final String code) {
 		return new Frame3.Builder(code);
-	}
+	}	
 
 	/**
 	 * forces use of the Builder
@@ -126,7 +127,32 @@ public class Frame3 extends BaseEntity implements Serializable {
 		return questionGroup;
 	}
 
+	public static Frame3 clone(Frame3 object) {
+		
+		Frame3 newFrame = new Frame3();
+		newFrame.questionCode = object.getQuestionCode();
+		newFrame.questionName = object.getQuestionName();
+		newFrame.questionGroup = QuestionGroup.clone(object.getQuestionGroup());
+		newFrame.position = object.getPosition();
+		newFrame.parent =object.getParent();
+		newFrame.themeObjects = (ArrayList<ThemeTuple4>) object.getThemeObjects();
+		newFrame.themes = object.getThemes();
+		newFrame.frameCodes = (ArrayList<StringTuple>) object.getFrameCodes();
+		newFrame.frames = (ArrayList<FrameTuple3>) object.getFrames();
+		if(object.getFrame3s() != null) {
+			
+			newFrame.frame3s = Arrays.asList((Frame3[])object.getFrame3s().toArray());
+			
+		}
+		if(object.getTheme3s() != null) {
+			newFrame.theme3s = object.getTheme3s();
+		}
+		newFrame.weight = object.getWeight();
+
+		return newFrame;
+	}
 	/**
+	
 	 * @return the position
 	 */
 	public FramePosition getPosition() {
@@ -169,11 +195,17 @@ public class Frame3 extends BaseEntity implements Serializable {
 	}
 
 	public List<Frame3> getFrame3s() {
-		return Collections.unmodifiableList(frame3s);
+		if(frame3s != null) {
+			return Collections.unmodifiableList(frame3s);
+		}
+		return null;
 	}
 
 	public List<Theme> getTheme3s() {
-		return Collections.unmodifiableList(theme3s);
+		if( theme3s != null) {
+			return Collections.unmodifiableList(theme3s);
+		}
+		return null;
 	}
 
 	/**
@@ -336,7 +368,7 @@ public class Frame3 extends BaseEntity implements Serializable {
 			}
 			return this;
 		}
-
+		
 		/**
 		 * fluent setter for frames in the list
 		 *
@@ -350,7 +382,7 @@ public class Frame3 extends BaseEntity implements Serializable {
 			return this;
 		}
 
-		
+
 		/**
 		 * fluent setter for frames in the list
 		 *

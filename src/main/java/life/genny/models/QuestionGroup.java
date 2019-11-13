@@ -211,7 +211,18 @@ public class QuestionGroup implements Serializable {
 			callback.accept(managedInstance);
 			return parentBuilder;
 		}
-
+	}
+	
+	public static QuestionGroup clone(QuestionGroup obj) {
+		QuestionGroup newQuestionGroup = new QuestionGroup();
+		newQuestionGroup.code = obj.getCode();
+		newQuestionGroup.contexts = obj.getContexts();
+		newQuestionGroup.name = obj.getName();
+		newQuestionGroup.questionThemes = obj.questionThemes;
+		newQuestionGroup.sourceAlias = obj.getSourceAlias();
+		newQuestionGroup.targetAlias = obj.getTargetAlias();
+		newQuestionGroup.themeCodes = obj.themeCodes;
+		return  newQuestionGroup;
 	}
 
 	@Override
