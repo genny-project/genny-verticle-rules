@@ -81,6 +81,11 @@ public class QuestionGroup implements Serializable {
 	public String getTargetAlias() {
 		return targetAlias;
 	}
+	
+	public void setTargetAlias(String targetAlias)
+	{
+		this.targetAlias = targetAlias;
+	}
 
 	public Set<QuestionTheme> getQuestionThemes() {
 		return Collections.unmodifiableSet(questionThemes);
