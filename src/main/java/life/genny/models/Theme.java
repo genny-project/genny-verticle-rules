@@ -15,6 +15,8 @@ import life.genny.qwanda.attribute.AttributeBoolean;
 import life.genny.qwanda.attribute.AttributeDouble;
 import life.genny.qwanda.attribute.AttributeInteger;
 import life.genny.qwanda.attribute.AttributeText;
+import life.genny.qwanda.attribute.EntityAttribute;
+import life.genny.qwanda.datatype.DataType;
 import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.exception.BadDataException;
 
@@ -254,6 +256,19 @@ public class Theme extends BaseEntity {
 		// ugly
 		BaseEntity copy = new BaseEntity(this.getCode(),this.getName());
 		copy.setRealm(this.getRealm());
+		if (this.getAttributes() != null) {
+			for (ThemeAttribute themeAttribute : this.getAttributes()) {
+
+				try {
+					copy.addAttribute(new EntityAttribute(copy,
+							new Attribute(themeAttribute.getCode(), themeAttribute.getCode(), new DataType("DTT_THEME")), 1.0,
+							themeAttribute.getJson()));
+				} catch (BadDataException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
 		copy.getBaseEntityAttributes().addAll(this.getBaseEntityAttributes());
 		
 		return copy;

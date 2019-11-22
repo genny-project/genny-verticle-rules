@@ -28,7 +28,7 @@ public class NotificaitonEmailTest {
   private GreenMail mailServer;
   private EmailHelper emailHelper;
 
-  @Test
+  //@Test
   public void sendShouldSetTheRightText() throws Exception {
 
     // Random faker

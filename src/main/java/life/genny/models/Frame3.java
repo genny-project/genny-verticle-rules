@@ -132,20 +132,23 @@ public class Frame3 extends BaseEntity implements Serializable {
 		Frame3 newFrame = new Frame3();
 		newFrame.questionCode = object.getQuestionCode();
 		newFrame.questionName = object.getQuestionName();
-		newFrame.questionGroup = QuestionGroup.clone(object.getQuestionGroup());
+		if(object.getQuestionGroup() != null) {			
+			newFrame.questionGroup = QuestionGroup.clone(object.getQuestionGroup());
+		}
 		newFrame.position = object.getPosition();
 		newFrame.parent =object.getParent();
-		newFrame.themeObjects = (ArrayList<ThemeTuple4>) object.getThemeObjects();
-		newFrame.themes = object.getThemes();
-		newFrame.frameCodes = (ArrayList<StringTuple>) object.getFrameCodes();
-		newFrame.frames = (ArrayList<FrameTuple3>) object.getFrames();
-		if(object.getFrame3s() != null) {
-			
-			newFrame.frame3s = Arrays.asList((Frame3[])object.getFrame3s().toArray());
+		newFrame.themeObjects.addAll(object.getThemeObjects());
+		newFrame.themes.addAll(object.getThemes());
+		newFrame.frameCodes.addAll( object.getFrameCodes());
+		newFrame.frames.addAll(object.getFrames());
+		if(object.getFrame3s() != null && !object.getFrame3s().isEmpty()) {
+			newFrame.frame3s = new ArrayList<Frame3>();
+			newFrame.frame3s.addAll(object.getFrame3s());
 			
 		}
-		if(object.getTheme3s() != null) {
-			newFrame.theme3s = object.getTheme3s();
+		if(object.getTheme3s() != null && !object.getTheme3s().isEmpty()) {
+			newFrame.theme3s = new ArrayList<Theme>();
+			newFrame.theme3s.addAll(object.getTheme3s());
 		}
 		newFrame.weight = object.getWeight();
 
@@ -195,17 +198,11 @@ public class Frame3 extends BaseEntity implements Serializable {
 	}
 
 	public List<Frame3> getFrame3s() {
-		if(frame3s != null) {
-			return Collections.unmodifiableList(frame3s);
-		}
-		return null;
+		return frame3s;
 	}
 
 	public List<Theme> getTheme3s() {
-		if( theme3s != null) {
-			return Collections.unmodifiableList(theme3s);
-		}
-		return null;
+		return theme3s;
 	}
 
 	/**

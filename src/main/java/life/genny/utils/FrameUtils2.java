@@ -143,68 +143,76 @@ public class FrameUtils2 {
 		}
 	}
 
+//	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
+//			Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap) {
+//
+//		Set<BaseEntity> baseEntityList = new HashSet<BaseEntity>();
+//		Set<Ask> askList = new HashSet<>();
+//
+//		BaseEntity root = getBaseEntity(rootFrame, serviceToken);
+//
+//		// log.info(root.toString());
+//
+//		baseEntityList.add(root);
+//
+//		// Traverse the frame tree and build BaseEntitys and links
+//		processFrames(rootFrame, serviceToken, baseEntityList, root, askList);
+//
+//		QDataBaseEntityMessage msg = new QDataBaseEntityMessage(new ArrayList<>(baseEntityList));
+//		msg.setTotal(msg.getReturnCount()); // fudge the total.
+//		msg.setReplace(true);
+//
+//		if (!VertxUtils.cachedEnabled) { // cannot retrieve questions if no service!
+//			for (Ask ask : askList) {
+//				String sourceAliasCode = serviceToken.getUserCode();
+//				String targetAliasCode = serviceToken.getUserCode();
+//				if ((!ask.getTargetCode().equals(serviceToken.getUserCode()))
+//						&& (!ask.getTargetCode().startsWith("QUE_"))) {
+//					targetAliasCode = ask.getTargetCode();
+//					log.info("Setting targetAliasCode " + targetAliasCode + " for " + ask.getQuestionCode());
+//				}
+//				QDataAskMessage askMsg = null;
+//
+//				try {
+//					askMsg = QuestionUtils.getAsks(sourceAliasCode, targetAliasCode, ask.getQuestionCode(),
+//							serviceToken.getToken());
+//				} catch (NullPointerException e) {
+//					log.error("Null pointer in getAsks " + ask.getQuestionCode());
+//				}
+//
+//				if (null == askMsg) {
+//					askMsg = new QDataAskMessage(new Ask[0]);
+//				}
+//				
+//				
+//				askMsg = processQDataAskMessage(askMsg, ask, new HashMap<String, ContextList>() ,serviceToken);
+//
+//				if ((contextListMap != null) && (!contextListMap.isEmpty())) {
+//					for (Ask anAsk : askMsg.getItems()) {
+//						// Check for any associated ContextList to anAsk
+//						String attributeCode = anAsk.getAttributeCode();
+//						String targetCode = anAsk.getTargetCode();
+//						String key = targetCode + ":" + attributeCode;
+//
+//						if (contextListMap.containsKey(key)) {
+//							ContextList contextList = contextListMap.get(key);
+//							anAsk.setContextList(contextList);
+//						}
+//					}
+//				}
+//				askMsg.setToken(serviceToken.getToken());
+//				askMsg.setReplace(true);
+//				asks.add(askMsg);
+//			}
+//		}
+//		msg.setToken(serviceToken.getToken());
+//		return msg;
+//	}
+	
 	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
 			Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap) {
-
-		Set<BaseEntity> baseEntityList = new HashSet<BaseEntity>();
-		Set<Ask> askList = new HashSet<>();
-
-		BaseEntity root = getBaseEntity(rootFrame, serviceToken);
-
-		// log.info(root.toString());
-
-		baseEntityList.add(root);
-
-		// Traverse the frame tree and build BaseEntitys and links
-		processFrames(rootFrame, serviceToken, baseEntityList, root, askList);
-
-		QDataBaseEntityMessage msg = new QDataBaseEntityMessage(new ArrayList<>(baseEntityList));
-		msg.setTotal(msg.getReturnCount()); // fudge the total.
-		msg.setReplace(true);
-
-		if (!VertxUtils.cachedEnabled) { // cannot retrieve questions if no service!
-			for (Ask ask : askList) {
-				String sourceAliasCode = serviceToken.getUserCode();
-				String targetAliasCode = serviceToken.getUserCode();
-				if ((!ask.getTargetCode().equals(serviceToken.getUserCode()))
-						&& (!ask.getTargetCode().startsWith("QUE_"))) {
-					targetAliasCode = ask.getTargetCode();
-					log.info("Setting targetAliasCode " + targetAliasCode + " for " + ask.getQuestionCode());
-				}
-				QDataAskMessage askMsg = null;
-
-				try {
-					askMsg = QuestionUtils.getAsks(sourceAliasCode, targetAliasCode, ask.getQuestionCode(),
-							serviceToken.getToken());
-				} catch (NullPointerException e) {
-					log.error("Null pointer in getAsks " + ask.getQuestionCode());
-				}
-
-				if (null == askMsg) {
-					askMsg = new QDataAskMessage(new Ask[0]);
-				}
-				askMsg = processQDataAskMessage(askMsg, ask, serviceToken);
-
-				if ((contextListMap != null) && (!contextListMap.isEmpty())) {
-					for (Ask anAsk : askMsg.getItems()) {
-						// Check for any associated ContextList to anAsk
-						String attributeCode = anAsk.getAttributeCode();
-						String targetCode = anAsk.getTargetCode();
-						String key = targetCode + ":" + attributeCode;
-
-						if (contextListMap.containsKey(key)) {
-							ContextList contextList = contextListMap.get(key);
-							anAsk.setContextList(contextList);
-						}
-					}
-				}
-				askMsg.setToken(serviceToken.getToken());
-				askMsg.setReplace(true);
-				asks.add(askMsg);
-			}
-		}
-		msg.setToken(serviceToken.getToken());
-		return msg;
+		
+		return toMessage(rootFrame,serviceToken,asks,contextListMap, new HashMap<String, QDataAskMessage>());
 	}
 
 	/*
@@ -218,7 +226,7 @@ public class FrameUtils2 {
 			Map<String, QDataAskMessage> virtualAskMap) {
 
 		Set<BaseEntity> baseEntityList = new HashSet<BaseEntity>();
-		Set<Ask> askList = new HashSet<>();
+		Set<Ask> askListFromFrame = new HashSet<>();
 
 		BaseEntity root = getBaseEntity(rootFrame, serviceToken);
 
@@ -227,117 +235,138 @@ public class FrameUtils2 {
 		baseEntityList.add(root);
 
 		// Traverse the frame tree and build BaseEntitys and links
-		processFrames(rootFrame, serviceToken, baseEntityList, root, askList);
+		processFrames(rootFrame, serviceToken, baseEntityList, root, askListFromFrame);
 
-		QDataBaseEntityMessage msg = new QDataBaseEntityMessage(new ArrayList<>(baseEntityList));
-		msg.setTotal(msg.getReturnCount()); // fudge the total.
-		msg.setReplace(true);
+		QDataBaseEntityMessage baseEntityMsg = new QDataBaseEntityMessage(new ArrayList<>(baseEntityList));
+		baseEntityMsg.setTotal(baseEntityMsg.getReturnCount()); // fudge the total.
+		baseEntityMsg.setReplace(true);
 
 		if (!VertxUtils.cachedEnabled) { // cannot retrieve questions if no service!
-			for (Ask ask : askList) {
+			for (Ask askToProcessFromFrame : askListFromFrame) {
 				String sourceAliasCode = serviceToken.getUserCode();
 				String targetAliasCode = serviceToken.getUserCode();
-				if ((!ask.getTargetCode().equals(serviceToken.getUserCode()))
-						&& (!ask.getTargetCode().startsWith("QUE_"))) {
-					targetAliasCode = ask.getTargetCode();
-					log.info("Setting targetAliasCode " + targetAliasCode + " for " + ask.getQuestionCode());
+				if ((!askToProcessFromFrame.getTargetCode().equals(serviceToken.getUserCode()))
+						&& (!askToProcessFromFrame.getTargetCode().startsWith("QUE_"))) {
+					targetAliasCode = askToProcessFromFrame.getTargetCode();
+					log.info("Setting targetAliasCode " + targetAliasCode + " for " + askToProcessFromFrame.getQuestionCode());
 				}
 
-				QDataAskMessage askMsg = null;
+				QDataAskMessage asksListForProcessingAsk = null;
 
 				/* check if the question exist in virtual Question list map */
 
-				if (virtualAskMap.containsKey(ask.getQuestionCode())) {
+				if (virtualAskMap.containsKey(askToProcessFromFrame.getQuestionCode())) {
 
-					askMsg = virtualAskMap.get(ask.getQuestionCode());
-					log.info("Getting  " + ask.getQuestionCode() + " from virtual asks");
+					asksListForProcessingAsk = virtualAskMap.get(askToProcessFromFrame.getQuestionCode());
+					
+					
+					log.info("Getting  " + askToProcessFromFrame.getQuestionCode() + " from virtual asks");
 				} else {
 
 					try {
-						askMsg = QuestionUtils.getAsks(sourceAliasCode, targetAliasCode, ask.getQuestionCode(),
+						asksListForProcessingAsk = QuestionUtils.getAsks(sourceAliasCode, targetAliasCode, askToProcessFromFrame.getQuestionCode(),
 								serviceToken.getToken());
 					} catch (NullPointerException e) {
-						log.error("Null pointer in getAsks " + ask.getQuestionCode());
+						log.error("Null pointer in getAsks " + askToProcessFromFrame.getQuestionCode());
 					}
 
-					if (null == askMsg) {
-						askMsg = new QDataAskMessage(new Ask[0]);
+					if (null == asksListForProcessingAsk) {
+						asksListForProcessingAsk = new QDataAskMessage(new Ask[0]);
 					}
-
+					
 				}
+				
+				asksListForProcessingAsk = processQDataAskMessage(asksListForProcessingAsk, askToProcessFromFrame,baseEntityMsg,contextListMap,serviceToken);
 
-				askMsg = processQDataAskMessage(askMsg, ask, serviceToken);
-
-				if ((contextListMap != null) && (!contextListMap.isEmpty())) {
-					for (Ask anAsk : askMsg.getItems()) {
-						// Check for any associated ContextList to anAsk
-						String attributeCode = anAsk.getAttributeCode();
-						String targetCode = anAsk.getTargetCode();
-						String key = targetCode + ":" + attributeCode;
-
-						if (contextListMap.containsKey(key)) {
-							ContextList contextList = contextListMap.get(key);
-							anAsk.setContextList(contextList);
-						}
-					}
-				}
-				askMsg.setToken(serviceToken.getToken());
-				askMsg.setReplace(true);
-				asks.add(askMsg);
+//				if ((contextListMap != null) && (!contextListMap.isEmpty())) {
+//					for (Ask anAsk : asksListForProcessingAsk.getItems()) {
+//						// Check for any associated ContextList to anAsk
+//						String attributeCode = anAsk.getAttributeCode();
+//						String targetCode = anAsk.getTargetCode();
+//						String key = targetCode + ":" + attributeCode;
+//						
+//						if (contextListMap.containsKey(key) ) {
+//							ContextList contextList = contextListMap.get(key);
+//							anAsk.setContextList(contextList);
+//						}else if( contextListMap.containsKey(anAsk.getQuestionCode())) {
+//							ContextList contextList = contextListMap.get(anAsk.getQuestionCode());
+//							anAsk.setContextList(contextList);
+//							
+//							for(Context context :  contextList.getContexts()) {
+//								baseEntityMsg.add(context.getEntity());
+//							}
+//							
+//						}
+//					}
+//				}
+				asksListForProcessingAsk.setToken(serviceToken.getToken());
+				asksListForProcessingAsk.setReplace(true);
+				asks.add(asksListForProcessingAsk);
 			}
 		}
-		msg.setToken(serviceToken.getToken());
-		return msg;
+		baseEntityMsg.setToken(serviceToken.getToken());
+		return baseEntityMsg;
 	}
 
-	private static QDataAskMessage processQDataAskMessage(QDataAskMessage askMsg, Ask contextAsk,
-			GennyToken serviceToken) {
-		List<Ask> asks = new ArrayList<Ask>();
-		if ((askMsg != null) && (askMsg.getItems() != null)) {
-			for (Ask ask : askMsg.getItems()) {
-				ask.setQuestionCode(contextAsk.getQuestionCode()); // ?
+	/*
+	 * Process contexts for child ask.
+	 */
+	private static QDataAskMessage processQDataAskMessage(QDataAskMessage askFromQuestion, Ask askItemFromFrame,
+			QDataBaseEntityMessage baseEntityMsg,
+			Map<String, ContextList> contextListMap, GennyToken serviceToken) {
+		
+		// create an empty askList
+		List<Ask> newAskLists = new ArrayList<Ask>();
 
-				ask.setContextList(contextAsk.getContextList());
-
-				// if ask question is not a group then make it a fake group
-				// if (!StringUtils.endsWith(ask.getQuestion().getCode(), "_GRP")) {
-				// String attributeCode = "QQQ_QUESTION_GROUP_INPUT";
-				//
-				// /* Get the on-the-fly question attribute */
-				// Attribute attribute = RulesUtils.getAttribute(attributeCode,
-				// serviceToken.getToken());
-				//
-				// Question fakeQuestionGrp = new Question(ask.getQuestionCode() + "_GRP",
-				// ask.getName(), attribute,
-				// false);
-				// fakeQuestionGrp.setMandatory(ask.getMandatory());
-				// fakeQuestionGrp.setRealm(ask.getRealm());
-				// fakeQuestionGrp.setReadonly(ask.getReadonly());
-				// fakeQuestionGrp.setOneshot(ask.getOneshot());
-				//
-				// try {
-				// fakeQuestionGrp.addTarget(ask.getQuestion(), 1.0);
-				// } catch (BadDataException e) {
-				// // TODO Auto-generated catch block
-				// e.printStackTrace();
-				// }
-				// Ask newask = new Ask(fakeQuestionGrp, serviceToken.getUserCode(),
-				// serviceToken.getUserCode(), false,
-				// 1.0, false, false, true);
-				// Ask[] childAsks = new Ask[1];
-				// childAsks[0] = ask;
-				// newask.setChildAsks(childAsks);
-				// asks.add(newask);
-				//
-				// } else {
-				asks.add(ask);
-				// }
-			}
+		for	(Ask askItemFromQuestion : askFromQuestion.getItems()) {
+			/* recursively get asks */
+			getAskRecursive(askItemFromQuestion,askItemFromFrame,baseEntityMsg,contextListMap, newAskLists);
+	
 		}
-		Ask[] itemsArray = new Ask[asks.size()];
-		itemsArray = asks.toArray(itemsArray);
-		askMsg.setItems(itemsArray);
-		return askMsg;
+
+		Ask[] itemsArray = new Ask[newAskLists.size()];
+		itemsArray = newAskLists.toArray(itemsArray);
+		askFromQuestion.setItems(itemsArray);
+		return askFromQuestion;
+	}
+	
+	/*
+	 * Recursively process list of asks and add context for child ask if not exist
+	 */
+	private static void getAskRecursive(Ask askItemFromQuestion, Ask askItemFromFrame,QDataBaseEntityMessage baseEntityMsg, Map<String, ContextList> contextListMap, List<Ask> newAskLists) {
+		
+		for(Ask childAsk : askItemFromQuestion.getChildAsks()) {
+			
+			if(childAsk.getQuestionCode().endsWith("_GRP") ){
+				getAskRecursive(childAsk,  askItemFromFrame,baseEntityMsg, contextListMap,newAskLists);
+			}
+			
+			childAsk.setQuestionCode(askItemFromFrame.getQuestionCode()); 
+			
+			// Check for any associated ContextList to anAsk
+			String attributeCode = childAsk.getAttributeCode();
+			String targetCode = childAsk.getTargetCode();
+			String key = targetCode + ":" + attributeCode;
+			
+			if(contextListMap.containsKey(childAsk.getQuestionCode())) {
+				ContextList contextList = contextListMap.get(childAsk.getQuestionCode());
+				childAsk.setContextList(contextList);
+				for(Context context :  contextList.getContexts()) {
+					baseEntityMsg.add(context.getEntity());
+				}
+				
+			}else if(contextListMap.containsKey(key)) {
+				ContextList contextList = contextListMap.get(key);
+				childAsk.setContextList(contextList);
+			}else {
+				childAsk.setContextList(askItemFromFrame.getContextList());
+	
+			}
+			
+			newAskLists.add(childAsk);
+		}
+		newAskLists.add(askItemFromQuestion);
+		
 	}
 
 	public static BaseEntity getBaseEntity(final Frame3 rootFrame, final GennyToken serviceToken) {
@@ -382,8 +411,11 @@ public class FrameUtils2 {
 	 */
 	private static void processFrames(final Frame3 frame, GennyToken serviceToken, Set<BaseEntity> baseEntityList,
 			BaseEntity parent, Set<Ask> askList) {
-
+		
+		// if the frame doesn't have any child frames
 		if (frame.getFrames().isEmpty()) {
+
+			// if the frame has questionCode set
 			// create the ask
 			if (frame.getQuestionGroup() != null) {
 				processAskAliasEmpty(frame, serviceToken, baseEntityList, parent, askList, frame.getPosition(), 1.0);
@@ -439,20 +471,21 @@ public class FrameUtils2 {
 			if ("PRI_FIRSTNAME".equals(frame.getQuestionCode())) {
 				log.info("Detected");
 			}
-			/* create an ask */
+			/* create an ask baseentity */
 			BaseEntity askBe = new BaseEntity(frame.getQuestionGroup().getCode(), frame.getQuestionGroup().getCode());
 			askBe.setRealm(parent.getRealm());
 
 			Ask ask = null;
 
 			if (frame.getQuestionName() != null) {
+				// create a virtual ask
 				ask = createVirtualAsk(frame.getQuestionCode(), frame.getQuestionName(),
 						frame.getQuestionGroup().getSourceAlias(), frame.getQuestionGroup().getTargetAlias(),
 						serviceToken);
 				ask.setRealm(parent.getRealm());
 
 			} else {
-
+				// creates ask from askBe ? don't know why it's done here @Adam ????
 				ask = QuestionUtils.createQuestionForBaseEntity2(askBe, StringUtils.endsWith(askBe.getCode(), "GRP"),
 						serviceToken, frame.getQuestionGroup().getSourceAlias(),
 						frame.getQuestionGroup().getTargetAlias());
@@ -460,7 +493,8 @@ public class FrameUtils2 {
 
 			Map<ContextType, Set<BaseEntity>> contextMap = new HashMap<ContextType, Set<BaseEntity>>();
 			Map<ContextType, life.genny.qwanda.VisualControlType> vclMap = new HashMap<ContextType, VisualControlType>();
-			/* package up Question Themes */
+			
+			// checks if the questionGroup(the question linked to the frame) has any themes attached
 			if (!frame.getQuestionGroup().getQuestionThemes().isEmpty()) {
 				for (QuestionTheme qTheme : frame.getQuestionGroup().getQuestionThemes()) {
 					if (showLogs) {
