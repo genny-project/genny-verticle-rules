@@ -215,13 +215,9 @@ public class FrameUtils2 {
 	 */
 	private static QDataAskMessage getAsks(Ask ask, String questionCode, GennyToken token) {
 		
-<<<<<<< HEAD
 		String targetAliasCode = "PER_TARGET";
 		String sourceAliasCode = token.getUserCode();
 
-=======
-		String targetAliasCode;
->>>>>>> v3.1.0
 		
 		if (!(ask.getTargetCode().equals(token.getUserCode()))& !(ask.getTargetCode().startsWith("QUE_"))) {
 			
