@@ -60,6 +60,10 @@ public class FrameUtils2 {
 	static public Boolean showLogs = false;
 
 	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken) {
+		if (rootFrame==null) {
+			log.error("rootFrame is NULL! ");
+			return;
+		}
 		if (!GennySettings.framesOnDemand) {
 			Map<String, ContextList> contextListMap = new HashMap<String, ContextList>();
 			toMessage(rootFrame, serviceToken, contextListMap);
