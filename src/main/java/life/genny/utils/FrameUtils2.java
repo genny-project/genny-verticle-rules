@@ -212,18 +212,18 @@ public class FrameUtils2 {
 	private static QDataAskMessage getAsks(Ask ask, String questionCode, GennyToken token) {
 		
 		String targetAliasCode = "PER_TARGET";
-		String sourceAliasCode = "PER_SOURCE";
+		String sourceAliasCode = token.getUserCode();
 
-//		
-//		if (!(ask.getTargetCode().equals(token.getUserCode()))& !(ask.getTargetCode().startsWith("QUE_"))) {
-//			
-//			targetAliasCode = ask.getTargetCode();
-//			log.info("Setting targetAliasCode " + targetAliasCode + " for " + ask.getQuestionCode());
-//			
-//		}else {
-//			
-//			targetAliasCode = token.getUserCode();
-//		}
+		
+		if (!(ask.getTargetCode().equals(token.getUserCode()))& !(ask.getTargetCode().startsWith("QUE_"))) {
+			
+			targetAliasCode = ask.getTargetCode();
+			log.info("Setting targetAliasCode " + targetAliasCode + " for " + ask.getQuestionCode());
+			
+		}else {
+			
+			targetAliasCode = token.getUserCode();
+		}
 		
 		/* Trying to fetch the asks from the cache*/
 		try {
