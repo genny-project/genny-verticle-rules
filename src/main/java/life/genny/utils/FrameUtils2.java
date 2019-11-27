@@ -277,7 +277,15 @@ public class FrameUtils2 {
 					beList.add(context.getEntity());
 				}
 				
-			}else {
+			}else if (contextListMap.containsKey(ask.getQuestionCode())){
+				ContextList contextList = contextListMap.get(ask.getQuestionCode());
+				ask.setContextList(contextList);
+				
+				for(Context context :  contextList.getContexts()) {
+					beList.add(context.getEntity());
+				}
+			}else{
+				
 				ask.setContextList(parentAsk.getContextList());
 			}
 			
