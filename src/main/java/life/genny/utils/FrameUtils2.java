@@ -60,6 +60,10 @@ public class FrameUtils2 {
 	static public Boolean showLogs = false;
 
 	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken) {
+		if (rootFrame==null) {
+			log.error("rootFrame is NULL! ");
+			return;
+		}
 		if (!GennySettings.framesOnDemand) {
 			Map<String, ContextList> contextListMap = new HashMap<String, ContextList>();
 			toMessage(rootFrame, serviceToken, contextListMap);
@@ -211,9 +215,13 @@ public class FrameUtils2 {
 	 */
 	private static QDataAskMessage getAsks(Ask ask, String questionCode, GennyToken token) {
 		
+<<<<<<< HEAD
 		String targetAliasCode = "PER_TARGET";
 		String sourceAliasCode = token.getUserCode();
 
+=======
+		String targetAliasCode;
+>>>>>>> v3.1.0
 		
 		if (!(ask.getTargetCode().equals(token.getUserCode()))& !(ask.getTargetCode().startsWith("QUE_"))) {
 			
@@ -228,7 +236,7 @@ public class FrameUtils2 {
 		/* Trying to fetch the asks from the cache*/
 		try {
 				
-			return QuestionUtils.getAsks(sourceAliasCode, targetAliasCode, questionCode,token.getToken());
+			return QuestionUtils.getAsks(token.getUserCode(), targetAliasCode, questionCode,token.getToken());
 			
 		} catch (NullPointerException e) {
 				
@@ -273,15 +281,7 @@ public class FrameUtils2 {
 					beList.add(context.getEntity());
 				}
 				
-			}else if(contextListMap.containsKey(ask.getQuestionCode())){
-				
-				ContextList contextList = contextListMap.get(ask.getQuestionCode());
-				ask.setContextList(contextList);
-				for(Context context :  contextList.getContexts()) {
-					beList.add(context.getEntity());
-				}
-			}
-			else {
+			}else {
 				ask.setContextList(parentAsk.getContextList());
 			}
 			
