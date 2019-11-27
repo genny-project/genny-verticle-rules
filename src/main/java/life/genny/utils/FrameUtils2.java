@@ -211,22 +211,24 @@ public class FrameUtils2 {
 	 */
 	private static QDataAskMessage getAsks(Ask ask, String questionCode, GennyToken token) {
 		
-		String targetAliasCode;
-		
-		if (!(ask.getTargetCode().equals(token.getUserCode()))& !(ask.getTargetCode().startsWith("QUE_"))) {
-			
-			targetAliasCode = ask.getTargetCode();
-			log.info("Setting targetAliasCode " + targetAliasCode + " for " + ask.getQuestionCode());
-			
-		}else {
-			
-			targetAliasCode = token.getUserCode();
-		}
+		String targetAliasCode = "PER_TARGET";
+		String sourceAliasCode = "PER_SOURCE";
+
+//		
+//		if (!(ask.getTargetCode().equals(token.getUserCode()))& !(ask.getTargetCode().startsWith("QUE_"))) {
+//			
+//			targetAliasCode = ask.getTargetCode();
+//			log.info("Setting targetAliasCode " + targetAliasCode + " for " + ask.getQuestionCode());
+//			
+//		}else {
+//			
+//			targetAliasCode = token.getUserCode();
+//		}
 		
 		/* Trying to fetch the asks from the cache*/
 		try {
 				
-			return QuestionUtils.getAsks(token.getUserCode(), targetAliasCode, questionCode,token.getToken());
+			return QuestionUtils.getAsks(sourceAliasCode, targetAliasCode, questionCode,token.getToken());
 			
 		} catch (NullPointerException e) {
 				
@@ -271,7 +273,15 @@ public class FrameUtils2 {
 					beList.add(context.getEntity());
 				}
 				
-			}else {
+			}else if(contextListMap.containsKey(ask.getQuestionCode())){
+				
+				ContextList contextList = contextListMap.get(ask.getQuestionCode());
+				ask.setContextList(contextList);
+				for(Context context :  contextList.getContexts()) {
+					beList.add(context.getEntity());
+				}
+			}
+			else {
 				ask.setContextList(parentAsk.getContextList());
 			}
 			
