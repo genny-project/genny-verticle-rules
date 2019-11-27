@@ -63,9 +63,9 @@ public class FrameUtils2 {
 		if (!GennySettings.framesOnDemand) {
 			Map<String, ContextList> contextListMap = new HashMap<String, ContextList>();
 			toMessage(rootFrame, serviceToken, contextListMap);
-//		
-//		// check that the MSG got saved
-//		
+		
+			// check that the MSG got saved
+			
 			QDataBaseEntityMessage FRM_MSG = VertxUtils.getObject(serviceToken.getRealm(), "",
 					rootFrame.getCode() + "_MSG", QDataBaseEntityMessage.class, serviceToken.getToken());
 //
@@ -97,12 +97,6 @@ public class FrameUtils2 {
 
 	}
 
-	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
-			Set<QDataAskMessage> asks) {
-		Map<String, ContextList> contextListMap = new HashMap<String, ContextList>();
-		return toMessage(rootFrame, serviceToken, asks, contextListMap);
-	}
-
 	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken,
 			Map<String, ContextList> contextListMap) {
 		if (rootFrame == null) {
@@ -114,27 +108,36 @@ public class FrameUtils2 {
 		Set<QDataAskMessage> askMsgs = new HashSet<QDataAskMessage>();
 		QDataBaseEntityMessage msg = toMessage(rootFrame, serviceToken, askMsgs, contextListMap);
 		String askMsgsStr = JsonUtils.toJson(askMsgs);
-		// TODO, this is NOT needed, only enabkled for testing
+		
+		// TODO, this is NOT needed, only enabled for testing
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(), rootFrame, serviceToken.getToken());
 		BaseEntity ruleEntity = null;
+		
 		try {
+			
 			ruleEntity = beUtils.getBaseEntityByCode("RUL_" + rootFrame.getCode().toUpperCase());
 		} catch (Exception e) {
+			
 			// TODO Auto-generated catch block
 			log.error("Error in getting rule "+e.getLocalizedMessage());
 			return;
 		}
 		if (ruleEntity == null) {
+			
 			beUtils.create("RUL_" + rootFrame.getCode().toUpperCase(), "RUL_" + rootFrame.getCode().toUpperCase());
 			log.error("!!!!!!!!!!!!!!!!!!!!!!!! RUL_" + rootFrame.getCode().toUpperCase() + " WAS NOT IN DB????");
 		}
+		
 		beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
 				"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_FRM", JsonUtils.toJson(rootFrame), false));
 
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG", msg, serviceToken.getToken());
+		
 		beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
 				"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_MSG", JsonUtils.toJson(msg), false));
+		
 		if (!askMsgs.isEmpty()) {
+			
 			VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode().toUpperCase() + "_ASKS", askMsgsStr,
 					serviceToken.getToken());
 			beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
@@ -142,202 +145,165 @@ public class FrameUtils2 {
 
 		}
 	}
+	
+	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
+			Set<QDataAskMessage> asks) {	
+		return toMessage(rootFrame, serviceToken, asks, new HashMap<String, ContextList>());
+	}
 
 	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
-			Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap) {
+	Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap) {
+	
+		return toMessage(rootFrame,serviceToken,asks,contextListMap, new HashMap<String, QDataAskMessage>());
+	}	
+	
+	/*
+	 * Process and Build message for the Frames.
+	 */
+	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
+				Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap, Map<String, QDataAskMessage> virtualAskMap) {
 
 		Set<BaseEntity> baseEntityList = new HashSet<BaseEntity>();
-		Set<Ask> askList = new HashSet<>();
+		Set<Ask> askListFromFrames = new HashSet<>();
 
 		BaseEntity root = getBaseEntity(rootFrame, serviceToken);
-
-		// log.info(root.toString());
-
 		baseEntityList.add(root);
 
-		// Traverse the frame tree and build BaseEntitys and links
-		processFrames(rootFrame, serviceToken, baseEntityList, root, askList);
+		/* Traverse the frame tree and build BaseEntitys and links */
+		processFrames(rootFrame, serviceToken, baseEntityList, root, askListFromFrames);
 
 		QDataBaseEntityMessage msg = new QDataBaseEntityMessage(new ArrayList<>(baseEntityList));
-		msg.setTotal(msg.getReturnCount()); // fudge the total.
+		msg.setTotal(msg.getReturnCount()); 
 		msg.setReplace(true);
 
-		if (!VertxUtils.cachedEnabled) { // cannot retrieve questions if no service!
-			for (Ask ask : askList) {
-				String sourceAliasCode = serviceToken.getUserCode();
-				String targetAliasCode = serviceToken.getUserCode();
-				if ((!ask.getTargetCode().equals(serviceToken.getUserCode()))
-						&& (!ask.getTargetCode().startsWith("QUE_"))) {
-					targetAliasCode = ask.getTargetCode();
-					log.info("Setting targetAliasCode " + targetAliasCode + " for " + ask.getQuestionCode());
-				}
-				QDataAskMessage askMsg = null;
+		if (!VertxUtils.cachedEnabled || virtualAskMap.isEmpty()) { 
+			
+			/*Looping through asks retrieved from frame*/
+			for (Ask currentAskFromFrame : askListFromFrames) {
+				
+				QDataAskMessage askMsgFromQuestions = null;
 
-				try {
-					askMsg = QuestionUtils.getAsks(sourceAliasCode, targetAliasCode, ask.getQuestionCode(),
-							serviceToken.getToken());
-				} catch (NullPointerException e) {
-					log.error("Null pointer in getAsks " + ask.getQuestionCode());
-				}
+				/* check if the question exist in virtual Question list map */
+				if (virtualAskMap.containsKey(currentAskFromFrame.getQuestionCode())) {
 
-				if (null == askMsg) {
-					askMsg = new QDataAskMessage(new Ask[0]);
+					askMsgFromQuestions = virtualAskMap.get(currentAskFromFrame.getQuestionCode());
+					log.info("Getting  " + currentAskFromFrame.getQuestionCode() + " from virtual asks");
+					
+				} else {
+			
+					askMsgFromQuestions = getAsks(currentAskFromFrame, currentAskFromFrame.getQuestionCode(),serviceToken);
 				}
-				askMsg = processQDataAskMessage(askMsg, ask, serviceToken);
+				
+				List<BaseEntity> askContexts = processQDataAskMessage(askMsgFromQuestions, currentAskFromFrame, contextListMap,serviceToken);
+				msg.add(askContexts);
 
-				if ((contextListMap != null) && (!contextListMap.isEmpty())) {
-					for (Ask anAsk : askMsg.getItems()) {
-						// Check for any associated ContextList to anAsk
-						String attributeCode = anAsk.getAttributeCode();
-						String targetCode = anAsk.getTargetCode();
-						String key = targetCode + ":" + attributeCode;
-
-						if (contextListMap.containsKey(key)) {
-							ContextList contextList = contextListMap.get(key);
-							anAsk.setContextList(contextList);
-						}
-					}
-				}
-				askMsg.setToken(serviceToken.getToken());
-				askMsg.setReplace(true);
-				asks.add(askMsg);
+				askMsgFromQuestions.setToken(serviceToken.getToken());
+				askMsgFromQuestions.setReplace(true);
+				asks.add(askMsgFromQuestions);
 			}
 		}
 		msg.setToken(serviceToken.getToken());
 		return msg;
+	}
+	
+	/* 
+	 * Search and return ask from the cache or API
+	 */
+	private static QDataAskMessage getAsks(Ask ask, String questionCode, GennyToken token) {
+		
+		String targetAliasCode;
+		
+		if (!(ask.getTargetCode().equals(token.getUserCode()))& !(ask.getTargetCode().startsWith("QUE_"))) {
+			
+			targetAliasCode = ask.getTargetCode();
+			log.info("Setting targetAliasCode " + targetAliasCode + " for " + ask.getQuestionCode());
+			
+		}else {
+			
+			targetAliasCode = token.getUserCode();
+		}
+		
+		/* Trying to fetch the asks from the cache*/
+		try {
+				
+			return QuestionUtils.getAsks(token.getUserCode(), targetAliasCode, questionCode,token.getToken());
+			
+		} catch (NullPointerException e) {
+				
+			log.error("Null pointer in getAsks " + questionCode);
+			return new QDataAskMessage(new Ask[0]);
+		}
 	}
 
 	/*
-	 * These method checks if the question are inside the virtualAskMap or not If
-	 * Yes it grabs from the virtual asks. this allows to override the Question from
-	 * database on the fly to changes the behavior of the question in frame
-	 */
-
-	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
-			Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap,
-			Map<String, QDataAskMessage> virtualAskMap) {
-
-		Set<BaseEntity> baseEntityList = new HashSet<BaseEntity>();
-		Set<Ask> askList = new HashSet<>();
-
-		BaseEntity root = getBaseEntity(rootFrame, serviceToken);
-
-		// log.info(root.toString());
-
-		baseEntityList.add(root);
-
-		// Traverse the frame tree and build BaseEntitys and links
-		processFrames(rootFrame, serviceToken, baseEntityList, root, askList);
-
-		QDataBaseEntityMessage msg = new QDataBaseEntityMessage(new ArrayList<>(baseEntityList));
-		msg.setTotal(msg.getReturnCount()); // fudge the total.
-		msg.setReplace(true);
-
-		if (!VertxUtils.cachedEnabled) { // cannot retrieve questions if no service!
-			for (Ask ask : askList) {
-				String sourceAliasCode = serviceToken.getUserCode();
-				String targetAliasCode = serviceToken.getUserCode();
-				if ((!ask.getTargetCode().equals(serviceToken.getUserCode()))
-						&& (!ask.getTargetCode().startsWith("QUE_"))) {
-					targetAliasCode = ask.getTargetCode();
-					log.info("Setting targetAliasCode " + targetAliasCode + " for " + ask.getQuestionCode());
+	 * Recursively scan and process and attach appropriate context to the asks their child Asks.
+	 * 
+	 * */
+	private static Set<BaseEntity> getAskContextRecursively(Ask ask,  Ask parentAsk, Map<String, ContextList> contextListMap) {
+		
+		Set<BaseEntity> beList = new HashSet<BaseEntity>();
+		
+		if(ask.getQuestionCode().endsWith("_GRP") && ask.getChildAsks().length > 0) {
+			
+			for(Ask childAsk : ask.getChildAsks()) {
+				Set<BaseEntity> childBEList = getAskContextRecursively(childAsk,ask,contextListMap);
+				if(!childBEList.isEmpty()) {
+					beList.addAll(childBEList);
 				}
-
-				QDataAskMessage askMsg = null;
-
-				/* check if the question exist in virtual Question list map */
-
-				if (virtualAskMap.containsKey(ask.getQuestionCode())) {
-
-					askMsg = virtualAskMap.get(ask.getQuestionCode());
-					log.info("Getting  " + ask.getQuestionCode() + " from virtual asks");
-				} else {
-
-					try {
-						askMsg = QuestionUtils.getAsks(sourceAliasCode, targetAliasCode, ask.getQuestionCode(),
-								serviceToken.getToken());
-					} catch (NullPointerException e) {
-						log.error("Null pointer in getAsks " + ask.getQuestionCode());
-					}
-
-					if (null == askMsg) {
-						askMsg = new QDataAskMessage(new Ask[0]);
-					}
-
-				}
-
-				askMsg = processQDataAskMessage(askMsg, ask, serviceToken);
-
-				if ((contextListMap != null) && (!contextListMap.isEmpty())) {
-					for (Ask anAsk : askMsg.getItems()) {
-						// Check for any associated ContextList to anAsk
-						String attributeCode = anAsk.getAttributeCode();
-						String targetCode = anAsk.getTargetCode();
-						String key = targetCode + ":" + attributeCode;
-
-						if (contextListMap.containsKey(key)) {
-							ContextList contextList = contextListMap.get(key);
-							anAsk.setContextList(contextList);
-						}
-					}
-				}
-				askMsg.setToken(serviceToken.getToken());
-				askMsg.setReplace(true);
-				asks.add(askMsg);
 			}
+			
 		}
-		msg.setToken(serviceToken.getToken());
-		return msg;
+		
+		/*ask.setQuestionCode(parentAsk.getQuestionCode());*/
+		
+		if ((contextListMap != null) && (!contextListMap.isEmpty()))
+		{
+			// Check for any associated ContextList to anAsk
+			String attributeCode = ask.getAttributeCode();
+			String targetCode = ask.getTargetCode();
+			String key = targetCode + ":" + attributeCode;
+
+			if (contextListMap.containsKey(key)) {
+				ContextList contextList = contextListMap.get(key);
+				ask.setContextList(contextList);
+				
+				for(Context context :  contextList.getContexts()) {
+					beList.add(context.getEntity());
+				}
+				
+			}else {
+				ask.setContextList(parentAsk.getContextList());
+			}
+			
+		}else {
+			
+			ask.setContextList(parentAsk.getContextList());
+		}
+		return beList;
 	}
 
-	private static QDataAskMessage processQDataAskMessage(QDataAskMessage askMsg, Ask contextAsk,
-			GennyToken serviceToken) {
+	/*
+	 * Process QDataAskMessage 
+	 */	
+	private static List<BaseEntity> processQDataAskMessage(QDataAskMessage askMsgFromQuestions, Ask parentAsk,
+			Map<String, ContextList> contextListMap, GennyToken serviceToken) {
+		
 		List<Ask> asks = new ArrayList<Ask>();
-		if ((askMsg != null) && (askMsg.getItems() != null)) {
-			for (Ask ask : askMsg.getItems()) {
-				ask.setQuestionCode(contextAsk.getQuestionCode()); // ?
-
-				ask.setContextList(contextAsk.getContextList());
-
-				// if ask question is not a group then make it a fake group
-				// if (!StringUtils.endsWith(ask.getQuestion().getCode(), "_GRP")) {
-				// String attributeCode = "QQQ_QUESTION_GROUP_INPUT";
-				//
-				// /* Get the on-the-fly question attribute */
-				// Attribute attribute = RulesUtils.getAttribute(attributeCode,
-				// serviceToken.getToken());
-				//
-				// Question fakeQuestionGrp = new Question(ask.getQuestionCode() + "_GRP",
-				// ask.getName(), attribute,
-				// false);
-				// fakeQuestionGrp.setMandatory(ask.getMandatory());
-				// fakeQuestionGrp.setRealm(ask.getRealm());
-				// fakeQuestionGrp.setReadonly(ask.getReadonly());
-				// fakeQuestionGrp.setOneshot(ask.getOneshot());
-				//
-				// try {
-				// fakeQuestionGrp.addTarget(ask.getQuestion(), 1.0);
-				// } catch (BadDataException e) {
-				// // TODO Auto-generated catch block
-				// e.printStackTrace();
-				// }
-				// Ask newask = new Ask(fakeQuestionGrp, serviceToken.getUserCode(),
-				// serviceToken.getUserCode(), false,
-				// 1.0, false, false, true);
-				// Ask[] childAsks = new Ask[1];
-				// childAsks[0] = ask;
-				// newask.setChildAsks(childAsks);
-				// asks.add(newask);
-				//
-				// } else {
-				asks.add(ask);
-				// }
+		List<BaseEntity> cotextBeList = new ArrayList<BaseEntity>();
+		for (Ask ask : askMsgFromQuestions.getItems()) {
+			if(!contextListMap.isEmpty()) {
+				
+				cotextBeList.addAll(getAskContextRecursively(ask,parentAsk,contextListMap));
+			}else {
+				/* Temporary using this code need to be replace and modify the getAskContextRecursively mehod */
+				ask.setQuestionCode(parentAsk.getQuestionCode());
+				ask.setContextList(parentAsk.getContextList());
 			}
+			asks.add(ask);
 		}
-		Ask[] itemsArray = new Ask[asks.size()];
-		itemsArray = asks.toArray(itemsArray);
-		askMsg.setItems(itemsArray);
-		return askMsg;
+		
+		askMsgFromQuestions.setItems(asks.toArray(new Ask[asks.size()]));
+		return cotextBeList;
 	}
 
 	public static BaseEntity getBaseEntity(final Frame3 rootFrame, final GennyToken serviceToken) {
