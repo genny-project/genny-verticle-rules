@@ -231,7 +231,9 @@ public class FrameUtils2 {
 	 */
 	private static QDataAskMessage getAsks(Ask ask, String questionCode, GennyToken token, String sourceAlias, String targetAlias) {
 		
-		String targetAliasCode;
+		String targetAliasCode = "PER_TARGET";
+		String sourceAliasCode = token.getUserCode();
+
 		
 		if (!(ask.getTargetCode().equals(token.getUserCode()))& !(ask.getTargetCode().startsWith("QUE_"))) {
 			
@@ -293,7 +295,15 @@ public class FrameUtils2 {
 					beList.add(context.getEntity());
 				}
 				
-			}else {
+			}else if (contextListMap.containsKey(ask.getQuestionCode())){
+				ContextList contextList = contextListMap.get(ask.getQuestionCode());
+				ask.setContextList(contextList);
+				
+				for(Context context :  contextList.getContexts()) {
+					beList.add(context.getEntity());
+				}
+			}else{
+				
 				ask.setContextList(parentAsk.getContextList());
 			}
 			
