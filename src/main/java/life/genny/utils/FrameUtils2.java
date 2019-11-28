@@ -208,7 +208,7 @@ public class FrameUtils2 {
 
 					askMsgFromQuestions = virtualAskMap.get(currentAskFromFrame.getQuestionCode());
 					log.info("Getting  " + currentAskFromFrame.getQuestionCode() + " from virtual asks");
-					
+					 
 				} else {
 			
 					askMsgFromQuestions = getAsks(currentAskFromFrame, currentAskFromFrame.getQuestionCode(),serviceToken, sourceAlias, targetAlias);
@@ -267,7 +267,7 @@ public class FrameUtils2 {
 		
 		Set<BaseEntity> beList = new HashSet<BaseEntity>();
 		
-		if(ask.getQuestionCode().endsWith("_GRP") && ask.getChildAsks().length > 0) {
+		if(ask.getQuestionCode().endsWith("_GRP") && ask.getChildAsks() != null && ask.getChildAsks().length > 0) {
 			
 			for(Ask childAsk : ask.getChildAsks()) {
 				Set<BaseEntity> childBEList = getAskContextRecursively(childAsk,ask,contextListMap);
