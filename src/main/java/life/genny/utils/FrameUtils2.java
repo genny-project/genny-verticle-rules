@@ -242,14 +242,14 @@ public class FrameUtils2 {
 			
 		}else {
 			
-			targetAliasCode = token.getUserCode();
+			targetAliasCode = targetAlias;
 		}
 		
 		/* Trying to fetch the asks from the cache*/
 		
 		try {
 				
-			return QuestionUtils.getAsks(sourceAlias, targetAlias, questionCode,token.getToken());
+			return QuestionUtils.getAsks(sourceAlias, targetAliasCode, questionCode,token.getToken());
 		//return QuestionUtils.getAsks(token.getUserCode(), targetAliasCode, questionCode,token.getToken());
 			
 		} catch (NullPointerException e) {
