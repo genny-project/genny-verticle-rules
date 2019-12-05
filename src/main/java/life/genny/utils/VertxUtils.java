@@ -551,6 +551,8 @@ public class VertxUtils {
 
 	}
 
+
+	
 	static public JsonObject writeMsg(String channel, BaseEntity baseentity, String aliasCode) {
 		QDataBaseEntityMessage msg = new QDataBaseEntityMessage(baseentity, aliasCode);
 		return writeMsg(channel, msg);

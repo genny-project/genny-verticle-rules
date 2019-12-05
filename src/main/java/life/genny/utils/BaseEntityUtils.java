@@ -300,17 +300,22 @@ public class BaseEntityUtils implements Serializable {
 
 	public <T extends BaseEntity> T updateBaseEntity(T be, Answer answer, Class clazz) {
 
-		T be2 = this.updateCachedBaseEntity(answer, clazz);
-//		try {
-//			Attribute attr = RulesUtils.getAttribute(answer.getAttributeCode(), this.getGennyToken().getToken());				
-//			be.setValue(attr, answer.getValue());
-//		} catch (BadDataException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		return be2;
+//		T be2 = this.updateCachedBaseEntity(answer, clazz);
+		try {
+			Attribute attr = RulesUtils.getAttribute(answer.getAttributeCode(), this.getGennyToken().getToken());				
+			be.setValue(attr, answer.getValue());
+		} catch (BadDataException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return be;
 	}
 
+	public BaseEntity updateBaseEntity(String baseEntityCode, Answer answer) {
+		BaseEntity be = this.getBaseEntityByCode(baseEntityCode);
+		return updateBaseEntity(be, answer, BaseEntity.class);
+	}
+	
 	public <T extends BaseEntity> T updateBaseEntity(T be, Answer answer) {
 
 		return updateBaseEntity(be, answer, BaseEntity.class);
@@ -1114,6 +1119,8 @@ public class BaseEntityUtils implements Serializable {
 		return links;
 	}
 
+	
+	
 	public String updateBaseEntity(BaseEntity be) {
 		try {
 			VertxUtils.writeCachedJson(getRealm(), be.getCode(), JsonUtils.toJson(be));
