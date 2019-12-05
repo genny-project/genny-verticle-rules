@@ -60,13 +60,17 @@ public class FrameUtils2 {
 	static public Boolean showLogs = false;
 
 	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken, String sourceAlias, String targetAlias) {
+		Boolean fetchAsks = false;
+		toMessage(rootFrame, serviceToken,sourceAlias, targetAlias,fetchAsks);
+	}
+	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken, String sourceAlias, String targetAlias, Boolean fetchAsks) {
 		if (rootFrame==null) {
 			log.error("rootFrame is NULL! ");
 			return;
 		}
 		if (!GennySettings.framesOnDemand) {
 			Map<String, ContextList> contextListMap = new HashMap<String, ContextList>();
-			toMessage(rootFrame, serviceToken, contextListMap,sourceAlias,targetAlias);
+			toMessage(rootFrame, serviceToken, contextListMap,sourceAlias,targetAlias, fetchAsks);
 		
 			// check that the MSG got saved
 			
@@ -86,14 +90,15 @@ public class FrameUtils2 {
 		}		
 	}
 
-	
 	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken) {
-		toMessage(rootFrame, serviceToken, serviceToken.getUserCode(), serviceToken.getUserCode());
+		Boolean fetchAsks = true;
+		toMessage(rootFrame, serviceToken,  serviceToken.getUserCode(), serviceToken.getUserCode(), fetchAsks);
 	}
-
+	
 	static public void toMessage2(final Frame3 rootFrame, GennyToken serviceToken) {
 		Map<String, ContextList> contextListMap = new HashMap<String, ContextList>();
-		toMessage(rootFrame, serviceToken, contextListMap, serviceToken.getUserCode(),serviceToken.getUserCode());
+		Boolean fetchAsks = false;
+		toMessage(rootFrame, serviceToken, contextListMap, serviceToken.getUserCode(),serviceToken.getUserCode(),fetchAsks);
 
 		// check that the MSG got saved
 
@@ -106,8 +111,10 @@ public class FrameUtils2 {
 
 	}
 
+
+
 	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken,
-			Map<String, ContextList> contextListMap, String sourceAlias, String targetAlias) {
+			Map<String, ContextList> contextListMap, String sourceAlias, String targetAlias, Boolean fetchAsks) {
 		if (rootFrame == null) {
 			log.error("Null rootframe passed by "+serviceToken.getUserCode());
 			return;
@@ -115,7 +122,7 @@ public class FrameUtils2 {
 		BaseEntityUtils beUtils = new BaseEntityUtils(serviceToken);
 
 		Set<QDataAskMessage> askMsgs = new HashSet<QDataAskMessage>();
-		QDataBaseEntityMessage msg = toMessage(rootFrame, serviceToken, askMsgs, contextListMap,sourceAlias, targetAlias);
+		QDataBaseEntityMessage msg = toMessage(rootFrame, serviceToken, askMsgs, contextListMap,sourceAlias, targetAlias, fetchAsks);
 		String askMsgsStr = JsonUtils.toJson(askMsgs);
 		
 		// TODO, this is NOT needed, only enabled for testing
@@ -157,31 +164,48 @@ public class FrameUtils2 {
 	
 	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
 			Set<QDataAskMessage> asks) {	
-		return toMessage(rootFrame, serviceToken, asks, new HashMap<String, ContextList>(),serviceToken.getUserCode(),serviceToken.getUserCode());
+		Boolean fetchAsks = false;
+		return toMessage(rootFrame, serviceToken, asks, new HashMap<String, ContextList>(),serviceToken.getUserCode(),serviceToken.getUserCode(),fetchAsks);
+	}
+	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
+			Set<QDataAskMessage> asks, Boolean fetchAsks) {	
+		return toMessage(rootFrame, serviceToken, asks, new HashMap<String, ContextList>(),serviceToken.getUserCode(),serviceToken.getUserCode(),fetchAsks);
 	}
 
 	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
 	Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap) {
+		Boolean fetchAsks = false;
+		return toMessage(rootFrame, serviceToken,
+				asks, contextListMap, fetchAsks);
+	}
+	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
+	Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap, Boolean fetchAsks) {
 	
-		return toMessage(rootFrame,serviceToken,asks,contextListMap, new HashMap<String, QDataAskMessage>(), serviceToken.getUserCode(),serviceToken.getUserCode());
+		return toMessage(rootFrame,serviceToken,asks,contextListMap, new HashMap<String, QDataAskMessage>(), serviceToken.getUserCode(),serviceToken.getUserCode(),fetchAsks);
 	}	
 
 	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
-	Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap,  String sourceAlias, String targetAlias) {
+	Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap,  String sourceAlias, String targetAlias, Boolean fetchAsks) {
 	
-		return toMessage(rootFrame,serviceToken,asks,contextListMap, new HashMap<String, QDataAskMessage>(),sourceAlias,targetAlias);
+		return toMessage(rootFrame,serviceToken,asks,contextListMap, new HashMap<String, QDataAskMessage>(),sourceAlias,targetAlias,fetchAsks);
 	}	
-	
+
 	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
 			Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap, Map<String, QDataAskMessage> virtualAskMap) {
-		return toMessage(rootFrame, serviceToken, asks, contextListMap, virtualAskMap, serviceToken.getUserCode(),serviceToken.getUserCode());
+		Boolean fetchAsks = false;
+		return toMessage(rootFrame, serviceToken,
+				asks, contextListMap, virtualAskMap, fetchAsks);
+	}
+	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
+			Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap, Map<String, QDataAskMessage> virtualAskMap, Boolean fetchAsks) {
+		return toMessage(rootFrame, serviceToken, asks, contextListMap, virtualAskMap, serviceToken.getUserCode(),serviceToken.getUserCode(),fetchAsks);
 	}
 
 	/*
 	 * Process and Build message for the Frames.
 	 */
 	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
-				Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap, Map<String, QDataAskMessage> virtualAskMap, String sourceAlias, String targetAlias) {
+				Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap, Map<String, QDataAskMessage> virtualAskMap, String sourceAlias, String targetAlias, Boolean fetchAsks) {
 
 		Set<BaseEntity> baseEntityList = new HashSet<BaseEntity>();
 		Set<Ask> askListFromFrames = new HashSet<>();
@@ -196,7 +220,7 @@ public class FrameUtils2 {
 		msg.setTotal(msg.getReturnCount()); 
 		msg.setReplace(true);
 
-		if (!VertxUtils.cachedEnabled || virtualAskMap.isEmpty()) { 
+		if ((!VertxUtils.cachedEnabled || virtualAskMap.isEmpty())&& fetchAsks)  { 
 			
 			/*Looping through asks retrieved from frame*/
 			for (Ask currentAskFromFrame : askListFromFrames) {
@@ -210,8 +234,9 @@ public class FrameUtils2 {
 					log.info("Getting  " + currentAskFromFrame.getQuestionCode() + " from virtual asks");
 					 
 				} else {
-			
-					askMsgFromQuestions = getAsks(currentAskFromFrame, currentAskFromFrame.getQuestionCode(),serviceToken, sourceAlias, targetAlias);
+				
+						askMsgFromQuestions = getAsks(currentAskFromFrame, currentAskFromFrame.getQuestionCode(),serviceToken, sourceAlias, targetAlias);
+					
 				}
 				
 				List<BaseEntity> askContexts = processQDataAskMessage(askMsgFromQuestions, currentAskFromFrame, contextListMap,serviceToken);
