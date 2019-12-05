@@ -517,6 +517,19 @@ public class FrameUtils2 {
 
 			childBe.setQuestions(entityQuestionList);
 			baseEntityList.add(askBe);
+			
+			if(baseEntityList.contains(childBe)) {
+
+				// update the baseEntityList with the frame if question was linked
+				baseEntityList.remove(childBe);
+				
+				baseEntityList.add(childBe);
+
+			}
+			
+			// update the baseEntityList with the frame if question was linked
+			baseEntityList.add(childBe);
+			
 			/* Set the ask to support any sourceAlias and targetAlias */
 
 			askList.add(ask); // add to the ask list
