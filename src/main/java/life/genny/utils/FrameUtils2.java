@@ -54,13 +54,16 @@ import life.genny.qwandautils.JsonUtils;
 import life.genny.qwandautils.QwandaUtils;
 
 public class FrameUtils2 {
+	
+	static Boolean FETCH_ASKS=true;
 
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
 
 	static public Boolean showLogs = false;
 
 	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken, String sourceAlias, String targetAlias) {
-		Boolean fetchAsks = false;
+		Boolean fetchAsks = FETCH_ASKS;
+
 		toMessage(rootFrame, serviceToken,sourceAlias, targetAlias,fetchAsks);
 	}
 	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken, String sourceAlias, String targetAlias, Boolean fetchAsks) {
@@ -91,13 +94,13 @@ public class FrameUtils2 {
 	}
 
 	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken) {
-		Boolean fetchAsks = true;
+		Boolean fetchAsks = FETCH_ASKS;
 		toMessage(rootFrame, serviceToken,  serviceToken.getUserCode(), serviceToken.getUserCode(), fetchAsks);
 	}
 	
 	static public void toMessage2(final Frame3 rootFrame, GennyToken serviceToken) {
 		Map<String, ContextList> contextListMap = new HashMap<String, ContextList>();
-		Boolean fetchAsks = false;
+		Boolean fetchAsks = FETCH_ASKS;
 		toMessage(rootFrame, serviceToken, contextListMap, serviceToken.getUserCode(),serviceToken.getUserCode(),fetchAsks);
 
 		// check that the MSG got saved
@@ -164,7 +167,7 @@ public class FrameUtils2 {
 	
 	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
 			Set<QDataAskMessage> asks) {	
-		Boolean fetchAsks = false;
+		Boolean fetchAsks = FETCH_ASKS;
 		return toMessage(rootFrame, serviceToken, asks, new HashMap<String, ContextList>(),serviceToken.getUserCode(),serviceToken.getUserCode(),fetchAsks);
 	}
 	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
@@ -174,7 +177,7 @@ public class FrameUtils2 {
 
 	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
 	Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap) {
-		Boolean fetchAsks = false;
+		Boolean fetchAsks = FETCH_ASKS;
 		return toMessage(rootFrame, serviceToken,
 				asks, contextListMap, fetchAsks);
 	}
@@ -192,7 +195,7 @@ public class FrameUtils2 {
 
 	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
 			Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap, Map<String, QDataAskMessage> virtualAskMap) {
-		Boolean fetchAsks = false;
+		Boolean fetchAsks = FETCH_ASKS;
 		return toMessage(rootFrame, serviceToken,
 				asks, contextListMap, virtualAskMap, fetchAsks);
 	}
@@ -257,7 +260,6 @@ public class FrameUtils2 {
 	private static QDataAskMessage getAsks(Ask ask, String questionCode, GennyToken token, String sourceAlias, String targetAlias) {
 		
 		String targetAliasCode = "PER_TARGET";
-		String sourceAliasCode = token.getUserCode();
 
 		
 		if (!(ask.getTargetCode().equals(token.getUserCode()))& !(ask.getTargetCode().startsWith("QUE_"))) {
