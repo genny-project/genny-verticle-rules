@@ -63,7 +63,9 @@ public class FrameUtils2 {
 
 	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken, String sourceAlias, String targetAlias) {
 		Boolean fetchAsks = FETCH_ASKS;
-
+		// clear the ASKS cache
+		VertxUtils.cacheInterface.writeCache(serviceToken.getRealm(), rootFrame.getCode() + "_ASKS", null,
+				serviceToken.getToken(), 0);
 		toMessage(rootFrame, serviceToken,sourceAlias, targetAlias,fetchAsks);
 	}
 	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken, String sourceAlias, String targetAlias, Boolean fetchAsks) {
@@ -71,7 +73,7 @@ public class FrameUtils2 {
 			log.error("rootFrame is NULL! ");
 			return;
 		}
-		if (!GennySettings.framesOnDemand) {
+		if ((!GennySettings.framesOnDemand)/*||("PER_SOURCE".equals(sourceAlias)&&"PER_TARGET".equals(targetAlias))*/) {
 			Map<String, ContextList> contextListMap = new HashMap<String, ContextList>();
 			toMessage(rootFrame, serviceToken, contextListMap,sourceAlias,targetAlias, fetchAsks);
 		
@@ -97,7 +99,22 @@ public class FrameUtils2 {
 		Boolean fetchAsks = FETCH_ASKS;
 		toMessage(rootFrame, serviceToken,  serviceToken.getUserCode(), serviceToken.getUserCode(), fetchAsks);
 	}
-	
+
+	static public void toMessage2(final Frame3 rootFrame, GennyToken serviceToken, String sourceAlias, String targetAlias) {
+		Map<String, ContextList> contextListMap = new HashMap<String, ContextList>();
+		Boolean fetchAsks = FETCH_ASKS;
+		toMessage(rootFrame, serviceToken, contextListMap, sourceAlias,targetAlias,fetchAsks);
+
+		// check that the MSG got saved
+
+		QDataBaseEntityMessage FRM_MSG = VertxUtils.getObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG",
+				QDataBaseEntityMessage.class, serviceToken.getToken());
+
+		if (FRM_MSG == null) {
+			log.info("ERROR: rootFrame:" + rootFrame.getCode() + " NOT CREATED");
+		}
+
+	}
 	static public void toMessage2(final Frame3 rootFrame, GennyToken serviceToken) {
 		Map<String, ContextList> contextListMap = new HashMap<String, ContextList>();
 		Boolean fetchAsks = FETCH_ASKS;
@@ -156,11 +173,16 @@ public class FrameUtils2 {
 				"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_MSG", JsonUtils.toJson(msg), false));
 		
 		if (!askMsgs.isEmpty()) {
-			
-			VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode().toUpperCase() + "_ASKS", askMsgsStr,
+		// This IF statement is really bad and is a terrible hack to stop teh source and target being saved with actual non template code if frames on demand
+			if (!("PER_SOURCE".equals(sourceAlias) && ("PER_TARGET".equals(targetAlias)))) {
+				askMsgsStr = askMsgsStr.replaceAll("\"sourceCode\": \""+sourceAlias+"\"","PER_SOURCE");
+				askMsgsStr = askMsgsStr.replaceAll("\"targetCode\": \""+targetAlias+"\"","PER_TARGET");
+			}
+				VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode().toUpperCase() + "_ASKS", askMsgsStr,
 					serviceToken.getToken());
-			beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
+				beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
 					"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_ASKS", askMsgsStr, false));
+	
 
 		}
 	}
