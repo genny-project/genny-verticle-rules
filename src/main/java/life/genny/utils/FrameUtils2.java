@@ -180,8 +180,8 @@ public class FrameUtils2 {
 		if (!askMsgs.isEmpty()) {
 		// This IF statement is really bad and is a terrible hack to stop teh source and target being saved with actual non template code if frames on demand
 			if (!("PER_SOURCE".equals(sourceAlias) && ("PER_TARGET".equals(targetAlias)))) {
-				askMsgsStr = askMsgsStr.replaceAll("\"sourceCode\": \""+sourceAlias+"\"","PER_SOURCE");
-				askMsgsStr = askMsgsStr.replaceAll("\"targetCode\": \""+targetAlias+"\"","PER_TARGET");
+				askMsgsStr = askMsgsStr.replaceAll("\"sourceCode\": \""+sourceAlias+"\"","\"sourceCode\": \"PER_SOURCE\"");
+				askMsgsStr = askMsgsStr.replaceAll("\"targetCode\": \""+targetAlias+"\"","\"targetCode\": \"PER_TARGET\"");
 			}
 				VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode().toUpperCase() + "_ASKS", askMsgsStr,
 					serviceToken.getToken());
