@@ -17,17 +17,18 @@ import javax.mail.internet.MimeMessage;
 import org.apache.commons.lang.StringUtils;
 
 import io.vertx.core.json.JsonObject;
+import life.genny.qwandautils.GennySettings;
 
 public class EmailHelper extends NotificationHelper {
 
   public EmailHelper() {
     super("PRI_EMAIL");
-    this.setEMAIL_SMTP_HOST(System.getenv("EMAIL_SMTP_HOST"));
-    this.setEMAIL_SMTP_USER(System.getenv("EMAIL_SMTP_USER"));
-    this.setEMAIL_SMTP_PASS(System.getenv("EMAIL_SMTP_PASS"));
-    this.setEMAIL_SMTP_PORT(System.getenv("EMAIL_SMTP_PORT"));
-    this.setEMAIL_SMTP_AUTH(System.getenv("EMAIL_SMTP_AUTH"));
-    this.setEMAIL_SMTP_STARTTLS(System.getenv("EMAIL_SMTP_STARTTLS"));
+    this.setEMAIL_SMTP_HOST(GennySettings.emailSmtpHost);
+    this.setEMAIL_SMTP_USER(GennySettings.emailSmtpUser);
+    this.setEMAIL_SMTP_PASS(GennySettings.emailSmtpPassword);
+    this.setEMAIL_SMTP_PORT(GennySettings.emailSmtpPort);
+    this.setEMAIL_SMTP_AUTH(GennySettings.emailSmtpAuth);
+    this.setEMAIL_SMTP_STARTTLS(GennySettings.emailSmtpStartTls);
   }
 
   private Properties mailServerProperties;

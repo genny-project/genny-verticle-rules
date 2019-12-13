@@ -35,12 +35,12 @@ public enum CertPublicKey {
 
   public static JsonObject fetchOIDCPubKey(final String realm) {
 	String projectCode = "PRJ_"+realm.toUpperCase();
-    String keycloakUrl = System.getenv("KEYCLOAKURL");
     String apiGet = null;
+    String keycloakUrl = GennySettings.keycloakUrl;
 	if (keycloakUrl == null) {
      	JsonObject jsonObj = VertxUtils.readCachedJson(realm, projectCode);
     	BaseEntity project = JsonUtils.fromJson(jsonObj.getString("value").toString(), BaseEntity.class);
-    	keycloakUrl = project.getValue("ENV_KEYCLOAK_REDIRECTURI","http://keycloak.genny.life");
+    	keycloakUrl = project.getValue("ENV_KEYCLOAK_REDIRECTURI",GennySettings.keycloakUrl);
 	}
     String keycloakCertUrl = 
             keycloakUrl

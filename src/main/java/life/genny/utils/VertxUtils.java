@@ -32,6 +32,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.rxjava.core.eventbus.MessageProducer;
 import life.genny.channel.DistMap;
 import life.genny.eventbus.EventBusInterface;
+import life.genny.eventbus.EventBusMock;
 import life.genny.eventbus.EventBusVertx;
 import life.genny.eventbus.WildflyCacheInterface;
 import life.genny.models.GennyToken;
@@ -72,6 +73,10 @@ public class VertxUtils {
 		}
 		eb = eventBusInterface;
 		cacheInterface = gennyCacheInterface;
+		if (eb instanceof EventBusMock) {
+			GennySettings.forceCacheApi = true;
+			GennySettings.forceEventBusApi = true;
+		}
 
 	}
 
@@ -193,7 +198,7 @@ public class VertxUtils {
 			try {
 				// log.info("VERTX READING FROM CACHE API!");
 				if (cachedEnabled) {
-					if ("DUMMY".contentEquals(token)) {
+					if ("DUMMY".equals(token)) {
 						// leave realm as it
 					} else {
 						GennyToken temp = new GennyToken(token);
@@ -230,7 +235,11 @@ public class VertxUtils {
 					resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/" + realm + "/" + key, token);
 				}
 				if (resultStr != null) {
-					result = new JsonObject(resultStr);
+					try {
+						result = new JsonObject(resultStr);
+					} catch (Exception e) {
+						log.error("JsonDecode Error "+resultStr);
+					}
 				} else {
 					result = new JsonObject().put("status", "error");
 				}
@@ -353,7 +362,7 @@ public class VertxUtils {
 		return readFromDDT(realm, code, withAttributes,token,BaseEntity.class);
 	}
 
-	static boolean cacheDisabled = System.getenv("NO_CACHE") != null ? true : false;
+	static boolean cacheDisabled = GennySettings.noCache;
 
 	static public <T extends BaseEntity> T readFromDDT(final String realm, final String code, final String token) {
 		// if ("PER_SHARONCROW66_AT_GMAILCOM".equals(code)) {

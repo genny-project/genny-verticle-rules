@@ -1370,11 +1370,10 @@ public class BaseEntityUtils implements Serializable {
 	public List getLinkList(String groupCode, String linkCode, String linkValue, String token) {
 
 		// String qwandaServiceUrl = "http://localhost:8280";
-		String qwandaServiceUrl = System.getenv("REACT_APP_QWANDA_API_URL");
 		List linkList = null;
 
 		try {
-			String attributeString = QwandaUtils.apiGet(qwandaServiceUrl + "/qwanda/entityentitys/" + groupCode
+			String attributeString = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl + "/qwanda/entityentitys/" + groupCode
 					+ "/linkcodes/" + linkCode + "/children/" + linkValue, token);
 			if (attributeString != null) {
 				linkList = JsonUtils.fromJson(attributeString, List.class);

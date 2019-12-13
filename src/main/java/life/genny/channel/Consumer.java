@@ -7,6 +7,7 @@ import org.mortbay.log.Log;
 
 import io.vertx.rxjava.core.eventbus.EventBus;
 import io.vertx.rxjava.core.eventbus.Message;
+import life.genny.qwandautils.GennySettings;
 import rx.Observable;
 
 public class Consumer {
@@ -187,11 +188,10 @@ public class Consumer {
 		setFromMessages(eb.consumer("messages").toObservable());
 		setFromHealth(eb.consumer("health").toObservable());
 		
-		String myip = System.getenv("MYIP"); // get the local ip of this verticle
 	//	myip = "mytest";
-		setFromDirect(eb.consumer(myip).toObservable());
-		log.info("This Verticle is listening directly on "+myip);
-		directIP = myip;  // make available to others
+		setFromDirect(eb.consumer(GennySettings.myIP).toObservable());
+		log.info("This Verticle is listening directly on "+GennySettings.myIP);
+		directIP = GennySettings.myIP;  // make available to others
 	}
 
 }
