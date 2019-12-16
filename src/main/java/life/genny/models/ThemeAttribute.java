@@ -150,6 +150,8 @@ public final class ThemeAttribute implements Serializable {
 	private String transform = null;
 	@Expose
 	private String type = null;
+	@Expose
+	private Integer sections = null;
 	/**
 	 * static factory method for builder
 	 */
@@ -174,6 +176,12 @@ public final class ThemeAttribute implements Serializable {
 		return flexDirection;
 	}
 
+	/**
+	 * @return the sections
+	 */
+	public Integer getSections() {
+		return sections;
+	}
 	/**
 	 * @return the flexGrow
 	 */
@@ -718,6 +726,10 @@ public final class ThemeAttribute implements Serializable {
 			return this;
 		}
 
+		public Builder sections(Integer value) {
+			managedInstance.sections = value;
+			return this;
+		}
 		public Builder flexGrow(Integer value) {
 			managedInstance.flexGrow = value;
 			return this;
@@ -1079,6 +1091,8 @@ public final class ThemeAttribute implements Serializable {
 			json.put("alignItems", alignItems);
 		if (flexDirection != null)
 			json.put("flexDirection", flexDirection);
+		if (sections != null)
+			json.put("sections", sections);
 		if (flexGrow != null)
 			json.put("flexGrow", flexGrow);
 		if (flexShrink != null)
