@@ -25,6 +25,7 @@ import com.google.gson.reflect.TypeToken;
 
 import io.vertx.core.json.JsonObject;
 import io.vertx.rxjava.core.shareddata.AsyncMap;
+import life.genny.models.GennyToken;
 import life.genny.qwanda.Answer;
 import life.genny.qwanda.Link;
 import life.genny.qwanda.attribute.Attribute;
@@ -811,12 +812,11 @@ public class RulesUtils {
 		return linkList;
 	}
 
-	public static QDataAttributeMessage loadAllAttributesIntoCache(final String token) {
+	public static QDataAttributeMessage loadAllAttributesIntoCache(final GennyToken token) {
 		try {
 			boolean cacheWorked = false;
-			final String realm = KeycloakUtils.getRealmFromToken(token);
 
-			JsonObject json = VertxUtils.readCachedJson(realm,"attributes",token);
+			JsonObject json = VertxUtils.readCachedJson(token.getRealm(),"attributes",token.getToken());
 			if ("ok".equals(json.getString("status"))) {
 			//	println("LOADING ATTRIBUTES FROM CACHE!");
 				attributesMsg = JsonUtils.fromJson(json.getString("value"), QDataAttributeMessage.class);
@@ -828,9 +828,9 @@ public class RulesUtils {
                 println("All the attributes have been loaded in "+attributeMap.size()+" attributes");
 			} else {
 				println("LOADING ATTRIBUTES FROM API");
-				String jsonString = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl + "/qwanda/attributes", token);
+				String jsonString = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl + "/qwanda/attributes", token.getToken());
 				if (!StringUtils.isBlank(jsonString)) {
-				VertxUtils.writeCachedJson(realm, "attributes", jsonString, token);
+				VertxUtils.writeCachedJson(token.getRealm(), "attributes", jsonString, token.getToken());
 				
 				attributesMsg = JsonUtils.fromJson(jsonString, QDataAttributeMessage.class);
 				Attribute[] attributeArray = attributesMsg.getItems();
@@ -850,7 +850,26 @@ public class RulesUtils {
 		}
 		return null;
 	}
+	public static QDataAttributeMessage loadAllAttributesIntoCache(final String token) {
+		return loadAllAttributesIntoCache(new GennyToken(token));
+	}
 
+	public static Attribute getAttribute(final String attributeCode, final GennyToken token) {
+		Attribute ret = attributeMap.get(attributeCode);
+		if (ret == null) {
+			if (attributeCode.startsWith("SRT_") || attributeCode.startsWith("RAW_")) {
+				ret = new AttributeText(attributeCode, attributeCode);
+			} else {
+				loadAllAttributesIntoCache(token);
+				ret = attributeMap.get(attributeCode);
+				if (ret == null) {
+					log.error("Attribute NOT FOUND :"+attributeCode);
+				}
+			}
+		}
+		return ret;
+	}
+	
 	public static Attribute getAttribute(final String attributeCode, final String token) {
 		Attribute ret = attributeMap.get(attributeCode);
 		if (ret == null) {
