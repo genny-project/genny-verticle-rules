@@ -239,8 +239,11 @@ public class BaseEntityUtils implements Serializable {
 
 		RulesUtils.attributeMap.put(attribute.getCode(), attribute);
 		try {
-			String result = QwandaUtils.apiPostEntity(this.qwandaServiceUrl + "/qwanda/attributes",
+			if (!VertxUtils.cachedEnabled) { // only post if not in junit
+
+				String result = QwandaUtils.apiPostEntity(this.qwandaServiceUrl + "/qwanda/attributes",
 					JsonUtils.toJson(attribute), token);
+			}
 			return attribute;
 		} catch (IOException e) {
 			log.error("Socket error trying to post attribute");
@@ -1183,7 +1186,7 @@ public class BaseEntityUtils implements Serializable {
 		try {
 			String attributeCode = answer.getAttributeCode();
 			if (!attributeCode.startsWith("RAW_")) {
-				Attribute attribute = null;
+				Attribute attribute =answer.getAttribute();
 
 				if (RulesUtils.attributeMap != null) {
 					if (RulesUtils.attributeMap.isEmpty()) {
