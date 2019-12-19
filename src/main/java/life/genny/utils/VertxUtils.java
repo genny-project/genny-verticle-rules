@@ -232,8 +232,8 @@ public class VertxUtils {
 					}
 
 				} else {
-//					resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/" + realm + "/" + key, token);
-					resultStr =  readFromDDT(realm, key, token).toString();
+					resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/" + realm + "/" + key, token);
+//					resultStr =  readFromDDT(realm, key, token).toString();
 				}
 				if (resultStr != null) {
 					try {
@@ -245,7 +245,7 @@ public class VertxUtils {
 					result = new JsonObject().put("status", "error");
 				}
 
-			} catch (Exception e) {
+			} catch (IOException e) {
 				log.error("Could not read " + key + " from cache");
 			}
 
