@@ -106,7 +106,7 @@ public class CapabilityUtils implements Serializable {
 
 	public boolean hasCapability(final String capabilityCode, final CapabilityMode mode) {
 		// allow keycloak admin and devcs to do anything
-		if (beUtils.getGennyToken().hasRole("admin")||beUtils.getGennyToken().hasRole("dev")) {
+		if (beUtils.getGennyToken().hasRole("admin")||beUtils.getGennyToken().hasRole("dev")||("PER_SERVICE".equals(beUtils.getGennyToken().getUserCode()))) {
 			return true;
 		}
 		// Create a capabilityCode and mode combined unique key
