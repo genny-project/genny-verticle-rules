@@ -89,6 +89,7 @@ public class BaseEntityUtils implements Serializable {
 		this.token = gennyToken.getToken();
 		this.realm = gennyToken.getRealm();
 		this.gennyToken = gennyToken;
+		this.serviceToken = gennyToken; // override afterwards
 		this.cacheUtil = new CacheUtils(qwandaServiceUrl, token, decodedMapToken, realm);
 		this.cacheUtil.setBaseEntityUtils(this);
 	}
