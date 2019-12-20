@@ -83,6 +83,43 @@ public class CapabilityUtils implements Serializable {
 		beUtils.saveAnswer(answer);
 
 		// Now update the list of roles associated with the key
+		switch (mode) {
+		case NONE: updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.NONE);
+					break;
+		case VIEW: 
+			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.NONE);
+			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.VIEW);
+			break;
+		case EDIT: 
+			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.NONE);
+			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.VIEW);
+			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.EDIT);
+			break;
+		case ADD: 
+			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.NONE);
+			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.VIEW);
+			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.EDIT);
+			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.ADD);
+			break;
+		case DELETE: 
+			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.NONE);
+			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.VIEW);
+			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.EDIT);
+			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.ADD);
+			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.DELETE);
+			break;
+
+
+		}
+		return role;
+	}
+
+	/**
+	 * @param role
+	 * @param capabilityCode
+	 * @param mode
+	 */
+	private void updateCachedRoleSet(final String roleCode, final String capabilityCode, final CapabilityMode mode) {
 		String key = beUtils.getGennyToken().getRealm() + ":" + capabilityCode + ":" + mode.name();
 		// Look up from cache
 		JsonObject json = VertxUtils.readCachedJson(beUtils.getGennyToken().getRealm(), key,
@@ -97,11 +134,11 @@ public class CapabilityUtils implements Serializable {
 		}
 		String[] roleCodes = roleCodesString.split(",");
 		Set<String> roleCodeSet = new HashSet<>(Arrays. asList(roleCodes));
-		if (!roleCodeSet.contains(key)) {
-			
+		if (!roleCodeSet.contains(roleCode)) {
+			roleCodesString += roleCode+",";
+			VertxUtils.writeCachedJson(beUtils.getGennyToken().getRealm(), key, roleCodesString,
+					beUtils.getGennyToken().getToken());
 		}
-
-		return role;
 	}
 
 	public boolean hasCapability(final String capabilityCode, final CapabilityMode mode) {
