@@ -15,7 +15,7 @@ import org.json.JSONObject;
 
 public class MockCache implements GennyCacheInterface {
 	
-	private static final Logger logger = LoggerFactory
+	private static final Logger log = LoggerFactory
 			.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
 
 	private static Map<String,Map<String,String>> realmCacheMap = new ConcurrentHashMap<String,Map<String,String>>();
@@ -23,6 +23,7 @@ public class MockCache implements GennyCacheInterface {
 	@Override
 
 	public Object readCache(String realm, final String key, final String token) {
+		log.info("MockCache read:"+realm+":"+key);
 
 		if (!realmCacheMap.containsKey(realm)) {
 			realmCacheMap.put(realm, new ConcurrentHashMap<String,String>());
@@ -44,7 +45,7 @@ public class MockCache implements GennyCacheInterface {
 			realmCacheMap.get(realm).remove(key);
 		} else {
 			if (key == null) {
-				logger.error("Null Key provided! with value=["+value+"]");
+				log.error("Null Key provided! with value=["+value+"]");
 				
 			} else {
 				realmCacheMap.get(realm).put(key, value); // ignore expiry

@@ -177,7 +177,7 @@ public class VertxUtils {
 
 	static public JsonObject readCachedJson(String realm, final String key, final String token) {
 		JsonObject result = null;
-
+		
 		if (!GennySettings.forceCacheApi) {
 			String ret = null;
 			try {
@@ -196,7 +196,7 @@ public class VertxUtils {
 		} else {
 			String resultStr = null;
 			try {
-				// log.info("VERTX READING FROM CACHE API!");
+				log.info("VERTX READING FROM CACHE API!");
 				if (cachedEnabled) {
 					if ("DUMMY".equals(token)) {
 						// leave realm as it
@@ -232,8 +232,9 @@ public class VertxUtils {
 					}
 
 				} else {
-					resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/" + realm + "/" + key, token);
 					log.info("DEBUGINFO, DDT URL:" + GennySettings.ddtUrl + "realm:" + realm + "key:" + key + "token:" + token );
+					resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/" + realm + "/" + key, token);
+					
 //					resultStr =  readFromDDT(realm, key, token).toString();
 				}
 				if (resultStr != null) {
