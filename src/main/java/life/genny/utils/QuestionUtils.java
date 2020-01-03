@@ -98,7 +98,9 @@ public class QuestionUtils {
 					GennyToken gToken = new GennyToken(token);
 					Set<String> activeAttributesSet = VertxUtils.getObject(gToken.getRealm(), "", "ACTIVE_ATTRIBUTES", type,
 							token);
-
+					if (activeAttributesSet == null) {
+						activeAttributesSet = new HashSet<String>();
+					}
 					activeAttributesSet.addAll(activeAttributeCodes);
 					
 					VertxUtils.putObject(gToken.getRealm(), "", "ACTIVE_ATTRIBUTES", activeAttributesSet,
