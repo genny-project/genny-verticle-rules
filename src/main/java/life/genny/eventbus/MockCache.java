@@ -23,7 +23,7 @@ public class MockCache implements GennyCacheInterface {
 	@Override
 
 	public Object readCache(String realm, final String key, final String token) {
-		log.info("MockCache read:"+realm+":"+key);
+	//	log.info("MockCache read:"+realm+":"+key);
 
 		if (!realmCacheMap.containsKey(realm)) {
 			realmCacheMap.put(realm, new ConcurrentHashMap<String,String>());

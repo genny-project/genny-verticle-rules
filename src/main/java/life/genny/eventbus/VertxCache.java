@@ -19,7 +19,7 @@ public class VertxCache implements GennyCacheInterface {
 	@Override
 
 	public Object readCache(String realm, final String key, final String token) {
-		log.info("VertxCache read:"+realm+":"+key);
+	//	log.info("VertxCache read:"+realm+":"+key);
 		return DistMap.getMapBaseEntitys(realm).get(key);
 	}
 
