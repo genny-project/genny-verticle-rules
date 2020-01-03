@@ -2,7 +2,9 @@ package life.genny.utils;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -10,6 +12,8 @@ import java.util.stream.Collectors;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.logging.log4j.Logger;
+
+import com.google.gson.reflect.TypeToken;
 
 import life.genny.models.GennyToken;
 import life.genny.qwanda.Ask;
@@ -23,6 +27,7 @@ import life.genny.qwanda.attribute.Attribute;
 import life.genny.qwanda.datatype.DataType;
 import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.entity.EntityQuestion;
+import life.genny.qwanda.entity.SearchEntity;
 import life.genny.qwanda.message.QBulkMessage;
 import life.genny.qwanda.message.QDataAskMessage;
 import life.genny.qwanda.message.QDataBaseEntityMessage;
@@ -80,7 +85,27 @@ public class QuestionUtils {
 					+ questionCode + "/" + targetCode, token);
 			if (json != null) {
 				if (!json.contains("<title>Error")) {
-					return JsonUtils.fromJson(json, QDataAskMessage.class);
+					QDataAskMessage msg = JsonUtils.fromJson(json, QDataAskMessage.class);
+
+					// Identify all the attributeCodes and build up a working active Set
+					Set<String> activeAttributeCodes = new HashSet<String>();
+					for (Ask ask : msg.getItems()) {
+						activeAttributeCodes.addAll(getAttributeCodes(ask));
+					}
+					// Now fetch the set from cache and add it....
+					Type type = new TypeToken<Set<String>>() {
+					}.getType();
+					GennyToken gToken = new GennyToken(token);
+					Set<String> activeAttributesSet = VertxUtils.getObject(gToken.getRealm(), "", "ACTIVE_ATTRIBUTES", type,
+							token);
+
+					activeAttributesSet.addAll(activeAttributeCodes);
+					
+					VertxUtils.putObject(gToken.getRealm(), "", "ACTIVE_ATTRIBUTES", activeAttributesSet,
+							token);
+
+					log.info("Total Active AttributeCodes = "+activeAttributesSet.size());
+					return msg;
 				}
 			}
 		} catch (ClientProtocolException e) {
@@ -90,6 +115,17 @@ public class QuestionUtils {
 		}
 
 		return null;
+	}
+
+	private static Set<String> getAttributeCodes(Ask ask) {
+		Set<String> activeCodes = new HashSet<String>();
+		activeCodes.add(ask.getAttributeCode());
+		if ((ask.getChildAsks() != null) && (ask.getChildAsks().length > 0)) {
+			for (Ask childAsk : ask.getChildAsks()) {
+				activeCodes.addAll(getAttributeCodes(childAsk));
+			}
+		}
+		return activeCodes;
 	}
 
 	public static QwandaMessage getQuestions(String sourceCode, String targetCode, String questionCode, String token)
@@ -339,8 +375,9 @@ public class QuestionUtils {
 		/* We generate the ask */
 		return new Ask(newQuestion, be.getCode(), be.getCode(), false, 1.0, false, false, true);
 	}
-	
-	public static Ask createQuestionForBaseEntity2(BaseEntity be, Boolean isQuestionGroup, GennyToken serviceToken, final String sourceAlias, final String targetAlias) {
+
+	public static Ask createQuestionForBaseEntity2(BaseEntity be, Boolean isQuestionGroup, GennyToken serviceToken,
+			final String sourceAlias, final String targetAlias) {
 
 		/* creating attribute code according to the value of isQuestionGroup */
 		String attributeCode = isQuestionGroup ? "QQQ_QUESTION_GROUP_INPUT" : "PRI_EVENT";
@@ -351,27 +388,27 @@ public class QuestionUtils {
 			attribute = RulesUtils.getAttribute(attributeCode, serviceToken.getToken());
 			log.debug("createQuestionForBaseEntity method, attribute ::" + JsonUtils.toJson(attribute));
 		} else {
-			 attribute = new Attribute(attributeCode, attributeCode,
-						new DataType("DTT_THEME")); // this helps junit testing
+			attribute = new Attribute(attributeCode, attributeCode, new DataType("DTT_THEME")); // this helps junit
+																								// testing
 		}
 
 		if (attribute == null) {
-			log.error("Attribute DOES NOT EXIST! "+attributeCode+" creating temp");
+			log.error("Attribute DOES NOT EXIST! " + attributeCode + " creating temp");
 			// ugly
-			attribute = new Attribute(attributeCode, attributeCode,
-					new DataType("DTT_THEME")); // this helps junit testing
-			
+			attribute = new Attribute(attributeCode, attributeCode, new DataType("DTT_THEME")); // this helps junit
+																								// testing
+
 		}
 
 		/* We generate the question */
-		Question newQuestion = new Question(be.getCode() , be.getName(), attribute, false);
+		Question newQuestion = new Question(be.getCode(), be.getName(), attribute, false);
 		log.debug("createQuestionForBaseEntity method, newQuestion ::" + JsonUtils.toJson(newQuestion));
 
 		/* We generate the ask */
-		Ask ask = new Ask(newQuestion, (sourceAlias!=null?sourceAlias:be.getCode()),( targetAlias!=null?targetAlias:be.getCode()), false, 1.0, false, false, true);
+		Ask ask = new Ask(newQuestion, (sourceAlias != null ? sourceAlias : be.getCode()),
+				(targetAlias != null ? targetAlias : be.getCode()), false, 1.0, false, false, true);
 		ask.setRealm(serviceToken.getRealm());
 		return ask;
-
 
 	}
 
@@ -401,7 +438,7 @@ public class QuestionUtils {
 		ask.setContextList(contextList);
 		return ask;
 	}
-	
+
 	public static BaseEntity createVirtualLink(BaseEntity source, Ask ask, String linkCode, String linkValue) {
 
 		if (source != null) {
