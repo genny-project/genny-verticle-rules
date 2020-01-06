@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -132,7 +133,7 @@ public class BaseEntityUtils implements Serializable {
 
 	public List<BaseEntity> getBaseEntityFromSelectionAttribute(BaseEntity be, String attributeCode) {
 
-		List<BaseEntity> bes = new ArrayList<>();
+		List<BaseEntity> bes = new CopyOnWriteArrayList<>();
 
 		String attributeValue = be.getValue(attributeCode, null);
 		if (attributeValue != null) {
@@ -413,7 +414,7 @@ public class BaseEntityUtils implements Serializable {
 
 	public void updateBaseEntityAttribute(final String sourceCode, final String beCode, final String attributeCode,
 			final String newValue) {
-		List<Answer> answers = new ArrayList<Answer>();
+		List<Answer> answers = new CopyOnWriteArrayList<Answer>();
 		answers.add(new Answer(sourceCode, beCode, attributeCode, newValue));
 		this.saveAnswers(answers);
 	}
@@ -519,7 +520,7 @@ public class BaseEntityUtils implements Serializable {
 	public List<BaseEntity> getBaseEntitysByParentAndLinkCode(final String parentCode, final String linkCode,
 			Integer pageStart, Integer pageSize, Boolean cache) {
 		cache = false;
-		List<BaseEntity> bes = new ArrayList<BaseEntity>();
+		List<BaseEntity> bes = new CopyOnWriteArrayList<BaseEntity>();
 		String key = parentCode + linkCode + "-" + pageStart + "-" + pageSize;
 		if (cache) {
 			Type listType = new TypeToken<List<BaseEntity>>() {
@@ -528,7 +529,7 @@ public class BaseEntityUtils implements Serializable {
 			if (beCodes == null) {
 				bes = RulesUtils.getBaseEntitysByParentAndLinkCodeWithAttributes(qwandaServiceUrl, this.decodedMapToken,
 						this.token, parentCode, linkCode, pageStart, pageSize);
-				beCodes = new ArrayList<String>();
+				beCodes = new CopyOnWriteArrayList<String>();
 				for (BaseEntity be : bes) {
 					VertxUtils.putObject(this.realm, "", be.getCode(), JsonUtils.toJson(be));
 					beCodes.add(be.getCode());
@@ -571,7 +572,7 @@ public class BaseEntityUtils implements Serializable {
 	public List<BaseEntity> getBaseEntitysByParentAndLinkCode3(final String parentCode, final String linkCode,
 			Integer pageStart, Integer pageSize, Boolean cache) {
 		cache = false;
-		List<BaseEntity> bes = new ArrayList<BaseEntity>();
+		List<BaseEntity> bes = new CopyOnWriteArrayList<BaseEntity>();
 
 		BaseEntity parent = getBaseEntityByCode(parentCode);
 		for (EntityEntity ee : parent.getLinks()) {
@@ -730,8 +731,8 @@ public class BaseEntityUtils implements Serializable {
 			Link[] linkArray = JsonUtils.fromJson(beJson, Link[].class);
 			if (linkArray != null && linkArray.length > 0) {
 
-				ArrayList<Link> arrayList = new ArrayList<Link>(Arrays.asList(linkArray));
-				parents = new ArrayList<BaseEntity>();
+				List<Link> arrayList = new CopyOnWriteArrayList<Link>(Arrays.asList(linkArray));
+				parents = new CopyOnWriteArrayList<BaseEntity>();
 				for (Link lnk : arrayList) {
 
 					BaseEntity linkedBe = getBaseEntityByCode(lnk.getSourceCode());
@@ -762,7 +763,7 @@ public class BaseEntityUtils implements Serializable {
 
 	public List<EntityEntity> getLinks(String beCode) {
 
-		List<EntityEntity> links = new ArrayList<EntityEntity>();
+		List<EntityEntity> links = new CopyOnWriteArrayList<EntityEntity>();
 		BaseEntity be = this.getBaseEntityByCode(beCode);
 		if (be != null) {
 
@@ -809,7 +810,7 @@ public class BaseEntityUtils implements Serializable {
 
 	public List<BaseEntity> getLinkedBaseEntities(String beCode, String linkCode, String linkValue, Integer level) {
 
-		List<BaseEntity> linkedBaseEntities = new ArrayList<BaseEntity>();
+		List<BaseEntity> linkedBaseEntities = new CopyOnWriteArrayList<BaseEntity>();
 		try {
 
 			/* We grab all the links from the node passed as a parameter "beCode" */
@@ -885,7 +886,7 @@ public class BaseEntityUtils implements Serializable {
 		BaseEntity be = this.getBaseEntityByCode(beCode);
 		if (be != null) {
 
-			List<BaseEntity> beList = new ArrayList<>();
+			List<BaseEntity> beList = new CopyOnWriteArrayList<>();
 
 			Set<EntityEntity> entityEntities = be.getLinks();
 
@@ -982,7 +983,7 @@ public class BaseEntityUtils implements Serializable {
 
 	public void duplicateAttributes(final BaseEntity oldBe, final BaseEntity newBe) {
 
-		List<Answer> duplicateAnswerList = new ArrayList<>();
+		List<Answer> duplicateAnswerList = new CopyOnWriteArrayList<>();
 
 		for (EntityAttribute ea : oldBe.getBaseEntityAttributes()) {
 			duplicateAnswerList.add(new Answer(newBe.getCode(), newBe.getCode(), ea.getAttributeCode(), ea.getValue()));
@@ -1171,7 +1172,7 @@ public class BaseEntityUtils implements Serializable {
 		if ((be == null) || (be.getCode() == null)) {
 			throw new NullPointerException("Cannot save be because be is null or be.getCode is null");
 		}
-		List<Answer> answers = new ArrayList<Answer>();
+		List<Answer> answers = new CopyOnWriteArrayList<Answer>();
 
 		for (EntityAttribute ea : be.getBaseEntityAttributes()) {
 			Answer attributeAnswer = new Answer(be.getCode(), be.getCode(), ea.getAttributeCode(), ea.getAsString());
@@ -1447,7 +1448,7 @@ public class BaseEntityUtils implements Serializable {
 			});
 		}
 
-		List<String> searchHeader = new ArrayList<String>();
+		List<String> searchHeader = new CopyOnWriteArrayList<String>();
 		for (EntityAttribute ea1 : ea) {
 			searchHeader.add(ea1.getAttributeCode().substring("COL_".length()));
 		}
@@ -1526,7 +1527,7 @@ public class BaseEntityUtils implements Serializable {
 
 				/* if the modified time is not the same, we update the layout BE */
 				/* setting layout attributes */
-				List<Answer> answers = new ArrayList<>();
+				List<Answer> answers = new CopyOnWriteArrayList<>();
 
 				/* download the content of the layout */
 				String content = LayoutUtils.downloadLayoutContent(layout);
@@ -1598,7 +1599,7 @@ public class BaseEntityUtils implements Serializable {
 		map = getMapOfAllAttributesValuesForBaseEntity(sourceBe.getCode());
 		RulesUtils.ruleLogger("MAP DATA   ::   ", map);
 
-		List<Answer> answers = new ArrayList<Answer>();
+		List<Answer> answers = new CopyOnWriteArrayList<Answer>();
 		try {
 			for (Map.Entry<String, String> entry : map.entrySet()) {
 				Answer answerObj = new Answer(sourceBe.getCode(), targetBe.getCode(), entry.getKey(), entry.getValue());
@@ -1656,7 +1657,7 @@ public class BaseEntityUtils implements Serializable {
 	 */
 	public String getAllChildCodes(final String parentCode, final String linkCode) {
 		String childs = null;
-		List<String> childBECodeList = new ArrayList<String>();
+		List<String> childBECodeList = new CopyOnWriteArrayList<String>();
 		List<BaseEntity> childBE = this.getLinkedBaseEntities(parentCode, linkCode);
 		if (childBE != null) {
 			for (BaseEntity be : childBE) {
@@ -1675,7 +1676,7 @@ public class BaseEntityUtils implements Serializable {
 		String myLoadTypes = be.getValue(attributeCode, null);
 
 		if (myLoadTypes != null) {
-			List<String> loadTypesList = new ArrayList<String>();
+			List<String> loadTypesList = new CopyOnWriteArrayList<String>();
 			/* Removing brackets "[]" and double quotes from the strings */
 			String trimmedStr = myLoadTypes.substring(1, myLoadTypes.length() - 1).toString().replaceAll("\"", "");
 			if (trimmedStr != null && !trimmedStr.isEmpty()) {
