@@ -66,6 +66,11 @@ public class VertxUtils {
 	}
 
 	public static GennyCacheInterface cacheInterface = null;
+	
+	public static GennyCacheInterface getCacheInterface()
+	{
+		return cacheInterface;
+	}
 
 	public static void init(EventBusInterface eventBusInterface, GennyCacheInterface gennyCacheInterface) {
 		if (gennyCacheInterface == null) {
@@ -196,7 +201,7 @@ public class VertxUtils {
 		} else {
 			String resultStr = null;
 			try {
-				log.info("VERTX READING FROM CACHE API!");
+			//	log.info("VERTX READING FROM CACHE API!");
 				if (cachedEnabled) {
 					if ("DUMMY".equals(token)) {
 						// leave realm as it
