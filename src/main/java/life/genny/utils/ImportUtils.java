@@ -83,8 +83,11 @@ public class ImportUtils {
 			    		  // we now have attributeCode and the value
 			    		  Tuple2<String,String> pair = Tuple.of(attributeCode, val);
 			    		  beImport.getAttributeValuePairList().add(pair);
+			    		  if ("PRI_NAME".equals(attributeCode)) {
+			    			  beImport.setName(val);
+			    		  }
 			    		  } else {
-			    			  log.error("Null Attribute Code ");
+			    			  log.error("Null Attribute Code - ignoring "+col);
 			    		  }
 			    		  
 			    	  }
