@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import org.apache.logging.log4j.Logger;
 
@@ -16,7 +15,6 @@ import life.genny.bootxport.bootx.GoogleImportService;
 import life.genny.bootxport.bootx.XlsxImport;
 import life.genny.bootxport.bootx.XlsxImportOnline;
 import life.genny.models.BaseEntityImport;
-import life.genny.qwanda.Answer;
 import life.genny.qwandautils.QwandaUtils;
 
 public class ImportUtils {
@@ -81,9 +79,13 @@ public class ImportUtils {
 			    			  val = val.trim();
 			    		  }
 			    		  String attributeCode = fieldMapping.get(col);
+			    		  if (attributeCode != null) {
 			    		  // we now have attributeCode and the value
 			    		  Tuple2<String,String> pair = Tuple.of(attributeCode, val);
 			    		  beImport.getAttributeValuePairList().add(pair);
+			    		  } else {
+			    			  log.error("Null Attribute Code ");
+			    		  }
 			    		  
 			    	  }
 			    	  beImportList.add(beImport);
