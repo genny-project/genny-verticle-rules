@@ -87,7 +87,7 @@ public class ImportUtils {
 			    			  beImport.setName(val);
 			    		  }
 			    		  } else {
-			    			  log.error("Null Attribute Code - ignoring "+col);
+			    			 // log.error("Null Attribute Code - ignoring "+col);
 			    		  }
 			    		  
 			    	  }
