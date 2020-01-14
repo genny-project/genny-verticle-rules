@@ -121,6 +121,10 @@ public class FrameUtils2 {
 
 	}
 	static public void toMessage2(final Frame3 rootFrame, GennyToken serviceToken) {
+		if (rootFrame == null) {
+			log.error("No rootFrame supplied to toMessage2!!!");
+			return;
+		}
 		Map<String, ContextList> contextListMap = new HashMap<String, ContextList>();
 		Boolean fetchAsks = FETCH_ASKS;
 		toMessage(rootFrame, serviceToken, contextListMap, serviceToken.getUserCode(),serviceToken.getUserCode(),fetchAsks);
