@@ -244,7 +244,7 @@ public class BaseEntityUtils implements Serializable {
 			if (!VertxUtils.cachedEnabled) { // only post if not in junit
 
 				String result = QwandaUtils.apiPostEntity(this.qwandaServiceUrl + "/qwanda/attributes",
-					JsonUtils.toJson(attribute), token);
+						JsonUtils.toJson(attribute), token);
 			}
 			return attribute;
 		} catch (IOException e) {
@@ -307,7 +307,7 @@ public class BaseEntityUtils implements Serializable {
 
 		T be2 = this.updateCachedBaseEntity(answer, clazz);
 		try {
-			Attribute attr = RulesUtils.getAttribute(answer.getAttributeCode(), this.getGennyToken().getToken());				
+			Attribute attr = RulesUtils.getAttribute(answer.getAttributeCode(), this.getGennyToken().getToken());
 			be.setValue(attr, answer.getValue());
 		} catch (BadDataException e) {
 			// TODO Auto-generated catch block
@@ -320,7 +320,7 @@ public class BaseEntityUtils implements Serializable {
 		BaseEntity be = this.getBaseEntityByCode(baseEntityCode);
 		return updateBaseEntity(be, answer, BaseEntity.class);
 	}
-	
+
 	public <T extends BaseEntity> T updateBaseEntity(T be, Answer answer) {
 
 		return updateBaseEntity(be, answer, BaseEntity.class);
@@ -328,32 +328,41 @@ public class BaseEntityUtils implements Serializable {
 
 	public void saveAnswers(List<Answer> answers, final boolean changeEvent) {
 		if (!((answers == null) || (answers.isEmpty()))) {
+
 			if (!changeEvent) {
 				for (Answer answer : answers) {
 					answer.setChangeEvent(false);
 				}
 			}
-			Answer items[] = new Answer[answers.size()];
-			items = answers.toArray(items);
 
-			QDataAnswerMessage msg = new QDataAnswerMessage(items);
+			// Sort answers into target Baseentitys
+			Map<String, List<Answer>> answersPerTargetCodeMap = answers.stream()
+					.collect(Collectors.groupingBy(Answer::getTargetCode));
 
-			this.updateCachedBaseEntity(answers);
+			for (String targetCode : answersPerTargetCodeMap.keySet()) {
+				List<Answer> targetAnswers = answersPerTargetCodeMap.get(targetCode);
+				Answer items[] = new Answer[targetAnswers.size()];
+				items = targetAnswers.toArray(items);
 
-			if (!VertxUtils.cachedEnabled) { // if not running junit, no need for api
-				String jsonAnswer = JsonUtils.toJson(msg);
-				// jsonAnswer.replace("\\\"", "\"");
+				QDataAnswerMessage msg = new QDataAnswerMessage(items);
+				this.updateCachedBaseEntity(targetAnswers);
 
-				try {
-					if (!VertxUtils.cachedEnabled) { // only post if not in junit
-						QwandaUtils.apiPostEntity(this.qwandaServiceUrl + "/qwanda/answers/bulk2", jsonAnswer, token);
+				if (!VertxUtils.cachedEnabled) { // if not running junit, no need for api
+					String jsonAnswer = JsonUtils.toJson(msg);
+					// jsonAnswer.replace("\\\"", "\"");
+
+					try {
+						if (!VertxUtils.cachedEnabled) { // only post if not in junit
+							QwandaUtils.apiPostEntity(this.qwandaServiceUrl + "/qwanda/answers/bulk2", jsonAnswer,
+									token);
+						}
+					} catch (IOException e) {
+						log.error("Socket error trying to post answer");
 					}
-				} catch (IOException e) {
-					log.error("Socket error trying to post answer");
-				}
-			} else {
-				for (Answer answer : answers) {
-					log.info("Saving Answer :"+answer);
+				} else {
+					for (Answer answer : answers) {
+						log.info("Saving Answer :" + answer);
+					}
 				}
 			}
 		}
@@ -456,7 +465,7 @@ public class BaseEntityUtils implements Serializable {
 			// log.info("Fetching BaseEntityByCode, code="+code);
 			be = VertxUtils.readFromDDT(getRealm(), code, withAttributes, this.token, clazz);
 			if (be == null) {
-				if (!VertxUtils.cachedEnabled) {  // because during junit it annoys me
+				if (!VertxUtils.cachedEnabled) { // because during junit it annoys me
 					log.info("be (" + code + ") fetched is NULL ");
 				}
 			} else {
@@ -1124,8 +1133,6 @@ public class BaseEntityUtils implements Serializable {
 		return links;
 	}
 
-	
-	
 	public String updateBaseEntity(BaseEntity be) {
 		try {
 			VertxUtils.writeCachedJson(getRealm(), be.getCode(), JsonUtils.toJson(be));
@@ -1188,7 +1195,7 @@ public class BaseEntityUtils implements Serializable {
 		try {
 			String attributeCode = answer.getAttributeCode();
 			if (!attributeCode.startsWith("RAW_")) {
-				Attribute attribute =answer.getAttribute();
+				Attribute attribute = answer.getAttribute();
 
 				if (RulesUtils.attributeMap != null) {
 					if (RulesUtils.attributeMap.isEmpty()) {
@@ -1378,8 +1385,8 @@ public class BaseEntityUtils implements Serializable {
 		List linkList = null;
 
 		try {
-			String attributeString = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl + "/qwanda/entityentitys/" + groupCode
-					+ "/linkcodes/" + linkCode + "/children/" + linkValue, token);
+			String attributeString = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl + "/qwanda/entityentitys/"
+					+ groupCode + "/linkcodes/" + linkCode + "/children/" + linkValue, token);
 			if (attributeString != null) {
 				linkList = JsonUtils.fromJson(attributeString, List.class);
 			}
