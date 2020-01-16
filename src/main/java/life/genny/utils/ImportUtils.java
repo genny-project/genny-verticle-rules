@@ -80,12 +80,17 @@ public class ImportUtils {
 			    		  }
 			    		  String attributeCode = fieldMapping.get(col);
 			    		  if (attributeCode != null) {
-			    		  // we now have attributeCode and the value
-			    		  Tuple2<String,String> pair = Tuple.of(attributeCode, val);
-			    		  beImport.getAttributeValuePairList().add(pair);
-			    		  if ("PRI_NAME".equals(attributeCode)) {
-			    			  beImport.setName(val);
-			    		  }
+			    			  // we now have attributeCode and the value
+			    			  Tuple2<String,String> pair = Tuple.of(attributeCode, val);
+			    			  beImport.getAttributeValuePairList().add(pair);
+			    			  if ("PRI_NAME".equals(attributeCode)) {
+			    				  beImport.setName(val);
+			    			  }
+				    		  if ("PRI_EMAIL".equals(attributeCode)) {
+				    			  String email = val;
+				    			  String uCode = prefix+QwandaUtils.getNormalisedUsername(val);
+				    			  beImport.setCode(uCode);
+				    		  }
 			    		  } else {
 			    			 // log.error("Null Attribute Code - ignoring "+col);
 			    		  }
