@@ -353,7 +353,7 @@ public class BaseEntityUtils implements Serializable {
 
 					try {
 						if (!VertxUtils.cachedEnabled) { // only post if not in junit
-							QwandaUtils.apiPostEntity(this.qwandaServiceUrl + "/qwanda/answers/bulk2", jsonAnswer,
+							QwandaUtils.apiPostEntity(this.qwandaServiceUrl + "/qwanda/answers/bulk", jsonAnswer,
 									token);
 						}
 					} catch (IOException e) {
