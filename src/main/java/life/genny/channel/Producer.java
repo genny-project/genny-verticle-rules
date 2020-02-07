@@ -95,15 +95,15 @@ public class Producer {
 	 * @return the toData
 	 */
 	public static MessageProducer<Object> getToDataWithReply() {
-		return toData;
+		return toDataWithReply;
 	}
 
 	/**
 	 * @param toData
 	 *            the toData to set
 	 */
-	public static void setToDataWithReply(MessageProducer<Object> toData) {
-		Producer.toData = toData;
+	public static void setToDataWithReply(MessageProducer<Object> toDataReply) {
+		Producer.toDataWithReply = toDataWithReply;
 	}
 	/**
 	 * @return the toData
