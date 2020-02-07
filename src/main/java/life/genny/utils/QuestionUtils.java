@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.gson.reflect.TypeToken;
 
+import io.vertx.core.json.JsonObject;
 import life.genny.models.GennyToken;
 import life.genny.qwanda.Ask;
 import life.genny.qwanda.Context;
@@ -91,6 +92,15 @@ public class QuestionUtils {
 					Set<String> activeAttributeCodes = new HashSet<String>();
 					for (Ask ask : msg.getItems()) {
 						activeAttributeCodes.addAll(getAttributeCodes(ask));
+						Question q2 = ask.getQuestion();
+						String qcode = q2.getCode();
+						GennyToken gToken = new GennyToken(token);
+						JsonObject jsonQ = VertxUtils.readCachedJson(gToken.getRealm(), qcode, token);
+						if ("ok".equalsIgnoreCase(jsonQ.getString("status"))) {
+							Question q =JsonUtils.fromJson(jsonQ.getString("value"), Question.class);						 
+							ask.setQuestion(q);
+							ask.setContextList(q.getContextList());
+						}
 					}
 					// Now fetch the set from cache and add it....
 					Type type = new TypeToken<Set<String>>() {
