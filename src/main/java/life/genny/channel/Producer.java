@@ -102,7 +102,7 @@ public class Producer {
 	 * @param toData
 	 *            the toData to set
 	 */
-	public static void setToDataWithReply(MessageProducer<Object> toDataReply) {
+	public static void setToDataWithReply(MessageProducer<Object> toDataWithReply) {
 		Producer.toDataWithReply = toDataWithReply;
 	}
 	/**
