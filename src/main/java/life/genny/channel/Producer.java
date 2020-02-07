@@ -15,6 +15,7 @@ public class Producer {
 	private static MessageProducer<Object> toClientOutbound;
 	private static MessageProducer<Object> toEvents;
 	private static MessageProducer<Object> toData;
+	private static MessageProducer<Object> toDataWithReply;
 	private static MessageProducer<Object> toWebData;
 	private static MessageProducer<Object> toMessages;
 	private static MessageProducer<Object> toCmds;
@@ -90,6 +91,20 @@ public class Producer {
 		return toEvents;
 	}
 
+	/**
+	 * @return the toData
+	 */
+	public static MessageProducer<Object> getToDataWithReply() {
+		return toData;
+	}
+
+	/**
+	 * @param toData
+	 *            the toData to set
+	 */
+	public static void setToDataWithReply(MessageProducer<Object> toData) {
+		Producer.toData = toData;
+	}
 	/**
 	 * @return the toData
 	 */
@@ -221,6 +236,7 @@ public class Producer {
 	public static void registerAllProducers(EventBus eb) {
 		setToEvents(eb.publisher("events"));
 		setToData(eb.publisher("data"));
+		setToDataWithReply(eb.publisher("dataWithReply"));
 		setToWebData(eb.publisher("webdata"));
 		setToCmds(eb.publisher("cmds"));
 		setToWebCmds(eb.publisher("webcmds"));
