@@ -995,7 +995,7 @@ public class BaseEntityUtils implements Serializable {
 		List<Answer> duplicateAnswerList = new CopyOnWriteArrayList<>();
 
 		for (EntityAttribute ea : oldBe.getBaseEntityAttributes()) {
-			duplicateAnswerList.add(new Answer(newBe.getCode(), newBe.getCode(), ea.getAttributeCode(), ea.getValue()));
+			duplicateAnswerList.add(new Answer(newBe.getCode(), newBe.getCode(), ea.getAttributeCode(), ea.getAsString()));
 		}
 
 		this.saveAnswers(duplicateAnswerList);
