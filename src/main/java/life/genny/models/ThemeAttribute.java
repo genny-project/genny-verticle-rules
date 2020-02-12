@@ -141,7 +141,7 @@ public final class ThemeAttribute implements Serializable {
 	@Expose
 	private Integer imageWidth = null;
 	@Expose
-	private Boolean showName = null; 
+	private Boolean showName = null;
 	@Expose
 	private Integer maxNumberOfFiles = null;
 	@Expose
@@ -188,7 +188,7 @@ public final class ThemeAttribute implements Serializable {
 	public Integer getFlexGrow() {
 		return flexGrow;
 	}
-	
+
 	/**
 	 * @return the display
 	 */
@@ -252,7 +252,7 @@ public final class ThemeAttribute implements Serializable {
 	 * @return the borderBottomWidth
 	 */
 	public Integer getBorderTopWidth() {
-		return borderBottomWidth;
+		return borderTopWidth;
 	}
 	/**
 	 * @return the borderBottomWidth
@@ -281,7 +281,7 @@ public final class ThemeAttribute implements Serializable {
 		return margin;
 	}
 
-	
+
 	/**
 	 * @return the marginStr
 	 */
@@ -295,7 +295,7 @@ public final class ThemeAttribute implements Serializable {
 		return borderRadius;
 	}
 
-	
+
 	/**
 	 * @return the marginStr
 	 */
@@ -309,7 +309,7 @@ public final class ThemeAttribute implements Serializable {
 	public Integer getWidth() {
 		return width;
 	}
-	
+
 	/**
 	 * @return the dynamicWidth
 	 */
@@ -327,7 +327,7 @@ public final class ThemeAttribute implements Serializable {
 			return width + "";
 		}
 	}
-	
+
 	/**
 	 * @return the margin
 	 */
@@ -338,7 +338,7 @@ public final class ThemeAttribute implements Serializable {
 			return margin + "";
 		}
 	}
-	
+
 	/**
 	 * @return the marginLeftString
 	 */
@@ -634,51 +634,51 @@ public final class ThemeAttribute implements Serializable {
 	public Integer getImageWidth() {
 		return imageWidth;
 	}
-	
+
 	/**
 	 * @return the image height
 	 */
 	public Integer getImageHeight() {
 		return imageHeight;
 	}
-	
+
 	/**
 	 * @return the show filename
 	 */
 	public Boolean getShowName() {
 		return showName;
 	}
-	
+
 	/**
 	 * @return the max number of file
 	 */
 	public Integer getMaxNumberOfFiles() {
 		return maxNumberOfFiles;
 	}
-	
+
 	/**
 	 * @return the name of item
 	 */
 	public String getName() {
 		return name;
 	}
-	
+
 	/**
 	 * @return the transform item
 	 */
 	public String getTransform() {
 		return transform;
 	}
-	
+
 	/**
 	 * @return the component type
 	 */
 	public String getType() {
 		return type;
 	}
-	
-	
-	
+
+
+
 	public static class Builder {
 		private ThemeAttribute managedInstance = new ThemeAttribute();
 		private Theme.Builder parentBuilder;
@@ -739,7 +739,7 @@ public final class ThemeAttribute implements Serializable {
 			managedInstance.flexShrink = value;
 			return this;
 		}
-		
+
 		public Builder display(String value) {
 			managedInstance.display = value;
 			return this;
@@ -874,7 +874,7 @@ public final class ThemeAttribute implements Serializable {
 			managedInstance.borderBottomWidth = value;
 			return this;
 		}
-		
+
 		public Builder borderTopWidth(Integer value) {
 			managedInstance.borderTopWidth = value;
 			return this;
@@ -1011,22 +1011,22 @@ public final class ThemeAttribute implements Serializable {
 			managedInstance.valueBoolean = value;
 			return this;
 		}
-		
+
 		public Builder imageHeight(Integer value) {
 			managedInstance.imageHeight = value;
 			return this;
 		}
-		
+
 		public Builder imageWidth(Integer value) {
 			managedInstance.imageWidth = value;
 			return this;
 		}
-		
+
 		public Builder showName(Boolean value) {
 			managedInstance.showName = value;
 			return this;
 		}
-		
+
 		public Builder maxNumberOfFiles(Integer value) {
 			managedInstance.maxNumberOfFiles = value;
 			return this;
@@ -1063,8 +1063,8 @@ public final class ThemeAttribute implements Serializable {
 			callback.accept(managedInstance);
 			return parentBuilder;
 		}
-		
-		
+
+
 
 	}
 
@@ -1137,7 +1137,7 @@ public final class ThemeAttribute implements Serializable {
 			if (borderRadiusString != null) {
 				json.put("borderRadius", borderRadiusString);
 			}
-			
+
 		}
 		if (margin != null) {
 			json.put("margin", margin);
@@ -1145,7 +1145,7 @@ public final class ThemeAttribute implements Serializable {
 			if (marginStr != null) {
 				json.put("margin", marginStr);
 			}
-			
+
 		}
 		if (marginLeft != null){
 			json.put("marginLeft", marginLeft);
@@ -1260,7 +1260,7 @@ public final class ThemeAttribute implements Serializable {
 		if (type != null) {
 			json.put("type", type);
 		}
-		
+
 		return json;
 	}
 
