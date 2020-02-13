@@ -659,6 +659,19 @@ public class VertxUtils {
 		return be;
 	}
 
+	static public BaseEntity privacyFilter(BaseEntity be, final String[] filterAttributes) {
+		Set<EntityAttribute> allowedAttributes = new HashSet<EntityAttribute>();
+		for (EntityAttribute entityAttribute : be.getBaseEntityAttributes()) {
+				String attributeCode = entityAttribute.getAttributeCode();
+				if (Arrays.stream(filterAttributes).anyMatch(x -> x.equals(attributeCode))) {
+					allowedAttributes.add(entityAttribute);
+				} 
+		}
+		be.setBaseEntityAttributes(allowedAttributes);
+
+		return be;
+	}
+
 	public static Boolean checkIfAttributeValueContainsString(BaseEntity baseentity, String attributeCode,
 			String checkIfPresentStr) {
 
