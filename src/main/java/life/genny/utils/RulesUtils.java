@@ -866,6 +866,8 @@ public class RulesUtils {
 					log.error("Attribute NOT FOUND :"+attributeCode);
 				}
 			}
+		} else {
+			log.error("Cannot fetched Attribute : "+attributeCode+" for user "+token.getUserCode()+" and realm "+token.getRealm());
 		}
 		return ret;
 	}
