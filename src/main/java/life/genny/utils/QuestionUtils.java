@@ -467,4 +467,23 @@ public class QuestionUtils {
 		return source;
 	}
 
+	public static Question upsertQuestion(Question question, GennyToken token) {
+		if (question != null) {
+			String json = null;
+			try {
+				json = QwandaUtils.apiPostEntity(GennySettings.qwandaServiceUrl  + "/qwanda/questions", JsonUtils.toJson(question), token.getToken());
+			} catch (IOException e) {
+				System.out.println("Caught IOException trying to upsert question: " + question.getCode());
+			}
+			if (json != null) {
+				if (!json.contains("<title>Error")) {
+					System.out.println("Error upserting question: " + question.getCode());
+				}
+			}
+		} else {
+			System.out.println("Question must not be null!");
+		}
+		return question;
+	}
+
 }
