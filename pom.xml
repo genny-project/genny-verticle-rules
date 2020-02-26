@@ -238,7 +238,7 @@
 		<dependency>
 			<groupId>life.genny</groupId>
 			<artifactId>bootxport</artifactId>
-			<version>${version}</version>
+			<version>${project.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.apache.commons</groupId>
