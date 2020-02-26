@@ -284,9 +284,9 @@ public class BaseEntityUtils implements Serializable {
 		}
 	}
 
-	public void saveAnswer(Answer answer) {
+	public BaseEntity saveAnswer(Answer answer) {
 
-		addAnswer(answer);
+		BaseEntity ret = addAnswer(answer);
 		try {
 			if (!VertxUtils.cachedEnabled) { // only post if not in junit
 				QwandaUtils.apiPostEntity(qwandaServiceUrl + "/qwanda/answers", JsonUtils.toJson(answer), this.token);
@@ -296,11 +296,12 @@ public class BaseEntityUtils implements Serializable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return ret;
 	}
 
-	public void addAnswer(Answer answer) {
+	public BaseEntity addAnswer(Answer answer) {
 
-		this.updateCachedBaseEntity(answer);
+		return this.updateCachedBaseEntity(answer);
 	}
 
 	public <T extends BaseEntity> T updateBaseEntity(T be, Answer answer, Class clazz) {

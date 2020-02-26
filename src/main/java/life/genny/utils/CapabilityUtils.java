@@ -11,10 +11,13 @@ import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
+import com.google.gson.annotations.Expose;
+
 import io.vertx.core.json.JsonObject;
 import life.genny.qwanda.Answer;
 import life.genny.qwanda.attribute.Attribute;
 import life.genny.qwanda.attribute.AttributeBoolean;
+import life.genny.qwanda.attribute.AttributeText;
 import life.genny.qwanda.datatype.CapabilityMode;
 import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.message.QDataBaseEntityMessage;
@@ -32,6 +35,7 @@ public class CapabilityUtils implements Serializable {
 	protected static final Logger log = org.apache.logging.log4j.LogManager
 			.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
 
+	@Expose
 	List<Attribute> capabilityManifest = new ArrayList<Attribute>();
 
 	private BaseEntityUtils beUtils;
@@ -49,7 +53,7 @@ public class CapabilityUtils implements Serializable {
 			return attribute;
 		} else {
 			// create new attribute
-			attribute = new AttributeBoolean(fullCapabilityCode, name);
+			attribute = new AttributeText(fullCapabilityCode, name);
 			// save to database and cache
 
 			try {
@@ -80,7 +84,7 @@ public class CapabilityUtils implements Serializable {
 		Attribute capabilityAttribute = RulesUtils.getAttribute("PRM_" + capabilityCode,
 				beUtils.getServiceToken().getToken());
 		answer.setAttribute(capabilityAttribute);
-		beUtils.saveAnswer(answer);
+		role = beUtils.saveAnswer(answer);
 
 		// Now update the list of roles associated with the key
 		switch (mode) {
@@ -240,4 +244,11 @@ public class CapabilityUtils implements Serializable {
 		this.capabilityManifest = capabilityManifest;
 	}
 
+	@Override
+	public String toString() {
+		return "CapabilityUtils [" + (capabilityManifest != null ? "capabilityManifest=" + capabilityManifest : "")
+				+ "]";
+	}
+
+	
 }
