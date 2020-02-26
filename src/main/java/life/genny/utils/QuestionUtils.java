@@ -77,6 +77,25 @@ public class QuestionUtils {
 		return false;
 	}
 
+	public static void setCachedQuestionsRecursively(Ask ask, String token) {
+
+		if (ask.getAttributeCode().equals("QQQ_QUESTION_GROUP")) {
+			for (Ask childAsk : ask.getChildAsks()) {
+				setCachedQuestionsRecursively(childAsk, token);
+			}
+		} else {
+			Question question = ask.getQuestion();
+			String questionCode = question.getCode();
+			GennyToken gToken = new GennyToken(token);
+			JsonObject jsonQuestion = VertxUtils.readCachedJson(gToken.getRealm(), questionCode, token);
+			if ("ok".equalsIgnoreCase(jsonQuestion.getString("status"))) {
+				Question cachedQuestion = JsonUtils.fromJson(jsonQuestion.getString("value"), Question.class);						 
+				ask.setQuestion(cachedQuestion);
+				//ask.setContextList(cachedQuestion.getContextList());
+			}
+		}
+	}
+
 	public static QDataAskMessage getAsks(String sourceCode, String targetCode, String questionCode, String token) {
 
 		String json;
@@ -92,15 +111,9 @@ public class QuestionUtils {
 					Set<String> activeAttributeCodes = new HashSet<String>();
 					for (Ask ask : msg.getItems()) {
 						activeAttributeCodes.addAll(getAttributeCodes(ask));
-						Question q2 = ask.getQuestion();
-						String qcode = q2.getCode();
-						GennyToken gToken = new GennyToken(token);
-						JsonObject jsonQ = VertxUtils.readCachedJson(gToken.getRealm(), qcode, token);
-						if ("ok".equalsIgnoreCase(jsonQ.getString("status"))) {
-							Question q =JsonUtils.fromJson(jsonQ.getString("value"), Question.class);						 
-							ask.setQuestion(q);
-							ask.setContextList(q.getContextList());
-						}
+
+						// Go down through the child asks and get cached questions
+						setCachedQuestionsRecursively(ask, token);
 					}
 					// Now fetch the set from cache and add it....
 					Type type = new TypeToken<Set<String>>() {
