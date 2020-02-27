@@ -91,7 +91,7 @@ public class QuestionUtils {
 			if ("ok".equalsIgnoreCase(jsonQuestion.getString("status"))) {
 				Question cachedQuestion = JsonUtils.fromJson(jsonQuestion.getString("value"), Question.class);						 
 				ask.setQuestion(cachedQuestion);
-				//ask.setContextList(cachedQuestion.getContextList());
+				ask.setContextList(cachedQuestion.getContextList());
 			}
 		}
 	}
