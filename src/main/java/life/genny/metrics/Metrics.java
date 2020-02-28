@@ -1,7 +1,11 @@
 package life.genny.metrics;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.logging.log4j.Logger;
+
 import com.google.gdata.data.dublincore.Format;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.dropwizard.DropwizardMetricsOptions;
@@ -13,6 +17,11 @@ import io.vertx.rxjava.ext.web.RoutingContext;
 
 public class Metrics {
 
+	/**
+	 * Stores logger object.
+	 */
+	protected static final Logger log = org.apache.logging.log4j.LogManager
+			.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
 
 
   public static void main(String... strings) {

@@ -4,9 +4,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.lang.invoke.MethodHandles;
+
 import javax.mail.Message;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 
 import com.github.javafaker.Faker;
@@ -24,6 +27,13 @@ import life.genny.notifications.EmailHelper;
  * https://www.hascode.com/2012/07/integration-testing-imap-smtp-and-pop3-with-greenmail/
  */
 public class NotificaitonEmailTest {
+	
+	/**
+	 * Stores logger object.
+	 */
+	protected static final Logger log = org.apache.logging.log4j.LogManager
+			.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
+
 
   private GreenMail mailServer;
   private EmailHelper emailHelper;
