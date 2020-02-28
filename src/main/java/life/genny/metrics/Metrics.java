@@ -17,7 +17,7 @@ public class Metrics {
 
   public static void main(String... strings) {
 
-    System.out.println("vertx.http.servers.0.0.0.0:8088.open-websockets".replaceAll("[.-]", "_"));
+    log.info("vertx.http.servers.0.0.0.0:8088.open-websockets".replaceAll("[.-]", "_"));
   }
 
   public static void metrics(final RoutingContext routingContext) {
@@ -26,19 +26,19 @@ public class Metrics {
 
     MetricsService metricsService = MetricsService.create(Vertx.currentContext().owner());
     JsonObject metrics = metricsService.getMetricsSnapshot(Vertx.currentContext().owner());
-    System.out.println("msdfkljsdflksdjflsdjflkjdslfjld "+metrics);
-    // System.out.println("this is metrics " + metrics);
+    log.info("msdfkljsdflksdjflsdjflkjdslfjld "+metrics);
+    // log.info("this is metrics " + metrics);
 
-    // System.out.println(metrics.getJsonObject("handlers"));
-    // System.out.println(metrics.getJsonObject("vertx.eventbus.handlers"));
+    // log.info(metrics.getJsonObject("handlers"));
+    // log.info(metrics.getJsonObject("vertx.eventbus.handlers"));
 
 //    Set<String> metricsNames = metricsService.metricsNames();
 
 //    for (String metricName : metricsNames) {
 //      JsonObject ob = metrics.getJsonObject(metricName);
 //      String type = ob.getString("type");
-//      System.out.println(ob.getMap());
-//      // System.out.println("Known metrics name " + metricsName);
+//      log.info(ob.getMap());
+//      // log.info("Known metrics name " + metricsName);
 //      // System.out.printf("%s-%s\n","bridge", metricsName);
 //      stringBuilder.append(prometheusFormat("bridge", metricName, type, ob.getMap()));
 //
@@ -52,8 +52,8 @@ public class Metrics {
 
   public static String prometheusFormat(String domain, String metricName, String type, Map map) {
     String str = metricName.replaceAll("[.-]", "_");
-    map.values().stream().forEach(val -> System.out.println(val));
-    map.entrySet().stream().forEach(oo -> System.out.println(oo));
+    map.values().stream().forEach(val -> log.info(val));
+    map.entrySet().stream().forEach(oo -> log.info(oo));
     
     String sss = map.keySet().stream().map(entry -> {
       return String.format("%s=\"%s\"", entry, map.get(entry));

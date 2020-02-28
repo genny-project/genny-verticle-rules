@@ -436,11 +436,11 @@ public class BaseEntityUtils implements Serializable {
 			JsonObject cachedJsonObject = VertxUtils.readCachedJson(this.realm, code, this.token);
 			if (cachedJsonObject != null) {
 				String data = cachedJsonObject.getString("value");
-				System.out.println("json recieved :" + data);
+				log.info("json recieved :" + data);
 
 				if (data != null) {
 					searchBe = JsonUtils.fromJson(data, SearchEntity.class);
-					System.out.println("searchEntity :: " + JsonUtils.toJson(searchBe));
+					log.info("searchEntity :: " + JsonUtils.toJson(searchBe));
 				}
 			}
 

@@ -55,7 +55,7 @@ public enum CertPublicKey {
   }
 
 //  public static void main(String... strings) {
-//    System.out.println(CertPublicKey.INSTANCE.encodedToBase64("internmatch"));
+//    log.info(CertPublicKey.INSTANCE.encodedToBase64("internmatch"));
 //  }
 
 }

@@ -78,8 +78,9 @@ public class QuestionUtils {
 	}
 
 	public static void setCachedQuestionsRecursively(Ask ask, String token) {
-
-		if (ask.getAttributeCode().equals("QQQ_QUESTION_GROUP")) {
+		if ((ask.getChildAsks()!=null)&&(ask.getChildAsks().length>0)) 
+		{
+	//	if (ask.getAttributeCode().equals("QQQ_QUESTION_GROUP")) {
 			for (Ask childAsk : ask.getChildAsks()) {
 				setCachedQuestionsRecursively(childAsk, token);
 			}
@@ -486,15 +487,15 @@ public class QuestionUtils {
 			try {
 				json = QwandaUtils.apiPostEntity(GennySettings.qwandaServiceUrl  + "/qwanda/questions", JsonUtils.toJson(question), token.getToken());
 			} catch (IOException e) {
-				System.out.println("Caught IOException trying to upsert question: " + question.getCode());
+				log.info("Caught IOException trying to upsert question: " + question.getCode());
 			}
 			if (json != null) {
 				if (!json.contains("<title>Error")) {
-					System.out.println("Error upserting question: " + question.getCode());
+					log.info("Error upserting question: " + question.getCode());
 				}
 			}
 		} else {
-			System.out.println("Question must not be null!");
+			log.info("Question must not be null!");
 		}
 		return question;
 	}

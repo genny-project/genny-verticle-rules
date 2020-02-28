@@ -73,9 +73,9 @@ public class NotificaitonEmailTest {
     assertEquals(EMAIL_SUBJECT, m.getSubject());
     assertTrue(String.valueOf(m.getContent()).contains(EMAIL_TEXT));
 
-    System.out.println((m.getRecipients(Message.RecipientType.TO))[0].toString());
-    System.out.println(m.getSubject());
-    System.out.println(m.getContent());
+    log.info((m.getRecipients(Message.RecipientType.TO))[0].toString());
+    log.info(m.getSubject());
+    log.info(m.getContent());
 
     // Must Stop the mail server after test
     mailServer.stop();

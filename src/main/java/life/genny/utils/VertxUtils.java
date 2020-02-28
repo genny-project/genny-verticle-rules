@@ -115,7 +115,7 @@ public class VertxUtils {
 			try {
 				item = (T) JsonUtils.fromJson(data, clazz);
 			} catch (Exception e) {
-				System.out.println("Bad JsonUtils " + realm + ":" + key + ":" + clazz.getTypeName());
+				log.info("Bad JsonUtils " + realm + ":" + key + ":" + clazz.getTypeName());
 			}
 			return item;
 		} else {
@@ -138,7 +138,7 @@ public class VertxUtils {
 			try {
 				item = (T) JsonUtils.fromJson(data, clazz);
 			} catch (Exception e) {
-				System.out.println("Bad JsonUtils " + realm + ":" + key + ":" + clazz.getTypeName());
+				log.info("Bad JsonUtils " + realm + ":" + key + ":" + clazz.getTypeName());
 			}
 			return item;
 		} else {
@@ -328,7 +328,7 @@ public class VertxUtils {
 			}
 		} else {
 			// fetch normally
-			// System.out.println("Cache MISS for " + code + " with attributes in realm " +
+			// log.info("Cache MISS for " + code + " with attributes in realm " +
 			// realm);
 			if (cachedEnabled) {
 				log.debug("Local Cache being used.. this is NOT production");

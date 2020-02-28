@@ -35,7 +35,7 @@ public class ImportUtils {
 			    XlsxImport xlsImport = new XlsxImportOnline(gs.getService());
 		//	    Realm realm = new Realm(xlsImport,id);
 //			    realm.getDataUnits().stream()
-//			        .forEach(data -> System.out.println(data.questions.size()));
+//			        .forEach(data -> log.info(data.questions.size()));
 			    Set<String> keys = new HashSet<String>();
 			    for (String field : fieldMapping.keySet()) {
 			    	keys.add(field);
