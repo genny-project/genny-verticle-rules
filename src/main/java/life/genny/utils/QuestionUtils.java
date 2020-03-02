@@ -37,6 +37,7 @@ import life.genny.qwandautils.GennySettings;
 import life.genny.qwandautils.JsonUtils;
 import life.genny.qwandautils.QwandaMessage;
 import life.genny.qwandautils.QwandaUtils;
+import life.genny.utils.VertxUtils;
 
 public class QuestionUtils {
 
@@ -78,9 +79,8 @@ public class QuestionUtils {
 	}
 
 	public static void setCachedQuestionsRecursively(Ask ask, String token) {
-		if ((ask.getChildAsks()!=null)&&(ask.getChildAsks().length>0)) 
-		{
-	//	if (ask.getAttributeCode().equals("QQQ_QUESTION_GROUP")) {
+		if ((ask.getChildAsks() != null) && (ask.getChildAsks().length > 0)) {
+			// if (ask.getAttributeCode().equals("QQQ_QUESTION_GROUP")) {
 			for (Ask childAsk : ask.getChildAsks()) {
 				setCachedQuestionsRecursively(childAsk, token);
 			}
@@ -90,7 +90,7 @@ public class QuestionUtils {
 			GennyToken gToken = new GennyToken(token);
 			JsonObject jsonQuestion = VertxUtils.readCachedJson(gToken.getRealm(), questionCode, token);
 			if ("ok".equalsIgnoreCase(jsonQuestion.getString("status"))) {
-				Question cachedQuestion = JsonUtils.fromJson(jsonQuestion.getString("value"), Question.class);						 
+				Question cachedQuestion = JsonUtils.fromJson(jsonQuestion.getString("value"), Question.class);
 				ask.setQuestion(cachedQuestion);
 				ask.setContextList(cachedQuestion.getContextList());
 			}
@@ -108,29 +108,30 @@ public class QuestionUtils {
 				if (!json.contains("<title>Error")) {
 					QDataAskMessage msg = JsonUtils.fromJson(json, QDataAskMessage.class);
 
-					// Identify all the attributeCodes and build up a working active Set
-					Set<String> activeAttributeCodes = new HashSet<String>();
-					for (Ask ask : msg.getItems()) {
-						activeAttributeCodes.addAll(getAttributeCodes(ask));
+					if (false) {
+						// Identify all the attributeCodes and build up a working active Set
+						Set<String> activeAttributeCodes = new HashSet<String>();
+						for (Ask ask : msg.getItems()) {
+							activeAttributeCodes.addAll(getAttributeCodes(ask));
 
-						// Go down through the child asks and get cached questions
-						setCachedQuestionsRecursively(ask, token);
-					}
-					// Now fetch the set from cache and add it....
-					Type type = new TypeToken<Set<String>>() {
-					}.getType();
-					GennyToken gToken = new GennyToken(token);
-					Set<String> activeAttributesSet = VertxUtils.getObject(gToken.getRealm(), "", "ACTIVE_ATTRIBUTES", type,
-							token);
-					if (activeAttributesSet == null) {
-						activeAttributesSet = new HashSet<String>();
-					}
-					activeAttributesSet.addAll(activeAttributeCodes);
-					
-					VertxUtils.putObject(gToken.getRealm(), "", "ACTIVE_ATTRIBUTES", activeAttributesSet,
-							token);
+							// Go down through the child asks and get cached questions
+							setCachedQuestionsRecursively(ask, token);
+						}
+						// Now fetch the set from cache and add it....
+						Type type = new TypeToken<Set<String>>() {
+						}.getType();
+						GennyToken gToken = new GennyToken(token);
+						Set<String> activeAttributesSet = VertxUtils.getObject(gToken.getRealm(), "",
+								"ACTIVE_ATTRIBUTES", type, token);
+						if (activeAttributesSet == null) {
+							activeAttributesSet = new HashSet<String>();
+						}
+						activeAttributesSet.addAll(activeAttributeCodes);
 
-					log.info("Total Active AttributeCodes = "+activeAttributesSet.size());
+						VertxUtils.putObject(gToken.getRealm(), "", "ACTIVE_ATTRIBUTES", activeAttributesSet, token);
+
+						log.info("Total Active AttributeCodes = " + activeAttributesSet.size());
+					}
 					return msg;
 				}
 			}
@@ -485,7 +486,8 @@ public class QuestionUtils {
 		if (question != null) {
 			String json = null;
 			try {
-				json = QwandaUtils.apiPostEntity(GennySettings.qwandaServiceUrl  + "/qwanda/questions", JsonUtils.toJson(question), token.getToken());
+				json = QwandaUtils.apiPostEntity(GennySettings.qwandaServiceUrl + "/qwanda/questions",
+						JsonUtils.toJson(question), token.getToken());
 			} catch (IOException e) {
 				log.info("Caught IOException trying to upsert question: " + question.getCode());
 			}
