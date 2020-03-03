@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
@@ -54,6 +55,8 @@ import life.genny.qwandautils.JsonUtils;
 import life.genny.qwandautils.QwandaUtils;
 
 public class FrameUtils2 {
+	
+	static public Map<String,Boolean> ruleFires = new ConcurrentHashMap<>();
 	
 	static Boolean FETCH_ASKS=true;
 
@@ -156,6 +159,7 @@ public class FrameUtils2 {
 		
 		// TODO, this is NOT needed, only enabled for testing
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(), rootFrame, serviceToken.getToken());
+		ruleFires.put(rootFrame.getCode(), true);
 		BaseEntity ruleEntity = null;
 		
 		try {
@@ -177,7 +181,7 @@ public class FrameUtils2 {
 				"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_FRM", JsonUtils.toJson(rootFrame), false));
 
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG", msg, serviceToken.getToken());
-		
+		ruleFires.put(rootFrame.getCode() + "_MSG", true);
 		beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
 				"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_MSG", JsonUtils.toJson(msg), false));
 		
