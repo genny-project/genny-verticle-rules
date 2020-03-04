@@ -95,6 +95,7 @@ public class FrameUtils2 {
 			}
 		}
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(), rootFrame, serviceToken.getToken());
+		ruleFires.put(serviceToken.getRealm()+":"+rootFrame.getCode(), true);
 
 		if (!GennySettings.framesOnDemand) {
 			if (!VertxUtils.cachedEnabled) {
@@ -159,7 +160,7 @@ public class FrameUtils2 {
 		
 		// TODO, this is NOT needed, only enabled for testing
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(), rootFrame, serviceToken.getToken());
-		ruleFires.put(rootFrame.getCode(), true);
+		ruleFires.put(serviceToken.getRealm()+":"+rootFrame.getCode(), true);
 		BaseEntity ruleEntity = null;
 		
 		try {
@@ -181,7 +182,7 @@ public class FrameUtils2 {
 				"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_FRM", JsonUtils.toJson(rootFrame), false));
 
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG", msg, serviceToken.getToken());
-		ruleFires.put(rootFrame.getCode() + "_MSG", true);
+		ruleFires.put(serviceToken.getRealm()+":"+rootFrame.getCode() + "_MSG", true);
 		beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
 				"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_MSG", JsonUtils.toJson(msg), false));
 		
