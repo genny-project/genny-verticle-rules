@@ -72,8 +72,8 @@ public class FrameUtils2 {
 		}
 
 		// clear the ASKS cache
-		VertxUtils.cacheInterface.writeCache(serviceToken.getRealm(), rootFrame.getCode() + "_ASKS", null,
-				serviceToken.getToken(), 0);
+//		VertxUtils.cacheInterface.writeCache(serviceToken.getRealm(), rootFrame.getCode() + "_ASKS", null,
+//				serviceToken.getToken(), 0);
 		toMessage(rootFrame, serviceToken,sourceAlias, targetAlias,fetchAsks);
 	}
 	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken, String sourceAlias, String targetAlias, Boolean fetchAsks) {
