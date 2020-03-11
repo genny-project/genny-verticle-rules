@@ -88,6 +88,7 @@ public class CapabilityUtils implements Serializable {
 
 		// Now update the list of roles associated with the key
 		switch (mode) {
+		
 		case NONE: updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.NONE);
 					break;
 		case VIEW: 
@@ -106,6 +107,7 @@ public class CapabilityUtils implements Serializable {
 			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.ADD);
 			break;
 		case DELETE: 
+		case SELF:
 			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.NONE);
 			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.VIEW);
 			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.EDIT);

@@ -79,8 +79,10 @@ public class QuestionUtils {
 	}
 
 	public static void setCachedQuestionsRecursively(Ask ask, String token) {
-		if ((ask.getChildAsks() != null) && (ask.getChildAsks().length > 0)) {
-			// if (ask.getAttributeCode().equals("QQQ_QUESTION_GROUP")) {
+//		if (((ask.getChildAsks() != null) && (ask.getChildAsks().length > 0)) 
+//		|| (ask.getAttributeCode().equals("QQQ_QUESTION_GROUP"))) {
+			
+		if (ask.getAttributeCode().equals("QQQ_QUESTION_GROUP")) {
 			for (Ask childAsk : ask.getChildAsks()) {
 				setCachedQuestionsRecursively(childAsk, token);
 			}

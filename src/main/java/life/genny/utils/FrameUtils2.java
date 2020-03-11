@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
@@ -55,6 +56,8 @@ import life.genny.qwandautils.QwandaUtils;
 
 public class FrameUtils2 {
 	
+	static public Map<String,Boolean> ruleFires = new ConcurrentHashMap<>();
+	
 	static Boolean FETCH_ASKS=true;
 
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
@@ -69,8 +72,8 @@ public class FrameUtils2 {
 		}
 
 		// clear the ASKS cache
-		VertxUtils.cacheInterface.writeCache(serviceToken.getRealm(), rootFrame.getCode() + "_ASKS", null,
-				serviceToken.getToken(), 0);
+//		VertxUtils.cacheInterface.writeCache(serviceToken.getRealm(), rootFrame.getCode() + "_ASKS", null,
+//				serviceToken.getToken(), 0);
 		toMessage(rootFrame, serviceToken,sourceAlias, targetAlias,fetchAsks);
 	}
 	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken, String sourceAlias, String targetAlias, Boolean fetchAsks) {
@@ -92,6 +95,7 @@ public class FrameUtils2 {
 			}
 		}
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(), rootFrame, serviceToken.getToken());
+		ruleFires.put(serviceToken.getRealm()+":"+rootFrame.getCode(), true);
 
 		if (!GennySettings.framesOnDemand) {
 			if (!VertxUtils.cachedEnabled) {
@@ -156,6 +160,7 @@ public class FrameUtils2 {
 		
 		// TODO, this is NOT needed, only enabled for testing
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(), rootFrame, serviceToken.getToken());
+		ruleFires.put(serviceToken.getRealm()+":"+rootFrame.getCode(), true);
 		BaseEntity ruleEntity = null;
 		
 		try {
@@ -177,7 +182,7 @@ public class FrameUtils2 {
 				"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_FRM", JsonUtils.toJson(rootFrame), false));
 
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG", msg, serviceToken.getToken());
-		
+		ruleFires.put(serviceToken.getRealm()+":"+rootFrame.getCode() + "_MSG", true);
 		beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
 				"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_MSG", JsonUtils.toJson(msg), false));
 		
