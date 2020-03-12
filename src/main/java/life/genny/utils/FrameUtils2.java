@@ -786,10 +786,11 @@ public class FrameUtils2 {
 			}
 			BaseEntity themeBe = null;
 			try {
-				themeBe = beUtils.getBaseEntityByCode(theme.getCode()); //getBaseEntity(theme.getCode(), theme.getCode(), gennyToken);
-				if (themeBe == null) {
-					themeBe = beUtils.create(theme.getCode(), theme.getCode());
-				}
+				themeBe = getBaseEntity(theme.getCode(), theme.getCode(), gennyToken);
+//				themeBe = beUtils.getBaseEntityByCode(theme.getCode()); //getBaseEntity(theme.getCode(), theme.getCode(), gennyToken);
+//				if (themeBe == null) {
+//					themeBe = beUtils.create(theme.getCode(), theme.getCode());
+//				}
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
