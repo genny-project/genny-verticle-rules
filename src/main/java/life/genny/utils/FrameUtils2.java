@@ -769,6 +769,8 @@ public class FrameUtils2 {
 	private static void processThemes(final Frame3 frame, FramePosition position, GennyToken gennyToken,
 			Set<BaseEntity> baseEntityList, BaseEntity parent) {
 
+		BaseEntityUtils beUtils = new BaseEntityUtils(gennyToken);
+		
 		// Go through the theme codes and fetch the
 		for (ThemeDouble themeTuple2 : frame.getThemes()) {
 			if (showLogs) {
@@ -784,7 +786,10 @@ public class FrameUtils2 {
 			}
 			BaseEntity themeBe = null;
 			try {
-				themeBe = getBaseEntity(theme.getCode(), theme.getCode(), gennyToken);
+				themeBe = beUtils.getBaseEntityByCode(theme.getCode()); //getBaseEntity(theme.getCode(), theme.getCode(), gennyToken);
+				if (themeBe == null) {
+					themeBe = beUtils.create(theme.getCode(), theme.getCode());
+				}
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -867,7 +872,7 @@ public class FrameUtils2 {
 				if (theme == null) {
 					log.error("Theme is null");
 				} else {
-					log.warn("Theme has no attributes ");
+					log.warn("Theme "+theme.getCode()+" has no attributes ");
 				}
 			}
 		}
