@@ -386,18 +386,19 @@ public class FrameUtils2 {
 		
 		List<Ask> asks = new ArrayList<Ask>();
 		List<BaseEntity> cotextBeList = new ArrayList<BaseEntity>();
-		for (Ask ask : askMsgFromQuestions.getItems()) {
-			if(!contextListMap.isEmpty()) {
+		if (askMsgFromQuestions.getItems()!=null) {
+			for (Ask ask : askMsgFromQuestions.getItems()) {
+				if(!contextListMap.isEmpty()) {
 				
-				cotextBeList.addAll(getAskContextRecursively(ask,parentAsk,contextListMap));
-			}else {
-				/* Temporary using this code need to be replace and modify the getAskContextRecursively mehod */
-				ask.setQuestionCode(parentAsk.getQuestionCode());
-				ask.setContextList(parentAsk.getContextList());
+					cotextBeList.addAll(getAskContextRecursively(ask,parentAsk,contextListMap));
+				}else {
+					/* Temporary using this code need to be replace and modify the getAskContextRecursively mehod */
+					ask.setQuestionCode(parentAsk.getQuestionCode());
+					ask.setContextList(parentAsk.getContextList());
+				}
+				asks.add(ask);
 			}
-			asks.add(ask);
 		}
-		
 		askMsgFromQuestions.setItems(asks.toArray(new Ask[asks.size()]));
 		return cotextBeList;
 	}
