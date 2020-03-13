@@ -73,6 +73,10 @@ public final class ThemeAttribute implements Serializable {
 	@Expose
 	private Integer paddingRight = null;
 	@Expose
+	private Integer paddingTop = null;
+	@Expose
+	private Integer paddingBottom = null;
+	@Expose
 	private Integer paddingX = null;
 	@Expose
 	private Integer paddingY = null;
@@ -80,6 +84,8 @@ public final class ThemeAttribute implements Serializable {
 	private String shadowColor = null;
 	@Expose
 	private Double shadowOpacity = null;
+	@Expose
+	private Double opacity = null;
 	@Expose
 	private Integer shadowRadius = null;
 	@Expose
@@ -152,6 +158,12 @@ public final class ThemeAttribute implements Serializable {
 	private String type = null;
 	@Expose
 	private Integer sections = null;
+	@Expose
+	private String fontFamily = null;
+	@Expose
+	private String fontWeight = null;
+	@Expose
+	private String position = null;
 	/**
 	 * static factory method for builder
 	 */
@@ -164,7 +176,21 @@ public final class ThemeAttribute implements Serializable {
 	 */
 	private ThemeAttribute() {
 	}
-
+	/**
+	 * @return the fontFamily
+	 */
+	public String getFontFamily() {
+		return fontFamily;
+	}
+	/**
+	 * @return the fontWeight
+	 */
+	public String getFontWeight() {
+		return fontWeight;
+	}
+	/**
+	 * @return the code
+	 */
 	public String getCode() {
 		return code;
 	}
@@ -240,6 +266,13 @@ public final class ThemeAttribute implements Serializable {
 	 */
 	public Double getShadowOpacity() {
 		return shadowOpacity;
+	}
+
+	/**
+	 * @return the opacity
+	 */
+	public Double getOpacity() {
+		return opacity;
 	}
 
 	/**
@@ -443,6 +476,18 @@ public final class ThemeAttribute implements Serializable {
 	 */
 	public Integer getPaddingRight() {
 		return paddingRight;
+	}
+	/**
+	 * @return the paddingTop
+	 */
+	public Integer getPaddingTop() {
+		return paddingTop;
+	}
+	/**
+	 * @return the paddingBottom
+	 */
+	public Integer getPaddingBottom() {
+		return paddingBottom;
 	}
 
 	/**
@@ -677,6 +722,15 @@ public final class ThemeAttribute implements Serializable {
 		return type;
 	}
 
+	/**
+	 * @return the position
+	 */
+	public String getPosition() {
+		return position;
+	}
+
+	
+
 
 
 	public static class Builder {
@@ -719,6 +773,21 @@ public final class ThemeAttribute implements Serializable {
 			parentBuilder = b;
 			callback = c;
 			managedInstance.valueDouble = value;
+		}
+
+		public Builder fontFamily(String value) {
+			managedInstance.fontFamily = value;
+			return this;
+		}
+		
+		public Builder fontWeight(String value) {
+			managedInstance.fontWeight = value;
+			return this;
+		}
+	
+		public Builder position(String value) {
+			managedInstance.position = value;
+			return this;
 		}
 
 		public Builder flexDirection(String value) {
@@ -839,6 +908,14 @@ public final class ThemeAttribute implements Serializable {
 			managedInstance.paddingRight = value;
 			return this;
 		}
+		public Builder paddingTop(Integer value) {
+			managedInstance.paddingTop = value;
+			return this;
+		}
+		public Builder paddingBottom(Integer value) {
+			managedInstance.paddingBottom = value;
+			return this;
+		}
 
 		public Builder paddingX(Integer value) {
 			managedInstance.paddingX = value;
@@ -867,6 +944,11 @@ public final class ThemeAttribute implements Serializable {
 
 		public Builder shadowOpacity(Double value) {
 			managedInstance.shadowOpacity = value;
+			return this;
+		}
+
+		public Builder opacity(Double value) {
+			managedInstance.opacity = value;
 			return this;
 		}
 
@@ -1075,6 +1157,12 @@ public final class ThemeAttribute implements Serializable {
 
 	public JSONObject getJsonObject() {
 		JSONObject json = new JSONObject();
+		if (fontFamily != null)
+			json.put("fontFamily", fontFamily);
+		if (fontWeight != null)
+			json.put("fontWeight", fontWeight);
+		if (position != null)
+			json.put("position", position);
 		if (display != null)
 			json.put("display", display);
 		if (fit != null)
@@ -1197,6 +1285,10 @@ public final class ThemeAttribute implements Serializable {
 			json.put("paddingLeft", paddingLeft);
 		if (paddingRight != null)
 			json.put("paddingRight", paddingRight);
+		if (paddingTop != null)
+			json.put("paddingTop", paddingTop);
+		if (paddingBottom != null)
+			json.put("paddingBottom", paddingBottom);		
 		if (paddingX != null)
 			json.put("paddingX", paddingX);
 		if (paddingY != null)
