@@ -386,18 +386,19 @@ public class FrameUtils2 {
 		
 		List<Ask> asks = new ArrayList<Ask>();
 		List<BaseEntity> cotextBeList = new ArrayList<BaseEntity>();
-		for (Ask ask : askMsgFromQuestions.getItems()) {
-			if(!contextListMap.isEmpty()) {
+		if (askMsgFromQuestions.getItems()!=null) {
+			for (Ask ask : askMsgFromQuestions.getItems()) {
+				if(!contextListMap.isEmpty()) {
 				
-				cotextBeList.addAll(getAskContextRecursively(ask,parentAsk,contextListMap));
-			}else {
-				/* Temporary using this code need to be replace and modify the getAskContextRecursively mehod */
-				ask.setQuestionCode(parentAsk.getQuestionCode());
-				ask.setContextList(parentAsk.getContextList());
+					cotextBeList.addAll(getAskContextRecursively(ask,parentAsk,contextListMap));
+				}else {
+					/* Temporary using this code need to be replace and modify the getAskContextRecursively mehod */
+					ask.setQuestionCode(parentAsk.getQuestionCode());
+					ask.setContextList(parentAsk.getContextList());
+				}
+				asks.add(ask);
 			}
-			asks.add(ask);
 		}
-		
 		askMsgFromQuestions.setItems(asks.toArray(new Ask[asks.size()]));
 		return cotextBeList;
 	}
@@ -768,6 +769,8 @@ public class FrameUtils2 {
 	private static void processThemes(final Frame3 frame, FramePosition position, GennyToken gennyToken,
 			Set<BaseEntity> baseEntityList, BaseEntity parent) {
 
+		BaseEntityUtils beUtils = new BaseEntityUtils(gennyToken);
+		
 		// Go through the theme codes and fetch the
 		for (ThemeDouble themeTuple2 : frame.getThemes()) {
 			if (showLogs) {
@@ -784,6 +787,10 @@ public class FrameUtils2 {
 			BaseEntity themeBe = null;
 			try {
 				themeBe = getBaseEntity(theme.getCode(), theme.getCode(), gennyToken);
+//				themeBe = beUtils.getBaseEntityByCode(theme.getCode()); //getBaseEntity(theme.getCode(), theme.getCode(), gennyToken);
+//				if (themeBe == null) {
+//					themeBe = beUtils.create(theme.getCode(), theme.getCode());
+//				}
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -866,7 +873,7 @@ public class FrameUtils2 {
 				if (theme == null) {
 					log.error("Theme is null");
 				} else {
-					log.warn("Theme has no attributes ");
+					log.warn("Theme "+theme.getCode()+" has no attributes ");
 				}
 			}
 		}
