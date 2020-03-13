@@ -47,9 +47,9 @@ public class ImportUtils {
 			      {
 			    	  BaseEntityImport beImport = new BaseEntityImport();
 			    	  // generate a unique UUID
-			    	  String uniqueCodeField = row.get("UNIQUE_KEY_FIELD");
+			    	  String uniqueCodeField = fieldMapping.get("UNIQUE_KEY_FIELD");
 			    	  String uniqueCode = null;
-			    	  String prefix = row.get("PREFIX");
+			    	  String prefix = fieldMapping.get("PREFIX");
 		    		  if (prefix == null) {
 		    			  prefix = "PER_";
 		    		  } else {
