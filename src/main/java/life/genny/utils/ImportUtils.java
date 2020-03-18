@@ -19,7 +19,10 @@ import life.genny.bootxport.bootx.XlsxImportOnline;
 import life.genny.models.BaseEntityImport;
 import life.genny.qwanda.Answer;
 import life.genny.qwanda.entity.BaseEntity;
+import life.genny.qwanda.entity.SearchEntity;
 import life.genny.qwanda.message.QDataBaseEntityMessage;
+import life.genny.qwandautils.GennySettings;
+import life.genny.qwandautils.JsonUtils;
 import life.genny.qwandautils.QwandaUtils;
 
 public class ImportUtils {
@@ -204,4 +207,39 @@ public class ImportUtils {
 		}
 		return null;
 	}
+	
+	
+	public static BaseEntity fetchBaseEntityByName(BaseEntityUtils beUtils, String name,
+			String prefixFilter) {
+		SearchEntity searchBE = new SearchEntity("SBE_FIND_LIKE", "AttributeName")
+				.addSort("PRI_NAME", "Created", SearchEntity.Sort.ASC)
+				.addFilter("PRI_CODE", SearchEntity.StringFilter.LIKE, prefixFilter+"%")
+				.addFilter("PRI_NAME", SearchEntity.StringFilter.LIKE, name)
+				.addColumn("PRI_NAME", "Name")
+				.setPageStart(0).setPageSize(100);
+
+		searchBE.setRealm(beUtils.getGennyToken().getRealm());
+
+		String jsonSearchBE = JsonUtils.toJson(searchBE);
+		/* System.out.println(jsonSearchBE); */
+		String resultJson;
+		BaseEntity result = null;
+		try {
+			resultJson = QwandaUtils.apiPostEntity(GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/search",
+					jsonSearchBE, beUtils.getGennyToken().getToken());
+			QDataBaseEntityMessage resultMsg = JsonUtils.fromJson(resultJson, QDataBaseEntityMessage.class);
+			if (resultMsg != null) {
+				if (resultMsg.getItems() != null) {
+					if (resultMsg.getItems().length>0)
+					result = resultMsg.getItems()[0];
+					return result;
+				}
+			}
+			return null;
+		} catch (Exception e) {
+
+		}
+		return null;
+	}
+	
 }
