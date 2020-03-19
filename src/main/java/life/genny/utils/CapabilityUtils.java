@@ -48,6 +48,18 @@ public class CapabilityUtils implements Serializable {
 		this.beUtils = beUtils;
 	}
 
+	public BaseEntity inheritRole(BaseEntity role, final BaseEntity parentRole)
+	{
+		BaseEntity ret = role;
+		List<EntityAttribute> perms = parentRole.findPrefixEntityAttributes("PRM_");
+		for (EntityAttribute permissionEA : perms) {
+			Attribute permission = permissionEA.getAttribute();
+			CapabilityMode mode = CapabilityMode.getMode(permissionEA.getValue());
+			ret = addCapabilityToRole(ret,permission.getCode(),mode);			
+		}
+		return ret;
+	}
+	
 	public Attribute addCapability(final String capabilityCode, final String name) {
 		String fullCapabilityCode = "PRM_" + capabilityCode.toUpperCase();
 		log.info("Setting Capability : " + fullCapabilityCode + " : " + name);
