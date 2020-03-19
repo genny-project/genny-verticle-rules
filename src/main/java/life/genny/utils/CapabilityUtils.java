@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.persistence.Transient;
+
 import org.apache.logging.log4j.Logger;
 
 import com.google.gson.annotations.Expose;
@@ -42,6 +44,7 @@ public class CapabilityUtils implements Serializable {
 	@Expose
 	List<Attribute> capabilityManifest = new ArrayList<Attribute>();
 
+	@Transient
 	private BaseEntityUtils beUtils;
 
 	public CapabilityUtils(BaseEntityUtils beUtils) {
@@ -338,6 +341,13 @@ public class CapabilityUtils implements Serializable {
 				}
 			}
 		}
+		
+		/* now force the keycloak ones */
+		for (String role : userToken.getUserRoles()) {
+			allowable.add(
+					new Allowed(role.toUpperCase(), CapabilityMode.VIEW));
+		}
+		
 		return allowable;
 	}
 }
