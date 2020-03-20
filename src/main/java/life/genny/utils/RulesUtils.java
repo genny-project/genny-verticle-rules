@@ -868,7 +868,7 @@ public class RulesUtils {
 			}
 		} else {
 			if (!attributeCode.startsWith("LNK_")) {
-				log.error("Cannot fetched Attribute : "+attributeCode+" for user "+token.getUserCode()+" and realm "+token.getRealm()); 
+				// THIS IS AN ODD ERROR??? log.error("Cannot fetched Attribute : "+attributeCode+" for user "+token.getUserCode()+" and realm "+token.getRealm()); 
 			}
 		}
 		return ret;
