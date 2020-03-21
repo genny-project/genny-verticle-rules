@@ -100,7 +100,13 @@ public class CapabilityUtils implements Serializable {
 		/* Construct answer with Source, Target, Attribute Code, Value */
 		Answer answer = new Answer(beUtils.getServiceToken().getUserCode(), role.getCode(), "PRM_" + capabilityCode,
 				mode.toString());
-		Attribute capabilityAttribute = RulesUtils.getAttribute("PRM_" + capabilityCode,
+		// TODO Ugly hack fix
+		String cCode = capabilityCode;
+		if (!capabilityCode.startsWith("PRM_")) {
+			cCode = "PRM_"+capabilityCode;
+			
+		}
+		Attribute capabilityAttribute = RulesUtils.getAttribute(cCode,
 				beUtils.getServiceToken().getToken());
 		answer.setAttribute(capabilityAttribute);
 		role = beUtils.saveAnswer(answer);
