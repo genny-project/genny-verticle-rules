@@ -609,8 +609,8 @@ public class VertxUtils {
 	}
 
 	static public BaseEntity privacyFilter(BaseEntity user, BaseEntity be) {
-		final String[] filterStrArray = { "PRI_FIRSTNAME", "PRI_LASTNAME", "PRI_MOBILE", "PRI_DRIVER", "PRI_OWNER",
-				"PRI_IMAGE_URL", "PRI_CODE", "PRI_NAME", "PRI_USERNAME", "PRI_DRIVER_RATING" };
+		final String[] filterStrArray = { "PRI_FIRSTNAME", "PRI_LASTNAME", "PRI_MOBILE", "PRI_EMAIL", "PRI_PHONE",
+				"PRI_IMAGE_URL", "PRI_CODE", "PRI_NAME", "PRI_USERNAME" };
 
 		return privacyFilter(user, be, filterStrArray);
 	}

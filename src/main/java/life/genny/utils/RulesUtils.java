@@ -815,7 +815,7 @@ public class RulesUtils {
 	public static QDataAttributeMessage loadAllAttributesIntoCache(final GennyToken token) {
 		try {
 			boolean cacheWorked = false;
-
+			println("All the attributes about to become loaded ...");
 			JsonObject json = VertxUtils.readCachedJson(token.getRealm(),"attributes",token.getToken());
 			if ("ok".equals(json.getString("status"))) {
 			//	println("LOADING ATTRIBUTES FROM CACHE!");
@@ -855,23 +855,7 @@ public class RulesUtils {
 	}
 
 	public static Attribute getAttribute(final String attributeCode, final GennyToken token) {
-		Attribute ret = attributeMap.get(attributeCode);
-		if (ret == null) {
-			if (attributeCode.startsWith("SRT_") || attributeCode.startsWith("RAW_")) {
-				ret = new AttributeText(attributeCode, attributeCode);
-			} else {
-				loadAllAttributesIntoCache(token);
-				ret = attributeMap.get(attributeCode);
-				if (ret == null) {
-					log.error("Attribute NOT FOUND :"+attributeCode);
-				}
-			}
-		} else {
-			if (!attributeCode.startsWith("LNK_")) {
-				log.error("Cannot fetched Attribute : "+attributeCode+" for user "+token.getUserCode()+" and realm "+token.getRealm()); 
-			}
-		}
-		return ret;
+		return getAttribute(attributeCode,token.getToken());
 	}
 	
 	public static Attribute getAttribute(final String attributeCode, final String token) {
