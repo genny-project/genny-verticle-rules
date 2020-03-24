@@ -1714,7 +1714,6 @@ public class BaseEntityUtils implements Serializable {
 
 		UUID uuid = UUID.randomUUID();
 
-		QBulkPullMessage pullMsg = new QBulkPullMessage(uuid.toString());
 		String token = msg.getString("token");
 		GennyToken gennyToken = new GennyToken(token);
 
@@ -1722,6 +1721,7 @@ public class BaseEntityUtils implements Serializable {
 		DistMap.getDistPontoonBE(gennyToken.getRealm()).put(uuid, msg, 2, TimeUnit.MINUTES);
 
 		// then create the QBulkPullMessage
+		QBulkPullMessage pullMsg = new QBulkPullMessage(uuid.toString());
 		pullMsg.setPullUrl(GennySettings.pontoonUrl + "/pull/" + uuid);
 		return pullMsg;
 

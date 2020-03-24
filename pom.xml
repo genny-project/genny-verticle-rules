@@ -254,6 +254,13 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.carrotsearch/java-sizeof -->
+		<dependency>
+			<groupId>com.carrotsearch</groupId>
+			<artifactId>java-sizeof</artifactId>
+			<version>0.0.5</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
