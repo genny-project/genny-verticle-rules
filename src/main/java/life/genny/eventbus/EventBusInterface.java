@@ -212,7 +212,7 @@ public interface EventBusInterface {
 					if (msg instanceof QBulkMessage) {
 						long msgSize = RamUsageEstimator.sizeOf(msg);
 						log.info("WRITING BULK PULL MESSAGE size=" + msgSize);
-						if (msgSize > 100L) {
+						if (GennySettings.bulkPull && (msgSize > 100L)) {
 							BaseEntityUtils beUtils = new BaseEntityUtils(gToken);
 							QBulkPullMessage qBulkPullMsg = beUtils.createQBulkPullMessage((QBulkMessage) msg);
 							write(channel, qBulkPullMsg);
