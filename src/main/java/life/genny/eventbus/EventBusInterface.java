@@ -209,17 +209,17 @@ public interface EventBusInterface {
 					GennyToken gToken = new GennyToken(token); // This is costly
 
 					// if the message is large then try BulkPull
-					if (msg instanceof QBulkMessage) {
+				//	if (msg instanceof QBulkMessage) {
 						long msgSize = RamUsageEstimator.sizeOf(msg);
 						log.info("WRITING BULK PULL MESSAGE size=" + msgSize);
 						if (GennySettings.bulkPull && (msgSize > 100L)) {
 							BaseEntityUtils beUtils = new BaseEntityUtils(gToken);
-							QBulkPullMessage qBulkPullMsg = beUtils.createQBulkPullMessage((QBulkMessage) msg);
-							write(channel, qBulkPullMsg);
+							QBulkPullMessage qBulkPullMsg = beUtils.createQBulkPullMessage(msg2);
+							write(channel, JsonUtils.toJson(qBulkPullMsg));
 						}
-					} else {
-						write(channel, msg);
-					}
+			//		} else {
+			//			write(channel, msg);
+			//		}
 				} else {
 					write(channel, msg);
 				}
