@@ -26,6 +26,7 @@ import life.genny.qwanda.attribute.EntityAttribute;
 import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.message.QBulkMessage;
 import life.genny.qwanda.message.QBulkPullMessage;
+import life.genny.qwanda.message.QCmdMessage;
 import life.genny.qwanda.message.QDataBaseEntityMessage;
 import life.genny.qwanda.message.QMessage;
 import life.genny.qwandautils.GennySettings;
@@ -204,12 +205,17 @@ public interface EventBusInterface {
 
 			} else {
 				if (!(msg instanceof String)) {
-					QMessage msg2 = (QMessage) msg;
-					String token = msg2.getToken();
-					GennyToken gToken = new GennyToken(token); // This is costly
 
-					// if the message is large then try BulkPull
-				//	if (msg instanceof QBulkMessage) {
+					if (msg instanceof QCmdMessage) {
+						QCmdMessage msg2 = (QCmdMessage) msg;
+						write(channel, JsonUtils.toJson(msg2));
+					} else {
+						QMessage msg2 = (QMessage) msg;
+						String token = msg2.getToken();
+						GennyToken gToken = new GennyToken(token); // This is costly
+
+						// if the message is large then try BulkPull
+						// if (msg instanceof QBulkMessage) {
 						long msgSize = RamUsageEstimator.sizeOf(msg);
 						log.info("WRITING BULK PULL MESSAGE size=" + msgSize);
 						if (GennySettings.bulkPull && (msgSize > 100L)) {
@@ -217,9 +223,10 @@ public interface EventBusInterface {
 							QBulkPullMessage qBulkPullMsg = beUtils.createQBulkPullMessage(msg2);
 							write(channel, JsonUtils.toJson(qBulkPullMsg));
 						}
-			//		} else {
-			//			write(channel, msg);
-			//		}
+						// } else {
+						// write(channel, msg);
+						// }
+					}
 				} else {
 					write(channel, msg);
 				}
