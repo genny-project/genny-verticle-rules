@@ -223,9 +223,9 @@ public interface EventBusInterface {
 							QBulkPullMessage qBulkPullMsg = beUtils.createQBulkPullMessage(msg2);
 							write(channel, JsonUtils.toJson(qBulkPullMsg));
 						}
-						// } else {
-						// write(channel, msg);
-						// }
+						 else {
+							 write(channel, JsonUtils.toJson(msg));
+						 }
 					}
 				} else {
 					write(channel, msg);
