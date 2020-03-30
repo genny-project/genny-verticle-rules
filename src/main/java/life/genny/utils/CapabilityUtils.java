@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.persistence.Transient;
+
 import org.apache.logging.log4j.Logger;
 
 import com.google.gson.annotations.Expose;
@@ -42,12 +44,25 @@ public class CapabilityUtils implements Serializable {
 	@Expose
 	List<Attribute> capabilityManifest = new ArrayList<Attribute>();
 
+	@Transient
 	private BaseEntityUtils beUtils;
 
 	public CapabilityUtils(BaseEntityUtils beUtils) {
 		this.beUtils = beUtils;
 	}
 
+	public BaseEntity inheritRole(BaseEntity role, final BaseEntity parentRole)
+	{
+		BaseEntity ret = role;
+		List<EntityAttribute> perms = parentRole.findPrefixEntityAttributes("PRM_");
+		for (EntityAttribute permissionEA : perms) {
+			Attribute permission = permissionEA.getAttribute();
+			CapabilityMode mode = CapabilityMode.getMode(permissionEA.getValue());
+			ret = addCapabilityToRole(ret,permission.getCode(),mode);			
+		}
+		return ret;
+	}
+	
 	public Attribute addCapability(final String capabilityCode, final String name) {
 		String fullCapabilityCode = "PRM_" + capabilityCode.toUpperCase();
 		log.info("Setting Capability : " + fullCapabilityCode + " : " + name);
@@ -85,7 +100,13 @@ public class CapabilityUtils implements Serializable {
 		/* Construct answer with Source, Target, Attribute Code, Value */
 		Answer answer = new Answer(beUtils.getServiceToken().getUserCode(), role.getCode(), "PRM_" + capabilityCode,
 				mode.toString());
-		Attribute capabilityAttribute = RulesUtils.getAttribute("PRM_" + capabilityCode,
+		// TODO Ugly hack fix
+		String cCode = capabilityCode;
+		if (!capabilityCode.startsWith("PRM_")) {
+			cCode = "PRM_"+capabilityCode;
+			
+		}
+		Attribute capabilityAttribute = RulesUtils.getAttribute(cCode,
 				beUtils.getServiceToken().getToken());
 		answer.setAttribute(capabilityAttribute);
 		role = beUtils.saveAnswer(answer);
@@ -326,6 +347,13 @@ public class CapabilityUtils implements Serializable {
 				}
 			}
 		}
+		
+		/* now force the keycloak ones */
+		for (String role : userToken.getUserRoles()) {
+			allowable.add(
+					new Allowed(role.toUpperCase(), CapabilityMode.VIEW));
+		}
+		
 		return allowable;
 	}
 }

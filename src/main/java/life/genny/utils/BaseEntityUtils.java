@@ -49,6 +49,7 @@ import life.genny.qwanda.message.QBulkMessage;
 import life.genny.qwanda.message.QBulkPullMessage;
 import life.genny.qwanda.message.QDataAnswerMessage;
 import life.genny.qwanda.message.QDataBaseEntityMessage;
+import life.genny.qwanda.message.QMessage;
 import life.genny.qwandautils.GennySettings;
 import life.genny.qwandautils.JsonUtils;
 import life.genny.qwandautils.QwandaUtils;
@@ -1697,15 +1698,24 @@ public class BaseEntityUtils implements Serializable {
 			return null;
 	}
 
-	public QBulkPullMessage createQBulkPullMessage(QBulkMessage msg) {
+	public <T extends QMessage> QBulkPullMessage  createQBulkPullMessage(T msg) {
+		String token = msg.getToken();
+		GennyToken gennyToken = new GennyToken(token);
 
+		// Put the QBulkMessage into the PontoonDDT
 		UUID uuid = UUID.randomUUID();
-		QBulkPullMessage pullMsg = new QBulkPullMessage(uuid.toString());
+	//	DistMap.getDistBE(gennyToken.getRealm()).put("PONTOON_"+uuid.toString(), JsonUtils.toJson(msg), 2, TimeUnit.MINUTES);
+		VertxUtils.writeCachedJson(gennyToken.getRealm(), "PONTOON_"+uuid.toString().toUpperCase(), JsonUtils.toJson(msg),
+				this.token);
 
+//		DistMap.getDistPontoonBE(gennyToken.getRealm()).put(uuid.toString(), JsonUtils.toJson(msg), 2, TimeUnit.MINUTES);
+
+		QBulkPullMessage pullMsg = new QBulkPullMessage(uuid.toString());
+		pullMsg.setToken(token);
 		// Put the QBulkMessage into the PontoonDDT
 
 		// then create the QBulkPullMessage
-		pullMsg.setPullUrl(GennySettings.pontoonUrl + "/" + uuid);
+		pullMsg.setPullUrl(/*GennySettings.pontoonUrl +*/ "api/pull/" + uuid.toString().toUpperCase());
 		return pullMsg;
 
 	}
@@ -1714,15 +1724,18 @@ public class BaseEntityUtils implements Serializable {
 
 		UUID uuid = UUID.randomUUID();
 
-		QBulkPullMessage pullMsg = new QBulkPullMessage(uuid.toString());
 		String token = msg.getString("token");
 		GennyToken gennyToken = new GennyToken(token);
 
 		// Put the QBulkMessage into the PontoonDDT
-		DistMap.getDistPontoonBE(gennyToken.getRealm()).put(uuid, msg, 2, TimeUnit.MINUTES);
+	//	DistMap.getDistPontoonBE(gennyToken.getRealm()).put(uuid, msg, 2, TimeUnit.MINUTES);
+		VertxUtils.writeCachedJson(gennyToken.getRealm(), "PONTOON_"+uuid.toString().toUpperCase(), JsonUtils.toJson(msg),
+				token);
 
 		// then create the QBulkPullMessage
-		pullMsg.setPullUrl(GennySettings.pontoonUrl + "/pull/" + uuid);
+		QBulkPullMessage pullMsg = new QBulkPullMessage(uuid.toString());
+		pullMsg.setToken(token);
+		pullMsg.setPullUrl(/*GennySettings.pontoonUrl +*/ "api/pull/" + uuid.toString().toUpperCase());
 		return pullMsg;
 
 	}

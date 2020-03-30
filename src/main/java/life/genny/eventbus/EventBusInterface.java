@@ -15,19 +15,25 @@ import javax.naming.NamingException;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
+import com.carrotsearch.sizeof.RamUsageEstimator;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import life.genny.models.GennyToken;
 import life.genny.qwanda.attribute.EntityAttribute;
 import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.message.QBulkMessage;
+import life.genny.qwanda.message.QBulkPullMessage;
+import life.genny.qwanda.message.QCmdMessage;
 import life.genny.qwanda.message.QDataBaseEntityMessage;
+import life.genny.qwanda.message.QMessage;
 import life.genny.qwandautils.GennySettings;
 import life.genny.qwandautils.JsonUtils;
 import life.genny.qwandautils.QwandaMessage;
 import life.genny.qwandautils.QwandaUtils;
+import life.genny.utils.BaseEntityUtils;
 import life.genny.utils.RulesUtils;
 import life.genny.utils.VertxUtils;
 
@@ -173,34 +179,7 @@ public interface EventBusInterface {
 				com.google.gson.JsonObject event = parser.parse(json).getAsJsonObject();
 
 				event.addProperty("eventbus", "WRITE");
-//				if (("DATA_MSG".equals(event.get("msg_type").getAsString()))
-//						&& ("BaseEntity".equals(event.get("data_type").getAsString()))) {
-//					com.google.gson.JsonArray items = event.getAsJsonArray("items");
-//					for (JsonElement pa : items) {
-//						com.google.gson.JsonObject item = pa.getAsJsonObject();
-//						if (item.get("code").getAsString().startsWith("THM_")) {
-//							com.google.gson.JsonArray eas = item.getAsJsonArray("baseEntityAttributes");
-//							for (JsonElement ea : eas) {
-//								com.google.gson.JsonObject eaItem = ea.getAsJsonObject();
-//								String valueString = eaItem.get("valueString").getAsString();
-//								if (valueString != null) {
-//									if (valueString.startsWith("{")) { // TODO hack
-//										com.google.gson.JsonObject vs = parser.parse(valueString).getAsJsonObject();
-//										eaItem.add("valueString", vs); // set as Json to make fronternd read it
-//									}
-//								}
-//							}
-//						}
-//					}
-//					event.add("items", items);
-//					json = event.getAsString();
-//				}
 				json = msg.toString();
-//				json = json.replace("\\\"","\"");
-//				json = json.replace("\"{\"","{\"");
-//				json = json.replace("\"}\"","\"}");
-//				json = json.replace("}\",","},");
-//				json = json.replace("\"{","{");
 				QwandaUtils.apiPostEntity(GennySettings.bridgeServiceUrl + "?channel=" + channel, json,
 						event.get("token").getAsString());
 			} catch (Exception e) {
@@ -209,8 +188,49 @@ public interface EventBusInterface {
 			}
 
 		} else {
-			write(channel, msg);
 
+			if (GennySettings.multiBridgeMode && (("cmds".equals(channel)) || ("webcmds".equals(channel)))) {
+				if (!(msg instanceof String)) {
+					QMessage msg2 = (QMessage) msg;
+					String token = msg2.getToken();
+					GennyToken gToken = new GennyToken(token); // This is costly
+
+					String sourceAddress = (String) VertxUtils.getCacheInterface().readCache(gToken.getRealm(),
+							gToken.getSessionCode(), token);
+					log.info("Sending to bridge at " + sourceAddress);
+					write(sourceAddress, msg);
+				} else {
+					write(channel, msg);
+				}
+
+			} else {
+				if (!(msg instanceof String)) {
+
+					if (msg instanceof QCmdMessage) {
+						QCmdMessage msg2 = (QCmdMessage) msg;
+						write(channel, JsonUtils.toJson(msg2));
+					} else {
+						QMessage msg2 = (QMessage) msg;
+						String token = msg2.getToken();
+						GennyToken gToken = new GennyToken(token); // This is costly
+
+						// if the message is large then try BulkPull
+						// if (msg instanceof QBulkMessage) {
+						long msgSize = RamUsageEstimator.sizeOf(msg);
+						log.info("WRITING BULK PULL MESSAGE size=" + msgSize);
+						if (GennySettings.bulkPull && (msgSize > 100L)) {
+							BaseEntityUtils beUtils = new BaseEntityUtils(gToken);
+							QBulkPullMessage qBulkPullMsg = beUtils.createQBulkPullMessage(msg2);
+							write(channel, JsonUtils.toJson(qBulkPullMsg));
+						}
+						 else {
+							 write(channel, JsonUtils.toJson(msg));
+						 }
+					}
+				} else {
+					write(channel, msg);
+				}
+			}
 		}
 
 	}
@@ -229,14 +249,22 @@ public interface EventBusInterface {
 			}
 
 		} else {
-			send(channel, msg);
+			if (GennySettings.multiBridgeMode && (("cmds".equals(channel)) || ("webcmds".equals(channel)))) {
+				QMessage msg2 = (QMessage) msg;
+				String token = msg2.getToken();
+				GennyToken gToken = new GennyToken(token); // This is costly
+				String sourceAddress = (String) VertxUtils.getCacheInterface().readCache(gToken.getRealm(),
+						gToken.getSessionCode(), token);
+				log.info("Sending to bridge at " + sourceAddress);
+				send(sourceAddress, msg);
+			} else {
+				send(channel, msg);
+			}
 
 		}
 
 	}
 
-
-	
 	public default void publish(BaseEntity user, String channel, Object payload, final String[] filterAttributes) {
 		try {
 			// Actually Send ....
@@ -255,7 +283,7 @@ public interface EventBusInterface {
 				break;
 			case "cmds":
 			case "webcmds":
-				payload = EventBusInterface.privacyFilter(user,payload, filterAttributes); 
+				payload = EventBusInterface.privacyFilter(user, payload, filterAttributes);
 				writeMsg("webcmds", payload);
 				break;
 			case "services":
