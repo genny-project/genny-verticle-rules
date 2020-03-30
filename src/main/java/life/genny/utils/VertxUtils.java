@@ -1,51 +1,36 @@
 package life.genny.utils;
 
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.naming.NamingException;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.logging.log4j.Logger;
-import org.kie.api.KieBase;
-
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Sets;
 import com.google.gson.reflect.TypeToken;
-
 import io.vertx.core.json.JsonObject;
 import io.vertx.rxjava.core.eventbus.MessageProducer;
-import life.genny.channel.DistMap;
 import life.genny.eventbus.EventBusInterface;
 import life.genny.eventbus.EventBusMock;
-import life.genny.eventbus.EventBusVertx;
-import life.genny.eventbus.WildflyCacheInterface;
 import life.genny.models.GennyToken;
 import life.genny.qwanda.attribute.EntityAttribute;
 import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.message.QBulkMessage;
 import life.genny.qwanda.message.QDataBaseEntityMessage;
 import life.genny.qwanda.message.QEventMessage;
-import life.genny.qwanda.message.QMessage;
 import life.genny.qwandautils.GennyCacheInterface;
 import life.genny.qwandautils.GennySettings;
 import life.genny.qwandautils.JsonUtils;
 import life.genny.qwandautils.QwandaUtils;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.logging.log4j.Logger;
+
+import javax.naming.NamingException;
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Type;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class VertxUtils {
 
@@ -115,7 +100,7 @@ public class VertxUtils {
 			try {
 				item = (T) JsonUtils.fromJson(data, clazz);
 			} catch (Exception e) {
-				log.info("Bad JsonUtils " + realm + ":" + key + ":" + clazz.getTypeName());
+				log.error("Bad JsonUtils " + realm + ":" + key + ":" + clazz.getTypeName());
 			}
 			return item;
 		} else {
@@ -624,8 +609,8 @@ public class VertxUtils {
 	}
 
 	static public BaseEntity privacyFilter(BaseEntity user, BaseEntity be) {
-		final String[] filterStrArray = { "PRI_FIRSTNAME", "PRI_LASTNAME", "PRI_MOBILE", "PRI_DRIVER", "PRI_OWNER",
-				"PRI_IMAGE_URL", "PRI_CODE", "PRI_NAME", "PRI_USERNAME", "PRI_DRIVER_RATING" };
+		final String[] filterStrArray = { "PRI_FIRSTNAME", "PRI_LASTNAME", "PRI_MOBILE", "PRI_EMAIL", "PRI_PHONE",
+				"PRI_IMAGE_URL", "PRI_CODE", "PRI_NAME", "PRI_USERNAME" };
 
 		return privacyFilter(user, be, filterStrArray);
 	}
