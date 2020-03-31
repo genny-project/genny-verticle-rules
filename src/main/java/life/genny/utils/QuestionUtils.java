@@ -110,7 +110,7 @@ public class QuestionUtils {
 				if (!json.contains("<title>Error")) {
 					QDataAskMessage msg = JsonUtils.fromJson(json, QDataAskMessage.class);
 
-					if (false) {
+					if (true) {
 						// Identify all the attributeCodes and build up a working active Set
 						Set<String> activeAttributeCodes = new HashSet<String>();
 						for (Ask ask : msg.getItems()) {
