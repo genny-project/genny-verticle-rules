@@ -228,7 +228,24 @@ public interface EventBusInterface {
 						 }
 					}
 				} else {
-					write(channel, msg);
+//					
+//					String payload2 = js.toString();
+//					if (payload2 != null) {
+						String str = (String)msg;
+						if (GennySettings.bulkPull && (str.length() > 100L)) {
+							String json = msg.toString();
+							JsonParser parser = new JsonParser();
+							com.google.gson.JsonObject event = parser.parse(json).getAsJsonObject();
+							GennyToken gToken = new GennyToken(event.get("token").getAsString());
+							BaseEntityUtils beUtils = new BaseEntityUtils(gToken);
+							QBulkPullMessage qBulkPullMsg = beUtils.createQBulkPullMessage(str);
+							write(channel, JsonUtils.toJson(qBulkPullMsg));
+						}
+						 else {
+							 write(channel, msg);
+						 }
+
+//					}
 				}
 			}
 		}
