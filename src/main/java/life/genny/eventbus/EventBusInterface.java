@@ -217,8 +217,8 @@ public interface EventBusInterface {
 						// if the message is large then try BulkPull
 						// if (msg instanceof QBulkMessage) {
 						long msgSize = RamUsageEstimator.sizeOf(msg);
-						log.info("WRITING BULK PULL MESSAGE size=" + msgSize);
-						if (GennySettings.bulkPull && (msgSize > 100L)) {
+						log.info("WRITING PONTOON BULK PULL MESSAGE size=" + msgSize);
+						if (GennySettings.bulkPull && (msgSize > GennySettings.pontoonMinimumThresholdBytes)) {
 							BaseEntityUtils beUtils = new BaseEntityUtils(gToken);
 							QBulkPullMessage qBulkPullMsg = beUtils.createQBulkPullMessage(msg2);
 							write(channel, JsonUtils.toJson(qBulkPullMsg));
@@ -232,7 +232,7 @@ public interface EventBusInterface {
 //					String payload2 = js.toString();
 //					if (payload2 != null) {
 						String str = (String)msg;
-						if (GennySettings.bulkPull && (str.length() > 100L)) {
+						if (GennySettings.bulkPull && (str.length() > GennySettings.pontoonMinimumThresholdBytes)) {
 							String json = msg.toString();
 							JsonParser parser = new JsonParser();
 							com.google.gson.JsonObject event = parser.parse(json).getAsJsonObject();
