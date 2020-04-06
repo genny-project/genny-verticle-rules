@@ -1724,7 +1724,7 @@ public class BaseEntityUtils implements Serializable {
 		UUID uuid = UUID.randomUUID();
 	//	DistMap.getDistBE(gennyToken.getRealm()).put("PONTOON_"+uuid.toString(), JsonUtils.toJson(msg), 2, TimeUnit.MINUTES);
 		VertxUtils.writeCachedJson(this.getGennyToken().getRealm(), "PONTOON_"+uuid.toString().toUpperCase(), msg,
-				this.getGennyToken().getToken(),GennySettings.PontoonTimeout);  // 2 minutes
+				this.getGennyToken().getToken(),GennySettings.pontoonTimeout);  // 2 minutes
 
 
 		QBulkPullMessage pullMsg = new QBulkPullMessage(uuid.toString());
@@ -1745,7 +1745,7 @@ public class BaseEntityUtils implements Serializable {
 		// Put the QBulkMessage into the PontoonDDT
 	//	DistMap.getDistPontoonBE(gennyToken.getRealm()).put(uuid, msg, 2, TimeUnit.MINUTES);
 		VertxUtils.writeCachedJson(realm, "PONTOON_"+uuid.toString().toUpperCase(), JsonUtils.toJson(msg),
-				token,GennySettings.PontoonTimeout);
+				token,GennySettings.pontoonTimeout);
 
 		// then create the QBulkPullMessage
 		QBulkPullMessage pullMsg = new QBulkPullMessage(uuid.toString());
