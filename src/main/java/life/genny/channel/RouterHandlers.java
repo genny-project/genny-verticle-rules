@@ -26,7 +26,7 @@ public class RouterHandlers {
 			.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
 
 	public static CorsHandler cors() {
-		return CorsHandler.create("*").allowedMethod(HttpMethod.GET).allowedMethod(HttpMethod.POST)
+		return CorsHandler.create("*").allowedMethod(HttpMethod.GET).allowedMethod(HttpMethod.POST).allowedMethod(HttpMethod.PUT)
 				.allowedMethod(HttpMethod.OPTIONS).allowedHeader("X-PINGARUNER").allowedHeader("Content-Type")
 				.allowedHeader("X-Requested-With");
 	}
