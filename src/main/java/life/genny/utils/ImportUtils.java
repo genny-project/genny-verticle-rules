@@ -140,7 +140,6 @@ public class ImportUtils {
 		return beImportList;
 	}
 
-	
 	public static BaseEntity processAttribute(BaseEntityUtils beUtils, String targetCode,
 			Tuple2<String, String> attributeCodeValue, String importAttributeCode, String matchAttributeCode,
 			String prefixFilter, String linkAttributeCode, List<Answer> answers) {
@@ -211,15 +210,12 @@ public class ImportUtils {
 		}
 		return null;
 	}
-	
-	
-	public static BaseEntity fetchBaseEntityByName(BaseEntityUtils beUtils, String name,
-			String prefixFilter) {
+
+	public static BaseEntity fetchBaseEntityByName(BaseEntityUtils beUtils, String name, String prefixFilter) {
 		SearchEntity searchBE = new SearchEntity("SBE_FIND_LIKE", "AttributeName")
 				.addSort("PRI_NAME", "Created", SearchEntity.Sort.ASC)
-				.addFilter("PRI_CODE", SearchEntity.StringFilter.LIKE, prefixFilter+"%")
-				.addFilter("PRI_NAME", SearchEntity.StringFilter.LIKE, name)
-				.addColumn("PRI_NAME", "Name")
+				.addFilter("PRI_CODE", SearchEntity.StringFilter.LIKE, prefixFilter + "%")
+				.addFilter("PRI_NAME", SearchEntity.StringFilter.LIKE, name).addColumn("PRI_NAME", "Name")
 				.setPageStart(0).setPageSize(100);
 
 		searchBE.setRealm(beUtils.getGennyToken().getRealm());
@@ -234,9 +230,14 @@ public class ImportUtils {
 			QDataBaseEntityMessage resultMsg = JsonUtils.fromJson(resultJson, QDataBaseEntityMessage.class);
 			if (resultMsg != null) {
 				if (resultMsg.getItems() != null) {
-					if (resultMsg.getItems().length>0)
-					result = resultMsg.getItems()[0];
-					return result;
+					if (resultMsg.getItems().length > 0)
+						for (BaseEntity item : resultMsg.getItems()) {
+							if (item.getCode().startsWith(prefixFilter)) {
+								result = beUtils.getBaseEntityByCode(item.getCode());
+								return result;
+							}
+						}
+
 				}
 			}
 			return null;
@@ -245,5 +246,41 @@ public class ImportUtils {
 		}
 		return null;
 	}
-	
+
+	public static BaseEntity fetchBaseEntityByLink(BaseEntityUtils beUtils, String linkCode, String refCode,
+			String prefixFilter) {
+		SearchEntity searchBE = new SearchEntity("SBE_FIND_LIKE_LINK", "AttributeName")
+				.addSort("PRI_NAME", "Created", SearchEntity.Sort.ASC)
+				.addFilter("PRI_CODE", SearchEntity.StringFilter.LIKE, prefixFilter + "%")
+				.addFilter(linkCode, SearchEntity.StringFilter.LIKE, refCode).addColumn("PRI_NAME", "Name")
+				.setPageStart(0).setPageSize(100);
+
+		searchBE.setRealm(beUtils.getGennyToken().getRealm());
+
+		String jsonSearchBE = JsonUtils.toJson(searchBE);
+		/* System.out.println(jsonSearchBE); */
+		String resultJson;
+		BaseEntity result = null;
+		try {
+			resultJson = QwandaUtils.apiPostEntity(GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/search",
+					jsonSearchBE, beUtils.getGennyToken().getToken());
+			QDataBaseEntityMessage resultMsg = JsonUtils.fromJson(resultJson, QDataBaseEntityMessage.class);
+			if (resultMsg != null) {
+				if (resultMsg.getItems() != null) {
+					if (resultMsg.getItems().length > 0)
+						for (BaseEntity item : resultMsg.getItems()) {
+							if (item.getCode().startsWith(prefixFilter)) {
+								result = beUtils.getBaseEntityByCode(item.getCode());
+								return result;
+							}
+						}
+
+				}
+			}			return null;
+		} catch (Exception e) {
+
+		}
+		return null;
+	}
+
 }

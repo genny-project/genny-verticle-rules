@@ -59,6 +59,16 @@ public class BaseEntityImport implements Serializable {
 		this.attributeValuePairList = attributeValuePairList;
 	}
 
+	public String getValue(final String attributeCode)
+	{
+		for (Tuple2<String,String> tuple : attributeValuePairList) {
+			if (tuple._1.equals(attributeCode)) {
+				return tuple._2;
+			}
+		}
+		return null;
+	}
+	
 	@Override
 	public String toString() {
 		return "BaseEntityImport [" + (code != null ? "code=" + code + ", " : "")
