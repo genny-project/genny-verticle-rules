@@ -140,6 +140,7 @@ public class ImportUtils {
 		return beImportList;
 	}
 
+	
 	public static BaseEntity processAttribute(BaseEntityUtils beUtils, String targetCode,
 			Tuple2<String, String> attributeCodeValue, String importAttributeCode, String matchAttributeCode,
 			String prefixFilter, String linkAttributeCode, List<Answer> answers) {
@@ -152,13 +153,16 @@ public class ImportUtils {
 				/* create link */
 				if (foundMsg.getItems() != null) {
 					if (foundMsg.getItems().length > 0) {
-						BaseEntity result = foundMsg.getItems()[0];
-						String linkValue = "[\"" + result.getCode() + "\"]";
-						System.out.println("Setting up " + linkAttributeCode + " with value " + linkValue);
-						Answer linkAnswer = new Answer(beUtils.getGennyToken().getUserCode(), targetCode,
-								linkAttributeCode, linkValue);
-						beUtils.saveAnswer(linkAnswer);
-						return result;
+						for (BaseEntity result : foundMsg.getItems()) {
+							if (result.getCode().startsWith(prefixFilter)) {
+								String linkValue = "[\"" + result.getCode() + "\"]";
+								System.out.println("Setting up " + linkAttributeCode + " with value " + linkValue);
+								Answer linkAnswer = new Answer(beUtils.getGennyToken().getUserCode(), targetCode,
+										linkAttributeCode, linkValue);
+								beUtils.saveAnswer(linkAnswer);
+								return result;
+							}
+						}
 					}
 				}
 			} else {
