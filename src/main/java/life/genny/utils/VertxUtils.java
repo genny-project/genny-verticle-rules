@@ -181,6 +181,7 @@ public class VertxUtils {
 			if (ret != null) {
 				result = new JsonObject().put("status", "ok").put("value", ret);
 			} else {
+				log.info("DEBUG: Can't find KEY:" + key + ",Realm:" + realm +  " from cache.");
 				result = new JsonObject().put("status", "error").put("value", ret);
 			}
 		} else {
