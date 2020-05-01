@@ -1250,7 +1250,7 @@ public class BaseEntityUtils implements Serializable {
 			if (firstanswer.getTargetCode() == null) {
 				throw new NullPointerException("firstanswer getTargetCode cannot be null for updateCacheBaseEntity");
 			}
-			log.info("firstAnswer.targetCode=" + firstanswer.getTargetCode());
+			//log.info("firstAnswer.targetCode=" + firstanswer.getTargetCode());
 			cachedBe = this.getBaseEntityByCode(firstanswer.getTargetCode());
 		} else {
 			return null;
