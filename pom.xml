@@ -39,17 +39,19 @@
 		<dropwizard.version>3.5.1</dropwizard.version>
 		<vertx-concurrent.version>1.0.0</vertx-concurrent.version>
 		<junit-version>4.12</junit-version>
+		<hipster-all.version>1.0.1</hipster-all.version>
+		<blueprints-core.version>2.6.0</blueprints-core.version>
 
 	</properties>
 
 	<distributionManagement>
 		<repository>
 			<id>life.genny</id>
-            <url>https://nexus.outcome-hub.com/repository/life.genny/</url>
+			<url>https://nexus.outcome-hub.com/repository/life.genny/</url>
 		</repository>
 		<snapshotRepository>
 			<id>nexus-snapshots</id>
-            <url>http://nexus.outcome-hub.com/repository/snapshots/</url>
+			<url>http://nexus.outcome-hub.com/repository/snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
 
@@ -260,7 +262,17 @@
 			<artifactId>java-sizeof</artifactId>
 			<version>0.0.5</version>
 		</dependency>
-
+		<dependency>
+			<groupId>es.usc.citius.hipster</groupId>
+			<artifactId>hipster-all</artifactId>
+			<version>${hipster-all.version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.tinkerpop.blueprints/blueprints-core -->
+		<dependency>
+			<groupId>com.tinkerpop.blueprints</groupId>
+			<artifactId>blueprints-core</artifactId>
+			<version>${blueprints-core.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -483,7 +495,7 @@
 				</executions>
 				<configuration>
 					<serverId>life.genny</serverId>
-                    <nexusUrl>https://nexus.outcome-hub.com/</nexusUrl>
+					<nexusUrl>https://nexus.outcome-hub.com/</nexusUrl>
 					<skipStaging>true</skipStaging>
 				</configuration>
 			</plugin>

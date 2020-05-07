@@ -17,6 +17,7 @@ import life.genny.qwanda.attribute.AttributeInteger;
 import life.genny.qwanda.attribute.AttributeText;
 import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.exception.BadDataException;
+import life.genny.utils.FrameUtils2;
 
 
 @Immutable
@@ -233,6 +234,7 @@ public class Theme extends BaseEntity {
 		}
 		
 		public Theme build() {
+			FrameUtils2.ruleFires.put(managedInstance.getCode(),true); // fired
 			return managedInstance;
 		}
 		

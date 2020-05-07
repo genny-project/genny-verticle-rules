@@ -16,6 +16,8 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import es.usc.citius.hipster.graph.GraphBuilder;
+import es.usc.citius.hipster.graph.HipsterDirectedGraph;
 import io.vavr.Tuple2;
 import io.vavr.Tuple3;
 import io.vavr.Tuple4;
@@ -55,6 +57,14 @@ import life.genny.qwandautils.JsonUtils;
 import life.genny.qwandautils.QwandaUtils;
 
 public class FrameUtils2 {
+	public static HipsterDirectedGraph<String, String> rulesGraph = null; // This
+	// graph is
+	// used to
+	// link all
+	// the
+	// rules
+	//
+	static public GraphBuilder<String, String> graphBuilder = GraphBuilder.<String, String>create();
 	
 	static public Map<String,Boolean> ruleFires = new ConcurrentHashMap<>();
 	
