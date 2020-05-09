@@ -200,15 +200,7 @@ public class VertxUtils {
 						String resultStr6 = null;
 						if (false) {
 							// ugly way to fix json
-							String resultStr2 = resultStr.replaceAll(Pattern.quote("\\\""),
-									Matcher.quoteReplacement("\""));
-							String resultStr3 = resultStr2.replaceAll(Pattern.quote("\\n"),
-									Matcher.quoteReplacement("\n"));
-							String resultStr4 = resultStr3.replaceAll(Pattern.quote("\\\n"),
-									Matcher.quoteReplacement("\n"));
-							String resultStr5 = resultStr4.replaceAll(Pattern.quote("\"{"),
-									Matcher.quoteReplacement("{"));
-							resultStr6 = resultStr5.replaceAll(Pattern.quote("}\""), Matcher.quoteReplacement("}"));
+							resultStr6  = VertxUtils.fixJson(resultStr);
 						} else {
 							resultStr6 = resultStr;
 						}
@@ -712,4 +704,25 @@ public class VertxUtils {
 		return realms;
 	}
 
+	static public String fixJson(String resultStr)
+	{
+		String resultStr2 = resultStr.replaceAll(Pattern.quote("\\\""),
+				Matcher.quoteReplacement("\""));
+		String resultStr3 = resultStr2.replaceAll(Pattern.quote("\\n"),
+				Matcher.quoteReplacement("\n"));
+		String resultStr4 = resultStr3.replaceAll(Pattern.quote("\\\n"),
+				Matcher.quoteReplacement("\n"));
+//		String resultStr5 = resultStr4.replaceAll(Pattern.quote("\"{"),
+//				Matcher.quoteReplacement("{"));
+//		String resultStr6 = resultStr5.replaceAll(Pattern.quote("\"["),
+//				Matcher.quoteReplacement("["));
+//		String resultStr7 = resultStr6.replaceAll(Pattern.quote("]\""),
+//				Matcher.quoteReplacement("]"));
+//		String resultStr8 = resultStr5.replaceAll(Pattern.quote("}\""), Matcher.quoteReplacement("}"));
+		String ret = resultStr4.replaceAll(Pattern.quote("\\\"n"),
+				Matcher.quoteReplacement("\""));
+		return ret;
+
+	}
+	
 }

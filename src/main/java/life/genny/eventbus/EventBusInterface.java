@@ -174,12 +174,12 @@ public interface EventBusInterface {
 
 		if ((GennySettings.forceEventBusApi) && (!VertxUtils.cachedEnabled)) {
 			try {
-				String json = msg.toString();
+				String json = JsonUtils.toJson(msg);
 				JsonParser parser = new JsonParser();
 				com.google.gson.JsonObject event = parser.parse(json).getAsJsonObject();
 
 				event.addProperty("eventbus", "WRITE");
-				json = msg.toString();
+				json = event.toString();
 				QwandaUtils.apiPostEntity(GennySettings.bridgeServiceUrl + "?channel=" + channel, json,
 						event.get("token").getAsString());
 			} catch (Exception e) {
