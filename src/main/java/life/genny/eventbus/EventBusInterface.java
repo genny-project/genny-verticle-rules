@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.naming.NamingException;
 
@@ -174,7 +176,38 @@ public interface EventBusInterface {
 
 		if ((GennySettings.forceEventBusApi) && (!VertxUtils.cachedEnabled)) {
 			try {
-				String json = JsonUtils.toJson(msg);
+				String json = "";
+				if (msg instanceof String) {
+					String msgStr = (String)msg;
+					if (msgStr.contains("PRI_HAS_ICON")) {
+						//log.info("Bad thm_ico");
+						QDataBaseEntityMessage qdbem = JsonUtils.fromJson(msgStr, QDataBaseEntityMessage.class);
+						for (BaseEntity be : qdbem.getItems()) {
+							for (EntityAttribute ea : be.getBaseEntityAttributes()) {
+								if (ea.getValueBoolean() != null) {
+									ea.setValueString(null); // hacky fix
+								}
+							}
+						}
+						msgStr = JsonUtils.toJson(qdbem);
+						json = VertxUtils.fixJson(msgStr);
+						String resultStr2 = json.replaceAll(Pattern.quote("\\\""),
+								Matcher.quoteReplacement("\""));
+						String resultStr5 = resultStr2.replaceAll(Pattern.quote("\"{"),
+								Matcher.quoteReplacement("{"));
+//						String resultStr6 = resultStr5.replaceAll(Pattern.quote("\"["),
+//								Matcher.quoteReplacement("["));
+//						String resultStr7 = resultStr6.replaceAll(Pattern.quote("]\""),
+//								Matcher.quoteReplacement("]"));
+						json = resultStr5.replaceAll(Pattern.quote("}\""), Matcher.quoteReplacement("}"));
+					} else {
+						json = VertxUtils.fixJson(msgStr);
+					}
+
+
+				} else {
+				 json = JsonUtils.toJson(msg);
+				}
 				JsonParser parser = new JsonParser();
 				com.google.gson.JsonObject event = parser.parse(json).getAsJsonObject();
 

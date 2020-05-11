@@ -719,7 +719,8 @@ public class VertxUtils {
 //		String resultStr7 = resultStr6.replaceAll(Pattern.quote("]\""),
 //				Matcher.quoteReplacement("]"));
 //		String resultStr8 = resultStr5.replaceAll(Pattern.quote("}\""), Matcher.quoteReplacement("}"));
-		String ret = resultStr4.replaceAll(Pattern.quote("\\\"n"),
+		String ret = resultStr4.replaceAll(Pattern.quote("\\\""
+				+ ""),
 				Matcher.quoteReplacement("\""));
 		return ret;
 
