@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -934,9 +935,16 @@ public class FrameUtils2 {
 					JSONObject merged = json;
 					JSONObject jo = themeAttribute.getJsonObject();
 					if (!jo.toString().equals("{}")) {
-						for (Object key : jo.names()/* JSONObject.getNames(themeAttribute.getJsonObject()) */) {
+					// json-20090211 doesn't have iterator(), implement here
+						JSONArray names = jo.names();
+						int length = names.length();
+						for (int i = 0; i < length; i++) {
+							Object key = names.opt(i);
 							merged.put((String) key, themeAttribute.getJsonObject().get((String) key));
 						}
+//						for (Object key : jo.names()/* JSONObject.getNames(themeAttribute.getJsonObject()) */) {
+//							merged.put((String) key, themeAttribute.getJsonObject().get((String) key));
+//						}
 					}
 
 					themeEA.setValue(merged.toString());
