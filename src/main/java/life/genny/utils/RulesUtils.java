@@ -953,7 +953,7 @@ public class RulesUtils {
 	}
 
 	public static Map<String,BaseEntity> getRulesFromGit(final String remoteUrl, final String branch, final String realm,  final String gitUsername, final String gitPassword,
-			boolean recursive)
+			boolean recursive, GennyToken userToken)
 			throws BadDataException, InvalidRemoteException, TransportException, GitAPIException,
 			RevisionSyntaxException, AmbiguousObjectException, IncorrectObjectTypeException, IOException {
 
@@ -1068,30 +1068,30 @@ public class RulesUtils {
 						ruleBe.setRealm(realm);
 						ruleBe.setUpdated(commitDateTime);
 
-						ruleBe.setValue(RulesUtils.getAttribute("PRI_HASHCODE", realm), hashcode);
-						ruleBe.setValue(RulesUtils.getAttribute("PRI_FILENAME", realm), filename);
+						ruleBe.setValue(RulesUtils.getAttribute("PRI_HASHCODE", userToken.getToken()), hashcode);
+						ruleBe.setValue(RulesUtils.getAttribute("PRI_FILENAME", userToken.getToken()), filename);
 
 						String ext = filename.substring(filename.lastIndexOf(".") + 1);
 						String kieType = ext.toUpperCase();
-						ruleBe.setValue(RulesUtils.getAttribute("PRI_KIE_TYPE", realm), kieType);
+						ruleBe.setValue(RulesUtils.getAttribute("PRI_KIE_TYPE", userToken.getToken()), kieType);
 
-						ruleBe.setValue(RulesUtils.getAttribute("PRI_KIE_TEXT", realm), content);
-						ruleBe.setValue(RulesUtils.getAttribute("PRI_KIE_NAME", realm), beName);
+						ruleBe.setValue(RulesUtils.getAttribute("PRI_KIE_TEXT", userToken.getToken()), content);
+						ruleBe.setValue(RulesUtils.getAttribute("PRI_KIE_NAME", userToken.getToken()), beName);
 
 						if (rule.getAttributes().containsKey("ruleflow-group")) {
 							AttributeDescr attD = rule.getAttributes().get("ruleflow-group");
 							String ruleflowgroup = attD.getValue();
-							ruleBe.setValue(RulesUtils.getAttribute("PRI_KIE_RULE_GROUP", realm), ruleflowgroup);
+							ruleBe.setValue(RulesUtils.getAttribute("PRI_KIE_RULE_GROUP", userToken.getToken()), ruleflowgroup);
 						}
 						if (rule.getAttributes().containsKey("no-loop")) {
 							AttributeDescr attD = rule.getAttributes().get("no-loop");
 							String noloop = attD.getValue();
-							ruleBe.setValue(RulesUtils.getAttribute("PRI_KIE_RULE_NOLOOP", realm), noloop);
+							ruleBe.setValue(RulesUtils.getAttribute("PRI_KIE_RULE_NOLOOP", userToken.getToken()), noloop);
 						}
 						if (rule.getAttributes().containsKey("salience")) {
 							AttributeDescr attD = rule.getAttributes().get("salience");
 							String salience = attD.getValue();
-							ruleBe.setValue(RulesUtils.getAttribute("PRI_KIE_RULE_SALIENCE", realm), salience);
+							ruleBe.setValue(RulesUtils.getAttribute("PRI_KIE_RULE_SALIENCE", userToken.getToken()), salience);
 						}
 
 						ruleBes.put("RUL_" + beName.toUpperCase(),ruleBe);
