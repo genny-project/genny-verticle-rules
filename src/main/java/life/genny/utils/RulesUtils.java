@@ -1093,9 +1093,10 @@ public class RulesUtils {
 							String salience = attD.getValue();
 							ruleBe.setValue(RulesUtils.getAttribute("PRI_KIE_RULE_SALIENCE", userToken.getToken()), salience);
 						}
+						ruleBe.setValue(RulesUtils.getAttribute("PRI_BRANCH", userToken.getToken()), branch);
 
 						ruleBes.put("RUL_" + beName.toUpperCase(),ruleBe);
-					} else {
+				} else {
 						System.out.println("!!!!!!!!!!!!!!!!!!! ERROR: MUST HAVE ONLY 1 RULE PER FILE " + p.toString());
 					}
 				} else {
