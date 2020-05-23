@@ -1023,7 +1023,7 @@ public class RulesUtils {
 			fullpath = treeWalk.getPathString(); // .substring(realmFilter.length()+1); // get rid of
 													// realm+"-new/sublayouts/"
 			Path p = Paths.get(fullpath);
-			if (((fullpath.endsWith(".drl") || (fullpath.endsWith(".drl"))) && (!p.toString().contains("XXX")))) {
+			if ((fullpath.endsWith(".xls") || fullpath.endsWith(".bpmn") || (fullpath.endsWith(".drl"))) && (!p.toString().contains("XXX"))) {
 
 				if (fullpath.equals("rules/rulesCurrent/shared/RULEGROUPS/EventProcessing/LOGOUT_EVENT.drl")) {
 					log.info("logout rule detected!");
@@ -1049,13 +1049,37 @@ public class RulesUtils {
 					e.printStackTrace();
 				}
 
-				if (goodRule) {
+				if ((goodRule)||(!fullpath.endsWith(".drl"))) {
 					System.out.println(realm+":"+p.toString());
-					if (descr.getRules().size() == 1) {
-						RuleDescr rule = descr.getRules().get(0);
-						String beName = rule.getName();
+					if ((descr.getRules().size() == 1)||((!fullpath.endsWith(".drl")))) {
+						String beName = filename;
+						BaseEntity ruleBe = null;
 						
-						BaseEntity ruleBe = new BaseEntity("RUL_" + beName.toUpperCase(), beName);
+
+						if (fullpath.endsWith(".drl")) {							
+							RuleDescr rule = descr.getRules().get(0);
+							beName = rule.getName();
+							ruleBe = new BaseEntity("RUL_" + beName.toUpperCase(), beName);
+							
+							if (rule.getAttributes().containsKey("ruleflow-group")) {
+								AttributeDescr attD = rule.getAttributes().get("ruleflow-group");
+								String ruleflowgroup = attD.getValue();
+								ruleBe.setValue(RulesUtils.getAttribute("PRI_KIE_RULE_GROUP", userToken.getToken()), ruleflowgroup);
+							}
+							if (rule.getAttributes().containsKey("no-loop")) {
+								AttributeDescr attD = rule.getAttributes().get("no-loop");
+								String noloop = attD.getValue();
+								ruleBe.setValue(RulesUtils.getAttribute("PRI_KIE_RULE_NOLOOP", userToken.getToken()), noloop);
+							}
+							if (rule.getAttributes().containsKey("salience")) {
+								AttributeDescr attD = rule.getAttributes().get("salience");
+								String salience = attD.getValue();
+								ruleBe.setValue(RulesUtils.getAttribute("PRI_KIE_RULE_SALIENCE", userToken.getToken()), salience);
+							}
+
+						} else {
+							ruleBe = new BaseEntity("RUL_" + beName.toUpperCase(), beName);
+						}
 						Integer hashcode = content.hashCode();
 
 						long secs = commit.getCommitTime();
@@ -1078,21 +1102,6 @@ public class RulesUtils {
 						ruleBe.setValue(RulesUtils.getAttribute("PRI_KIE_TEXT", userToken.getToken()), content);
 						ruleBe.setValue(RulesUtils.getAttribute("PRI_KIE_NAME", userToken.getToken()), beName);
 
-						if (rule.getAttributes().containsKey("ruleflow-group")) {
-							AttributeDescr attD = rule.getAttributes().get("ruleflow-group");
-							String ruleflowgroup = attD.getValue();
-							ruleBe.setValue(RulesUtils.getAttribute("PRI_KIE_RULE_GROUP", userToken.getToken()), ruleflowgroup);
-						}
-						if (rule.getAttributes().containsKey("no-loop")) {
-							AttributeDescr attD = rule.getAttributes().get("no-loop");
-							String noloop = attD.getValue();
-							ruleBe.setValue(RulesUtils.getAttribute("PRI_KIE_RULE_NOLOOP", userToken.getToken()), noloop);
-						}
-						if (rule.getAttributes().containsKey("salience")) {
-							AttributeDescr attD = rule.getAttributes().get("salience");
-							String salience = attD.getValue();
-							ruleBe.setValue(RulesUtils.getAttribute("PRI_KIE_RULE_SALIENCE", userToken.getToken()), salience);
-						}
 						ruleBe.setValue(RulesUtils.getAttribute("PRI_BRANCH", userToken.getToken()), branch);
 
 						ruleBes.put("RUL_" + beName.toUpperCase(),ruleBe);
