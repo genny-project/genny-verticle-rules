@@ -1104,6 +1104,13 @@ public class RulesUtils {
 
 						ruleBe.setValue(RulesUtils.getAttribute("PRI_BRANCH", userToken.getToken()), branch);
 
+						if (ruleBe.getCode().startsWith("RUL_FRM_")) {
+							ruleBe.setValue(RulesUtils.getAttribute("PRI_ASKS", userToken.getToken()), "EMPTY");  // initialise empty pojo
+							ruleBe.setValue(RulesUtils.getAttribute("PRI_MSG", userToken.getToken()), "EMPTY");  // initialise empty msg
+						}
+						if ((ruleBe.getCode().startsWith("RUL_FRM_"))||(ruleBe.getCode().startsWith("RUL_THM_"))) {
+							ruleBe.setValue(RulesUtils.getAttribute("PRI_POJO", userToken.getToken()), "EMPTY");  // initialise empty pojo
+						}
 						ruleBes.put("RUL_" + beName.toUpperCase(),ruleBe);
 				} else {
 						System.out.println("!!!!!!!!!!!!!!!!!!! ERROR: MUST HAVE ONLY 1 RULE PER FILE " + p.toString());

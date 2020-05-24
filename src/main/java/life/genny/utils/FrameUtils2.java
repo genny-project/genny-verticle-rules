@@ -199,6 +199,7 @@ public class FrameUtils2 {
 
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG", msg, serviceToken.getToken());
 		ruleFires.put(serviceToken.getRealm() + ":" + rootFrame.getCode() + "_MSG", true);
+		log.info("Saving FRAME MSG TO DB "+"RUL_" + rootFrame.getCode().toUpperCase());
 		beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
 				"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_MSG", JsonUtils.toJson(msg), false));
 
@@ -1059,6 +1060,12 @@ public class FrameUtils2 {
 		}
 		ask.setContextList(contextList);
 		return ask;
+	}
+
+	public static void persistTheme(Theme managedInstance) {
+		// Save to the database
+		
+		
 	}
 
 }

@@ -7,7 +7,10 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.rxjava.core.eventbus.MessageProducer;
 import life.genny.eventbus.EventBusInterface;
 import life.genny.eventbus.EventBusMock;
+import life.genny.models.Frame3;
 import life.genny.models.GennyToken;
+import life.genny.models.Theme;
+import life.genny.qwanda.Answer;
 import life.genny.qwanda.attribute.EntityAttribute;
 import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.message.MessageData;
@@ -138,8 +141,31 @@ public class VertxUtils {
 
 	static public void putObject(final String realm, final String keyPrefix, final String key, final Object obj,
 			final String token) {
+		
 		String data = JsonUtils.toJson(obj);
 		String prekey = (StringUtils.isBlank(keyPrefix)) ? "" : (keyPrefix + ":");
+
+		// Hack ACC
+		if (key.startsWith("THM_")) {
+			Theme theme = (Theme)obj;
+			// Now write to the Database
+			GennyToken gToken = new GennyToken(token);
+			BaseEntityUtils beUtils = new BaseEntityUtils(gToken);
+			String ruleCode = "RUL_"+theme.getCode();
+			
+			Answer themeAnswer = new Answer(gToken.getUserCode(),ruleCode,"PRI_POJO",data);
+			beUtils.saveAnswer(themeAnswer);
+		}
+		if ((key.startsWith("FRM_"))&&((!key.endsWith("MSG"))&&(!key.endsWith("ASKS")))) {
+			Frame3 frame = (Frame3)obj;
+			// Now write to the Database
+			GennyToken gToken = new GennyToken(token);
+			BaseEntityUtils beUtils = new BaseEntityUtils(gToken);
+			String ruleCode = "RUL_"+frame.getCode();
+			Answer frameAnswer = new Answer(gToken.getUserCode(),ruleCode,"PRI_POJO",data);
+			beUtils.saveAnswer(frameAnswer);
+		}		
+		
 
 		writeCachedJson(realm, prekey + key, data, token);
 	}
