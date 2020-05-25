@@ -58,14 +58,13 @@ import life.genny.qwandautils.JsonUtils;
 import life.genny.qwandautils.QwandaUtils;
 
 public class FrameUtils2 {
-	public static HipsterDirectedGraph<String, String> rulesGraph = null; // This
+	
 	// graph is
 	// used to
 	// link all
 	// the
 	// rules
 	//
-	static public GraphBuilder<String, String> graphBuilder = GraphBuilder.<String, String>create();
 
 	static public Map<String, Boolean> ruleFires = new ConcurrentHashMap<>();
 
