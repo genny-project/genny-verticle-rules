@@ -848,8 +848,18 @@ public class FrameUtils2 {
 							JSONObject json = new JSONObject(existingSetValue);
 							JSONObject merged = new JSONObject(json, JSONObject.getNames(json));
 							JSONObject jo = themeAttribute.getJsonObject();
-							for (Object key : jo.names()/* JSONObject.getNames(themeAttribute.getJsonObject()) */) {
-								merged.put((String) key, themeAttribute.getJsonObject().get((String) key));
+							try {
+								for (Object key : jo.names()/* JSONObject.getNames(themeAttribute.getJsonObject()) */) {
+									merged.put((String) key, themeAttribute.getJsonObject().get((String) key));
+								}
+							} catch (NoSuchMethodError  nsme) {
+								// json-20090211 doesn't have iterator(), implement here
+								JSONArray names = jo.names();
+								int length = names.length();
+								for (int i = 0; i < length; i++) {
+									Object key = names.opt(i);
+									merged.put((String) key, themeAttribute.getJsonObject().get((String) key));
+								}
 							}
 
 							themeEA.setValue(merged.toString());
@@ -946,18 +956,24 @@ public class FrameUtils2 {
 					JSONObject merged = json;
 					JSONObject jo = themeAttribute.getJsonObject();
 					if (!jo.toString().equals("{}")) {
-						JSONArray names = jo.names();
-						int length = names.length();
-						for (int i = 0; i < length; i++) {
-							Object key = names.opt(i);
-							merged.put((String) key, themeAttribute.getJsonObject().get((String) key));
+						try {
+							for (Object key : jo.names()/* JSONObject.getNames(themeAttribute.getJsonObject()) */) {
+								merged.put((String) key, themeAttribute.getJsonObject().get((String) key));
+							}
+						} catch (NoSuchMethodError  nsme) {
+							// json-20090211 doesn't have iterator(), implement here
+							JSONArray names = jo.names();
+							int length = names.length();
+							for (int i = 0; i < length; i++) {
+								Object key = names.opt(i);
+								merged.put((String) key, themeAttribute.getJsonObject().get((String) key));
+							}
 						}
 						// for (Object key : jo.names()/*
 						// JSONObject.getNames(themeAttribute.getJsonObject()) */) {
 						// merged.put((String) key, themeAttribute.getJsonObject().get((String) key));
 						// }
 					}
-
 					themeEA.setValue(merged.toString());
 					themeEA.setWeight(weight);
 
