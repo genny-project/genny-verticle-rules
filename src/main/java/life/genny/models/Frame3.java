@@ -301,7 +301,8 @@ public class Frame3 extends BaseEntity implements Serializable {
 				managedInstance.frame3s = new ArrayList<Frame3>();
 			}
 			Frame3 frame = null;
-			frame = VertxUtils.getObject(serviceToken.getRealm(), "", frameCode, Frame3.class, serviceToken.getToken());
+			/*frame = VertxUtils.getObject(serviceToken.getRealm(), "", frameCode, Frame3.class, serviceToken.getToken());*/
+			frame = VertxUtils.readFromDDT(serviceToken.getRealm(), frameCode, true, serviceToken.getToken(), Frame3.class);
 			if (frame != null) {
 
 			} else {
@@ -329,7 +330,8 @@ public class Frame3 extends BaseEntity implements Serializable {
 			for (String frameCode : frameCodes) {
 				
 				Frame3 frame = null;
-				frame = VertxUtils.getObject(serviceToken.getRealm(), "", frameCode, Frame3.class, serviceToken.getToken());
+				/*frame = VertxUtils.getObject(serviceToken.getRealm(), "", frameCode, Frame3.class, serviceToken.getToken());*/
+				frame = VertxUtils.readFromDDT(serviceToken.getRealm(), frameCode, true, serviceToken.getToken(), Frame3.class);
 				if (frame != null) {
 
 				} else {
@@ -444,7 +446,8 @@ public class Frame3 extends BaseEntity implements Serializable {
 			Consumer<Theme> f = obj -> {
 				managedInstance.theme3s.add(obj);
 			};
-			Theme theme = VertxUtils.getObject(serviceToken.getRealm(), "", themeCode, Theme.class, serviceToken.getToken());
+			/*Theme theme = VertxUtils.getObject(serviceToken.getRealm(), "", themeCode, Theme.class, serviceToken.getToken());*/
+			Theme theme = VertxUtils.readFromDDT(serviceToken.getRealm(), themeCode, true, serviceToken.getToken(), Theme.class);
 			if (theme != null) {
 				theme.setDirectLink(true);
 				managedInstance.themes.add(new ThemeDouble(theme, ThemePosition.FRAME, themeWeight));
@@ -470,7 +473,8 @@ public class Frame3 extends BaseEntity implements Serializable {
 			Consumer<Theme> f = obj -> {
 				managedInstance.theme3s.add(obj);
 			};
-			Theme theme = VertxUtils.getObject(serviceToken.getRealm(), "", themeCode, Theme.class, serviceToken.getToken());
+			/*Theme theme = VertxUtils.getObject(serviceToken.getRealm(), "", themeCode, Theme.class, serviceToken.getToken());*/
+			Theme theme = VertxUtils.readFromDDT(serviceToken.getRealm(), themeCode, true, serviceToken.getToken(), Theme.class);
 			if (theme != null) {
 				theme.setDirectLink(true);
 				managedInstance.themes.add(new ThemeDouble(theme, themePosition, themeWeight));
