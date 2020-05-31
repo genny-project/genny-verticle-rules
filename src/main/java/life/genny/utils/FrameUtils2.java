@@ -77,8 +77,8 @@ public class FrameUtils2 {
 	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken, String sourceAlias,
 			String targetAlias) {
 		Boolean fetchAsks = FETCH_ASKS;
-		if ("FRM_BUCKET_AVAILABLE_INTERNS".equals(rootFrame.getCode())) {
-			log.info("FRM_BUCKET_AVAILABLE_INTERNS being created!");
+		if ("FRM_QUE_DASHBOARD_VIEW".equals(rootFrame.getCode())) {
+			log.info("FRM_QUE_DASHBOARD_VIEW being created!");
 		}
 
 		// clear the ASKS cache
@@ -94,6 +94,10 @@ public class FrameUtils2 {
 			log.error("rootFrame is NULL! ");
 			return;
 		}
+		if ("FRM_QUE_DASHBOARD_VIEW".equals(rootFrame.getCode())) {
+			log.info("FRM_QUE_DASHBOARD_VIEW being created!");
+		}
+
 		if ((!GennySettings.framesOnDemand)/* ||("PER_SOURCE".equals(sourceAlias)&&"PER_TARGET".equals(targetAlias)) */) {
 			Map<String, ContextList> contextListMap = new HashMap<String, ContextList>();
 			toMessage(rootFrame, serviceToken, contextListMap, sourceAlias, targetAlias, fetchAsks);

@@ -263,23 +263,23 @@ public class VertxUtils {
 		}
 
 		// Adam's hack to return stuff if cache not working
-		if ((result == null)||(result.getString("status").equals("error"))) {
-			// try fetching from database
-			if (key.startsWith("FRM_") || key.startsWith("THM_")) { 
-				try {
-					BaseEntity be = QwandaUtils.getBaseEntityByCodeWithAttributes("RUL_"+key, token);
-					// now get the pojo
-					String pojo = be.getValueAsString("PRI_POJO");
-					if (pojo != null) {
-						VertxUtils.writeCachedJson(realm, key, pojo); // save again
-						result = new JsonObject().put("status", "ok").put("value", pojo);
-					}
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
+//		if ((result == null)||(result.getString("status").equals("error"))) {
+//			// try fetching from database
+//			if (key.startsWith("FRM_") || key.startsWith("THM_")) { 
+//				try {
+//					BaseEntity be = QwandaUtils.getBaseEntityByCodeWithAttributes("RUL_"+key, token);
+//					// now get the pojo
+//					String pojo = be.getValueAsString("PRI_POJO");
+//					if (pojo != null) {
+//						VertxUtils.writeCachedJson(realm, key, pojo); // save again
+//						result = new JsonObject().put("status", "ok").put("value", pojo);
+//					}
+//				} catch (IOException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//			}
+//		}
 		
 		return result;
 	}
