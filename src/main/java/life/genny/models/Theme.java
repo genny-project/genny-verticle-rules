@@ -235,7 +235,7 @@ public class Theme extends BaseEntity {
 		
 		public Theme build() {
 			FrameUtils2.ruleFires.put(managedInstance.getCode(),true); // fired
-//			FrameUtils2.persistTheme(managedInstance);
+			FrameUtils2.persistTheme(managedInstance);
 			return managedInstance;
 		}
 		

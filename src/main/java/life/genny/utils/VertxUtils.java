@@ -54,6 +54,8 @@ public class VertxUtils {
 
 	}
 
+	static public List<Answer> answerBuffer = new ArrayList<Answer>();
+	
 	public static GennyCacheInterface cacheInterface = null;
 	
 	public static GennyCacheInterface getCacheInterface()
@@ -154,7 +156,7 @@ public class VertxUtils {
 			String ruleCode = "RUL_"+theme.getCode();
 			
 			Answer themeAnswer = new Answer(gToken.getUserCode(),ruleCode,"PRI_POJO",data);
-			beUtils.saveAnswer(themeAnswer);
+			answerBuffer.add(themeAnswer);
 		}
 		if ((key.startsWith("FRM_"))&&((!key.endsWith("MSG"))&&(!key.endsWith("ASKS")))) {
 			Frame3 frame = (Frame3)obj;
@@ -163,7 +165,7 @@ public class VertxUtils {
 			BaseEntityUtils beUtils = new BaseEntityUtils(gToken);
 			String ruleCode = "RUL_"+frame.getCode();
 			Answer frameAnswer = new Answer(gToken.getUserCode(),ruleCode,"PRI_POJO",data);
-			beUtils.saveAnswer(frameAnswer);
+			answerBuffer.add(frameAnswer);
 		}		
 		
 
@@ -263,23 +265,24 @@ public class VertxUtils {
 		}
 
 		// Adam's hack to return stuff if cache not working
-//		if ((result == null)||(result.getString("status").equals("error"))) {
-//			// try fetching from database
-//			if (key.startsWith("FRM_") || key.startsWith("THM_")) { 
-//				try {
-//					BaseEntity be = QwandaUtils.getBaseEntityByCodeWithAttributes("RUL_"+key, token);
-//					// now get the pojo
-//					String pojo = be.getValueAsString("PRI_POJO");
-//					if (pojo != null) {
-//						VertxUtils.writeCachedJson(realm, key, pojo); // save again
-//						result = new JsonObject().put("status", "ok").put("value", pojo);
-//					}
-//				} catch (IOException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//			}
-//		}
+		if ((result == null)||(result.getString("status").equals("error"))) {
+			// try fetching from database
+			if (key.startsWith("FRM_") || key.startsWith("THM_")) { 
+				try {
+					BaseEntity be = QwandaUtils.getBaseEntityByCodeWithAttributes("RUL_"+key, token);
+					// now get the pojo
+					String pojo = be.getValueAsString("PRI_POJO");
+					if (pojo != null) {
+						VertxUtils.writeCachedJson(realm, key, pojo); // save again
+						result = new JsonObject().put("status", "ok").put("value", pojo);
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					log.error("Trying to fetch Cached Json, but it is not tehere and nothing in db either for keey "+key);
+				//	e.printStackTrace();
+				}
+			}
+		}
 		
 		return result;
 	}
@@ -765,7 +768,12 @@ public class VertxUtils {
 		}.getType();
 		ars = ars.replaceAll("\\\"", "\"");
 		activeRealms = JsonUtils.fromJson(ars, listType);
-		Set<String> realms = new HashSet<>(activeRealms);
+		Set<String> realms = new HashSet<String>();
+		if (activeRealms != null) {
+		  realms= new HashSet<>(activeRealms);
+		} else {
+			log.error("REALMS FETCHED IS NULL! "+ars );
+		}
 		return realms;
 	}
 
@@ -790,5 +798,7 @@ public class VertxUtils {
 		return ret;
 
 	}
+	
+	
 	
 }

@@ -1704,7 +1704,7 @@ public class BaseEntityUtils implements Serializable {
 		UUID uuid = UUID.randomUUID();
 	//	DistMap.getDistBE(gennyToken.getRealm()).put("PONTOON_"+uuid.toString(), JsonUtils.toJson(msg), 2, TimeUnit.MINUTES);
 		VertxUtils.writeCachedJson(gennyToken.getRealm(), "PONTOON_"+uuid.toString().toUpperCase(), JsonUtils.toJson(msg),
-				this.getGennyToken().getToken(),120); // 2 minutes
+				this.getGennyToken().getToken(),GennySettings.pontoonTimeout); // 2 minutes
 
 //		DistMap.getDistPontoonBE(gennyToken.getRealm()).put(uuid.toString(), JsonUtils.toJson(msg), 2, TimeUnit.MINUTES);
 

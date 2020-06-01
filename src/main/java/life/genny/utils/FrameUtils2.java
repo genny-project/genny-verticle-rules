@@ -108,7 +108,7 @@ public class FrameUtils2 {
 					QDataBaseEntityMessage.class, serviceToken.getToken());
 			//
 			if (FRM_MSG == null) {
-				log.info("ERROR: rootFrame:" + rootFrame.getCode() + " NOT CREATED");
+				log.info("ERROR: rootFrame:" + rootFrame.getCode() + " NOT CREATED in toMessage");
 			}
 		}
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(), rootFrame, serviceToken.getToken());
@@ -197,13 +197,13 @@ public class FrameUtils2 {
 			log.error("!!!!!!!!!!!!!!!!!!!!!!!! RUL_" + rootFrame.getCode().toUpperCase() + " WAS NOT IN DB????");
 		}
 
-		beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
+		VertxUtils.answerBuffer.add(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
 				"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_FRM", JsonUtils.toJson(rootFrame), false));
 
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG", msg, serviceToken.getToken());
 		ruleFires.put(serviceToken.getRealm() + ":" + rootFrame.getCode() + "_MSG", true);
 		log.info("Saving FRAME MSG TO DB "+"RUL_" + rootFrame.getCode().toUpperCase());
-		beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
+		VertxUtils.answerBuffer.add(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
 				"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_MSG", JsonUtils.toJson(msg), false));
 
 		if (!askMsgs.isEmpty()) {
@@ -216,7 +216,7 @@ public class FrameUtils2 {
 			}
 			VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode().toUpperCase() + "_ASKS", askMsgsStr,
 					serviceToken.getToken());
-			beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
+			VertxUtils.answerBuffer.add(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
 					"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_ASKS", askMsgsStr, false));
 
 		}
@@ -1075,7 +1075,7 @@ public class FrameUtils2 {
 
 	public static void persistTheme(Theme managedInstance) {
 		// Save to the database
-		
+		//Answer ans = new Answer();
 		
 	}
 
