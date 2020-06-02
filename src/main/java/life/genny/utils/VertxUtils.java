@@ -10,6 +10,7 @@ import life.genny.eventbus.EventBusMock;
 import life.genny.models.GennyToken;
 import life.genny.qwanda.attribute.EntityAttribute;
 import life.genny.qwanda.entity.BaseEntity;
+import life.genny.qwanda.message.MessageData;
 import life.genny.qwanda.message.QBulkMessage;
 import life.genny.qwanda.message.QDataBaseEntityMessage;
 import life.genny.qwanda.message.QEventMessage;
@@ -552,6 +553,24 @@ public class VertxUtils {
 		return writeMsg(channel, msg);
 	}
 
+    static public QEventMessage sendEvent(final String code)
+    {
+            QEventMessage msg = new QEventMessage("UPDATE",code);
+            writeMsg("events",msg);
+            return msg;
+    }
+
+
+    static public QEventMessage sendEvent(final String code, final String source, final String target)
+    {
+            QEventMessage msg = new QEventMessage("UPDATE",code);
+            MessageData data = new MessageData(code);
+            data.setParentCode(source);
+            data.setTargetCode(target);
+            msg.setData(data);
+            writeMsg("events",msg);
+            return msg;
+    }
 	static public Object privacyFilter(BaseEntity user, Object payload, final String[] filterAttributes) {
 		if (payload instanceof QDataBaseEntityMessage) {
 			return JsonUtils.toJson(privacyFilter(user, (QDataBaseEntityMessage) payload,
