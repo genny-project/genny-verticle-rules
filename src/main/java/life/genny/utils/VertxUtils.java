@@ -51,6 +51,8 @@ public class VertxUtils {
 
 	}
 
+    static public List<Answer> answerBuffer = new ArrayList<Answer>();
+
 	public static GennyCacheInterface cacheInterface = null;
 	
 	public static GennyCacheInterface getCacheInterface()
