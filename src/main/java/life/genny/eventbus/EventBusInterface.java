@@ -250,8 +250,8 @@ public interface EventBusInterface {
 						// if the message is large then try BulkPull
 						// if (msg instanceof QBulkMessage) {
 						long msgSize = RamUsageEstimator.sizeOf(msg);
-						log.info("WRITING PONTOON BULK PULL MESSAGE size=" + msgSize);
 						if (GennySettings.bulkPull && (msgSize > GennySettings.pontoonMinimumThresholdBytes)) {
+							log.info("WRITING PONTOON BULK PULL MESSAGE size=" + msgSize);
 							BaseEntityUtils beUtils = new BaseEntityUtils(gToken);
 							QBulkPullMessage qBulkPullMsg = beUtils.createQBulkPullMessage(msg2);
 							write(channel, JsonUtils.toJson(qBulkPullMsg));
