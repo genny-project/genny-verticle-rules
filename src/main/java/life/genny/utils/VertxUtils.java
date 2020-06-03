@@ -219,7 +219,7 @@ public class VertxUtils {
 
 				} else {
 					log.info("DEBUGINFO, DDT URL:" + GennySettings.ddtUrl + "realm:" + realm + "key:" + key + "token:" + token );
-					resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/" + realm + "/" + key, token);
+					resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/service/cache/read/" + realm + "/" + key, token);
 					
 //					resultStr =  readFromDDT(realm, key, token).toString();
 				}
