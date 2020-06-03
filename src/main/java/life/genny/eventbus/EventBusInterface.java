@@ -266,6 +266,8 @@ public interface EventBusInterface {
 //					if (payload2 != null) {
 						String str = (String)msg;
 						if (GennySettings.bulkPull && (str.length() > GennySettings.pontoonMinimumThresholdBytes)) {
+							long msgSize = RamUsageEstimator.sizeOf(msg);
+							log.info("WRITING PONTOON BULK PULL MESSAGE size=" + msgSize);
 							String json = msg.toString();
 							JsonParser parser = new JsonParser();
 							com.google.gson.JsonObject event = parser.parse(json).getAsJsonObject();
