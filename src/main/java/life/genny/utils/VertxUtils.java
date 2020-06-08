@@ -7,7 +7,9 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.rxjava.core.eventbus.MessageProducer;
 import life.genny.eventbus.EventBusInterface;
 import life.genny.eventbus.EventBusMock;
+import life.genny.models.Frame3;
 import life.genny.models.GennyToken;
+import life.genny.models.Theme;
 import life.genny.qwanda.Answer;
 import life.genny.qwanda.attribute.EntityAttribute;
 import life.genny.qwanda.entity.BaseEntity;
@@ -52,8 +54,8 @@ public class VertxUtils {
 
 	}
 
-    static public List<Answer> answerBuffer = new ArrayList<Answer>();
-
+	static public List<Answer> answerBuffer = new ArrayList<Answer>();
+	
 	public static GennyCacheInterface cacheInterface = null;
 	
 	public static GennyCacheInterface getCacheInterface()
@@ -141,8 +143,31 @@ public class VertxUtils {
 
 	static public void putObject(final String realm, final String keyPrefix, final String key, final Object obj,
 			final String token) {
+		
 		String data = JsonUtils.toJson(obj);
 		String prekey = (StringUtils.isBlank(keyPrefix)) ? "" : (keyPrefix + ":");
+
+		// Hack ACC
+		if (key.startsWith("THM_")) {
+			Theme theme = (Theme)obj;
+			// Now write to the Database
+			GennyToken gToken = new GennyToken(token);
+			BaseEntityUtils beUtils = new BaseEntityUtils(gToken);
+			String ruleCode = "RUL_"+theme.getCode();
+			
+			Answer themeAnswer = new Answer(gToken.getUserCode(),ruleCode,"PRI_POJO",data);
+			answerBuffer.add(themeAnswer);
+		}
+		if ((key.startsWith("FRM_"))&&((!key.endsWith("MSG"))&&(!key.endsWith("ASKS")))) {
+			Frame3 frame = (Frame3)obj;
+			// Now write to the Database
+			GennyToken gToken = new GennyToken(token);
+			BaseEntityUtils beUtils = new BaseEntityUtils(gToken);
+			String ruleCode = "RUL_"+frame.getCode();
+			Answer frameAnswer = new Answer(gToken.getUserCode(),ruleCode,"PRI_POJO",data);
+			answerBuffer.add(frameAnswer);
+		}		
+		
 
 		writeCachedJson(realm, prekey + key, data, token);
 	}
@@ -239,6 +264,26 @@ public class VertxUtils {
 
 		}
 
+		// Adam's hack to return stuff if cache not working
+		if ((result == null)||(result.getString("status").equals("error"))) {
+			// try fetching from database
+			if (key.startsWith("FRM_") || key.startsWith("THM_")) { 
+				try {
+					BaseEntity be = QwandaUtils.getBaseEntityByCodeWithAttributes("RUL_"+key, token);
+					// now get the pojo
+					String pojo = be.getValueAsString("PRI_POJO");
+					if (pojo != null) {
+						VertxUtils.writeCachedJson(realm, key, pojo); // save again
+						result = new JsonObject().put("status", "ok").put("value", pojo);
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					log.error("Trying to fetch Cached Json, but it is not tehere and nothing in db either for keey "+key);
+				//	e.printStackTrace();
+				}
+			}
+		}
+		
 		return result;
 	}
 
@@ -556,24 +601,25 @@ public class VertxUtils {
 		return writeMsg(channel, msg);
 	}
 
-    static public QEventMessage sendEvent(final String code)
-    {
-            QEventMessage msg = new QEventMessage("UPDATE",code);
-            writeMsg("events",msg);
-            return msg;
-    }
+	static public QEventMessage sendEvent(final String code)
+	{
+		QEventMessage msg = new QEventMessage("UPDATE",code);
+		writeMsg("events",msg);
+		return msg;
+	}
 
-
-    static public QEventMessage sendEvent(final String code, final String source, final String target)
-    {
-            QEventMessage msg = new QEventMessage("UPDATE",code);
-            MessageData data = new MessageData(code);
-            data.setParentCode(source);
-            data.setTargetCode(target);
-            msg.setData(data);
-            writeMsg("events",msg);
-            return msg;
-    }
+	
+	static public QEventMessage sendEvent(final String code, final String source, final String target)
+	{
+		QEventMessage msg = new QEventMessage("UPDATE",code);
+		MessageData data = new MessageData(code);
+		data.setParentCode(source);
+		data.setTargetCode(target);
+		msg.setData(data);
+		writeMsg("events",msg);
+		return msg;
+	}
+	
 	static public Object privacyFilter(BaseEntity user, Object payload, final String[] filterAttributes) {
 		if (payload instanceof QDataBaseEntityMessage) {
 			return JsonUtils.toJson(privacyFilter(user, (QDataBaseEntityMessage) payload,
@@ -722,7 +768,12 @@ public class VertxUtils {
 		}.getType();
 		ars = ars.replaceAll("\\\"", "\"");
 		activeRealms = JsonUtils.fromJson(ars, listType);
-		Set<String> realms = new HashSet<>(activeRealms);
+		Set<String> realms = new HashSet<String>();
+		if (activeRealms != null) {
+		  realms= new HashSet<>(activeRealms);
+		} else {
+			log.error("REALMS FETCHED IS NULL! "+ars );
+		}
 		return realms;
 	}
 
@@ -747,5 +798,7 @@ public class VertxUtils {
 		return ret;
 
 	}
+	
+	
 	
 }
