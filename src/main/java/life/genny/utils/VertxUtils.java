@@ -103,11 +103,11 @@ public class VertxUtils {
 		JsonObject json = readCachedJson(realm, prekey + key, token);
 		if (json.getString("status").equalsIgnoreCase("ok")) {
 			String data = json.getString("value");
-			try {
-				item = (T) JsonUtils.fromJson(data, clazz);
-			} catch (Exception e) {
+			item = (T) JsonUtils.fromJson(data, clazz);
+
+			if (item == null)
 				log.error("Bad JsonUtils " + realm + ":" + key + ":" + clazz.getTypeName());
-			}
+
 			return item;
 		} else {
 			return null;
