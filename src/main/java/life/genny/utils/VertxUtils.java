@@ -106,8 +106,7 @@ public class VertxUtils {
 			item = (T) JsonUtils.fromJson(data, clazz);
 
 			if (item == null)
-				log.error("Bad JsonUtils " + realm + ":" + key + ":" + clazz.getTypeName());
-
+				log.error(String.format("Bad JSON data from cache for key:%s, data:%s, realm:%s, class name:%s.",key, data, realm, clazz.getTypeName()));
 			return item;
 		} else {
 			return null;
