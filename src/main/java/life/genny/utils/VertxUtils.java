@@ -564,13 +564,14 @@ public class VertxUtils {
     }
 
 
-    static public QEventMessage sendEvent(final String code, final String source, final String target)
+    static public QEventMessage sendEvent(final String code, final String source, final String target, final GennyToken serviceToken)
     {
             QEventMessage msg = new QEventMessage("UPDATE",code);
             MessageData data = new MessageData(code);
             data.setParentCode(source);
             data.setTargetCode(target);
             msg.setData(data);
+            msg.setToken(serviceToken.getToken());
             writeMsg("events",msg);
             return msg;
     }
