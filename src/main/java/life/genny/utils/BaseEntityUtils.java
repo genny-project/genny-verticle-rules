@@ -1154,7 +1154,7 @@ public class BaseEntityUtils implements Serializable {
 					log.error("ERROR! searchEntity se has no code!");
 				}
 				if (se.getId() == null) {
-					BaseEntity existing = VertxUtils.readFromDDT(getRealm(), se.getCode(), this.realm);
+					BaseEntity existing = VertxUtils.readFromDDT(getRealm(), se.getCode(), this.token);
 					if (existing != null) {
 						se.setId(existing.getId());
 					}
