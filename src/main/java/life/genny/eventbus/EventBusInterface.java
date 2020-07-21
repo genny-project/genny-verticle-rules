@@ -208,6 +208,7 @@ public interface EventBusInterface {
 				} else {
 				 json = JsonUtils.toJson(msg);
 				}
+
 				JsonParser parser = new JsonParser();
 				com.google.gson.JsonObject event = parser.parse(json).getAsJsonObject();
 
