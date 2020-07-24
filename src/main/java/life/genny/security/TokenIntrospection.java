@@ -73,8 +73,9 @@ public class TokenIntrospection {
 
   public static String getRealm(final String token)
   {
-	  Map<String, Object> serviceDecodedTokenMap = KeycloakUtils.getJsonMap(token);
-	return (String)serviceDecodedTokenMap.get("azp");
+    Map<String, Object> serviceDecodedTokenMap = KeycloakUtils.getJsonMap(token);
+    String[] issParts = serviceDecodedTokenMap.get("iss").toString().split("/");
+	return issParts[issParts.length -1];
   }
 
 }
