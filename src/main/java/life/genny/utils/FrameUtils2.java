@@ -521,12 +521,12 @@ public class FrameUtils2 {
 		BaseEntity childBe = getBaseEntity(frame, serviceToken);
 
 		if (!frame.getThemes().isEmpty()) {
-			processThemes(frame, position, serviceToken, baseEntityList, childBe);
-			parent.getLinks().addAll(childBe.getLinks());
+		//	processThemes(frame, position, serviceToken, baseEntityList, childBe);
+		//	parent.getLinks().addAll(childBe.getLinks());
 		}
 
 		if (!frame.getThemeObjects().isEmpty()) {
-			processThemeTuples(frame, position, serviceToken, baseEntityList, childBe);
+			//processThemeTuples(frame, position, serviceToken, baseEntityList, childBe);
 		}
 
 		if (frame.getQuestionGroup() != null) {
@@ -555,7 +555,7 @@ public class FrameUtils2 {
 			Map<ContextType, Set<BaseEntity>> contextMap = new HashMap<ContextType, Set<BaseEntity>>();
 			Map<ContextType, life.genny.qwanda.VisualControlType> vclMap = new HashMap<ContextType, VisualControlType>();
 			/* package up Question Themes */
-			if (!frame.getQuestionGroup().getQuestionThemes().isEmpty()) {
+			if (false && (!frame.getQuestionGroup().getQuestionThemes().isEmpty())) {
 				for (QuestionTheme qTheme : frame.getQuestionGroup().getQuestionThemes()) {
 					if (showLogs) {
 						log.info("Question Theme: " + qTheme.getCode() + ":" + qTheme.getJson());
