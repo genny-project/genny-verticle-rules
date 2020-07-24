@@ -186,14 +186,16 @@ public class Frame3 extends BaseEntity implements Serializable {
 	 * @return the themeObjects
 	 */
 	public List<ThemeTuple4> getThemeObjects() {
-		return themeObjects;
+		return new ArrayList<ThemeTuple4>();
+		//return themeObjects;
 	}
 
 	/**
 	 * @return the themes
 	 */
 	public ArrayList<ThemeDouble> getThemes() {
-		return themes;
+		return new ArrayList<ThemeDouble>();
+		//return themes;
 	}
 
 	/**
@@ -216,7 +218,8 @@ public class Frame3 extends BaseEntity implements Serializable {
 	}
 
 	public List<Theme> getTheme3s() {
-		return theme3s;
+		return new ArrayList<Theme>();
+		//return theme3s;
 
 	}
 
@@ -420,6 +423,7 @@ public class Frame3 extends BaseEntity implements Serializable {
 		 * @return
 		 */
 		public Theme.Builder addThemeParent(Theme theme) {
+			
 			if (managedInstance.theme3s == null) {
 				managedInstance.theme3s = new ArrayList<Theme>();
 			}
