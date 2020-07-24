@@ -66,38 +66,40 @@ public class FrameUtils2 {
 	// rules
 	//
 	static public GraphBuilder<String, String> graphBuilder = GraphBuilder.<String, String>create();
-	
-	static public Map<String,Boolean> ruleFires = new ConcurrentHashMap<>();
-	
-	static Boolean FETCH_ASKS=true;
+
+	static public Map<String, Boolean> ruleFires = new ConcurrentHashMap<>();
+
+	static Boolean FETCH_ASKS = true;
 
 	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
 
 	static public Boolean showLogs = false;
 
-	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken, String sourceAlias, String targetAlias) {
+	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken, String sourceAlias,
+			String targetAlias) {
 		Boolean fetchAsks = FETCH_ASKS;
-		if ("FRM_BUCKET_AVAILABLE_INTERNS".equals(rootFrame.getCode()))
-		{
+		if ("FRM_BUCKET_AVAILABLE_INTERNS".equals(rootFrame.getCode())) {
 			log.info("FRM_BUCKET_AVAILABLE_INTERNS being created!");
 		}
 
 		// clear the ASKS cache
 //		VertxUtils.cacheInterface.writeCache(serviceToken.getRealm(), rootFrame.getCode() + "_ASKS", null,
 //				serviceToken.getToken(), 0);
-		toMessage(rootFrame, serviceToken,sourceAlias, targetAlias,fetchAsks);
+		toMessage(rootFrame, serviceToken, sourceAlias, targetAlias, fetchAsks);
 	}
-	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken, String sourceAlias, String targetAlias, Boolean fetchAsks) {
-		if (rootFrame==null) {
+
+	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken, String sourceAlias,
+			String targetAlias, Boolean fetchAsks) {
+		if (rootFrame == null) {
 			log.error("rootFrame is NULL! ");
 			return;
 		}
-		if ((!GennySettings.framesOnDemand)/*||("PER_SOURCE".equals(sourceAlias)&&"PER_TARGET".equals(targetAlias))*/) {
+		if ((!GennySettings.framesOnDemand)/* ||("PER_SOURCE".equals(sourceAlias)&&"PER_TARGET".equals(targetAlias)) */) {
 			Map<String, ContextList> contextListMap = new HashMap<String, ContextList>();
-			toMessage(rootFrame, serviceToken, contextListMap,sourceAlias,targetAlias, fetchAsks);
-		
+			toMessage(rootFrame, serviceToken, contextListMap, sourceAlias, targetAlias, fetchAsks);
+
 			// check that the MSG got saved
-			
+
 			QDataBaseEntityMessage FRM_MSG = VertxUtils.getObject(serviceToken.getRealm(), "",
 					rootFrame.getCode() + "_MSG", QDataBaseEntityMessage.class, serviceToken.getToken());
 //
@@ -106,24 +108,25 @@ public class FrameUtils2 {
 			}
 		}
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(), rootFrame, serviceToken.getToken());
-		ruleFires.put(serviceToken.getRealm()+":"+rootFrame.getCode(), true);
+		ruleFires.put(serviceToken.getRealm() + ":" + rootFrame.getCode(), true);
 
 		if (!GennySettings.framesOnDemand) {
 			if (!VertxUtils.cachedEnabled) {
 				log.info(rootFrame.getCode() + " RULE SAVED FRAME TO CACHE");
 			}
-		}		
+		}
 	}
 
 	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken) {
 		Boolean fetchAsks = FETCH_ASKS;
-		toMessage(rootFrame, serviceToken,  serviceToken.getUserCode(), serviceToken.getUserCode(), fetchAsks);
+		toMessage(rootFrame, serviceToken, serviceToken.getUserCode(), serviceToken.getUserCode(), fetchAsks);
 	}
 
-	static public void toMessage2(final Frame3 rootFrame, GennyToken serviceToken, String sourceAlias, String targetAlias) {
+	static public void toMessage2(final Frame3 rootFrame, GennyToken serviceToken, String sourceAlias,
+			String targetAlias) {
 		Map<String, ContextList> contextListMap = new HashMap<String, ContextList>();
 		Boolean fetchAsks = FETCH_ASKS;
-		toMessage(rootFrame, serviceToken, contextListMap, sourceAlias,targetAlias,fetchAsks);
+		toMessage(rootFrame, serviceToken, contextListMap, sourceAlias, targetAlias, fetchAsks);
 
 		// check that the MSG got saved
 
@@ -135,6 +138,7 @@ public class FrameUtils2 {
 		}
 
 	}
+
 	static public void toMessage2(final Frame3 rootFrame, GennyToken serviceToken) {
 		if (rootFrame == null) {
 			log.error("No rootFrame supplied to toMessage2!!!");
@@ -142,7 +146,8 @@ public class FrameUtils2 {
 		}
 		Map<String, ContextList> contextListMap = new HashMap<String, ContextList>();
 		Boolean fetchAsks = FETCH_ASKS;
-		toMessage(rootFrame, serviceToken, contextListMap, serviceToken.getUserCode(),serviceToken.getUserCode(),fetchAsks);
+		toMessage(rootFrame, serviceToken, contextListMap, serviceToken.getUserCode(), serviceToken.getUserCode(),
+				fetchAsks);
 
 		// check that the MSG got saved
 
@@ -155,108 +160,119 @@ public class FrameUtils2 {
 
 	}
 
-
-
 	static public void toMessage(final Frame3 rootFrame, GennyToken serviceToken,
 			Map<String, ContextList> contextListMap, String sourceAlias, String targetAlias, Boolean fetchAsks) {
 		if (rootFrame == null) {
-			log.error("Null rootframe passed by "+serviceToken.getUserCode());
+			log.error("Null rootframe passed by " + serviceToken.getUserCode());
 			return;
 		}
 		BaseEntityUtils beUtils = new BaseEntityUtils(serviceToken);
 
 		Set<QDataAskMessage> askMsgs = new HashSet<QDataAskMessage>();
-		QDataBaseEntityMessage msg = toMessage(rootFrame, serviceToken, askMsgs, contextListMap,sourceAlias, targetAlias, fetchAsks);
+		QDataBaseEntityMessage msg = toMessage(rootFrame, serviceToken, askMsgs, contextListMap, sourceAlias,
+				targetAlias, fetchAsks);
 		String askMsgsStr = JsonUtils.toJson(askMsgs);
-		
+
 		// TODO, this is NOT needed, only enabled for testing
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(), rootFrame, serviceToken.getToken());
-		ruleFires.put(serviceToken.getRealm()+":"+rootFrame.getCode(), true);
+		ruleFires.put(serviceToken.getRealm() + ":" + rootFrame.getCode(), true);
 		BaseEntity ruleEntity = null;
-		
+
 		try {
-			
+
 			ruleEntity = beUtils.getBaseEntityByCode("RUL_" + rootFrame.getCode().toUpperCase());
 		} catch (Exception e) {
-			
+
 			// TODO Auto-generated catch block
-			log.error("Error in getting rule "+e.getLocalizedMessage());
+			log.error("Error in getting rule " + e.getLocalizedMessage());
 			return;
 		}
 		if (ruleEntity == null) {
-			
+
 			beUtils.create("RUL_" + rootFrame.getCode().toUpperCase(), "RUL_" + rootFrame.getCode().toUpperCase());
 			log.error("!!!!!!!!!!!!!!!!!!!!!!!! RUL_" + rootFrame.getCode().toUpperCase() + " WAS NOT IN DB????");
 		}
-		
+
 		beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
 				"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_FRM", JsonUtils.toJson(rootFrame), false));
 
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG", msg, serviceToken.getToken());
-		ruleFires.put(serviceToken.getRealm()+":"+rootFrame.getCode() + "_MSG", true);
+		ruleFires.put(serviceToken.getRealm() + ":" + rootFrame.getCode() + "_MSG", true);
 		beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
 				"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_MSG", JsonUtils.toJson(msg), false));
-		
+
 		if (!askMsgs.isEmpty()) {
-		// This IF statement is really bad and is a terrible hack to stop teh source and target being saved with actual non template code if frames on demand
+			// This IF statement is really bad and is a terrible hack to stop teh source and
+			// target being saved with actual non template code if frames on demand
 			if (!("PER_SOURCE".equals(sourceAlias) && ("PER_TARGET".equals(targetAlias)))) {
 				log.info("FIXING PER_SOURCE and PER_TARGET ###############################");
-				askMsgsStr = askMsgsStr.replaceAll("\"sourceCode\": \""+sourceAlias+"\"","\"sourceCode\": \"PER_SOURCE\"");
-				askMsgsStr = askMsgsStr.replaceAll("\"targetCode\": \""+targetAlias+"\"","\"targetCode\": \"PER_TARGET\"");
+				askMsgsStr = askMsgsStr.replaceAll("\"sourceCode\": \"" + sourceAlias + "\"",
+						"\"sourceCode\": \"PER_SOURCE\"");
+				askMsgsStr = askMsgsStr.replaceAll("\"targetCode\": \"" + targetAlias + "\"",
+						"\"targetCode\": \"PER_TARGET\"");
 			}
-				VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode().toUpperCase() + "_ASKS", askMsgsStr,
+			VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode().toUpperCase() + "_ASKS", askMsgsStr,
 					serviceToken.getToken());
-				beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
+			beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
 					"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_ASKS", askMsgsStr, false));
-	
 
 		}
 	}
-	
+
 	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
-			Set<QDataAskMessage> asks) {	
+			Set<QDataAskMessage> asks) {
 		Boolean fetchAsks = FETCH_ASKS;
-		return toMessage(rootFrame, serviceToken, asks, new HashMap<String, ContextList>(),serviceToken.getUserCode(),serviceToken.getUserCode(),fetchAsks);
-	}
-	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
-			Set<QDataAskMessage> asks, Boolean fetchAsks) {	
-		return toMessage(rootFrame, serviceToken, asks, new HashMap<String, ContextList>(),serviceToken.getUserCode(),serviceToken.getUserCode(),fetchAsks);
+		return toMessage(rootFrame, serviceToken, asks, new HashMap<String, ContextList>(), serviceToken.getUserCode(),
+				serviceToken.getUserCode(), fetchAsks);
 	}
 
 	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
-	Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap) {
-		Boolean fetchAsks = FETCH_ASKS;
-		return toMessage(rootFrame, serviceToken,
-				asks, contextListMap, fetchAsks);
+			Set<QDataAskMessage> asks, Boolean fetchAsks) {
+		return toMessage(rootFrame, serviceToken, asks, new HashMap<String, ContextList>(), serviceToken.getUserCode(),
+				serviceToken.getUserCode(), fetchAsks);
 	}
-	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
-	Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap, Boolean fetchAsks) {
-	
-		return toMessage(rootFrame,serviceToken,asks,contextListMap, new HashMap<String, QDataAskMessage>(), serviceToken.getUserCode(),serviceToken.getUserCode(),fetchAsks);
-	}	
 
 	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
-	Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap,  String sourceAlias, String targetAlias, Boolean fetchAsks) {
-	
-		return toMessage(rootFrame,serviceToken,asks,contextListMap, new HashMap<String, QDataAskMessage>(),sourceAlias,targetAlias,fetchAsks);
-	}	
+			Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap) {
+		Boolean fetchAsks = FETCH_ASKS;
+		return toMessage(rootFrame, serviceToken, asks, contextListMap, fetchAsks);
+	}
 
 	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
-			Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap, Map<String, QDataAskMessage> virtualAskMap) {
-		Boolean fetchAsks = FETCH_ASKS;
-		return toMessage(rootFrame, serviceToken,
-				asks, contextListMap, virtualAskMap, fetchAsks);
+			Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap, Boolean fetchAsks) {
+
+		return toMessage(rootFrame, serviceToken, asks, contextListMap, new HashMap<String, QDataAskMessage>(),
+				serviceToken.getUserCode(), serviceToken.getUserCode(), fetchAsks);
 	}
+
 	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
-			Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap, Map<String, QDataAskMessage> virtualAskMap, Boolean fetchAsks) {
-		return toMessage(rootFrame, serviceToken, asks, contextListMap, virtualAskMap, serviceToken.getUserCode(),serviceToken.getUserCode(),fetchAsks);
+			Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap, String sourceAlias, String targetAlias,
+			Boolean fetchAsks) {
+
+		return toMessage(rootFrame, serviceToken, asks, contextListMap, new HashMap<String, QDataAskMessage>(),
+				sourceAlias, targetAlias, fetchAsks);
+	}
+
+	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
+			Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap,
+			Map<String, QDataAskMessage> virtualAskMap) {
+		Boolean fetchAsks = FETCH_ASKS;
+		return toMessage(rootFrame, serviceToken, asks, contextListMap, virtualAskMap, fetchAsks);
+	}
+
+	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
+			Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap,
+			Map<String, QDataAskMessage> virtualAskMap, Boolean fetchAsks) {
+		return toMessage(rootFrame, serviceToken, asks, contextListMap, virtualAskMap, serviceToken.getUserCode(),
+				serviceToken.getUserCode(), fetchAsks);
 	}
 
 	/*
 	 * Process and Build message for the Frames.
 	 */
 	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
-				Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap, Map<String, QDataAskMessage> virtualAskMap, String sourceAlias, String targetAlias, Boolean fetchAsks) {
+			Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap,
+			Map<String, QDataAskMessage> virtualAskMap, String sourceAlias, String targetAlias, Boolean fetchAsks) {
 
 		Set<BaseEntity> baseEntityList = new HashSet<BaseEntity>();
 		Set<Ask> askListFromFrames = new HashSet<>();
@@ -268,14 +284,14 @@ public class FrameUtils2 {
 		processFrames(rootFrame, serviceToken, baseEntityList, root, askListFromFrames);
 
 		QDataBaseEntityMessage msg = new QDataBaseEntityMessage(new ArrayList<>(baseEntityList));
-		msg.setTotal(msg.getReturnCount()); 
+		msg.setTotal(msg.getReturnCount());
 		msg.setReplace(true);
 
-		if ((!VertxUtils.cachedEnabled || virtualAskMap.isEmpty())&& fetchAsks)  { 
-			
-			/*Looping through asks retrieved from frame*/
+		if ((!VertxUtils.cachedEnabled || virtualAskMap.isEmpty()) && fetchAsks) {
+
+			/* Looping through asks retrieved from frame */
 			for (Ask currentAskFromFrame : askListFromFrames) {
-				
+
 				QDataAskMessage askMsgFromQuestions = null;
 
 				/* check if the question exist in virtual Question list map */
@@ -283,14 +299,16 @@ public class FrameUtils2 {
 
 					askMsgFromQuestions = virtualAskMap.get(currentAskFromFrame.getQuestionCode());
 					log.info("Getting  " + currentAskFromFrame.getQuestionCode() + " from virtual asks");
-					 
+
 				} else {
-				
-						askMsgFromQuestions = getAsks(currentAskFromFrame, currentAskFromFrame.getQuestionCode(),serviceToken, sourceAlias, targetAlias);
-					
+
+					askMsgFromQuestions = getAsks(currentAskFromFrame, currentAskFromFrame.getQuestionCode(),
+							serviceToken, sourceAlias, targetAlias);
+
 				}
-				
-				List<BaseEntity> askContexts = processQDataAskMessage(askMsgFromQuestions, currentAskFromFrame, contextListMap,serviceToken);
+
+				List<BaseEntity> askContexts = processQDataAskMessage(askMsgFromQuestions, currentAskFromFrame,
+						contextListMap, serviceToken);
 				msg.add(askContexts);
 
 				askMsgFromQuestions.setToken(serviceToken.getToken());
@@ -301,62 +319,64 @@ public class FrameUtils2 {
 		msg.setToken(serviceToken.getToken());
 		return msg;
 	}
-	
-	/* 
+
+	/*
 	 * Search and return ask from the cache or API
 	 */
-	private static QDataAskMessage getAsks(Ask ask, String questionCode, GennyToken token, String sourceAlias, String targetAlias) {
-		
+	private static QDataAskMessage getAsks(Ask ask, String questionCode, GennyToken token, String sourceAlias,
+			String targetAlias) {
+
 		String targetAliasCode = "PER_TARGET";
 
-		
-		if (!(ask.getTargetCode().equals(token.getUserCode()))& !(ask.getTargetCode().startsWith("QUE_"))) {
-			
+		if (!(ask.getTargetCode().equals(token.getUserCode())) & !(ask.getTargetCode().startsWith("QUE_"))) {
+
 			targetAliasCode = ask.getTargetCode();
 			log.info("Setting targetAliasCode " + targetAliasCode + " for " + ask.getQuestionCode());
-			
-		}else {
-			
+
+		} else {
+
 			targetAliasCode = targetAlias;
 		}
-		
-		/* Trying to fetch the asks from the cache*/
-		
+
+		/* Trying to fetch the asks from the cache */
+
 		try {
-				
-			return QuestionUtils.getAsks(sourceAlias, targetAliasCode, questionCode,token.getToken());
-		//return QuestionUtils.getAsks(token.getUserCode(), targetAliasCode, questionCode,token.getToken());
-			
+
+			return QuestionUtils.getAsks(sourceAlias, targetAliasCode, questionCode, token.getToken());
+			// return QuestionUtils.getAsks(token.getUserCode(), targetAliasCode,
+			// questionCode,token.getToken());
+
 		} catch (NullPointerException e) {
-				
+
 			log.error("Null pointer in getAsks " + questionCode);
 			return new QDataAskMessage(new Ask[0]);
 		}
 	}
 
 	/*
-	 * Recursively scan and process and attach appropriate context to the asks their child Asks.
+	 * Recursively scan and process and attach appropriate context to the asks their
+	 * child Asks.
 	 * 
-	 * */
-	private static Set<BaseEntity> getAskContextRecursively(Ask ask,  Ask parentAsk, Map<String, ContextList> contextListMap) {
-		
+	 */
+	private static Set<BaseEntity> getAskContextRecursively(Ask ask, Ask parentAsk,
+			Map<String, ContextList> contextListMap) {
+
 		Set<BaseEntity> beList = new HashSet<BaseEntity>();
-		
-		if(ask.getQuestionCode().endsWith("_GRP") && ask.getChildAsks() != null && ask.getChildAsks().length > 0) {
-			
-			for(Ask childAsk : ask.getChildAsks()) {
-				Set<BaseEntity> childBEList = getAskContextRecursively(childAsk,ask,contextListMap);
-				if(!childBEList.isEmpty()) {
+
+		if (ask.getQuestionCode().endsWith("_GRP") && ask.getChildAsks() != null && ask.getChildAsks().length > 0) {
+
+			for (Ask childAsk : ask.getChildAsks()) {
+				Set<BaseEntity> childBEList = getAskContextRecursively(childAsk, ask, contextListMap);
+				if (!childBEList.isEmpty()) {
 					beList.addAll(childBEList);
 				}
 			}
-			
+
 		}
-		
-		/*ask.setQuestionCode(parentAsk.getQuestionCode());*/
-		
-		if ((contextListMap != null) && (!contextListMap.isEmpty()))
-		{
+
+		/* ask.setQuestionCode(parentAsk.getQuestionCode()); */
+
+		if ((contextListMap != null) && (!contextListMap.isEmpty())) {
 			// Check for any associated ContextList to anAsk
 			String attributeCode = ask.getAttributeCode();
 			String targetCode = ask.getTargetCode();
@@ -365,45 +385,48 @@ public class FrameUtils2 {
 			if (contextListMap.containsKey(key)) {
 				ContextList contextList = contextListMap.get(key);
 				ask.setContextList(contextList);
-				
-				for(Context context :  contextList.getContexts()) {
+
+				for (Context context : contextList.getContexts()) {
 					beList.add(context.getEntity());
 				}
-				
-			}else if (contextListMap.containsKey(ask.getQuestionCode())){
+
+			} else if (contextListMap.containsKey(ask.getQuestionCode())) {
 				ContextList contextList = contextListMap.get(ask.getQuestionCode());
 				ask.setContextList(contextList);
-				
-				for(Context context :  contextList.getContexts()) {
+
+				for (Context context : contextList.getContexts()) {
 					beList.add(context.getEntity());
 				}
-			}else{
-				
+			} else {
+
 				ask.setContextList(parentAsk.getContextList());
 			}
-			
-		}else {
-			
+
+		} else {
+
 			ask.setContextList(parentAsk.getContextList());
 		}
 		return beList;
 	}
 
 	/*
-	 * Process QDataAskMessage 
-	 */	
+	 * Process QDataAskMessage
+	 */
 	private static List<BaseEntity> processQDataAskMessage(QDataAskMessage askMsgFromQuestions, Ask parentAsk,
 			Map<String, ContextList> contextListMap, GennyToken serviceToken) {
-		
+
 		List<Ask> asks = new ArrayList<Ask>();
 		List<BaseEntity> cotextBeList = new ArrayList<BaseEntity>();
-		if (askMsgFromQuestions.getItems()!=null) {
+		if (askMsgFromQuestions.getItems() != null) {
 			for (Ask ask : askMsgFromQuestions.getItems()) {
-				if(!contextListMap.isEmpty()) {
-				
-					cotextBeList.addAll(getAskContextRecursively(ask,parentAsk,contextListMap));
-				}else {
-					/* Temporary using this code need to be replace and modify the getAskContextRecursively mehod */
+				if (!contextListMap.isEmpty()) {
+
+					cotextBeList.addAll(getAskContextRecursively(ask, parentAsk, contextListMap));
+				} else {
+					/*
+					 * Temporary using this code need to be replace and modify the
+					 * getAskContextRecursively mehod
+					 */
 					ask.setQuestionCode(parentAsk.getQuestionCode());
 					ask.setContextList(parentAsk.getContextList());
 				}
@@ -510,9 +533,6 @@ public class FrameUtils2 {
 			if (showLogs) {
 				log.info("Processing Question  " + frame.getQuestionCode());
 			}
-			if ("PRI_FIRSTNAME".equals(frame.getQuestionCode())) {
-				log.info("Detected");
-			}
 			/* create an ask */
 			BaseEntity askBe = new BaseEntity(frame.getQuestionGroup().getCode(), frame.getQuestionGroup().getCode());
 			askBe.setRealm(parent.getRealm());
@@ -566,19 +586,19 @@ public class FrameUtils2 {
 
 			childBe.setQuestions(entityQuestionList);
 			baseEntityList.add(askBe);
-			
-			if(baseEntityList.contains(childBe)) {
+
+			if (baseEntityList.contains(childBe)) {
 
 				// update the baseEntityList with the frame if question was linked
 				baseEntityList.remove(childBe);
-				
+
 				baseEntityList.add(childBe);
 
 			}
-			
+
 			// update the baseEntityList with the frame if question was linked
 			baseEntityList.add(childBe);
-			
+
 			/* Set the ask to support any sourceAlias and targetAlias */
 
 			askList.add(ask); // add to the ask list
@@ -615,19 +635,17 @@ public class FrameUtils2 {
 		}
 
 		if (!childFrame.getThemes().isEmpty()) {
-			processThemes(childFrame, position, serviceToken, baseEntityList, childBe);
+			// processThemes(childFrame, position, serviceToken, baseEntityList, childBe);
 		}
 
 		if (!childFrame.getThemeObjects().isEmpty()) {
-			processThemeTuples(childFrame, position, serviceToken, baseEntityList, childBe);
+			// processThemeTuples(childFrame, position, serviceToken, baseEntityList,
+			// childBe);
 		}
 
 		if (childFrame.getQuestionGroup() != null) {
 			if (showLogs) {
 				log.info("Processing Question  " + childFrame.getQuestionCode());
-			}
-			if ("PRI_FIRSTNAME".equals(childFrame.getQuestionCode())) {
-				log.info("Detected");
 			}
 			/* create an ask */
 			BaseEntity askBe = new BaseEntity(childFrame.getQuestionGroup().getCode(),
@@ -652,7 +670,7 @@ public class FrameUtils2 {
 			Map<ContextType, Set<BaseEntity>> contextMap = new HashMap<ContextType, Set<BaseEntity>>();
 			Map<ContextType, life.genny.qwanda.VisualControlType> vclMap = new HashMap<ContextType, VisualControlType>();
 			/* package up Question Themes */
-			if (!childFrame.getQuestionGroup().getQuestionThemes().isEmpty()) {
+			if (false && (!childFrame.getQuestionGroup().getQuestionThemes().isEmpty())) {
 				for (QuestionTheme qTheme : childFrame.getQuestionGroup().getQuestionThemes()) {
 					if (showLogs) {
 						log.info("Question Theme: " + qTheme.getCode() + ":" + qTheme.getJson());
@@ -718,57 +736,58 @@ public class FrameUtils2 {
 	 */
 	private static void processThemeTuples(final Frame3 frame, FramePosition position, GennyToken gennyToken,
 			Set<BaseEntity> baseEntityList, BaseEntity parent) {
-		// Go through the theme codes and fetch the
-		for (ThemeTuple4 themeTuple4 : frame.getThemeObjects()) {
-			if (showLogs) {
-				log.info("Processing Theme     " + themeTuple4.getThemeCode());
-			}
-			String themeCode = themeTuple4.getThemeCode();
-			ThemeAttributeType themeAttribute = themeTuple4.getThemeAttributeType();
-			if (!themeAttribute.name().equalsIgnoreCase("codeOnly")) {
-				JSONObject themeJson = themeTuple4.getJsonObject();
-				Double weight = themeTuple4.getWeight();
+		if (false) {
+			// Go through the theme codes and fetch the
+			for (ThemeTuple4 themeTuple4 : frame.getThemeObjects()) {
+				if (showLogs) {
+					log.info("Processing Theme     " + themeTuple4.getThemeCode());
+				}
+				String themeCode = themeTuple4.getThemeCode();
+				ThemeAttributeType themeAttribute = themeTuple4.getThemeAttributeType();
+				if (!themeAttribute.name().equalsIgnoreCase("codeOnly")) {
+					JSONObject themeJson = themeTuple4.getJsonObject();
+					Double weight = themeTuple4.getWeight();
 
-				BaseEntity themeBe = getBaseEntity(themeCode, themeCode, gennyToken);
+					BaseEntity themeBe = getBaseEntity(themeCode, themeCode, gennyToken);
 
-				// Attribute attribute = RulesUtils.getAttribute(themeAttribute.name(),
-				// gennyToken.getToken());
-				Attribute attribute = new Attribute(themeAttribute.name(), themeAttribute.name(),
-						new DataType("DTT_THEME"));
-				try {
-					if (themeBe.containsEntityAttribute(themeAttribute.name())) {
-						EntityAttribute themeEA = themeBe.findEntityAttribute(themeAttribute.name()).get();
-						String existingSetValue = themeEA.getAsString();
-						JSONObject json = new JSONObject(existingSetValue);
-						Iterator<String> keys = themeJson.keys();
+					// Attribute attribute = RulesUtils.getAttribute(themeAttribute.name(),
+					// gennyToken.getToken());
+					Attribute attribute = new Attribute(themeAttribute.name(), themeAttribute.name(),
+							new DataType("DTT_THEME"));
+					try {
+						if (themeBe.containsEntityAttribute(themeAttribute.name())) {
+							EntityAttribute themeEA = themeBe.findEntityAttribute(themeAttribute.name()).get();
+							String existingSetValue = themeEA.getAsString();
+							JSONObject json = new JSONObject(existingSetValue);
+							Iterator<String> keys = themeJson.keys();
 
-						while (keys.hasNext()) {
-							String key = keys.next();
-							Object value = json.get(key);
-							json.put(key, value);
+							while (keys.hasNext()) {
+								String key = keys.next();
+								Object value = json.get(key);
+								json.put(key, value);
+							}
+
+							themeEA.setValue(json.toString());
+							themeEA.setWeight(weight);
+						} else {
+							themeBe.addAttribute(new EntityAttribute(themeBe, attribute, weight, themeJson.toString()));
 						}
-
-						themeEA.setValue(json.toString());
-						themeEA.setWeight(weight);
-					} else {
-						themeBe.addAttribute(new EntityAttribute(themeBe, attribute, weight, themeJson.toString()));
+					} catch (BadDataException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-				} catch (BadDataException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				// link to the parent
-				EntityEntity link = null;
-				Attribute linkFrame = new AttributeLink("LNK_THEME", "theme");
-				link = new EntityEntity(frame.getParent(), themeBe, linkFrame, position.name(), weight);
-				if (!frame.getParent().getLinks().contains(link)) {
-					frame.getParent().getLinks().add(link);
-				}
-				baseEntityList.add(themeBe);
+					// link to the parent
+					EntityEntity link = null;
+					Attribute linkFrame = new AttributeLink("LNK_THEME", "theme");
+					link = new EntityEntity(frame.getParent(), themeBe, linkFrame, position.name(), weight);
+					if (!frame.getParent().getLinks().contains(link)) {
+						frame.getParent().getLinks().add(link);
+					}
+					baseEntityList.add(themeBe);
 
+				}
 			}
 		}
-
 	}
 
 	/**
@@ -779,126 +798,127 @@ public class FrameUtils2 {
 	 */
 	private static void processThemes(final Frame3 frame, FramePosition position, GennyToken gennyToken,
 			Set<BaseEntity> baseEntityList, BaseEntity parent) {
+		if (false) {
+			BaseEntityUtils beUtils = new BaseEntityUtils(gennyToken);
 
-		BaseEntityUtils beUtils = new BaseEntityUtils(gennyToken);
-		
-		// Go through the theme codes and fetch the
-		for (ThemeDouble themeTuple2 : frame.getThemes()) {
-			if (showLogs) {
-				log.info("Processing Theme     " + themeTuple2.getTheme().getCode());
-			}
-			Theme theme = themeTuple2.getTheme();
-			Double weight = themeTuple2.getWeight();
-			ThemePosition themePosition = themeTuple2.getThemePosition();
+			// Go through the theme codes and fetch the
+			for (ThemeDouble themeTuple2 : frame.getThemes()) {
+				if (showLogs) {
+					log.info("Processing Theme     " + themeTuple2.getTheme().getCode());
+				}
+				Theme theme = themeTuple2.getTheme();
+				Double weight = themeTuple2.getWeight();
+				ThemePosition themePosition = themeTuple2.getThemePosition();
 
-			if (theme == null) {
-				log.error("null pointer!");
-				return;
-			}
-			BaseEntity themeBe = null;
-			try {
-				themeBe = getBaseEntity(theme.getCode(), theme.getCode(), gennyToken);
+				if (theme == null) {
+					log.error("null pointer!");
+					return;
+				}
+				BaseEntity themeBe = null;
+				try {
+					themeBe = getBaseEntity(theme.getCode(), theme.getCode(), gennyToken);
 //				themeBe = beUtils.getBaseEntityByCode(theme.getCode()); //getBaseEntity(theme.getCode(), theme.getCode(), gennyToken);
 //				if (themeBe == null) {
 //					themeBe = beUtils.create(theme.getCode(), theme.getCode());
 //				}
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-
-			if ((theme != null) && (theme.getAttributes() != null) && (!theme.getAttributes().isEmpty())) {
-
-				for (ThemeAttribute themeAttribute : theme.getAttributes()) {
-					Attribute attribute = null;
-
-					if (themeAttribute.getCode() == null) {
-						log.info("themeAttribute code is null");
-					} else {
-						if (!VertxUtils.cachedEnabled) {
-							attribute = RulesUtils.getAttribute(themeAttribute.getCode(), gennyToken.getToken());
-						}
-					}
-
-					if (attribute == null) {
-						attribute = new Attribute(themeAttribute.getCode(), themeAttribute.getCode(),
-								new DataType("DTT_THEME"));
-					}
-
-					try {
-						if (themeBe.containsEntityAttribute(themeAttribute.getCode())) {
-							EntityAttribute themeEA = themeBe.findEntityAttribute(themeAttribute.getCode()).get();
-							String existingSetValue = themeEA.getAsString();
-							JSONObject json = new JSONObject(existingSetValue);
-							JSONObject merged = new JSONObject(json, JSONObject.getNames(json));
-							JSONObject jo = themeAttribute.getJsonObject();
-							try {
-								for (Object key : jo.names()/* JSONObject.getNames(themeAttribute.getJsonObject()) */) {
-									merged.put((String) key, themeAttribute.getJsonObject().get((String) key));
-								}
-							} catch (NoSuchMethodError  nsme) {
-								// json-20090211 doesn't have iterator(), implement here
-								JSONArray names = jo.names();
-								int length = names.length();
-								for (int i = 0; i < length; i++) {
-									Object key = names.opt(i);
-									merged.put((String) key, themeAttribute.getJsonObject().get((String) key));
-								}
-							}
-
-							themeEA.setValue(merged.toString());
-							themeEA.setWeight(weight);
-						} else {
-							if (attribute.dataType.getClassName().equals(Boolean.class.getCanonicalName())) {
-								themeBe.addAttribute(new EntityAttribute(themeBe, attribute, weight,
-										themeAttribute.getValueBoolean()));
-							} else if (attribute.dataType.getClassName().equals(Double.class.getCanonicalName())) {
-								themeBe.addAttribute(new EntityAttribute(themeBe, attribute, weight,
-										themeAttribute.getValueDouble()));
-							} else if (attribute.dataType.getClassName().equals(String.class.getCanonicalName())) {
-								themeBe.addAttribute(new EntityAttribute(themeBe, attribute, weight,
-										themeAttribute.getValueString()));
-							} else {
-								themeBe.addAttribute(
-										new EntityAttribute(
-												themeBe, new Attribute(themeAttribute.getCode(),
-														themeAttribute.getCode(), new DataType("DTT_THEME")),
-												weight, themeAttribute.getJson()));
-							}
-						}
-					} catch (BadDataException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					// link to the parent
-					EntityEntity link = null;
-					Attribute linkFrame = new AttributeLink("LNK_THEME", "theme");
-
-					if (theme.getDirectLink()) {
-						link = new EntityEntity(parent, themeBe, linkFrame, themePosition.name(), weight);
-						if (!parent.getLinks().contains(link)) {
-							parent.getLinks().add(link);
-						}
-
-					} else {
-
-						link = new EntityEntity(frame.getParent(), themeBe, linkFrame, position.name(), weight);
-						if (!frame.getParent().getLinks().contains(link)) {
-							frame.getParent().getLinks().add(link);
-						}
-					}
-					baseEntityList.add(themeBe);
-
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
-			} else {
-				if (theme == null) {
-					log.error("Theme is null");
+
+				if ((theme != null) && (theme.getAttributes() != null) && (!theme.getAttributes().isEmpty())) {
+
+					for (ThemeAttribute themeAttribute : theme.getAttributes()) {
+						Attribute attribute = null;
+
+						if (themeAttribute.getCode() == null) {
+							log.info("themeAttribute code is null");
+						} else {
+							if (!VertxUtils.cachedEnabled) {
+								attribute = RulesUtils.getAttribute(themeAttribute.getCode(), gennyToken.getToken());
+							}
+						}
+
+						if (attribute == null) {
+							attribute = new Attribute(themeAttribute.getCode(), themeAttribute.getCode(),
+									new DataType("DTT_THEME"));
+						}
+
+						try {
+							if (themeBe.containsEntityAttribute(themeAttribute.getCode())) {
+								EntityAttribute themeEA = themeBe.findEntityAttribute(themeAttribute.getCode()).get();
+								String existingSetValue = themeEA.getAsString();
+								JSONObject json = new JSONObject(existingSetValue);
+								JSONObject merged = new JSONObject(json, JSONObject.getNames(json));
+								JSONObject jo = themeAttribute.getJsonObject();
+								try {
+									for (Object key : jo
+											.names()/* JSONObject.getNames(themeAttribute.getJsonObject()) */) {
+										merged.put((String) key, themeAttribute.getJsonObject().get((String) key));
+									}
+								} catch (NoSuchMethodError nsme) {
+									// json-20090211 doesn't have iterator(), implement here
+									JSONArray names = jo.names();
+									int length = names.length();
+									for (int i = 0; i < length; i++) {
+										Object key = names.opt(i);
+										merged.put((String) key, themeAttribute.getJsonObject().get((String) key));
+									}
+								}
+
+								themeEA.setValue(merged.toString());
+								themeEA.setWeight(weight);
+							} else {
+								if (attribute.dataType.getClassName().equals(Boolean.class.getCanonicalName())) {
+									themeBe.addAttribute(new EntityAttribute(themeBe, attribute, weight,
+											themeAttribute.getValueBoolean()));
+								} else if (attribute.dataType.getClassName().equals(Double.class.getCanonicalName())) {
+									themeBe.addAttribute(new EntityAttribute(themeBe, attribute, weight,
+											themeAttribute.getValueDouble()));
+								} else if (attribute.dataType.getClassName().equals(String.class.getCanonicalName())) {
+									themeBe.addAttribute(new EntityAttribute(themeBe, attribute, weight,
+											themeAttribute.getValueString()));
+								} else {
+									themeBe.addAttribute(
+											new EntityAttribute(themeBe,
+													new Attribute(themeAttribute.getCode(), themeAttribute.getCode(),
+															new DataType("DTT_THEME")),
+													weight, themeAttribute.getJson()));
+								}
+							}
+						} catch (BadDataException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						// link to the parent
+						EntityEntity link = null;
+						Attribute linkFrame = new AttributeLink("LNK_THEME", "theme");
+
+						if (theme.getDirectLink()) {
+							link = new EntityEntity(parent, themeBe, linkFrame, themePosition.name(), weight);
+							if (!parent.getLinks().contains(link)) {
+								parent.getLinks().add(link);
+							}
+
+						} else {
+
+							link = new EntityEntity(frame.getParent(), themeBe, linkFrame, position.name(), weight);
+							if (!frame.getParent().getLinks().contains(link)) {
+								frame.getParent().getLinks().add(link);
+							}
+						}
+						baseEntityList.add(themeBe);
+
+					}
 				} else {
-					log.warn("Theme "+theme.getCode()+" has no attributes ");
+					if (theme == null) {
+						log.error("Theme is null");
+					} else {
+						log.warn("Theme " + theme.getCode() + " has no attributes ");
+					}
 				}
 			}
 		}
-
 	}
 
 	/**
@@ -949,7 +969,7 @@ public class FrameUtils2 {
 							for (Object key : jo.names()/* JSONObject.getNames(themeAttribute.getJsonObject()) */) {
 								merged.put((String) key, themeAttribute.getJsonObject().get((String) key));
 							}
-						} catch (NoSuchMethodError  nsme) {
+						} catch (NoSuchMethodError nsme) {
 							// json-20090211 doesn't have iterator(), implement here
 							JSONArray names = jo.names();
 							int length = names.length();
