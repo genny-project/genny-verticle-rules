@@ -307,13 +307,18 @@ public class FrameUtils2 {
 
 				}
 
-				List<BaseEntity> askContexts = processQDataAskMessage(askMsgFromQuestions, currentAskFromFrame,
-						contextListMap, serviceToken);
-				msg.add(askContexts);
+				// Don't bother sending if it is an empty array and not replacing anything
+				if (!askMsgFromQuestions.getReplace() && (!((askMsgFromQuestions.getItems() == null)
+						|| (askMsgFromQuestions.getItems().length == 0)))) {
+					List<BaseEntity> askContexts = processQDataAskMessage(askMsgFromQuestions, currentAskFromFrame,
+							contextListMap, serviceToken);
+					msg.add(askContexts);
 
-				askMsgFromQuestions.setToken(serviceToken.getToken());
-				askMsgFromQuestions.setReplace(true);
-				asks.add(askMsgFromQuestions);
+					askMsgFromQuestions.setToken(serviceToken.getToken());
+
+					askMsgFromQuestions.setReplace(true);
+					asks.add(askMsgFromQuestions);
+				}
 			}
 		}
 		msg.setToken(serviceToken.getToken());
@@ -635,12 +640,11 @@ public class FrameUtils2 {
 		}
 
 		if (!childFrame.getThemes().isEmpty()) {
-			 processThemes(childFrame, position, serviceToken, baseEntityList, childBe);
+			processThemes(childFrame, position, serviceToken, baseEntityList, childBe);
 		}
 
 		if (!childFrame.getThemeObjects().isEmpty()) {
-			 processThemeTuples(childFrame, position, serviceToken, baseEntityList,
-			 childBe);
+			processThemeTuples(childFrame, position, serviceToken, baseEntityList, childBe);
 		}
 
 		if (childFrame.getQuestionGroup() != null) {
@@ -670,7 +674,7 @@ public class FrameUtils2 {
 			Map<ContextType, Set<BaseEntity>> contextMap = new HashMap<ContextType, Set<BaseEntity>>();
 			Map<ContextType, life.genny.qwanda.VisualControlType> vclMap = new HashMap<ContextType, VisualControlType>();
 			/* package up Question Themes */
-			if ( (!childFrame.getQuestionGroup().getQuestionThemes().isEmpty())) {
+			if ((!childFrame.getQuestionGroup().getQuestionThemes().isEmpty())) {
 				for (QuestionTheme qTheme : childFrame.getQuestionGroup().getQuestionThemes()) {
 					if (showLogs) {
 						log.info("Question Theme: " + qTheme.getCode() + ":" + qTheme.getJson());
