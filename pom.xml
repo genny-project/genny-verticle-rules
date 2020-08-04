@@ -72,11 +72,6 @@
 			<scope>test</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>com.twilio.sdk</groupId>
-			<artifactId>twilio</artifactId>
-			<version>7.42.0</version>
-		</dependency>
 
 		<!-- https://github.com/DiUS/java-faker -->
 		<dependency>
