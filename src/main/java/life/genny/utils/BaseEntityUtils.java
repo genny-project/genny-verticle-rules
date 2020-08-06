@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Type;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -20,10 +21,13 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
+import org.mindrot.jbcrypt.BCrypt;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -36,6 +40,7 @@ import life.genny.models.GennyToken;
 import life.genny.qwanda.Answer;
 import life.genny.qwanda.Layout;
 import life.genny.qwanda.Link;
+import life.genny.qwanda.Question;
 import life.genny.qwanda.attribute.Attribute;
 import life.genny.qwanda.attribute.AttributeLink;
 import life.genny.qwanda.attribute.AttributeText;
@@ -461,6 +466,58 @@ public class BaseEntityUtils implements Serializable {
 
 	public <T extends BaseEntity> T getBaseEntityByCode(final String code, Boolean withAttributes, Class clazz) {
 
+		return BaseEntityByCode(code, withAttributes, clazz, null);
+	}
+
+	public <T extends BaseEntity> T getFilteredBaseEntityByCode(final String code, final String questionCode) {
+		String[] filteredStrings = null;
+		String askMsgs2Str = (String) VertxUtils.cacheInterface.readCache(this.getRealm(), "FRM_" + code + "_ASKS",
+				this.getGennyToken().getToken());
+
+		if (askMsgs2Str != null) {
+			// extract the 'PRI_ and LNKs
+			Set<String> allMatches = new HashSet<String>();
+			Matcher m = Pattern.compile("(PRI_\\[A-Z0-9\\_])").matcher(askMsgs2Str);
+			while (m.find()) {
+				allMatches.add(m.group());
+			}
+
+			filteredStrings = allMatches.toArray(new String[0]);
+		}
+		
+		// ugly TODO HAC
+		
+		T be =  BaseEntityByCode(code, true, BaseEntity.class, filteredStrings);
+		
+		for (EntityAttribute ea : be.getBaseEntityAttributes()) {
+			if (ea.getAttributeCode().equals("PRI_INTERVIEW_URL")) {
+				log.info("My Interview");
+				String value = ea.getValueString();
+				BaseEntity project = this.getBaseEntityByCode("PRJ_"+this.getGennyToken().getRealm().toUpperCase());
+				String apiKey = project.getValueAsString("ENV_API_KEY_MY_INTERVIEW");
+				String secretToken = project.getValueAsString("ENV_SECRET_MY_INTERVIEW");
+				long unixTimestamp = Instant.now().getEpochSecond();
+				String apiSecret = apiKey + secretToken + unixTimestamp;
+				String hashed = BCrypt.hashpw(apiSecret, BCrypt.gensalt(10));
+				String url = "https://api.myinterview.com/2.21.2/getVideo?apiKey="+apiKey+"&hashTimestamp="+unixTimestamp+"&hash="+hashed;
+				log.info("MyInterview Hash is "+url);
+				if ("PER_DOMENIC_AT_GADATECHNOLOGY_DOT_COM_DOT_AU".equals(code)) {
+					ea.setValue("https://www.youtube.com/watch?v=dQw4w9WgXcQ"); // needed a demo video
+				} else {
+					ea.setValue(url);
+				}
+				
+			}
+
+		}
+		
+		return be;
+
+	}
+
+	public <T extends BaseEntity> T BaseEntityByCode(final String code, Boolean withAttributes, Class clazz,
+			final String[] filterAttributes) {
+
 		T be = null;
 
 		try {
@@ -475,6 +532,11 @@ public class BaseEntityUtils implements Serializable {
 			}
 		} catch (Exception e) {
 			log.info("Failed to read cache for baseentity " + code);
+		}
+
+		if (filterAttributes != null) {
+			BaseEntity user = this.getBaseEntityByCode(this.gennyToken.getUserCode());
+			be = VertxUtils.privacyFilter(user, be, filterAttributes);
 		}
 
 		return be;
@@ -997,7 +1059,8 @@ public class BaseEntityUtils implements Serializable {
 		List<Answer> duplicateAnswerList = new CopyOnWriteArrayList<>();
 
 		for (EntityAttribute ea : oldBe.getBaseEntityAttributes()) {
-			duplicateAnswerList.add(new Answer(newBe.getCode(), newBe.getCode(), ea.getAttributeCode(), ea.getAsString()));
+			duplicateAnswerList
+					.add(new Answer(newBe.getCode(), newBe.getCode(), ea.getAttributeCode(), ea.getAsString()));
 		}
 
 		this.saveAnswers(duplicateAnswerList);
@@ -1250,7 +1313,7 @@ public class BaseEntityUtils implements Serializable {
 			if (firstanswer.getTargetCode() == null) {
 				throw new NullPointerException("firstanswer getTargetCode cannot be null for updateCacheBaseEntity");
 			}
-			//log.info("firstAnswer.targetCode=" + firstanswer.getTargetCode());
+			// log.info("firstAnswer.targetCode=" + firstanswer.getTargetCode());
 			cachedBe = this.getBaseEntityByCode(firstanswer.getTargetCode());
 		} else {
 			return null;
@@ -1698,13 +1761,14 @@ public class BaseEntityUtils implements Serializable {
 			return null;
 	}
 
-	public <T extends QMessage> QBulkPullMessage  createQBulkPullMessage(T msg) {
+	public <T extends QMessage> QBulkPullMessage createQBulkPullMessage(T msg) {
 
 		// Put the QBulkMessage into the PontoonDDT
 		UUID uuid = UUID.randomUUID();
-	//	DistMap.getDistBE(gennyToken.getRealm()).put("PONTOON_"+uuid.toString(), JsonUtils.toJson(msg), 2, TimeUnit.MINUTES);
-		VertxUtils.writeCachedJson(gennyToken.getRealm(), "PONTOON_"+uuid.toString().toUpperCase(), JsonUtils.toJson(msg),
-				this.getGennyToken().getToken(),GennySettings.pontoonTimeout); // 2 minutes
+		// DistMap.getDistBE(gennyToken.getRealm()).put("PONTOON_"+uuid.toString(),
+		// JsonUtils.toJson(msg), 2, TimeUnit.MINUTES);
+		VertxUtils.writeCachedJson(gennyToken.getRealm(), "PONTOON_" + uuid.toString().toUpperCase(),
+				JsonUtils.toJson(msg), this.getGennyToken().getToken(), GennySettings.pontoonTimeout); // 2 minutes
 
 //		DistMap.getDistPontoonBE(gennyToken.getRealm()).put(uuid.toString(), JsonUtils.toJson(msg), 2, TimeUnit.MINUTES);
 
@@ -1713,25 +1777,25 @@ public class BaseEntityUtils implements Serializable {
 		// Put the QBulkMessage into the PontoonDDT
 
 		// then create the QBulkPullMessage
-		pullMsg.setPullUrl(/*GennySettings.pontoonUrl +*/ "api/pull/" + uuid.toString().toUpperCase());
+		pullMsg.setPullUrl(/* GennySettings.pontoonUrl + */ "api/pull/" + uuid.toString().toUpperCase());
 		return pullMsg;
 
 	}
-	
-	public  QBulkPullMessage  createQBulkPullMessage(String msg) {
+
+	public QBulkPullMessage createQBulkPullMessage(String msg) {
 
 		// Put the QBulkMessage into the PontoonDDT
 		UUID uuid = UUID.randomUUID();
-	//	DistMap.getDistBE(gennyToken.getRealm()).put("PONTOON_"+uuid.toString(), JsonUtils.toJson(msg), 2, TimeUnit.MINUTES);
-		VertxUtils.writeCachedJson(this.getGennyToken().getRealm(), "PONTOON_"+uuid.toString().toUpperCase(), msg,
-				this.getGennyToken().getToken(),GennySettings.pontoonTimeout);  // 2 minutes
-
+		// DistMap.getDistBE(gennyToken.getRealm()).put("PONTOON_"+uuid.toString(),
+		// JsonUtils.toJson(msg), 2, TimeUnit.MINUTES);
+		VertxUtils.writeCachedJson(this.getGennyToken().getRealm(), "PONTOON_" + uuid.toString().toUpperCase(), msg,
+				this.getGennyToken().getToken(), GennySettings.pontoonTimeout); // 2 minutes
 
 		QBulkPullMessage pullMsg = new QBulkPullMessage(uuid.toString());
 		pullMsg.setToken(token);
 
 		// then create the QBulkPullMessage
-		pullMsg.setPullUrl(/*GennySettings.pontoonUrl +*/ "api/pull/" + uuid.toString().toUpperCase());
+		pullMsg.setPullUrl(/* GennySettings.pontoonUrl + */ "api/pull/" + uuid.toString().toUpperCase());
 		return pullMsg;
 
 	}
@@ -1743,14 +1807,15 @@ public class BaseEntityUtils implements Serializable {
 		String realm = msg.getString("realm");
 
 		// Put the QBulkMessage into the PontoonDDT
-	//	DistMap.getDistPontoonBE(gennyToken.getRealm()).put(uuid, msg, 2, TimeUnit.MINUTES);
-		VertxUtils.writeCachedJson(realm, "PONTOON_"+uuid.toString().toUpperCase(), JsonUtils.toJson(msg),
-				token,GennySettings.pontoonTimeout);
+		// DistMap.getDistPontoonBE(gennyToken.getRealm()).put(uuid, msg, 2,
+		// TimeUnit.MINUTES);
+		VertxUtils.writeCachedJson(realm, "PONTOON_" + uuid.toString().toUpperCase(), JsonUtils.toJson(msg), token,
+				GennySettings.pontoonTimeout);
 
 		// then create the QBulkPullMessage
 		QBulkPullMessage pullMsg = new QBulkPullMessage(uuid.toString());
 		pullMsg.setToken(token);
-		pullMsg.setPullUrl(/*GennySettings.pontoonUrl +*/ "api/pull/" + uuid.toString().toUpperCase());
+		pullMsg.setPullUrl(/* GennySettings.pontoonUrl + */ "api/pull/" + uuid.toString().toUpperCase());
 		return pullMsg;
 
 	}

@@ -630,7 +630,7 @@ public class VertxUtils {
 		return privacyFilter(user, be, filterStrArray);
 	}
 
-	static public BaseEntity privacyFilter(BaseEntity user, BaseEntity be, final String[] filterAttributes) {
+	static public <T extends BaseEntity> T  privacyFilter(BaseEntity user, T be, final String[] filterAttributes) {
 		Set<EntityAttribute> allowedAttributes = new HashSet<EntityAttribute>();
 		for (EntityAttribute entityAttribute : be.getBaseEntityAttributes()) {
 			// log.info("ATTRIBUTE:"+entityAttribute.getAttributeCode()+(entityAttribute.getPrivacyFlag()?"PRIVACYFLAG=TRUE":"PRIVACYFLAG=FALSE"));
@@ -652,6 +652,9 @@ public class VertxUtils {
 				if (!entityAttribute.getPrivacyFlag()) { // don't allow privacy flag attributes to get through
 					allowedAttributes.add(entityAttribute);
 				}
+			}
+			if (entityAttribute.getAttributeCode().equals("PRI_INTERVIEW_URL")) {
+				log.info("My Interview");
 			}
 		}
 		be.setBaseEntityAttributes(allowedAttributes);
