@@ -3,7 +3,7 @@ package life.genny.notifications;
 import static java.lang.System.getProperties;
 import static javax.mail.Message.RecipientType.TO;
 import static javax.mail.Session.getDefaultInstance;
-
+import java.io.IOException;
 import java.util.Base64;
 import java.util.Properties;
 
@@ -18,6 +18,15 @@ import org.apache.commons.lang.StringUtils;
 
 import io.vertx.core.json.JsonObject;
 import life.genny.qwandautils.GennySettings;
+
+import java.io.IOException;
+import com.sendgrid.Content;
+import com.sendgrid.Email;
+import com.sendgrid.Mail;
+import com.sendgrid.Method;
+import com.sendgrid.Request;
+import com.sendgrid.Response;
+import com.sendgrid.SendGrid;
 
 public class EmailHelper extends NotificationHelper {
 
@@ -168,5 +177,26 @@ public class EmailHelper extends NotificationHelper {
     }
 
     return null;
+  }
+  public static void sendGrid(String recipient, String subject,String emailHtml) throws IOException {
+    Email from = new Email(System.getenv("SENDGRID_EMAIL_SENDER"));
+    subject = "Sent from Grid";
+    Email to = new Email(recipient);
+    Content content = new Content("text/html", emailHtml);
+    Mail mail = new Mail(from, subject, to, content);
+
+    SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
+    Request request = new Request();
+    try {
+      request.setMethod(Method.POST);
+      request.setEndpoint("mail/send");
+      request.setBody(mail.build());
+      Response response = sg.api(request);
+      System.out.println(response.getStatusCode());
+      System.out.println(response.getBody());
+      System.out.println(response.getHeaders());
+    } catch (IOException ex) {
+      throw ex;
+    }
   }
 }
