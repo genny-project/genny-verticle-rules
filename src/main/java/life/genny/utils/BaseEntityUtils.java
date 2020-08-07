@@ -499,8 +499,12 @@ public class BaseEntityUtils implements Serializable {
 				long unixTimestamp = Instant.now().getEpochSecond();
 				String apiSecret = apiKey + secretToken + unixTimestamp;
 				String hashed = BCrypt.hashpw(apiSecret, BCrypt.gensalt(10));
-				String url = "https://api.myinterview.com/2.21.2/getVideo?apiKey="+apiKey+"&hashTimestamp="+unixTimestamp+"&hash="+hashed;
+				String videoId = ea.getValueString();
+				String url = "https://api.myinterview.com/2.21.2/getVideo?apiKey="+apiKey+"&hashTimestamp="+unixTimestamp+"&hash="+hashed+"&video="+videoId;
+				String url2 = "https://embed.myinterview.com/player.v3.html?apiKey="+apiKey+"&hashTimestamp="+unixTimestamp+"&hash="+hashed+"&video="+videoId+"&autoplay=1&fs=0";
+
 				log.info("MyInterview Hash is "+url);
+				log.info("MyInterview Hash2 is "+url2);
 				if ("PER_DOMENIC_AT_GADATECHNOLOGY_DOT_COM_DOT_AU".equals(code)) {
 					ea.setValue("https://www.youtube.com/watch?v=dQw4w9WgXcQ"); // needed a demo video
 				} else {
