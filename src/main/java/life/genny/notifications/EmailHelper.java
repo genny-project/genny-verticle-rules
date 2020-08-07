@@ -3,19 +3,30 @@ package life.genny.notifications;
 import static java.lang.System.getProperties;
 import static javax.mail.Message.RecipientType.TO;
 import static javax.mail.Session.getDefaultInstance;
-
+import java.io.IOException;
 import java.util.Base64;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
-
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-
 import org.apache.commons.lang.StringUtils;
-
+// import com.sendgrid.Content;
+// import com.sendgrid.Email;
+// import com.sendgrid.Mail;
+import com.sendgrid.Method;
+import com.sendgrid.Request;
+import com.sendgrid.Response;
+import com.sendgrid.SendGrid;
+import com.sendgrid.helpers.mail.Mail;
+import com.sendgrid.helpers.mail.objects.Content;
+import com.sendgrid.helpers.mail.objects.Email;
+import com.sendgrid.helpers.mail.objects.Personalization;
+// import com.sendgrid.Personalization;
 import io.vertx.core.json.JsonObject;
 import life.genny.qwandautils.GennySettings;
 
@@ -94,11 +105,11 @@ public class EmailHelper extends NotificationHelper {
    * This function will send email by using JAVA Transport Class
    *
    * @param recipient Email recipient
+   * 
    * @param emailBody Email body text
    *
    */
-  public void deliverEmailMsg(String recipient, String emailBody)
-      throws AddressException, MessagingException {
+  public void deliverEmailMsg(String recipient, String emailBody) throws AddressException, MessagingException {
 
     if (StringUtils.isBlank(recipient)) {
       String msg = "Recipient is Blank";
@@ -113,7 +124,7 @@ public class EmailHelper extends NotificationHelper {
     getMailSession = getDefaultInstance(mailServerProperties, null);
     generateMailMessage = new MimeMessage(getMailSession);
     generateMailMessage.addRecipient(TO, new InternetAddress(recipient));
-    //      generateMailMessage.addRecipient(CC, new InternetAddress("email@emailaddress.email"));
+    // generateMailMessage.addRecipient(CC, new InternetAddress("email@emailaddress.email"));
     generateMailMessage.setSubject(this.getEmailSubject());
 
     /*
@@ -124,8 +135,7 @@ public class EmailHelper extends NotificationHelper {
     // Enter your correct gmail UserID and Password
     // if you have 2FA enabled then provide App Specific Password
     Transport transport = getMailSession.getTransport("smtp");
-    transport.connect(
-        this.getEMAIL_SMTP_HOST(), this.getEMAIL_SMTP_USER(), this.getEMAIL_SMTP_PASS());
+    transport.connect(this.getEMAIL_SMTP_HOST(), this.getEMAIL_SMTP_USER(), this.getEMAIL_SMTP_PASS());
     transport.sendMessage(generateMailMessage, generateMailMessage.getAllRecipients());
     log.info("-------------EMAIL SENT---------------------");
     log.info(getEMAIL_SMTP_HOST());
@@ -168,5 +178,76 @@ public class EmailHelper extends NotificationHelper {
     }
 
     return null;
+  }
+
+  public static void sendGrid(String recipient, String subject, String templateId) throws IOException {
+    Email from = new Email(System.getenv("SENDGRID_EMAIL_SENDER"));
+    Email to = new Email(recipient);
+
+    SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
+
+    Personalization personalization = new Personalization();
+
+    personalization.addTo(to);
+    personalization.addDynamicTemplateData("hostCompanyName", "Internmatch");
+    personalization.addDynamicTemplateData("intern", "Sam");
+    personalization.setSubject(subject);
+
+    Mail mail = new Mail();
+    mail.addPersonalization(personalization);
+    mail.setTemplateId(templateId);
+    mail.setFrom(from);
+
+    Request request = new Request();
+    try {
+      request.setMethod(Method.POST);
+      request.setEndpoint("mail/send");
+      request.setBody(mail.build());
+      Response response = sg.api(request);
+      System.out.println(response.getStatusCode());
+      System.out.println(response.getBody());
+      System.out.println(response.getHeaders());
+
+    } catch (IOException ex) {
+      throw ex;
+    }
+    
+//    Email from = new Email(System.getenv("SENDGRID_EMAIL_SENDER"));
+//    subject = "Sent from Grid";
+//    Email to = new Email(recipient);
+//    Content content = new Content("text/html", emailHtml);
+//    Mail mail = new Mail(from, subject, to, content);
+//
+//    SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
+//    Request request = new Request();
+//    try {
+//      request.setMethod(Method.POST);
+//      request.setEndpoint("mail/send");
+//      request.setBody(mail.build());
+//      Response response = sg.api(request);
+//    } catch (IOException ex) {
+//      throw ex;
+//    }
+//    try {
+//      request.setMethod(Method.POST);
+//      request.setEndpoint("templates");
+//      request.setBody("{\"name\":\"example_name\"}");
+//      Response response = sg.api(request);
+//    } catch (IOException ex) {
+//      throw ex;
+//    }
+  }
+  // public static void sendGridTemplate(List<String> recipients, Map<String,String> dynamicData) {
+  // Personalization personalization = new Personalization();
+  // recipients.stream().map(Email::new).forEach(personalization::addTo);
+  // dynamicData.entrySet().stream().forEach(d -> personalization.addDynamicTemplateData(, ));
+  //
+  //
+  // }
+
+  public static void main(String... args) throws IOException {
+    sendGrid("christopher.pyke@gada.io", "Recommended letter","d-4880601ff6b444dca5b49265e1bdd186");
+
+
   }
 }
