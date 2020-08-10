@@ -211,6 +211,8 @@ public class EmailHelper extends NotificationHelper {
     } catch (IOException ex) {
       throw ex;
     }
+  }
+  
     
 //    Email from = new Email(System.getenv("SENDGRID_EMAIL_SENDER"));
 //    subject = "Sent from Grid";
@@ -236,7 +238,7 @@ public class EmailHelper extends NotificationHelper {
 //    } catch (IOException ex) {
 //      throw ex;
 //    }
-  }
+//  }
   // public static void sendGridTemplate(List<String> recipients, Map<String,String> dynamicData) {
   // Personalization personalization = new Personalization();
   // recipients.stream().map(Email::new).forEach(personalization::addTo);
@@ -245,9 +247,42 @@ public class EmailHelper extends NotificationHelper {
   //
   // }
 
-  public static void main(String... args) throws IOException {
-    sendGrid("christopher.pyke@gada.io", "Recommended letter","d-4880601ff6b444dca5b49265e1bdd186");
+ // public static void main(String... args) throws IOException {
+ //   sendGrid("christopher.pyke@gada.io", "Recommended letter","d-4880601ff6b444dca5b49265e1bdd186");
+ // }
 
 
-  }
+	public static void sendGrid(String recipient, String subject, String templateId, String hardcodedTemplateData1, String hardcodedTemplateData2) throws IOException {
+    Email from = new Email(System.getenv("SENDGRID_EMAIL_SENDER"));
+    Email to = new Email(recipient);
+
+    SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
+
+    Personalization personalization = new Personalization();
+
+    personalization.addTo(to);
+    personalization.addDynamicTemplateData(hardcodedTemplateData1, hardcodedTemplateData2);
+    personalization.setSubject(subject);
+
+    Mail mail = new Mail();
+    mail.addPersonalization(personalization);
+    mail.setTemplateId(templateId);
+    mail.setFrom(from);
+
+    Request request = new Request();
+    try {
+      request.setMethod(Method.POST);
+      request.setEndpoint("mail/send");
+      request.setBody(mail.build());
+      Response response = sg.api(request);
+      System.out.println(response.getStatusCode());
+      System.out.println(response.getBody());
+      System.out.println(response.getHeaders());
+
+    } catch (IOException ex) {
+      throw ex;
+    }
+	}
 }
+    
+
