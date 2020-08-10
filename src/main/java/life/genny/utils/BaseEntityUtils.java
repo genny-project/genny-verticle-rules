@@ -1911,6 +1911,7 @@ public class BaseEntityUtils implements Serializable {
 		String beFilter1 = null;
 		String beFilter2 = null;
 		String beFilter3 = null;
+		String beFilter4 = null;
 		String beSorted = null;
 		String attributeFilterValue1 = "";
 		String attributeFilterCode1 = null;
@@ -1918,6 +1919,8 @@ public class BaseEntityUtils implements Serializable {
 		String attributeFilterCode2 = null;
 		String attributeFilterValue3 = "";
 		String attributeFilterCode3 = null;
+		String attributeFilterValue4 = "";
+		String attributeFilterCode4 = null;
 		String sortCode = null;
 		String sortValue = null;
 		String sortType = null;
@@ -2017,13 +2020,24 @@ public class BaseEntityUtils implements Serializable {
 					} else {
 						if (attributeFilterCode3 == null) {
 							if (ea.getValueString() != null) {
-								attributeFilterValue3 = " ec.valueString " + condition + " '"
+								attributeFilterValue3 = " ed.valueString " + condition + " '"
 										+ ea.getValueString() + "'";
 							} else if (ea.getValueBoolean() != null) {
-								attributeFilterValue3 = " ec.valueBoolean = "
+								attributeFilterValue3 = " ed.valueBoolean = "
 										+ (ea.getValueBoolean() ? "true" : "false");
 							}
 							attributeFilterCode3 = ea.getAttributeCode();
+						}else {
+							if (attributeFilterCode4 == null) {
+								if (ea.getValueString() != null) {
+									attributeFilterValue4 = " ee.valueString " + condition + " '"
+											+ ea.getValueString() + "'";
+								} else if (ea.getValueBoolean() != null) {
+									attributeFilterValue4 = " ee.valueBoolean = "
+											+ (ea.getValueBoolean() ? "true" : "false");
+								}
+								attributeFilterCode4 = ea.getAttributeCode();
+							}
 						}
 					}
 				}
@@ -2044,6 +2058,10 @@ public class BaseEntityUtils implements Serializable {
 		if (attributeFilterCode3 != null) {
 			hql += ", EntityAttribute ed ";
 		}
+		if (attributeFilterCode4 != null) {
+			hql += ", EntityAttribute ee ";
+		}
+
 		if (wildcardValue != null) {
 			hql += ", EntityAttribute ew ";
 		}
@@ -2077,6 +2095,10 @@ public class BaseEntityUtils implements Serializable {
 		if (beFilter3 != null) {
 			hql += " or ea.baseEntityCode like '" + beFilter3 + "'";
 		}
+		if (beFilter4 != null) {
+			hql += " or ea.baseEntityCode like '" + beFilter4 + "'";
+		}
+
 		if (beFilter1 != null) {
 			hql += ")  ";
 		}
@@ -2092,9 +2114,14 @@ public class BaseEntityUtils implements Serializable {
 					+ ((!StringUtils.isBlank(attributeFilterValue2)) ? (" and " + attributeFilterValue2) : "");
 		}
 		if (attributeFilterCode3 != null) {
-			hql += " and ea.baseEntityCode=ec.baseEntityCode ";
+			hql += " and ea.baseEntityCode=ed.baseEntityCode ";
 			hql += " and ed.attributeCode = '" + attributeFilterCode3 + "'"
 					+ ((!StringUtils.isBlank(attributeFilterValue3)) ? (" and " + attributeFilterValue3) : "");
+		}
+		if (attributeFilterCode4 != null) {
+			hql += " and ea.baseEntityCode=ed.baseEntityCode ";
+			hql += " and ee.attributeCode = '" + attributeFilterCode4 + "'"
+					+ ((!StringUtils.isBlank(attributeFilterValue4)) ? (" and " + attributeFilterValue4) : "");
 		}
 
 		if (wildcardValue != null) {
