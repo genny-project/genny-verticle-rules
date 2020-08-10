@@ -2119,7 +2119,7 @@ public class BaseEntityUtils implements Serializable {
 					+ ((!StringUtils.isBlank(attributeFilterValue3)) ? (" and " + attributeFilterValue3) : "");
 		}
 		if (attributeFilterCode4 != null) {
-			hql += " and ea.baseEntityCode=ed.baseEntityCode ";
+			hql += " and ea.baseEntityCode=ee.baseEntityCode ";
 			hql += " and ee.attributeCode = '" + attributeFilterCode4 + "'"
 					+ ((!StringUtils.isBlank(attributeFilterValue4)) ? (" and " + attributeFilterValue4) : "");
 		}
