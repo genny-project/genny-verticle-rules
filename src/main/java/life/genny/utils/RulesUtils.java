@@ -220,7 +220,8 @@ public class RulesUtils {
 		// try {
 		String beJson = null;
 		String username = (String) decodedToken.get("preferred_username");
-		String uname = QwandaUtils.getNormalisedUsername(username);
+		String uuid = (String) decodedToken.get("sub");
+		String uname = QwandaUtils.getNormalisedUsername(uuid);
 		String code = "PER_" + uname.toUpperCase();
 		String realm = (String) decodedToken.get("aud"); 
 		// CHEAT TODO
