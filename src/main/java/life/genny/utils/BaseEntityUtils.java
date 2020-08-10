@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -34,6 +35,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import io.vertx.core.json.JsonObject;
 import life.genny.channel.DistMap;
 import life.genny.models.GennyToken;
@@ -1856,6 +1859,257 @@ public class BaseEntityUtils implements Serializable {
 	 */
 	public void setServiceToken(GennyToken serviceToken) {
 		this.serviceToken = serviceToken;
+	}
+
+	/**
+	 * @param serviceToken
+	 * @param searchBE
+	 * @param msg
+	 * @return
+	 */
+	public List<BaseEntity> getBaseEntitys(final SearchEntity searchBE) {
+		List<BaseEntity> results = new ArrayList<BaseEntity>();
+		
+		
+		Tuple2<String, List<String>> data = getHql(searchBE);
+		String hql = data._1;
+
+		hql = Base64.getUrlEncoder().encodeToString(hql.getBytes());
+		try {
+			String resultJsonStr = QwandaUtils.apiGet(
+					GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/search24/" + hql + "/"
+							+ searchBE.getPageStart(0) + "/" + searchBE.getPageSize(GennySettings.defaultPageSize),
+					serviceToken.getToken(), 120);
+
+			JsonObject resultJson = null;
+
+			try {
+				resultJson = new JsonObject(resultJsonStr);
+				io.vertx.core.json.JsonArray result = resultJson.getJsonArray("codes");
+				for (int i = 0; i < result.size(); i++) {
+					String code = result.getString(i);
+					BaseEntity be = getBaseEntityByCode(code);
+					be.setIndex(i);
+					results.add(be);				
+				}
+				
+			} catch (Exception e1) {
+				log.error("Bad Json -> [" + resultJsonStr);
+			}
+
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		return results;
+	}
+	
+	public Tuple2<String, List<String>> getHql(SearchEntity searchBE)
+
+	{
+		List<String> attributeFilter = new ArrayList<String>();
+
+		String beFilter1 = null;
+		String beFilter2 = null;
+		String beFilter3 = null;
+		String beSorted = null;
+		String attributeFilterValue1 = "";
+		String attributeFilterCode1 = null;
+		String attributeFilterValue2 = "";
+		String attributeFilterCode2 = null;
+		String attributeFilterValue3 = "";
+		String attributeFilterCode3 = null;
+		String sortCode = null;
+		String sortValue = null;
+		String sortType = null;
+		String wildcardValue = null;
+		Integer pageStart = searchBE.getPageStart(0);
+		Integer pageSize = searchBE.getPageSize(GennySettings.defaultPageSize);
+
+		for (EntityAttribute ea : searchBE.getBaseEntityAttributes()) {
+
+			if (ea.getAttributeCode().startsWith("PRI_CODE")) {
+				if (beFilter1 == null) {
+					beFilter1 = ea.getAsString();
+				} else if (beFilter2 == null) {
+					beFilter2 = ea.getAsString();
+				}
+			
+			} else if ((ea.getAttributeCode().startsWith("SRT_"))) {
+				if (ea.getAttributeCode().startsWith("SRT_PRI_CREATED")) {
+					beSorted = " order by ea.created";
+					sortValue = ea.getValueString();
+				} 
+				else if (ea.getAttributeCode().startsWith("SRT_PRI_UPDATED")) {
+					beSorted = " order by ea.updated";
+					sortValue = ea.getValueString();
+				}
+				else if (ea.getAttributeCode().startsWith("SRT_PRI_CODE")) {
+					beSorted = " order by ea.baseEntityCode";
+					sortValue = ea.getValueString();
+				}
+				else if (ea.getAttributeCode().startsWith("SRT_PRI_NAME")) {
+					beSorted = " order by ea.pk.baseEntity.name";
+					sortValue = ea.getValueString();
+				}
+
+				else {
+				sortCode = (ea.getAttributeCode().substring("SRT_".length()));
+				sortValue = ea.getValueString();
+				if (ea.getValueString() != null) {
+					sortType = "ez.valueString";
+				} else if (ea.getValueBoolean() != null) {
+					sortType = "ez.valueBoolean";
+				} else if (ea.getValueDouble() != null) {
+					sortType = "ez.valueDouble";
+				} else if (ea.getValueInteger() != null) {
+					sortType = "ez.valueInteger";
+				} else if (ea.getValueLong() != null) {
+					sortType = "ez.valueLong";
+				} else if (ea.getValueDateTime() != null) {
+					sortType = "ez.valueDateTime";
+				} else if (ea.getValueDate() != null) {
+					sortType = "ez.valueDate";
+				} else if (ea.getValueTime() != null) {
+					sortType = "ez.valueTime";
+				}
+				}
+
+			} else if ((ea.getAttributeCode().startsWith("COL_")) || (ea.getAttributeCode().startsWith("CAL_"))) {
+				attributeFilter.add(ea.getAttributeCode().substring("COL_".length()));
+			} else if (ea.getAttributeCode().startsWith("SCH_WILDCARD")) {
+				if (ea.getValueString() != null) {
+					if (!StringUtils.isBlank(ea.getValueString())) {
+						wildcardValue = ea.getValueString();
+						wildcardValue = wildcardValue.replaceAll(("[^A-Za-z0-9 ]"), "");
+					}
+				}
+
+			} else if (ea.getAttributeCode().startsWith("PRI_") && (!ea.getAttributeCode().equals("PRI_CODE"))
+					&& (!ea.getAttributeCode().equals("PRI_TOTAL_RESULTS"))
+					&& (!ea.getAttributeCode().equals("PRI_INDEX"))) {
+				String condition = SearchEntity.convertFromSaveable(ea.getAttributeName());
+				if (attributeFilterCode1 == null) {
+					if (ea.getValueString() != null) {
+						attributeFilterValue1 = " eb.valueString " + condition + " '" + ea.getValueString()
+								+ "'";
+					} else if (ea.getValueBoolean() != null) {
+						attributeFilterValue1 = " eb.valueBoolean = " + (ea.getValueBoolean() ? "true" : "false");
+					} else if (ea.getValueDouble() != null) {
+						attributeFilterValue1 = " eb.valueDouble =ls" + ":q" + " " + ea.getValueDouble() + "";
+					} else if (ea.getValueInteger() != null) {
+						attributeFilterValue1 = " eb.valueInteger = " + ea.getValueInteger() + "";
+						attributeFilterCode1 = ea.getAttributeCode();
+					} else if (ea.getValueDate() != null) {
+						attributeFilterValue1 = " eb.valueDate = " + ea.getValueDate() + "";
+					} else if (ea.getValueDateTime() != null) {
+						attributeFilterValue1 = " eb.valueDateTime = " + ea.getValueDateTime() + "";
+					}
+					attributeFilterCode1 = ea.getAttributeCode();
+				} else {
+					if (attributeFilterCode2 == null) {
+						if (ea.getValueString() != null) {
+							attributeFilterValue2 = " ec.valueString " + condition + " '"
+									+ ea.getValueString() + "'";
+						} else if (ea.getValueBoolean() != null) {
+							attributeFilterValue2 = " ec.valueBoolean = " + (ea.getValueBoolean() ? "true" : "false");
+						}
+						attributeFilterCode2 = ea.getAttributeCode();
+					} else {
+						if (attributeFilterCode3 == null) {
+							if (ea.getValueString() != null) {
+								attributeFilterValue3 = " ec.valueString " + condition + " '"
+										+ ea.getValueString() + "'";
+							} else if (ea.getValueBoolean() != null) {
+								attributeFilterValue3 = " ec.valueBoolean = "
+										+ (ea.getValueBoolean() ? "true" : "false");
+							}
+							attributeFilterCode3 = ea.getAttributeCode();
+						}
+					}
+				}
+			}
+		}
+		String sortBit = "";
+//		if (sortCode != null) {
+//			sortBit = ","+sortType +" ";
+//		}
+		String hql = "select distinct ea.baseEntityCode " + sortBit + " from EntityAttribute ea ";
+
+		if (attributeFilterCode1 != null) {
+			hql += ", EntityAttribute eb ";
+		}
+		if (attributeFilterCode2 != null) {
+			hql += ", EntityAttribute ec ";
+		}
+		if (attributeFilterCode3 != null) {
+			hql += ", EntityAttribute ed ";
+		}
+		if (wildcardValue != null) {
+			hql += ", EntityAttribute ew ";
+		}
+
+		if (sortCode != null) {
+			hql += ", EntityAttribute ez ";
+		}
+		hql += " where ";
+
+		if (attributeFilterCode1 != null) {
+			hql += " ea.baseEntityCode=eb.baseEntityCode ";
+			if (beFilter1!=null) {
+				hql += " and (ea.baseEntityCode like '" + beFilter1 + "'  ";
+			}
+		} else {
+			if (beFilter1 != null) {
+				hql += " (ea.baseEntityCode like '" + beFilter1 + "'  ";
+			}
+		}
+
+		
+		
+		if (searchBE.getCode().startsWith("SBE_SEARCHBAR")) {
+			// search across people and companies
+			hql += " and (ea.baseEntityCode like 'PER_%' or ea.baseEntityCode like 'CPY_%') ";
+		}
+
+		if (beFilter2 != null) {
+			hql += " or ea.baseEntityCode like '" + beFilter2 + "'";
+		}
+		if (beFilter3 != null) {
+			hql += " or ea.baseEntityCode like '" + beFilter3 + "'";
+		}
+		if (beFilter1 != null) {
+			hql += ")  ";
+		}
+		
+		
+		if (attributeFilterCode1 != null) {
+			hql += " and eb.attributeCode = '" + attributeFilterCode1 + "'"
+					+ ((!StringUtils.isBlank(attributeFilterValue1)) ? (" and " + attributeFilterValue1) : "");
+		}
+		if (attributeFilterCode2 != null) {
+			hql += " and ea.baseEntityCode=ec.baseEntityCode ";
+			hql += " and ec.attributeCode = '" + attributeFilterCode2 + "'"
+					+ ((!StringUtils.isBlank(attributeFilterValue2)) ? (" and " + attributeFilterValue2) : "");
+		}
+		if (attributeFilterCode3 != null) {
+			hql += " and ea.baseEntityCode=ec.baseEntityCode ";
+			hql += " and ed.attributeCode = '" + attributeFilterCode3 + "'"
+					+ ((!StringUtils.isBlank(attributeFilterValue3)) ? (" and " + attributeFilterValue3) : "");
+		}
+
+		if (wildcardValue != null) {
+			hql += " and ea.baseEntityCode=ew.baseEntityCode and ew.valueString like '%" + wildcardValue + "%' ";
+		}
+
+		if (beSorted != null) {
+			hql += " "+beSorted + " " + sortValue;
+
+		} else 
+		if (sortCode != null) {
+			hql += " and ea.baseEntityCode=ez.baseEntityCode and ez.attributeCode='" + sortCode + "' ";
+			hql += " order by " + sortType + " " + sortValue;
+		}
+		return Tuple.of(hql, attributeFilter);
 	}
 
 }
