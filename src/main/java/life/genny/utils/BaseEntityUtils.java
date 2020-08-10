@@ -1987,7 +1987,7 @@ public class BaseEntityUtils implements Serializable {
 					}
 				}
 
-			} else if (ea.getAttributeCode().startsWith("PRI_") && (!ea.getAttributeCode().equals("PRI_CODE"))
+			} else if ((ea.getAttributeCode().startsWith("PRI_") || ea.getAttributeCode().startsWith("LNK_")) && (!ea.getAttributeCode().equals("PRI_CODE"))
 					&& (!ea.getAttributeCode().equals("PRI_TOTAL_RESULTS"))
 					&& (!ea.getAttributeCode().equals("PRI_INDEX"))) {
 				String condition = SearchEntity.convertFromSaveable(ea.getAttributeName());
