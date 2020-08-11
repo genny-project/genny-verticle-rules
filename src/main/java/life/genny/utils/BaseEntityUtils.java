@@ -2149,7 +2149,9 @@ public class BaseEntityUtils implements Serializable {
 			if (ea.getAttributeCode().startsWith("PRI_IS_")) {
 				String roleCode = "ROL_"+ea.getAttributeCode().substring("PRI_".length());
 				BaseEntity role = this.getBaseEntityByCode(roleCode);
-				roles.add(role);
+				if (role!=null) {
+					roles.add(role);
+				}
 			}
 		}
 		}
