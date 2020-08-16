@@ -2159,4 +2159,58 @@ public class BaseEntityUtils implements Serializable {
 		return roles;
 	}
 	
+	public String getEmailFromOldCode(String oldCode) {
+		String ret = null;
+		if (oldCode.contains("_AT_")) {
+
+			if ("PER_JIUNWEI_DOT_LU_AT_CQUMAIL_DOT_COM".equals(oldCode)) {
+				oldCode = "PER_JIUN_DASH_WEI_DOT_LU_AT_CQUMAIL_DOT_COM"; // addd dash
+			}
+
+			oldCode = oldCode.substring(4);
+			// convert to email
+			oldCode = oldCode.replaceAll("_PLUS_", "+");
+			oldCode = oldCode.replaceAll("_DOT_", ".");
+			oldCode = oldCode.replaceAll("_AT_", "@");
+			oldCode = oldCode.replaceAll("_DASH_", "-");
+			ret = oldCode.toLowerCase();
+		}
+		return ret;
+	}
+
+	public BaseEntity getPersonFromEmail(String email) {
+		BaseEntity person = null;
+
+		SearchEntity searchBE = new SearchEntity("SBE_TEST", "email")
+				.addSort("PRI_NAME", "Created", SearchEntity.Sort.ASC)
+				.addFilter("PRI_CODE", SearchEntity.StringFilter.LIKE, "PER_%")
+				.addFilter("PRI_EMAIL", SearchEntity.StringFilter.LIKE, email).addColumn("PRI_CODE", "Name")
+				.addColumn("PRI_EMAIL", "Email");
+
+		searchBE.setRealm(realm);
+		searchBE.setPageStart(0);
+		searchBE.setPageSize(100000);
+		Tuple2<String, List<String>> emailhqlTuple = getHql(searchBE);
+		String emailhql = emailhqlTuple._1;
+
+		emailhql = Base64.getUrlEncoder().encodeToString(emailhql.getBytes());
+		try {
+			String resultJsonStr = QwandaUtils.apiGet(
+					GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/search24/" + emailhql + "/"
+							+ searchBE.getPageStart(0) + "/" + searchBE.getPageSize(GennySettings.defaultPageSize),
+					serviceToken.getToken(), 120);
+
+			JsonObject resultJson = null;
+			resultJson = new JsonObject(resultJsonStr);
+			io.vertx.core.json.JsonArray result2 = resultJson.getJsonArray("codes");
+			String internCode = result2.getString(0);
+			if (internCode.contains("_AT_")) {
+				person = getBaseEntityByCode(internCode);
+			}
+
+		} catch (Exception e) {
+
+		}
+		return person;
+	}
 }
