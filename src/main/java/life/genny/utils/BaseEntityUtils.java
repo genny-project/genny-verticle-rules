@@ -1984,6 +1984,7 @@ public class BaseEntityUtils implements Serializable {
 					if (!StringUtils.isBlank(ea.getValueString())) {
 						wildcardValue = ea.getValueString();
 						wildcardValue = wildcardValue.replaceAll(("[^A-Za-z0-9 ]"), "");
+						log.info("Search Wildcard =["+wildcardValue+"]");
 					}
 				}
 
