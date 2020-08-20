@@ -1862,9 +1862,7 @@ public class BaseEntityUtils implements Serializable {
 	}
 
 	/**
-	 * @param serviceToken
 	 * @param searchBE
-	 * @param msg
 	 * @return
 	 */
 	public List<BaseEntity> getBaseEntitys(final SearchEntity searchBE) {
@@ -1991,6 +1989,12 @@ public class BaseEntityUtils implements Serializable {
 					&& (!ea.getAttributeCode().equals("PRI_TOTAL_RESULTS"))
 					&& (!ea.getAttributeCode().equals("PRI_INDEX"))) {
 				String condition = SearchEntity.convertFromSaveable(ea.getAttributeName());
+				if (condition == null) {
+					log.error("SQL condition is NULL, " +
+							"EntityAttribute baseEntityCode is:" + ea.getBaseEntityCode()
+							+ ", attributeCode is:" + ea.getAttributeCode());
+				}
+
 				if (attributeFilterCode1 == null) {
 					if (ea.getValueString() != null) {
 						attributeFilterValue1 = " eb.valueString " + condition + " '" + ea.getValueString()
