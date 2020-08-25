@@ -1996,50 +1996,19 @@ public class BaseEntityUtils implements Serializable {
 				}
 
 				if (attributeFilterCode1 == null) {
-					if (ea.getValueString() != null) {
-						attributeFilterValue1 = " eb.valueString " + condition + " '" + ea.getValueString()
-								+ "'";
-					} else if (ea.getValueBoolean() != null) {
-						attributeFilterValue1 = " eb.valueBoolean = " + (ea.getValueBoolean() ? "true" : "false");
-					} else if (ea.getValueDouble() != null) {
-						attributeFilterValue1 = " eb.valueDouble =ls" + ":q" + " " + ea.getValueDouble() + "";
-					} else if (ea.getValueInteger() != null) {
-						attributeFilterValue1 = " eb.valueInteger = " + ea.getValueInteger() + "";
-						attributeFilterCode1 = ea.getAttributeCode();
-					} else if (ea.getValueDate() != null) {
-						attributeFilterValue1 = " eb.valueDate = " + ea.getValueDate() + "";
-					} else if (ea.getValueDateTime() != null) {
-						attributeFilterValue1 = " eb.valueDateTime = " + ea.getValueDateTime() + "";
-					}
+					attributeFilterValue1 = getAttributeValue(ea, condition);
 					attributeFilterCode1 = ea.getAttributeCode();
 				} else {
 					if (attributeFilterCode2 == null) {
-						if (ea.getValueString() != null) {
-							attributeFilterValue2 = " ec.valueString " + condition + " '"
-									+ ea.getValueString() + "'";
-						} else if (ea.getValueBoolean() != null) {
-							attributeFilterValue2 = " ec.valueBoolean = " + (ea.getValueBoolean() ? "true" : "false");
-						}
+						attributeFilterValue2 = getAttributeValue(ea, condition);
 						attributeFilterCode2 = ea.getAttributeCode();
 					} else {
 						if (attributeFilterCode3 == null) {
-							if (ea.getValueString() != null) {
-								attributeFilterValue3 = " ed.valueString " + condition + " '"
-										+ ea.getValueString() + "'";
-							} else if (ea.getValueBoolean() != null) {
-								attributeFilterValue3 = " ed.valueBoolean = "
-										+ (ea.getValueBoolean() ? "true" : "false");
-							}
+							attributeFilterValue3 = getAttributeValue(ea, condition);
 							attributeFilterCode3 = ea.getAttributeCode();
 						}else {
 							if (attributeFilterCode4 == null) {
-								if (ea.getValueString() != null) {
-									attributeFilterValue4 = " ee.valueString " + condition + " '"
-											+ ea.getValueString() + "'";
-								} else if (ea.getValueBoolean() != null) {
-									attributeFilterValue4 = " ee.valueBoolean = "
-											+ (ea.getValueBoolean() ? "true" : "false");
-								}
+								attributeFilterValue4 = getAttributeValue(ea, condition);
 								attributeFilterCode4 = ea.getAttributeCode();
 							}
 						}
@@ -2141,6 +2110,25 @@ public class BaseEntityUtils implements Serializable {
 			hql += " order by " + sortType + " " + sortValue;
 		}
 		return Tuple.of(hql, attributeFilter);
+	}
+
+	public String getAttributeValue(EntityAttribute ea, String condition)
+	{
+		if (ea.getValueString() != null) {
+			return " eb.valueString " + condition + " '" + ea.getValueString()
+					+ "'";
+		} else if (ea.getValueBoolean() != null) {
+			return " eb.valueBoolean = " + (ea.getValueBoolean() ? "true" : "false");
+		} else if (ea.getValueDouble() != null) {
+			return " eb.valueDouble =ls" + ":q" + " " + ea.getValueDouble() + "";
+		} else if (ea.getValueInteger() != null) {
+			return " eb.valueInteger = " + ea.getValueInteger() + "";
+		} else if (ea.getValueDate() != null) {
+			return " eb.valueDate = " + ea.getValueDate() + "";
+		} else if (ea.getValueDateTime() != null) {
+			return " eb.valueDateTime = " + ea.getValueDateTime() + "";
+		}
+		return null;
 	}
 
 	
