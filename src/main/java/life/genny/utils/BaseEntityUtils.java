@@ -1996,19 +1996,19 @@ public class BaseEntityUtils implements Serializable {
 				}
 
 				if (attributeFilterCode1 == null) {
-					attributeFilterValue1 = getAttributeValue(ea, condition);
+					attributeFilterValue1 = " eb" + getAttributeValue(ea, condition);
 					attributeFilterCode1 = ea.getAttributeCode();
 				} else {
 					if (attributeFilterCode2 == null) {
-						attributeFilterValue2 = getAttributeValue(ea, condition);
+						attributeFilterValue2 = " ec" + getAttributeValue(ea, condition);
 						attributeFilterCode2 = ea.getAttributeCode();
 					} else {
 						if (attributeFilterCode3 == null) {
-							attributeFilterValue3 = getAttributeValue(ea, condition);
+							attributeFilterValue3 = " ed" + getAttributeValue(ea, condition);
 							attributeFilterCode3 = ea.getAttributeCode();
 						}else {
 							if (attributeFilterCode4 == null) {
-								attributeFilterValue4 = getAttributeValue(ea, condition);
+								attributeFilterValue4 = " ee" + getAttributeValue(ea, condition);
 								attributeFilterCode4 = ea.getAttributeCode();
 							}
 						}
@@ -2115,18 +2115,18 @@ public class BaseEntityUtils implements Serializable {
 	public String getAttributeValue(EntityAttribute ea, String condition)
 	{
 		if (ea.getValueString() != null) {
-			return " eb.valueString " + condition + " '" + ea.getValueString()
+			return ".valueString " + condition + " '" + ea.getValueString()
 					+ "'";
 		} else if (ea.getValueBoolean() != null) {
-			return " eb.valueBoolean = " + (ea.getValueBoolean() ? "true" : "false");
+			return ".valueBoolean = " + (ea.getValueBoolean() ? "true" : "false");
 		} else if (ea.getValueDouble() != null) {
-			return " eb.valueDouble =ls" + ":q" + " " + ea.getValueDouble() + "";
+			return ".valueDouble =ls" + ":q" + " " + ea.getValueDouble() + "";
 		} else if (ea.getValueInteger() != null) {
-			return " eb.valueInteger = " + ea.getValueInteger() + "";
+			return ".valueInteger = " + ea.getValueInteger() + "";
 		} else if (ea.getValueDate() != null) {
-			return " eb.valueDate = " + ea.getValueDate() + "";
+			return ".valueDate = " + ea.getValueDate() + "";
 		} else if (ea.getValueDateTime() != null) {
-			return " eb.valueDateTime = " + ea.getValueDateTime() + "";
+			return ".valueDateTime = " + ea.getValueDateTime() + "";
 		}
 		return null;
 	}
