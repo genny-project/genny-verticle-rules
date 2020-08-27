@@ -2122,7 +2122,7 @@ public class BaseEntityUtils implements Serializable {
 		} else if (ea.getValueDouble() != null) {
 			return ".valueDouble =ls" + ":q" + " " + ea.getValueDouble() + "";
 		} else if (ea.getValueInteger() != null) {
-			return ".valueInteger = " + ea.getValueInteger() + "";
+			return ".valueInteger " + condition + " " + ea.getValueInteger() + "";
 		} else if (ea.getValueDate() != null) {
 			return ".valueDate = " + ea.getValueDate() + "";
 		} else if (ea.getValueDateTime() != null) {
