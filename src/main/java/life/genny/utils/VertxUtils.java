@@ -491,10 +491,19 @@ public class VertxUtils {
 		putObject(realm, keyPrefix, key, map);
 	}
 
+	static public void putMap(final String realm, final String keyPrefix, final String key,
+			final Map<String, String> map, final String token) {
+		putObject(realm, keyPrefix, key, map, token);
+	}
+
 	static public Map<String, String> getMap(final String realm, final String keyPrefix, final String key) {
+		return this.getMap(realm,keyPrefix,key, DEFAULT_TOKEN);
+	}
+
+	static public Map<String, String> getMap(final String realm, final String keyPrefix, final String key, String token) {
 		Type type = new TypeToken<Map<String, String>>() {
 		}.getType();
-		Map<String, String> myMap = getObject(realm, keyPrefix, key, type);
+		Map<String, String> myMap = getObject(realm, keyPrefix, key, type,token);
 		return myMap;
 	}
 
