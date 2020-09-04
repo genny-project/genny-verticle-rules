@@ -1900,6 +1900,17 @@ public class BaseEntityUtils implements Serializable {
 		}
 		return results;
 	}
+
+	String getSortAttributeCode(SearchEntity searchBE){
+		String sortAttributeCode = null;
+		for (EntityAttribute ea : searchBE.getBaseEntityAttributes()) {
+			if (ea.getAttributeCode().startsWith("ATTRSRT_"))
+				sortAttributeCode = ea.getAttributeCode().replace("ATTRSRT_","");
+		}
+		if (sortAttributeCode != null)
+			log.info("DEBUG, Attribute sort code is " +  sortAttributeCode);
+		return sortAttributeCode;
+	}
 	
 	public Tuple2<String, List<String>> getHql(SearchEntity searchBE)
 
@@ -1925,6 +1936,8 @@ public class BaseEntityUtils implements Serializable {
 		String wildcardValue = null;
 		Integer pageStart = searchBE.getPageStart(0);
 		Integer pageSize = searchBE.getPageSize(GennySettings.defaultPageSize);
+
+		String sortAttributeCode = getSortAttributeCode(searchBE);
 
 		for (EntityAttribute ea : searchBE.getBaseEntityAttributes()) {
 
@@ -2022,17 +2035,31 @@ public class BaseEntityUtils implements Serializable {
 //		}
 		String hql = "select distinct ea.baseEntityCode " + sortBit + " from EntityAttribute ea ";
 
+		String sort_table_name = null;
+		String filterTableName = null;
 		if (attributeFilterCode1 != null) {
-			hql += ", EntityAttribute eb ";
+			filterTableName = "eb";
+			hql += String.format(", EntityAttribute %s ", filterTableName);
+			if (attributeFilterCode1.equals(sortAttributeCode))
+				sort_table_name = filterTableName;
 		}
 		if (attributeFilterCode2 != null) {
-			hql += ", EntityAttribute ec ";
+			filterTableName = "ec";
+			hql += String.format(", EntityAttribute %s ", filterTableName);
+			if (attributeFilterCode2.equals(sortAttributeCode))
+				sort_table_name = filterTableName;
 		}
 		if (attributeFilterCode3 != null) {
-			hql += ", EntityAttribute ed ";
+			filterTableName = "ed";
+			hql += String.format(", EntityAttribute %s ", filterTableName);
+			if (attributeFilterCode3.equals(sortAttributeCode))
+				sort_table_name = filterTableName;
 		}
 		if (attributeFilterCode4 != null) {
-			hql += ", EntityAttribute ee ";
+			filterTableName = "ee";
+			hql += String.format(", EntityAttribute %s ", filterTableName);
+			if (attributeFilterCode4.equals(sortAttributeCode))
+				sort_table_name = filterTableName;
 		}
 
 		if (wildcardValue != null) {
@@ -2102,6 +2129,8 @@ public class BaseEntityUtils implements Serializable {
 		}
 
 		if (beSorted != null) {
+			if (sort_table_name != null)
+				beSorted = beSorted.replaceAll("ea", sort_table_name);
 			hql += " "+beSorted + " " + sortValue;
 
 		} else 
