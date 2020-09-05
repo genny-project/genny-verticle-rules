@@ -221,8 +221,8 @@ public class RulesUtils {
 		String beJson = null;
 		String username = (String) decodedToken.get("preferred_username");
 		String uuid = (String) decodedToken.get("sub");
-		String uname = QwandaUtils.getNormalisedUsername(uuid);
-		String code = "PER_" + uname.toUpperCase();
+	//	String uname = //QwandaUtils.getNormalisedUsername(uuid);
+		String code = "PER_" + uuid.toUpperCase(); //uname.toUpperCase();
 		String realm = (String) decodedToken.get("aud"); 
 		// CHEAT TODO
 		BaseEntity be = VertxUtils.readFromDDT(realm,code, token);

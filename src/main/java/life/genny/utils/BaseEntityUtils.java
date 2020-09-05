@@ -527,6 +527,11 @@ public class BaseEntityUtils implements Serializable {
 
 		T be = null;
 
+		if (code == null) {
+			log.error("Cannot pass a null code");
+			return null;
+		}
+		
 		try {
 			// log.info("Fetching BaseEntityByCode, code="+code);
 			be = VertxUtils.readFromDDT(getRealm(), code, withAttributes, this.token, clazz);

@@ -177,6 +177,11 @@ public class VertxUtils {
 			try {
 				// log.info("VERTX READING DIRECTLY FROM CACHE! USING
 				// "+(GennySettings.isCacheServer?" LOCAL DDT":"CLIENT "));
+				if (key == null) {
+					log.error("Cache is  null");
+			
+					return null;
+				}
 				ret = (String) cacheInterface.readCache(realm, key, token);
 			} catch (Exception e) {
 				log.error("Cache is  null");
