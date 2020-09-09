@@ -223,9 +223,12 @@ public class VertxUtils {
 					}
 
 				} else {
-					log.info("DEBUGINFO, DDT URL:" + GennySettings.ddtUrl + "realm:" + realm + "key:" + key + "token:" + token );
+					log.info("DEBUGINFO, DDT URL:" + GennySettings.ddtUrl + ", realm:" + realm + "key:" + key + "token:" + token );
 //					resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/service/cache/read/" + realm + "/" + key, token);
-					resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/" + realm + "/" + key, token);					
+					resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/" + realm + "/" + key, token);	
+					if (("<html><head><title>Error</title></head><body>Not Found</body></html>".equals(resultStr)) || ("<html><body><h1>Resource not found</h1></body></html>".equals(resultStr))) {
+						resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/service/cache/read/" + key, token);		
+					}
 //					resultStr =  readFromDDT(realm, key, token).toString();
 				}
 				if (resultStr != null) {
