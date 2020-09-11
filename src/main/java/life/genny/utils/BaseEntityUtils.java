@@ -493,9 +493,13 @@ public class BaseEntityUtils implements Serializable {
 		T be =  BaseEntityByCode(code, true, BaseEntity.class, filteredStrings);
 		
 		for (EntityAttribute ea : be.getBaseEntityAttributes()) {
-			if (ea.getAttributeCode().equals("PRI_INTERVIEW_URL")) {
-				log.info("My Interview");
+			if (ea.getAttributeCode().equals("PRI_VIDEO_URL")) {
 				String value = ea.getValueString();
+				if (value.startsWith("http")) {
+					// normal video
+				} else {
+				log.info("My Interview");
+			
 				BaseEntity project = this.getBaseEntityByCode("PRJ_"+this.getGennyToken().getRealm().toUpperCase());
 				String apiKey = project.getValueAsString("ENV_API_KEY_MY_INTERVIEW");
 				String secretToken = project.getValueAsString("ENV_SECRET_MY_INTERVIEW");
@@ -513,7 +517,7 @@ public class BaseEntityUtils implements Serializable {
 				} else {
 					ea.setValue(url2);
 				}
-				
+				}
 			}
 
 		}

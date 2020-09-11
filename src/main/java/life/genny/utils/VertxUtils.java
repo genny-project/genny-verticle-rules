@@ -540,22 +540,54 @@ public class VertxUtils {
 
 	static public JsonObject writeMsg(String channel, Object payload) {
 		JsonObject result = null;
-//		JsonObject msg = (JsonObject) JsonUtils.fromJson(((JsonObject)payload).toString(),JsonObject.class);
-//		if (!StringUtils.isBlank(msg.getString("token"))) {
+		
+		
+		if ("webdata".equals(channel) || "webcmds".equals(channel)) {
+			// This is a standard session only
+			
+		} else {
+			// This looks like we are sending data to a subscription channel
+			if (payload instanceof QDataBaseEntityMessage) {
+				QDataBaseEntityMessage msg = (QDataBaseEntityMessage) payload;
+				List<String> rxList = new ArrayList<String>();
+				String[] rx = msg.getRecipientCodeArray();
+				if (rx != null) {
+					rxList = Arrays.asList(rx);
+				}
+				rxList.add(channel);
+				rx = rxList.toArray(new String[0]);
+				msg.setRecipientCodeArray(rx);
+				channel = "webdata";
+			} else if (payload instanceof QBulkMessage) {
+				QBulkMessage msg = (QBulkMessage) payload;
+				List<String> rxList = new ArrayList<String>();
+				String[] rx = msg.getRecipientCodeArray();
+				if (rx != null) {
+					rxList = Arrays.asList(rx);
+				}
+				rxList.add(channel);
+				rx = rxList.toArray(new String[0]);
+				msg.setRecipientCodeArray(rx);
+				channel = "webdata";
+			} else if (payload instanceof JsonObject) {
+				JsonObject msg = (JsonObject) payload;
+				log.info(msg.getValue("code"));
+			}
+			
+		}
+		
 			try {
 				eb.writeMsg(channel, payload);
 			} catch (NamingException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
 			result = new JsonObject().put("status", "ok");
-	//	} else {
-	//		result = new JsonObject().put("status", "error");
-	//	}
 		return result;
 
 	}
+
+
 
 
 	
