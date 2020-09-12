@@ -3,6 +3,8 @@ package life.genny.utils;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Sets;
 import com.google.gson.reflect.TypeToken;
+
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.rxjava.core.eventbus.MessageProducer;
 import life.genny.eventbus.EventBusInterface;
@@ -33,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class VertxUtils {
 
@@ -547,31 +550,86 @@ public class VertxUtils {
 			
 		} else {
 			// This looks like we are sending data to a subscription channel
-			if (payload instanceof QDataBaseEntityMessage) {
+			
+			if (payload instanceof String) {
+				JsonObject msg = (JsonObject) new JsonObject((String)payload);
+				log.info(msg.getValue("code"));
+				JsonArray jsonArray = msg.getJsonArray("recipientCodeArray");
+				Set<String> rxList = new HashSet<String>();
+
+						 jsonArray.forEach(object -> {
+							    if (object instanceof JsonObject) {
+							    	JsonObject jsonObject = (JsonObject) object;
+							    	rxList.add(jsonObject.toString());
+							    } else 	 if (object instanceof String) {
+							    	rxList.add(object.toString());
+							    }
+
+							  });
+						
+						rxList.add(channel);
+						JsonArray finalArray = new JsonArray();
+						
+						for (String ch : rxList) {
+							finalArray.add(ch);
+						}
+						
+						msg.put("recipientCodeArray", finalArray);
+						payload = msg.toString();
+						channel = "webdata";
+
+			}
+			else if  (payload instanceof QDataBaseEntityMessage) {
 				QDataBaseEntityMessage msg = (QDataBaseEntityMessage) payload;
-				List<String> rxList = new ArrayList<String>();
+				Set<String> rxList = new HashSet<String>();
+				rxList.add(channel);
 				String[] rx = msg.getRecipientCodeArray();
 				if (rx != null) {
-					rxList = Arrays.asList(rx);
+					Set<String> rx2 = Arrays.stream(rx).collect(Collectors.toSet());
+					rxList.addAll(rx2);
 				}
-				rxList.add(channel);
 				rx = rxList.toArray(new String[0]);
 				msg.setRecipientCodeArray(rx);
 				channel = "webdata";
 			} else if (payload instanceof QBulkMessage) {
 				QBulkMessage msg = (QBulkMessage) payload;
-				List<String> rxList = new ArrayList<String>();
+				Set<String> rxList = new HashSet<String>();
+				rxList.add(channel);
 				String[] rx = msg.getRecipientCodeArray();
 				if (rx != null) {
-					rxList = Arrays.asList(rx);
+					Set<String> rx2 = Arrays.stream(rx).collect(Collectors.toSet());
+					rxList.addAll(rx2);
 				}
-				rxList.add(channel);
 				rx = rxList.toArray(new String[0]);
 				msg.setRecipientCodeArray(rx);
 				channel = "webdata";
 			} else if (payload instanceof JsonObject) {
 				JsonObject msg = (JsonObject) payload;
 				log.info(msg.getValue("code"));
+				JsonArray jsonArray = msg.getJsonArray("recipientCodeArray");
+				Set<String> rxList = new HashSet<String>();
+
+						 jsonArray.forEach(object -> {
+							    if (object instanceof JsonObject) {
+							    	JsonObject jsonObject = (JsonObject) object;
+							    	rxList.add(jsonObject.toString());
+							    } else 	 if (object instanceof String) {
+							    	rxList.add(object.toString());
+							    }
+
+							  });
+						
+						rxList.add(channel);
+						JsonArray finalArray = new JsonArray();
+						
+						for (String ch : rxList) {
+							finalArray.add(ch);
+						}
+						
+						msg.put("recipientCodeArray", finalArray);
+						payload = msg;
+						channel = "webdata";
+
 			}
 			
 		}

@@ -201,20 +201,23 @@ public interface EventBusInterface {
 //								Matcher.quoteReplacement("]"));
 						json = resultStr5.replaceAll(Pattern.quote("}\""), Matcher.quoteReplacement("}"));
 					} else {
-						json = VertxUtils.fixJson(msgStr);
+						json = msgStr; //VertxUtils.fixJson(msgStr);
 					}
 
 
 				} else {
 				 json = JsonUtils.toJson(msg);
 				}
-				JsonParser parser = new JsonParser();
-				com.google.gson.JsonObject event = parser.parse(json).getAsJsonObject();
-
-				event.addProperty("eventbus", "WRITE");
+				
+				JsonObject event = (JsonObject) new JsonObject((String)json);
+				event.put("eventbus", "WRITE");
+				
+//				JsonParser parser = new JsonParser();
+//				com.google.gson.JsonObject event = parser.parse(json).getAsJsonObject();
+//				event.addProperty("eventbus", "WRITE");
 				json = event.toString();
 				QwandaUtils.apiPostEntity(GennySettings.bridgeServiceUrl + "?channel=" + channel, json,
-						event.get("token").getAsString());
+						event.getString("token"));
 			} catch (Exception e) {
 				String json2 = msg.toString();
 				log.error("Error in posting message to bridge eventbus:" + channel + ":" + msg);
