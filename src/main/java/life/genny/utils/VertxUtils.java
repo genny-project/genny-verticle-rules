@@ -545,7 +545,7 @@ public class VertxUtils {
 		JsonObject result = null;
 		
 		
-		if ("webdata".equals(channel) || "webcmds".equals(channel)) {
+		if ("webdata".equals(channel) || "webcmds".equals(channel)|| "events".equals(channel)|| "data".equals(channel)) {
 			// This is a standard session only
 			
 		} else {
@@ -553,7 +553,7 @@ public class VertxUtils {
 			
 			if (payload instanceof String) {
 				JsonObject msg = (JsonObject) new JsonObject((String)payload);
-				log.info(msg.getValue("code"));
+				log.info(msg.getValue("event_type"));
 				JsonArray jsonArray = msg.getJsonArray("recipientCodeArray");
 				Set<String> rxList = new HashSet<String>();
 
