@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Properties;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -282,7 +283,47 @@ public class EmailHelper extends NotificationHelper {
     } catch (IOException ex) {
       throw ex;
     }
-	}
+  }
+
+	public static void sendGrid(String recipient, String subject, String templateId, HashMap<String, String> templateData) throws IOException {
+    Email from = new Email(System.getenv("SENDGRID_EMAIL_SENDER"));
+    Email to = new Email(recipient);
+
+    SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
+
+    Personalization personalization = new Personalization();
+
+    personalization.addTo(to);
+    personalization.setSubject(subject);
+
+    for (Map.Entry<String, String> entry : templateData.entrySet()) {
+
+      String key = entry.getKey();
+      String value = entry.getValue();
+
+      personalization.addDynamicTemplateData(key, value);
+    }
+
+    Mail mail = new Mail();
+    mail.addPersonalization(personalization);
+    mail.setTemplateId(templateId);
+    mail.setFrom(from);
+
+    Request request = new Request();
+    try {
+      request.setMethod(Method.POST);
+      request.setEndpoint("mail/send");
+      request.setBody(mail.build());
+      Response response = sg.api(request);
+      System.out.println(response.getStatusCode());
+      System.out.println(response.getBody());
+      System.out.println(response.getHeaders());
+
+    } catch (IOException ex) {
+      throw ex;
+    }
+  }
+  
 }
     
 
