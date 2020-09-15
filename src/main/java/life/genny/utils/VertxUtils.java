@@ -318,6 +318,7 @@ public class VertxUtils {
 				log.error("readFromDDT baseEntity for realm " + realm + " has null code! json is ["
 						+ json.getString("value") + "]");
 			}
+			be.setFromCache(true);
 		} else {
 			// fetch normally
 			// log.info("Cache MISS for " + code + " with attributes in realm " +
@@ -352,6 +353,7 @@ public class VertxUtils {
 
 				writeCachedJson(realm, code, JsonUtils.toJson(be));
 			}
+			be.setFromCache(false);
 		}
 		return be;
 	}
