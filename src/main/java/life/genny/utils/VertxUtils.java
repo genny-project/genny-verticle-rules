@@ -314,11 +314,15 @@ public class VertxUtils {
 
 		if ("ok".equals(json.getString("status"))) {
 			be = JsonUtils.fromJson(json.getString("value"), clazz);
-			if (be != null && be.getCode() == null) {
-				log.error("readFromDDT baseEntity for realm " + realm + " has null code! json is ["
-						+ json.getString("value") + "]");
+			if (be != null)  {
+				if ( be.getCode() == null) {
+					log.error("readFromDDT baseEntity for realm " +
+							realm + " has null code! json is [" + json.getString("value") + "]");
+				}
+				else {
+					be.setFromCache(true);
+				}
 			}
-			be.setFromCache(true);
 		} else {
 			// fetch normally
 			// log.info("Cache MISS for " + code + " with attributes in realm " +
