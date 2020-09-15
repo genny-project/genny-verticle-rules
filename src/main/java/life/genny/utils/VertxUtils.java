@@ -355,9 +355,13 @@ public class VertxUtils {
 
 				}
 
-				writeCachedJson(realm, code, JsonUtils.toJson(be));
+				if (be != null)
+					writeCachedJson(realm, code, JsonUtils.toJson(be));
 			}
-			be.setFromCache(false);
+			if (be!=null)
+				be.setFromCache(false);
+			else
+				log.error(String.format("BaseEntity: %s fetched is null", code));
 		}
 		return be;
 	}
