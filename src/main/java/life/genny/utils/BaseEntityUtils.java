@@ -276,24 +276,23 @@ public class BaseEntityUtils implements Serializable {
 							if (ea.getAttributeCode().equals("PRI_VIDEO_URL"))
 								processVideoAttribute(ea);
 							ea.setAttribute(attribute);
-						}
-					} else {
-						RulesUtils.loadAllAttributesIntoCache(this.token);
-						attribute = RulesUtils.attributeMap.get(ea.getAttributeCode());
-						if (attribute != null) {
-							ea.setAttribute(attribute);
 						} else {
-							log.error("Cannot get Attribute - " + ea.getAttributeCode());
+							RulesUtils.loadAllAttributesIntoCache(this.token);
+							attribute = RulesUtils.attributeMap.get(ea.getAttributeCode());
+							if (attribute != null) {
+								ea.setAttribute(attribute);
+							} else {
+								log.error("Cannot get Attribute - " + ea.getAttributeCode());
 
-							Attribute dummy = new AttributeText(ea.getAttributeCode(), ea.getAttributeCode());
-							ea.setAttribute(dummy);
+								Attribute dummy = new AttributeText(ea.getAttributeCode(), ea.getAttributeCode());
+								ea.setAttribute(dummy);
 
+							}
 						}
 					}
 				}
 			}
 		}
-	}
 
 	}
 
