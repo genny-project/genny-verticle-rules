@@ -2211,11 +2211,7 @@ public class BaseEntityUtils implements Serializable {
 
 			log.info("MyInterview Hash is " + url);
 			log.info("MyInterview Hash2 is " + url2);
-			if ("PER_DOMENIC_AT_GADATECHNOLOGY_DOT_COM_DOT_AU".equals(code)) {
-				ea.setValue("https://www.youtube.com/watch?v=dQw4w9WgXcQ"); // needed a demo video
-			} else {
-				ea.setValue(url2);
-			}
+			ea.setValue(url2);
 		}
 	}
 
