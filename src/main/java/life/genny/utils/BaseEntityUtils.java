@@ -273,11 +273,11 @@ public class BaseEntityUtils implements Serializable {
 					if (ea != null) {
 						Attribute attribute = RulesUtils.attributeMap.get(ea.getAttributeCode());
 						if (attribute != null) {
+							ea.setAttribute(attribute);
 							if (ea.getAttributeCode().equals("PRI_MIV")) {
 								log.info("Found PRI_MIV. Processing the attribute");
 								processVideoAttribute(ea);
 							}
-							ea.setAttribute(attribute);
 						} else {
 							RulesUtils.loadAllAttributesIntoCache(this.token);
 							attribute = RulesUtils.attributeMap.get(ea.getAttributeCode());
@@ -2195,7 +2195,7 @@ public class BaseEntityUtils implements Serializable {
 
 	public void processVideoAttribute(EntityAttribute ea) {
 		String value = ea.getValueString();
-		if (!value.startsWith("http")) {
+		if (value != null && !value.startsWith("http")) {
 
 			log.info("My Interview");
 			BaseEntity project = this.getBaseEntityByCode("PRJ_" + this.getGennyToken().getRealm().toUpperCase());
