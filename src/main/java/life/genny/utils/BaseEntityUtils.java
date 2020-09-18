@@ -274,6 +274,7 @@ public class BaseEntityUtils implements Serializable {
 						Attribute attribute = RulesUtils.attributeMap.get(ea.getAttributeCode());
 						if (attribute != null) {
 							if (ea.getAttributeCode().equals("PRI_MIV")) {
+								log.info("Found PRI_MIV. Processing the attribute");
 								processVideoAttribute(ea);
 							}
 							ea.setAttribute(attribute);
