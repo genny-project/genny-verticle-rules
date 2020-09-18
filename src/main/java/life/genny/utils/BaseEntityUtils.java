@@ -273,7 +273,7 @@ public class BaseEntityUtils implements Serializable {
 					if (ea != null) {
 						Attribute attribute = RulesUtils.attributeMap.get(ea.getAttributeCode());
 						if (attribute != null) {
-							if (ea.getAttributeCode().equals("PRI_VIDEO_URL")) {
+							if (ea.getAttributeCode().equals("PRI_MIV")) {
 								processVideoAttribute(ea);
 							}
 							ea.setAttribute(attribute);
@@ -495,7 +495,7 @@ public class BaseEntityUtils implements Serializable {
 		T be = BaseEntityByCode(code, true, BaseEntity.class, filteredStrings);
 
 		for (EntityAttribute ea : be.getBaseEntityAttributes()) {
-			if (ea.getAttributeCode().equals("PRI_VIDEO_URL")) {
+			if (ea.getAttributeCode().equals("PRI_MIV")) {
 				String value = ea.getValueString();
 				if (value.startsWith("http")) {
 					// normal video
