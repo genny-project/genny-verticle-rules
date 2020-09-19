@@ -2214,4 +2214,20 @@ public class BaseEntityUtils implements Serializable {
 		}
 		return person;
 	}
+	
+	public JsonObject writeMsg(BaseEntity be) { 
+		return writeMsg(be,new String[0]);
+	}
+	
+	public JsonObject writeMsg(BaseEntity be, String... rxList) { 
+		QDataBaseEntityMessage msg = new QDataBaseEntityMessage(be);
+		msg.setToken(this.gennyToken.getToken());
+		msg.setReplace(true);
+		if ((rxList!= null)&&(rxList.length>0)) {
+			msg.setRecipientCodeArray(rxList);
+			return VertxUtils.writeMsg("project", msg);
+		} else {
+			return VertxUtils.writeMsg("webdata",msg);
+		}
+	}
 }
