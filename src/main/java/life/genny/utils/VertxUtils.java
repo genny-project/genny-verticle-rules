@@ -554,6 +554,11 @@ public class VertxUtils {
 	static public JsonObject writeMsg(String channel, Object payload) {
 		JsonObject result = null;
 		
+		if ((payload instanceof String)||(payload == null)) {
+			if ("null".equals((String)payload)) {
+				return new JsonObject().put("status", "error");
+			}
+		}
 		
 		if ("webdata".equals(channel) || "webcmds".equals(channel)|| "events".equals(channel)|| "data".equals(channel)) {
 			// This is a standard session only
