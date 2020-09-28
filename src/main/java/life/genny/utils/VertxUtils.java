@@ -15,6 +15,7 @@ import life.genny.qwanda.attribute.EntityAttribute;
 import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.message.MessageData;
 import life.genny.qwanda.message.QBulkMessage;
+import life.genny.qwanda.message.QCmdMessage;
 import life.genny.qwanda.message.QDataBaseEntityMessage;
 import life.genny.qwanda.message.QEventMessage;
 import life.genny.qwandautils.GennyCacheInterface;
@@ -669,6 +670,16 @@ public class VertxUtils {
 		return writeMsg(channel, msg);
 	}
 
+	
+	static public void writeMsgEnd(GennyToken userToken) {
+		QCmdMessage msgend = new QCmdMessage("END_PROCESS", "END_PROCESS");
+		msgend.setToken(userToken.getToken());
+		msgend.setSend(true);
+		VertxUtils.writeMsg("webcmds", msgend);
+	}
+
+	
+	
     static public QEventMessage sendEvent(final String code)
     {
             QEventMessage msg = new QEventMessage("UPDATE",code);
