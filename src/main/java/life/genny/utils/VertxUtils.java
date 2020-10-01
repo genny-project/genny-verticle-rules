@@ -13,6 +13,7 @@ import life.genny.models.GennyToken;
 import life.genny.qwanda.Answer;
 import life.genny.qwanda.attribute.EntityAttribute;
 import life.genny.qwanda.entity.BaseEntity;
+import life.genny.qwanda.exception.BadDataException;
 import life.genny.qwanda.message.MessageData;
 import life.genny.qwanda.message.QBulkMessage;
 import life.genny.qwanda.message.QCmdMessage;
@@ -876,4 +877,47 @@ public class VertxUtils {
 
 	}
 	
+	
+	static public void sendFeedbackError(GennyToken userToken, Answer answer, String message)
+	{
+		VertxUtils.sendFeedback(userToken,answer,"ERROR",message);
+	}
+	
+	static public void sendFeedbackWarning(GennyToken userToken, Answer answer, String message)
+	{
+		VertxUtils.sendFeedback(userToken,answer,"WARN",message);
+	}
+	static public void sendFeedbackSuspicious(GennyToken userToken, Answer answer, String message)
+	{
+		VertxUtils.sendFeedback(userToken,answer,"SUSPICIOUS",message);
+	}
+	static public void sendFeedbackHint(GennyToken userToken, Answer answer, String message)
+	{
+		VertxUtils.sendFeedback(userToken,answer,"HINT",message);
+	}
+	
+
+
+
+	static public void sendFeedback(GennyToken userToken, Answer answer, String prefix, String message)
+	{
+		// find the baseentity
+		BaseEntity be = VertxUtils.getObject(userToken.getRealm(), "", answer.getTargetCode(), BaseEntity.class,
+				userToken.getToken());
+		
+		BaseEntity sendBe = new BaseEntity(be.getCode(),be.getName());
+		sendBe.setRealm(userToken.getRealm());
+		try {
+			sendBe.addAnswer(answer);
+			Optional<EntityAttribute> ea =sendBe.findEntityAttribute(answer.getAttributeCode());
+			if (ea.isPresent()) {
+				ea.get().setValueString(prefix+":"+message);
+				VertxUtils.writeMsg("webdata", sendBe);
+			}
+		} catch (BadDataException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 }
