@@ -16,7 +16,7 @@ public class EncryptionUtils {
 	static public String getEncryptedString(final String originalString,final String securityKey,final GennyToken gennyToken)
 	{
 		String initVector = GennySettings.dynamicInitVector(gennyToken.getRealm());
-		return  SecurityUtils.encrypt(securityKey, initVector, originalString);
+		return SecurityUtils.encrypt(securityKey, initVector, originalString).replaceAll("/", "");
 
 	}
 	

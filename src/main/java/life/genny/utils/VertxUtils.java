@@ -11,6 +11,7 @@ import life.genny.eventbus.EventBusInterface;
 import life.genny.eventbus.EventBusMock;
 import life.genny.models.GennyToken;
 import life.genny.qwanda.Answer;
+import life.genny.qwanda.attribute.Attribute;
 import life.genny.qwanda.attribute.EntityAttribute;
 import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.exception.BadDataException;
@@ -555,7 +556,9 @@ public class VertxUtils {
 
 	static public JsonObject writeMsg(String channel, Object payload) {
 		JsonObject result = null;
-		
+		Set<String> rxList = new HashSet<String>();
+		String token = null;
+
 		if ((payload instanceof String)||(payload == null)) {
 			if ("null".equals((String)payload)) {
 				return new JsonObject().put("status", "error");
@@ -564,15 +567,13 @@ public class VertxUtils {
 		
 		if ("webdata".equals(channel) || "webcmds".equals(channel)|| "events".equals(channel)|| "data".equals(channel)) {
 			// This is a standard session only
-			
 		} else {
 			// This looks like we are sending data to a subscription channel
-			
+
 			if (payload instanceof String) {
 				JsonObject msg = (JsonObject) new JsonObject((String)payload);
 				log.info(msg.getValue("event_type"));
 				JsonArray jsonArray = msg.getJsonArray("recipientCodeArray");
-				Set<String> rxList = new HashSet<String>();
 
 						 jsonArray.forEach(object -> {
 							    if (object instanceof JsonObject) {
@@ -590,15 +591,15 @@ public class VertxUtils {
 						for (String ch : rxList) {
 							finalArray.add(ch);
 						}
-						
+						token = msg.getString("token");
 						msg.put("recipientCodeArray", finalArray);
+						log.info("Writing to channels "+finalArray);
 						payload = msg.toString();
 						channel = "webdata";
 
 			}
 			else if  (payload instanceof QDataBaseEntityMessage) {
 				QDataBaseEntityMessage msg = (QDataBaseEntityMessage) payload;
-				Set<String> rxList = new HashSet<String>();
 				rxList.add(channel);
 				String[] rx = msg.getRecipientCodeArray();
 				if (rx != null) {
@@ -607,10 +608,11 @@ public class VertxUtils {
 				}
 				rx = rxList.toArray(new String[0]);
 				msg.setRecipientCodeArray(rx);
+				log.info("Writing to channels "+rx);
+				token = msg.getToken();
 				channel = "webdata";
 			} else if (payload instanceof QBulkMessage) {
 				QBulkMessage msg = (QBulkMessage) payload;
-				Set<String> rxList = new HashSet<String>();
 				rxList.add(channel);
 				String[] rx = msg.getRecipientCodeArray();
 				if (rx != null) {
@@ -619,12 +621,13 @@ public class VertxUtils {
 				}
 				rx = rxList.toArray(new String[0]);
 				msg.setRecipientCodeArray(rx);
+				log.info("Writing to channels "+rx);
+				token = msg.getToken();
 				channel = "webdata";
 			} else if (payload instanceof JsonObject) {
 				JsonObject msg = (JsonObject) payload;
 				log.info(msg.getValue("code"));
 				JsonArray jsonArray = msg.getJsonArray("recipientCodeArray");
-				Set<String> rxList = new HashSet<String>();
 
 						 jsonArray.forEach(object -> {
 							    if (object instanceof JsonObject) {
@@ -644,6 +647,8 @@ public class VertxUtils {
 						}
 						
 						msg.put("recipientCodeArray", finalArray);
+						log.info("Writing to channels "+finalArray);
+						token = msg.getString("token");
 						payload = msg;
 						channel = "webdata";
 
@@ -653,6 +658,10 @@ public class VertxUtils {
 		
 			try {
 				eb.writeMsg(channel, payload);
+				if (!rxList.isEmpty()) {
+					// send ends
+					writeMsgEnd(new GennyToken(token),rxList);
+				}
 			} catch (NamingException e) {
 				e.printStackTrace();
 			}
@@ -679,7 +688,14 @@ public class VertxUtils {
 		VertxUtils.writeMsg("webcmds", msgend);
 	}
 
-	
+	static public void writeMsgEnd(GennyToken userToken,Set<String> rxSet) {
+		QCmdMessage msgend = new QCmdMessage("END_PROCESS", "END_PROCESS");
+		msgend.setToken(userToken.getToken());
+		msgend.setSend(true);
+		String[] rxArray = rxSet.toArray(new String[0]);
+		msgend.setRecipientCodeArray(rxArray);
+		VertxUtils.writeMsg("project", msgend);
+	}
 	
     static public QEventMessage sendEvent(final String code)
     {
@@ -908,11 +924,16 @@ public class VertxUtils {
 		BaseEntity sendBe = new BaseEntity(be.getCode(),be.getName());
 		sendBe.setRealm(userToken.getRealm());
 		try {
-			sendBe.addAnswer(answer);
+			Attribute att = RulesUtils.getAttribute(answer.getAttributeCode(), userToken.getToken());
+			sendBe.addAttribute(att);
+			sendBe.setValue(att, answer.getValue());
 			Optional<EntityAttribute> ea =sendBe.findEntityAttribute(answer.getAttributeCode());
 			if (ea.isPresent()) {
-				ea.get().setValueString(prefix+":"+message);
-				VertxUtils.writeMsg("webdata", sendBe);
+				ea.get().setFeedback(prefix+":"+message);
+				QDataBaseEntityMessage msg = new QDataBaseEntityMessage(sendBe);
+				msg.setReplace(true);
+				msg.setToken(userToken.getToken());
+				VertxUtils.writeMsg("webcmds", msg);
 			}
 		} catch (BadDataException e) {
 			// TODO Auto-generated catch block
