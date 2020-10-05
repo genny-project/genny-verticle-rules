@@ -58,12 +58,11 @@ public class VertxUtils {
 
 	}
 
-    static public List<Answer> answerBuffer = new ArrayList<Answer>();
+	static public List<Answer> answerBuffer = new ArrayList<Answer>();
 
 	public static GennyCacheInterface cacheInterface = null;
-	
-	public static GennyCacheInterface getCacheInterface()
-	{
+
+	public static GennyCacheInterface getCacheInterface() {
 		return cacheInterface;
 	}
 
@@ -153,16 +152,15 @@ public class VertxUtils {
 		writeCachedJson(realm, prekey + key, data, token);
 	}
 
-	static public void clearCache(final String realm, final String token)
-	{
+	static public void clearCache(final String realm, final String token) {
 		if (!GennySettings.forceCacheApi) {
-				cacheInterface.clear(realm);
+			cacheInterface.clear(realm);
 		} else {
 			if (cachedEnabled) {
 				localCache.clear();
 			} else {
 				try {
-					QwandaUtils.apiGet(GennySettings.ddtUrl + "/clear/" + realm , token);
+					QwandaUtils.apiGet(GennySettings.ddtUrl + "/clear/" + realm, token);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -170,14 +168,14 @@ public class VertxUtils {
 			}
 		}
 	}
-	
+
 	static public JsonObject readCachedJson(final String realm, final String key) {
 		return readCachedJson(realm, key, DEFAULT_TOKEN);
 	}
 
 	static public JsonObject readCachedJson(String realm, final String key, final String token) {
 		JsonObject result = null;
-		
+
 		if (!GennySettings.forceCacheApi) {
 			String ret = null;
 			try {
@@ -185,7 +183,7 @@ public class VertxUtils {
 				// "+(GennySettings.isCacheServer?" LOCAL DDT":"CLIENT "));
 				if (key == null) {
 					log.error("Cache is  null");
-			
+
 					return null;
 				}
 				ret = (String) cacheInterface.readCache(realm, key, token);
@@ -201,7 +199,7 @@ public class VertxUtils {
 		} else {
 			String resultStr = null;
 			try {
-			//	log.info("VERTX READING FROM CACHE API!");
+				// log.info("VERTX READING FROM CACHE API!");
 				if (cachedEnabled) {
 					if ("DUMMY".equals(token)) {
 						// leave realm as it
@@ -215,7 +213,7 @@ public class VertxUtils {
 						String resultStr6 = null;
 						if (false) {
 							// ugly way to fix json
-							resultStr6  = VertxUtils.fixJson(resultStr);
+							resultStr6 = VertxUtils.fixJson(resultStr);
 						} else {
 							resultStr6 = resultStr;
 						}
@@ -229,19 +227,21 @@ public class VertxUtils {
 					}
 
 				} else {
-					log.info("DEBUGINFO, DDT URL:" + GennySettings.ddtUrl + ", realm:" + realm + "key:" + key + "token:" + token );
-//					resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/service/cache/read/" + realm + "/" + key, token);
-					resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/" + realm + "/" + key, token);	
-					if (("<html><head><title>Error</title></head><body>Not Found</body></html>".equals(resultStr)) || ("<html><body><h1>Resource not found</h1></body></html>".equals(resultStr))) {
-						resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/service/cache/read/" + key, token);		
+					log.info("DEBUGINFO, DDT URL:" + GennySettings.ddtUrl + ", realm:" + realm + "key:" + key + "token:" + token);
+					// resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/service/cache/read/"
+					// + realm + "/" + key, token);
+					resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/" + realm + "/" + key, token);
+					if (("<html><head><title>Error</title></head><body>Not Found</body></html>".equals(resultStr))
+							|| ("<html><body><h1>Resource not found</h1></body></html>".equals(resultStr))) {
+						resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/service/cache/read/" + key, token);
 					}
-//					resultStr =  readFromDDT(realm, key, token).toString();
+					// resultStr = readFromDDT(realm, key, token).toString();
 				}
 				if (resultStr != null) {
 					try {
 						result = new JsonObject(resultStr);
 					} catch (Exception e) {
-						log.error("JsonDecode Error "+resultStr);
+						log.error("JsonDecode Error " + resultStr);
 					}
 				} else {
 					result = new JsonObject().put("status", "error");
@@ -274,7 +274,7 @@ public class VertxUtils {
 				if (cachedEnabled) {
 					// force
 					if ("DUMMY".equals(token)) {
-						
+
 					} else {
 						GennyToken temp = new GennyToken(token);
 						realm = temp.getRealm();
@@ -308,8 +308,7 @@ public class VertxUtils {
 		cacheInterface.clear(realm);
 	}
 
-	
-	static public <T extends BaseEntity> T  readFromDDT(String realm, final String code, final boolean withAttributes,
+	static public <T extends BaseEntity> T readFromDDT(String realm, final String code, final boolean withAttributes,
 			final String token, Class clazz) {
 		T be = null;
 
@@ -317,12 +316,11 @@ public class VertxUtils {
 
 		if ("ok".equals(json.getString("status"))) {
 			be = JsonUtils.fromJson(json.getString("value"), clazz);
-			if (be != null)  {
-				if ( be.getCode() == null) {
-					log.error("readFromDDT baseEntity for realm " +
-							realm + " has null code! json is [" + json.getString("value") + "]");
-				}
-				else {
+			if (be != null) {
+				if (be.getCode() == null) {
+					log.error("readFromDDT baseEntity for realm " + realm + " has null code! json is [" + json.getString("value")
+							+ "]");
+				} else {
 					be.setFromCache(true);
 				}
 			}
@@ -352,8 +350,7 @@ public class VertxUtils {
 				} catch (Exception e) {
 					// Okay, this is bad. Usually the code is not in the database but in keycloak
 					// So lets leave it to the rules to sort out... (new user)
-					log.error(
-							"BE " + code + " for realm " + realm + " is NOT IN CACHE OR DB " + e.getLocalizedMessage());
+					log.error("BE " + code + " for realm " + realm + " is NOT IN CACHE OR DB " + e.getLocalizedMessage());
 					return null;
 
 				}
@@ -361,7 +358,7 @@ public class VertxUtils {
 				if (be != null)
 					writeCachedJson(realm, code, JsonUtils.toJson(be));
 			}
-			if (be!=null)
+			if (be != null)
 				be.setFromCache(false);
 			else
 				log.error(String.format("BaseEntity: %s fetched is null", code));
@@ -369,10 +366,9 @@ public class VertxUtils {
 		return be;
 	}
 
-	
-	static public <T extends BaseEntity> T  readFromDDT(String realm, final String code, final boolean withAttributes,
+	static public <T extends BaseEntity> T readFromDDT(String realm, final String code, final boolean withAttributes,
 			final String token) {
-		return readFromDDT(realm, code, withAttributes,token,BaseEntity.class);
+		return readFromDDT(realm, code, withAttributes, token, BaseEntity.class);
 	}
 
 	static boolean cacheDisabled = GennySettings.noCache;
@@ -559,46 +555,45 @@ public class VertxUtils {
 		Set<String> rxList = new HashSet<String>();
 		String token = null;
 
-		if ((payload instanceof String)||(payload == null)) {
-			if ("null".equals((String)payload)) {
+		if ((payload instanceof String) || (payload == null)) {
+			if ("null".equals((String) payload)) {
 				return new JsonObject().put("status", "error");
 			}
 		}
-		
-		if ("webdata".equals(channel) || "webcmds".equals(channel)|| "events".equals(channel)|| "data".equals(channel)) {
+
+		if ("webdata".equals(channel) || "webcmds".equals(channel) || "events".equals(channel) || "data".equals(channel)) {
 			// This is a standard session only
 		} else {
 			// This looks like we are sending data to a subscription channel
 
 			if (payload instanceof String) {
-				JsonObject msg = (JsonObject) new JsonObject((String)payload);
+				JsonObject msg = (JsonObject) new JsonObject((String) payload);
 				log.info(msg.getValue("event_type"));
 				JsonArray jsonArray = msg.getJsonArray("recipientCodeArray");
 
-						 jsonArray.forEach(object -> {
-							    if (object instanceof JsonObject) {
-							    	JsonObject jsonObject = (JsonObject) object;
-							    	rxList.add(jsonObject.toString());
-							    } else 	 if (object instanceof String) {
-							    	rxList.add(object.toString());
-							    }
+				jsonArray.forEach(object -> {
+					if (object instanceof JsonObject) {
+						JsonObject jsonObject = (JsonObject) object;
+						rxList.add(jsonObject.toString());
+					} else if (object instanceof String) {
+						rxList.add(object.toString());
+					}
 
-							  });
-						
-						rxList.add(channel);
-						JsonArray finalArray = new JsonArray();
-						
-						for (String ch : rxList) {
-							finalArray.add(ch);
-						}
-						token = msg.getString("token");
-						msg.put("recipientCodeArray", finalArray);
-						log.info("Writing to channels "+finalArray);
-						payload = msg.toString();
-						channel = "webdata";
+				});
 
-			}
-			else if  (payload instanceof QDataBaseEntityMessage) {
+				rxList.add(channel);
+				JsonArray finalArray = new JsonArray();
+
+				for (String ch : rxList) {
+					finalArray.add(ch);
+				}
+				token = msg.getString("token");
+				msg.put("recipientCodeArray", finalArray);
+				log.info("Writing to channels " + finalArray);
+				payload = msg.toString();
+				channel = "webdata";
+
+			} else if (payload instanceof QDataBaseEntityMessage) {
 				QDataBaseEntityMessage msg = (QDataBaseEntityMessage) payload;
 				rxList.add(channel);
 				String[] rx = msg.getRecipientCodeArray();
@@ -608,7 +603,7 @@ public class VertxUtils {
 				}
 				rx = rxList.toArray(new String[0]);
 				msg.setRecipientCodeArray(rx);
-				log.info("Writing to channels "+rx);
+				log.info("Writing to channels " + rx);
 				token = msg.getToken();
 				channel = "webdata";
 			} else if (payload instanceof QBulkMessage) {
@@ -621,7 +616,7 @@ public class VertxUtils {
 				}
 				rx = rxList.toArray(new String[0]);
 				msg.setRecipientCodeArray(rx);
-				log.info("Writing to channels "+rx);
+				log.info("Writing to channels " + rx);
 				token = msg.getToken();
 				channel = "webdata";
 			} else if (payload instanceof JsonObject) {
@@ -629,58 +624,53 @@ public class VertxUtils {
 				log.info(msg.getValue("code"));
 				JsonArray jsonArray = msg.getJsonArray("recipientCodeArray");
 
-						 jsonArray.forEach(object -> {
-							    if (object instanceof JsonObject) {
-							    	JsonObject jsonObject = (JsonObject) object;
-							    	rxList.add(jsonObject.toString());
-							    } else 	 if (object instanceof String) {
-							    	rxList.add(object.toString());
-							    }
+				jsonArray.forEach(object -> {
+					if (object instanceof JsonObject) {
+						JsonObject jsonObject = (JsonObject) object;
+						rxList.add(jsonObject.toString());
+					} else if (object instanceof String) {
+						rxList.add(object.toString());
+					}
 
-							  });
-						
-						rxList.add(channel);
-						JsonArray finalArray = new JsonArray();
-						
-						for (String ch : rxList) {
-							finalArray.add(ch);
-						}
-						
-						msg.put("recipientCodeArray", finalArray);
-						log.info("Writing to channels "+finalArray);
-						token = msg.getString("token");
-						payload = msg;
-						channel = "webdata";
+				});
 
-			}
-			
-		}
-		
-			try {
-				eb.writeMsg(channel, payload);
-				if (!rxList.isEmpty()) {
-					// send ends
-					writeMsgEnd(new GennyToken(token),rxList);
+				rxList.add(channel);
+				JsonArray finalArray = new JsonArray();
+
+				for (String ch : rxList) {
+					finalArray.add(ch);
 				}
-			} catch (NamingException e) {
-				e.printStackTrace();
+
+				msg.put("recipientCodeArray", finalArray);
+				log.info("Writing to channels " + finalArray);
+				token = msg.getString("token");
+				payload = msg;
+				channel = "webdata";
+
 			}
 
-			result = new JsonObject().put("status", "ok");
+		}
+
+		try {
+			eb.writeMsg(channel, payload);
+			if (!rxList.isEmpty()) {
+				// send ends
+				writeMsgEnd(new GennyToken(token), rxList);
+			}
+		} catch (NamingException e) {
+			e.printStackTrace();
+		}
+
+		result = new JsonObject().put("status", "ok");
 		return result;
 
 	}
 
-
-
-
-	
 	static public JsonObject writeMsg(String channel, BaseEntity baseentity, String aliasCode) {
 		QDataBaseEntityMessage msg = new QDataBaseEntityMessage(baseentity, aliasCode);
 		return writeMsg(channel, msg);
 	}
 
-	
 	static public void writeMsgEnd(GennyToken userToken) {
 		QCmdMessage msgend = new QCmdMessage("END_PROCESS", "END_PROCESS");
 		msgend.setToken(userToken.getToken());
@@ -688,7 +678,7 @@ public class VertxUtils {
 		VertxUtils.writeMsg("webcmds", msgend);
 	}
 
-	static public void writeMsgEnd(GennyToken userToken,Set<String> rxSet) {
+	static public void writeMsgEnd(GennyToken userToken, Set<String> rxSet) {
 		QCmdMessage msgend = new QCmdMessage("END_PROCESS", "END_PROCESS");
 		msgend.setToken(userToken.getToken());
 		msgend.setSend(true);
@@ -696,30 +686,29 @@ public class VertxUtils {
 		msgend.setRecipientCodeArray(rxArray);
 		VertxUtils.writeMsg("project", msgend);
 	}
-	
-    static public QEventMessage sendEvent(final String code)
-    {
-            QEventMessage msg = new QEventMessage("UPDATE",code);
-            writeMsg("events",msg);
-            return msg;
-    }
 
+	static public QEventMessage sendEvent(final String code) {
+		QEventMessage msg = new QEventMessage("UPDATE", code);
+		writeMsg("events", msg);
+		return msg;
+	}
 
-    static public QEventMessage sendEvent(final String code, final String source, final String target, final GennyToken serviceToken)
-    {
-            QEventMessage msg = new QEventMessage("UPDATE",code);
-            MessageData data = new MessageData(code);
-            data.setParentCode(source);
-            data.setTargetCode(target);
-            msg.setData(data);
-            msg.setToken(serviceToken.getToken());
-            writeMsg("events",msg);
-            return msg;
-    }
+	static public QEventMessage sendEvent(final String code, final String source, final String target,
+			final GennyToken serviceToken) {
+		QEventMessage msg = new QEventMessage("UPDATE", code);
+		MessageData data = new MessageData(code);
+		data.setParentCode(source);
+		data.setTargetCode(target);
+		msg.setData(data);
+		msg.setToken(serviceToken.getToken());
+		writeMsg("events", msg);
+		return msg;
+	}
+
 	static public Object privacyFilter(BaseEntity user, Object payload, final String[] filterAttributes) {
 		if (payload instanceof QDataBaseEntityMessage) {
-			return JsonUtils.toJson(privacyFilter(user, (QDataBaseEntityMessage) payload,
-					new HashMap<String, BaseEntity>(), filterAttributes));
+			return JsonUtils.toJson(
+					privacyFilter(user, (QDataBaseEntityMessage) payload, new HashMap<String, BaseEntity>(), filterAttributes));
 		} else if (payload instanceof QBulkMessage) {
 			return JsonUtils.toJson(privacyFilter(user, (QBulkMessage) payload, filterAttributes));
 		} else
@@ -771,7 +760,7 @@ public class VertxUtils {
 		return privacyFilter(user, be, filterStrArray);
 	}
 
-	static public <T extends BaseEntity> T  privacyFilter(BaseEntity user, T be, final String[] filterAttributes) {
+	static public <T extends BaseEntity> T privacyFilter(BaseEntity user, T be, final String[] filterAttributes) {
 		Set<EntityAttribute> allowedAttributes = new HashSet<EntityAttribute>();
 		for (EntityAttribute entityAttribute : be.getBaseEntityAttributes()) {
 			// log.info("ATTRIBUTE:"+entityAttribute.getAttributeCode()+(entityAttribute.getPrivacyFlag()?"PRIVACYFLAG=TRUE":"PRIVACYFLAG=FALSE"));
@@ -806,10 +795,10 @@ public class VertxUtils {
 	static public BaseEntity privacyFilter(BaseEntity be, final String[] filterAttributes) {
 		Set<EntityAttribute> allowedAttributes = new HashSet<EntityAttribute>();
 		for (EntityAttribute entityAttribute : be.getBaseEntityAttributes()) {
-				String attributeCode = entityAttribute.getAttributeCode();
-				if (Arrays.stream(filterAttributes).anyMatch(x -> x.equals(attributeCode))) {
-					allowedAttributes.add(entityAttribute);
-				} 
+			String attributeCode = entityAttribute.getAttributeCode();
+			if (Arrays.stream(filterAttributes).anyMatch(x -> x.equals(attributeCode))) {
+				allowedAttributes.add(entityAttribute);
+			}
 		}
 		be.setBaseEntityAttributes(allowedAttributes);
 
@@ -871,65 +860,85 @@ public class VertxUtils {
 		return realms;
 	}
 
-	static public String fixJson(String resultStr)
-	{
-		String resultStr2 = resultStr.replaceAll(Pattern.quote("\\\""),
-				Matcher.quoteReplacement("\""));
-		String resultStr3 = resultStr2.replaceAll(Pattern.quote("\\n"),
-				Matcher.quoteReplacement("\n"));
-		String resultStr4 = resultStr3.replaceAll(Pattern.quote("\\\n"),
-				Matcher.quoteReplacement("\n"));
-//		String resultStr5 = resultStr4.replaceAll(Pattern.quote("\"{"),
-//				Matcher.quoteReplacement("{"));
-//		String resultStr6 = resultStr5.replaceAll(Pattern.quote("\"["),
-//				Matcher.quoteReplacement("["));
-//		String resultStr7 = resultStr6.replaceAll(Pattern.quote("]\""),
-//				Matcher.quoteReplacement("]"));
-//		String resultStr8 = resultStr5.replaceAll(Pattern.quote("}\""), Matcher.quoteReplacement("}"));
-		String ret = resultStr4.replaceAll(Pattern.quote("\\\""
-				+ ""),
-				Matcher.quoteReplacement("\""));
+	static public String fixJson(String resultStr) {
+		String resultStr2 = resultStr.replaceAll(Pattern.quote("\\\""), Matcher.quoteReplacement("\""));
+		String resultStr3 = resultStr2.replaceAll(Pattern.quote("\\n"), Matcher.quoteReplacement("\n"));
+		String resultStr4 = resultStr3.replaceAll(Pattern.quote("\\\n"), Matcher.quoteReplacement("\n"));
+		// String resultStr5 = resultStr4.replaceAll(Pattern.quote("\"{"),
+		// Matcher.quoteReplacement("{"));
+		// String resultStr6 = resultStr5.replaceAll(Pattern.quote("\"["),
+		// Matcher.quoteReplacement("["));
+		// String resultStr7 = resultStr6.replaceAll(Pattern.quote("]\""),
+		// Matcher.quoteReplacement("]"));
+		// String resultStr8 = resultStr5.replaceAll(Pattern.quote("}\""),
+		// Matcher.quoteReplacement("}"));
+		String ret = resultStr4.replaceAll(Pattern.quote("\\\"" + ""), Matcher.quoteReplacement("\""));
 		return ret;
 
 	}
-	
-	
-	static public void sendFeedbackError(GennyToken userToken, Answer answer, String message)
-	{
-		VertxUtils.sendFeedback(userToken,answer,"ERROR",message);
+
+	static public void sendFeedbackError(GennyToken userToken, Answer answer, String message) {
+		VertxUtils.sendFeedback(userToken, answer, "ERROR", message);
 	}
-	
-	static public void sendFeedbackWarning(GennyToken userToken, Answer answer, String message)
-	{
-		VertxUtils.sendFeedback(userToken,answer,"WARN",message);
+
+	static public void sendFeedbackWarning(GennyToken userToken, Answer answer, String message) {
+		VertxUtils.sendFeedback(userToken, answer, "WARN", message);
 	}
-	static public void sendFeedbackSuspicious(GennyToken userToken, Answer answer, String message)
-	{
-		VertxUtils.sendFeedback(userToken,answer,"SUSPICIOUS",message);
+
+	static public void sendFeedbackSuspicious(GennyToken userToken, Answer answer, String message) {
+		VertxUtils.sendFeedback(userToken, answer, "SUSPICIOUS", message);
 	}
-	static public void sendFeedbackHint(GennyToken userToken, Answer answer, String message)
-	{
-		VertxUtils.sendFeedback(userToken,answer,"HINT",message);
+
+	static public void sendFeedbackHint(GennyToken userToken, Answer answer, String message) {
+		VertxUtils.sendFeedback(userToken, answer, "HINT", message);
 	}
-	
+
+	static public void sendToFrontEnd(GennyToken userToken, Answer... answers) {
+		if ((answers.length > 0)) {
+			// find the baseentity
+			BaseEntity be = VertxUtils.getObject(userToken.getRealm(), "", answers[0].getTargetCode(), BaseEntity.class,
+					userToken.getToken());
+					if(be != null){
 
 
+			BaseEntity sendBe = new BaseEntity(be.getCode(), be.getName());
+			sendBe.setRealm(userToken.getRealm());
 
-	static public void sendFeedback(GennyToken userToken, Answer answer, String prefix, String message)
-	{
+			for (Answer answer : answers) {
+
+				try {
+					Attribute att = RulesUtils.getAttribute(answer.getAttributeCode(), userToken.getToken());
+					sendBe.addAttribute(att);
+					sendBe.setValue(att, answer.getValue());
+				} catch (BadDataException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			QDataBaseEntityMessage msg = new QDataBaseEntityMessage(sendBe);
+			msg.setReplace(true);
+			msg.setToken(userToken.getToken());
+			VertxUtils.writeMsg("webcmds", msg);
+		}
+	}
+
+
+	}
+
+	static public void sendFeedback(GennyToken userToken, Answer answer, String prefix, String message) {
 		// find the baseentity
 		BaseEntity be = VertxUtils.getObject(userToken.getRealm(), "", answer.getTargetCode(), BaseEntity.class,
 				userToken.getToken());
-		
-		BaseEntity sendBe = new BaseEntity(be.getCode(),be.getName());
+
+		BaseEntity sendBe = new BaseEntity(be.getCode(), be.getName());
 		sendBe.setRealm(userToken.getRealm());
 		try {
 			Attribute att = RulesUtils.getAttribute(answer.getAttributeCode(), userToken.getToken());
 			sendBe.addAttribute(att);
 			sendBe.setValue(att, answer.getValue());
-			Optional<EntityAttribute> ea =sendBe.findEntityAttribute(answer.getAttributeCode());
+			Optional<EntityAttribute> ea = sendBe.findEntityAttribute(answer.getAttributeCode());
 			if (ea.isPresent()) {
-				ea.get().setFeedback(prefix+":"+message);
+				ea.get().setFeedback(prefix + ":" + message);
 				QDataBaseEntityMessage msg = new QDataBaseEntityMessage(sendBe);
 				msg.setReplace(true);
 				msg.setToken(userToken.getToken());
@@ -939,6 +948,7 @@ public class VertxUtils {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
+
 }
