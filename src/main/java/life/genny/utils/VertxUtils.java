@@ -941,4 +941,34 @@ public class VertxUtils {
 		}
 		
 	}
+
+	static public void sendToFrontEnd(GennyToken userToken, Answer... answers) {
+		if ((answers.length > 0)) {
+			// find the baseentity
+			BaseEntity be = VertxUtils.getObject(userToken.getRealm(), "", answers[0].getTargetCode(), BaseEntity.class,
+					userToken.getToken());
+			if (be != null) {
+	
+				BaseEntity newBe = new BaseEntity(be.getCode(), be.getName());
+				newBe.setRealm(userToken.getRealm());
+	
+				for (Answer answer : answers) {
+	
+					try {
+						Attribute att = RulesUtils.getAttribute(answer.getAttributeCode(), userToken.getToken());
+						newBe.addAttribute(att);
+						newBe.setValue(att, answer.getValue());
+					} catch (BadDataException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				QDataBaseEntityMessage msg = new QDataBaseEntityMessage(newBe);
+				msg.setReplace(true);
+				msg.setToken(userToken.getToken());
+				VertxUtils.writeMsg("webcmds", msg);
+			}
+		}
+	
+	}
 }
