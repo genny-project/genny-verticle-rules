@@ -1905,19 +1905,9 @@ public class BaseEntityUtils implements Serializable {
 	{
 		List<String> attributeFilter = new ArrayList<String>();
 
-		String beFilter1 = null;
-		String beFilter2 = null;
-		String beFilter3 = null;
-		String beFilter4 = null;
 		String beSorted = null;
-		String attributeFilterValue1 = "";
-		String attributeFilterCode1 = null;
-		String attributeFilterValue2 = "";
-		String attributeFilterCode2 = null;
-		String attributeFilterValue3 = "";
-		String attributeFilterCode3 = null;
-		String attributeFilterValue4 = "";
-		String attributeFilterCode4 = null;
+		List<String> beFilters = new ArrayList<String>();
+		List<HashMap<String, String>> attributeFilters = new ArrayList<HashMap<String, String>>();
 		String sortCode = null;
 		String sortValue = null;
 		String sortType = null;
@@ -1928,11 +1918,7 @@ public class BaseEntityUtils implements Serializable {
 		for (EntityAttribute ea : searchBE.getBaseEntityAttributes()) {
 
 			if (ea.getAttributeCode().startsWith("PRI_CODE")) {
-				if (beFilter1 == null) {
-					beFilter1 = ea.getAsString();
-				} else if (beFilter2 == null) {
-					beFilter2 = ea.getAsString();
-				}
+				beFilters.add(ea.getAsString());
 
 			} else if ((ea.getAttributeCode().startsWith("SRT_"))) {
 				if (ea.getAttributeCode().startsWith("SRT_PRI_CREATED")) {
@@ -1989,26 +1975,10 @@ public class BaseEntityUtils implements Serializable {
 					log.error("SQL condition is NULL, " + "EntityAttribute baseEntityCode is:" + ea.getBaseEntityCode()
 							+ ", attributeCode is:" + ea.getAttributeCode());
 				}
-
-				if (attributeFilterCode1 == null) {
-					attributeFilterValue1 = " eb" + getAttributeValue(ea, condition);
-					attributeFilterCode1 = ea.getAttributeCode();
-				} else {
-					if (attributeFilterCode2 == null) {
-						attributeFilterValue2 = " ec" + getAttributeValue(ea, condition);
-						attributeFilterCode2 = ea.getAttributeCode();
-					} else {
-						if (attributeFilterCode3 == null) {
-							attributeFilterValue3 = " ed" + getAttributeValue(ea, condition);
-							attributeFilterCode3 = ea.getAttributeCode();
-						} else {
-							if (attributeFilterCode4 == null) {
-								attributeFilterValue4 = " ee" + getAttributeValue(ea, condition);
-								attributeFilterCode4 = ea.getAttributeCode();
-							}
-						}
-					}
-				}
+				
+				HashMap<String, String> filterMap = new HashMap<String, String>();
+				filterMap.put(ea.getAttributeCode(), getAttributeValue(ea, condition));
+				attributeFilters.add(filterMap);
 			}
 		}
 		String sortBit = "";
@@ -2017,17 +1987,8 @@ public class BaseEntityUtils implements Serializable {
 		// }
 		String hql = "select distinct ea.baseEntityCode " + sortBit + " from EntityAttribute ea ";
 
-		if (attributeFilterCode1 != null) {
-			hql += ", EntityAttribute eb ";
-		}
-		if (attributeFilterCode2 != null) {
-			hql += ", EntityAttribute ec ";
-		}
-		if (attributeFilterCode3 != null) {
-			hql += ", EntityAttribute ed ";
-		}
-		if (attributeFilterCode4 != null) {
-			hql += ", EntityAttribute ee ";
+		for (int i = 0; i < attributeFilters.size(); i++) {
+			hql += ", EntityAttribute e" + i + " ";
 		}
 
 		if (wildcardValue != null) {
@@ -2039,15 +2000,15 @@ public class BaseEntityUtils implements Serializable {
 		}
 		hql += " where ";
 
-		if (attributeFilterCode1 != null) {
-			hql += " ea.baseEntityCode=eb.baseEntityCode ";
-			if (beFilter1 != null) {
-				hql += " and (ea.baseEntityCode like '" + beFilter1 + "'  ";
+		if (beFilters.size() > 0) {
+			hql += " ( ";
+			for (int i = 0; i < beFilters.size(); i++) {
+				if (i > 0) {
+					hql += "or ";
+				}
+				hql += "ea.baseEntityCode like '" + beFilters.get(i) + "'  ";
 			}
-		} else {
-			if (beFilter1 != null) {
-				hql += " (ea.baseEntityCode like '" + beFilter1 + "'  ";
-			}
+			hql += ")  ";
 		}
 
 		if (searchBE.getCode().startsWith("SBE_SEARCHBAR")) {
@@ -2055,38 +2016,16 @@ public class BaseEntityUtils implements Serializable {
 			hql += " and (ea.baseEntityCode like 'PER_%' or ea.baseEntityCode like 'CPY_%') ";
 		}
 
-		if (beFilter2 != null) {
-			hql += " or ea.baseEntityCode like '" + beFilter2 + "'";
-		}
-		if (beFilter3 != null) {
-			hql += " or ea.baseEntityCode like '" + beFilter3 + "'";
-		}
-		if (beFilter4 != null) {
-			hql += " or ea.baseEntityCode like '" + beFilter4 + "'";
-		}
-
-		if (beFilter1 != null) {
-			hql += ")  ";
-		}
-
-		if (attributeFilterCode1 != null) {
-			hql += " and eb.attributeCode = '" + attributeFilterCode1 + "'"
-					+ ((!StringUtils.isBlank(attributeFilterValue1)) ? (" and " + attributeFilterValue1) : "");
-		}
-		if (attributeFilterCode2 != null) {
-			hql += " and ea.baseEntityCode=ec.baseEntityCode ";
-			hql += " and ec.attributeCode = '" + attributeFilterCode2 + "'"
-					+ ((!StringUtils.isBlank(attributeFilterValue2)) ? (" and " + attributeFilterValue2) : "");
-		}
-		if (attributeFilterCode3 != null) {
-			hql += " and ea.baseEntityCode=ed.baseEntityCode ";
-			hql += " and ed.attributeCode = '" + attributeFilterCode3 + "'"
-					+ ((!StringUtils.isBlank(attributeFilterValue3)) ? (" and " + attributeFilterValue3) : "");
-		}
-		if (attributeFilterCode4 != null) {
-			hql += " and ea.baseEntityCode=ee.baseEntityCode ";
-			hql += " and ee.attributeCode = '" + attributeFilterCode4 + "'"
-					+ ((!StringUtils.isBlank(attributeFilterValue4)) ? (" and " + attributeFilterValue4) : "");
+		if (attributeFilters.size() > 0) {
+			for (int i = 0; i < attributeFilters.size(); i++) {
+				for (Map.Entry<String, String> entry : attributeFilters.get(i).entrySet()) {
+					String filterCode = entry.getKey();
+					String filterValue = entry.getValue();
+					hql += " and ea.baseEntityCode=e" + i + ".baseEntityCode ";
+					hql += " and e" + i + ".attributeCode = '" + filterCode + "'"
+						+ ((!StringUtils.isBlank(filterValue)) ? (" and e" + i + filterValue) : "");
+				}
+			}
 		}
 
 		if (wildcardValue != null) {
