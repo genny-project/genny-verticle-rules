@@ -253,7 +253,7 @@ public class EmailHelper extends NotificationHelper {
  // }
 
 
-	public static void sendGrid(String recipient, String subject, String templateId, String hardcodedTemplateData1, String hardcodedTemplateData2) throws IOException {
+	public static void sendGrid(String recipient, String subject, String templateId, String hardcodedPointer1, String hardcodedData1, String hardcodedPointer2, String hardcodedData2, String hardcodedPointer3, String hardcodedData3) throws IOException {
     Email from = new Email(System.getenv("SENDGRID_EMAIL_SENDER"));
     Email to = new Email(recipient);
 
@@ -262,7 +262,9 @@ public class EmailHelper extends NotificationHelper {
     Personalization personalization = new Personalization();
 
     personalization.addTo(to);
-    personalization.addDynamicTemplateData(hardcodedTemplateData1, hardcodedTemplateData2);
+    personalization.addDynamicTemplateData(hardcodedPointer1, hardcodedData1);
+    personalization.addDynamicTemplateData(hardcodedPointer2, hardcodedData2);
+    personalization.addDynamicTemplateData(hardcodedPointer3, hardcodedData3);
     personalization.setSubject(subject);
 
     Mail mail = new Mail();
@@ -285,7 +287,7 @@ public class EmailHelper extends NotificationHelper {
     }
   }
 	
-	public static void sendGrid(String recipient, String subject, String templateId, String hardcodedTemplateData1, String hardcodedTemplateData2, String hardcodedTemplateData3) throws IOException {
+	public static void sendGrid(String recipient, String subject, String templateId, String hardcodedTemplateData1, String hardcodedTemplateData2) throws IOException {
 	    Email from = new Email(System.getenv("SENDGRID_EMAIL_SENDER"));
 	    Email to = new Email(recipient);
 
@@ -294,7 +296,7 @@ public class EmailHelper extends NotificationHelper {
 	    Personalization personalization = new Personalization();
 
 	    personalization.addTo(to);
-	    personalization.addDynamicTemplateData(hardcodedTemplateData1, hardcodedTemplateData2, hardcodedTemplateData3);
+	    personalization.addDynamicTemplateData(hardcodedTemplateData1, hardcodedTemplateData2);
 	    personalization.setSubject(subject);
 
 	    Mail mail = new Mail();
