@@ -1905,12 +1905,14 @@ public class BaseEntityUtils implements Serializable {
 	{
 		List<String> attributeFilter = new ArrayList<String>();
 
-		String beSorted = null;
+		// String beSorted = null;
+		List<String> standardSortFilters = new ArrayList<String>();
+		List<Tuple2> customSortFilters = new ArrayList<Tuple2> ();
 		List<String> beFilters = new ArrayList<String>();
-		List<HashMap<String, String>> attributeFilters = new ArrayList<HashMap<String, String>>();
-		String sortCode = null;
-		String sortValue = null;
-		String sortType = null;
+		List<Tuple2> attributeFilters = new ArrayList<Tuple2>();
+		// String sortCode = null;
+		// String sortValue = null;
+		// String sortType = null;
 		String wildcardValue = null;
 		Integer pageStart = searchBE.getPageStart(0);
 		Integer pageSize = searchBE.getPageSize(GennySettings.defaultPageSize);
@@ -1921,41 +1923,49 @@ public class BaseEntityUtils implements Serializable {
 				beFilters.add(ea.getAsString());
 
 			} else if ((ea.getAttributeCode().startsWith("SRT_"))) {
+
+				String sortCode = null;
+				String standardSortString = null;
+				String customSortString = null;
 				if (ea.getAttributeCode().startsWith("SRT_PRI_CREATED")) {
-					beSorted = " order by ea.created";
-					sortValue = ea.getValueString();
+					standardSortString = ".created " + ea.getValueString();
 				} else if (ea.getAttributeCode().startsWith("SRT_PRI_UPDATED")) {
-					beSorted = " order by ea.updated";
-					sortValue = ea.getValueString();
+					standardSortString = ".updated " + ea.getValueString();
 				} else if (ea.getAttributeCode().startsWith("SRT_PRI_CODE")) {
-					beSorted = " order by ea.baseEntityCode";
-					sortValue = ea.getValueString();
+					standardSortString = ".baseEntityCode " + ea.getValueString();
 				} else if (ea.getAttributeCode().startsWith("SRT_PRI_NAME")) {
-					beSorted = " order by ea.pk.baseEntity.name";
-					sortValue = ea.getValueString();
+					standardSortString = ".pk.baseEntity.name " + ea.getValueString();
 				}
 
 				else {
 					sortCode = (ea.getAttributeCode().substring("SRT_".length()));
-					sortValue = ea.getValueString();
-					if (ea.getValueString() != null) {
-						sortType = "ez.valueString";
-					} else if (ea.getValueBoolean() != null) {
-						sortType = "ez.valueBoolean";
-					} else if (ea.getValueDouble() != null) {
-						sortType = "ez.valueDouble";
-					} else if (ea.getValueInteger() != null) {
-						sortType = "ez.valueInteger";
-					} else if (ea.getValueLong() != null) {
-						sortType = "ez.valueLong";
-					} else if (ea.getValueDateTime() != null) {
-						sortType = "ez.valueDateTime";
-					} else if (ea.getValueDate() != null) {
-						sortType = "ez.valueDate";
-					} else if (ea.getValueTime() != null) {
-						sortType = "ez.valueTime";
+					Object sortValue = ea.getValue();
+					if (sortValue instanceof String) {
+						customSortString = ".valueString " + sortValue.toString();
+					} else if (sortValue instanceof Boolean) {
+						customSortString = ".valueBoolean " + sortValue.toString();
+					} else if (sortValue instanceof Double) {
+						customSortString = ".valueDouble " + sortValue.toString();
+					} else if (sortValue instanceof Integer) {
+						customSortString = ".valueInteger " + sortValue.toString();
+					} else if (sortValue instanceof Long) {
+						customSortString = ".valueLong " + sortValue.toString();
+					} else if (sortValue instanceof LocalDateTime) {
+						customSortString = ".valueDateTime " + sortValue.toString();
+					} else if (sortValue instanceof LocalDate) {
+						customSortString = ".valueDate " + sortValue.toString();
+					} else if (sortValue instanceof LocalTime) {
+						customSortString = ".valueTime " + sortValue.toString();
 					}
 				}
+
+				if (standardSortString != null) {
+					standardSortFilters.add(standardSortString);
+				}
+				if (customSortString != null) {
+					customSortFilters.add(Tuple.of(sortCode, customSortString));
+				}
+				
 
 			} else if ((ea.getAttributeCode().startsWith("COL_")) || (ea.getAttributeCode().startsWith("CAL_"))) {
 				attributeFilter.add(ea.getAttributeCode().substring("COL_".length()));
@@ -1976,9 +1986,7 @@ public class BaseEntityUtils implements Serializable {
 							+ ", attributeCode is:" + ea.getAttributeCode());
 				}
 				
-				HashMap<String, String> filterMap = new HashMap<String, String>();
-				filterMap.put(ea.getAttributeCode(), getAttributeValue(ea, condition));
-				attributeFilters.add(filterMap);
+				attributeFilters.add(Tuple.of(ea.getAttributeCode(), getAttributeValue(ea, condition)));
 			}
 		}
 		String sortBit = "";
@@ -1990,14 +1998,15 @@ public class BaseEntityUtils implements Serializable {
 		for (int i = 0; i < attributeFilters.size(); i++) {
 			hql += ", EntityAttribute e" + i + " ";
 		}
-
+		
 		if (wildcardValue != null) {
 			hql += ", EntityAttribute ew ";
 		}
-
-		if (sortCode != null) {
-			hql += ", EntityAttribute ez ";
+		
+		for (int i = 0; i < customSortFilters.size(); i++) {
+			hql += ", EntityAttribute ez" + i + " ";
 		}
+
 		hql += " where ";
 
 		if (beFilters.size() > 0) {
@@ -2018,13 +2027,11 @@ public class BaseEntityUtils implements Serializable {
 
 		if (attributeFilters.size() > 0) {
 			for (int i = 0; i < attributeFilters.size(); i++) {
-				for (Map.Entry<String, String> entry : attributeFilters.get(i).entrySet()) {
-					String filterCode = entry.getKey();
-					String filterValue = entry.getValue();
-					hql += " and ea.baseEntityCode=e" + i + ".baseEntityCode ";
-					hql += " and e" + i + ".attributeCode = '" + filterCode + "'"
-						+ ((!StringUtils.isBlank(filterValue)) ? (" and e" + i + filterValue) : "");
-				}
+				String filterCode = attributeFilters.get(i)._1.toString();
+				String filterValue = attributeFilters.get(i)._2.toString();
+				hql += " and ea.baseEntityCode=e" + i + ".baseEntityCode ";
+				hql += " and e" + i + ".attributeCode = '" + filterCode + "'"
+					+ ((!StringUtils.isBlank(filterValue)) ? (" and e" + i + filterValue) : "");
 			}
 		}
 
@@ -2032,13 +2039,19 @@ public class BaseEntityUtils implements Serializable {
 			hql += " and ea.baseEntityCode=ew.baseEntityCode and ew.valueString like '%" + wildcardValue + "%' ";
 		}
 
-		if (beSorted != null) {
-			hql += " " + beSorted + " " + sortValue;
-
-		} else if (sortCode != null) {
-			hql += " and ea.baseEntityCode=ez.baseEntityCode and ez.attributeCode='" + sortCode + "' ";
-			hql += " order by " + sortType + " " + sortValue;
+		if (standardSortFilters.size() > 0) {
+			for (String sort : standardSortFilters) { 
+				hql += " order by ea" + sort;
+			}
 		}
+		if (customSortFilters.size() > 0) {
+			for (int i = 0; i < customSortFilters.size(); i++) {
+				Tuple2<String, String> sort = customSortFilters.get(i);
+				hql += " and ea.baseEntityCode=ez" + i + ".baseEntityCode and ez" + i + ".attributeCode='" + sort._1.toString() + "' ";
+				hql += " order by ez" + i + sort._2.toString();
+			}
+		}
+
 		return Tuple.of(hql, attributeFilter);
 	}
 
