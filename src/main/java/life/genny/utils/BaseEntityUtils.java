@@ -1939,22 +1939,24 @@ public class BaseEntityUtils implements Serializable {
 
 				else {
 					sortCode = (ea.getAttributeCode().substring("SRT_".length()));
+					Attribute attr = RulesUtils.getAttribute(sortCode, this.token);
+					String dtt = attr.getDataType().getClassName();
 					Object sortValue = ea.getValue();
-					if (sortValue instanceof String) {
+					if (dtt.equals("java.lang.String")) {
 						customSortString = ".valueString " + sortValue.toString();
-					} else if (sortValue instanceof Boolean) {
+					} else if (dtt.equals("java.lang.Boolean")) {
 						customSortString = ".valueBoolean " + sortValue.toString();
-					} else if (sortValue instanceof Double) {
+					} else if (dtt.equals("java.lang.Double")) {
 						customSortString = ".valueDouble " + sortValue.toString();
-					} else if (sortValue instanceof Integer) {
+					} else if (dtt.equals("java.lang.Integer")) {
 						customSortString = ".valueInteger " + sortValue.toString();
-					} else if (sortValue instanceof Long) {
+					} else if (dtt.equals("java.lang.Long")) {
 						customSortString = ".valueLong " + sortValue.toString();
-					} else if (sortValue instanceof LocalDateTime) {
+					} else if (dtt.equals("java.time.LocalDateTime")) {
 						customSortString = ".valueDateTime " + sortValue.toString();
-					} else if (sortValue instanceof LocalDate) {
+					} else if (dtt.equals("java.time.LocalDate")) {
 						customSortString = ".valueDate " + sortValue.toString();
-					} else if (sortValue instanceof LocalTime) {
+					} else if (dtt.equals("java.time.LocalTime")) {
 						customSortString = ".valueTime " + sortValue.toString();
 					}
 				}
