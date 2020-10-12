@@ -254,7 +254,9 @@ public class EmailHelper extends NotificationHelper {
 
 
 	public static void sendGrid(String recipient, String subject, String templateId, String hardcodedPointer1, String hardcodedData1, String hardcodedPointer2, String hardcodedData2, String hardcodedPointer3, String hardcodedData3) throws IOException {
-    Email from = new Email(System.getenv("SENDGRID_EMAIL_SENDER"));
+	System.out.println("Hey I got inside the sendGrid method 256");
+	
+	Email from = new Email(System.getenv("SENDGRID_EMAIL_SENDER"));
     Email to = new Email(recipient);
 
     SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
@@ -288,7 +290,8 @@ public class EmailHelper extends NotificationHelper {
   }
 	
 	public static void sendGrid(String recipient, String subject, String templateId, String hardcodedTemplateData1, String hardcodedTemplateData2) throws IOException {
-	    Email from = new Email(System.getenv("SENDGRID_EMAIL_SENDER"));
+		System.out.println("Hey I got inside the sendGrid method 292");
+		Email from = new Email(System.getenv("SENDGRID_EMAIL_SENDER"));
 	    Email to = new Email(recipient);
 
 	    SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
