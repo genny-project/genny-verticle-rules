@@ -26,6 +26,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.mindrot.jbcrypt.BCrypt;
@@ -1729,6 +1730,17 @@ public class BaseEntityUtils implements Serializable {
 			return "Failed";
 		}
 	}
+	
+	public void removeEntityAttribute(BaseEntity be, String attributeCode)
+	{
+		// Find EA
+		Optional<EntityAttribute> ea  = be.findEntityAttribute(attributeCode);
+		if (ea.isPresent()) {
+			be.removeAttribute(attributeCode);
+			updateBaseEntity(be);
+		}
+	}
+	
 
 	/*
 	 * Returns comma seperated list of all the childcode for the given parent code
