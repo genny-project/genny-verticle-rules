@@ -37,6 +37,7 @@ import com.google.gson.reflect.TypeToken;
 
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
+import io.vavr.Tuple3;
 import io.vertx.core.json.JsonObject;
 import life.genny.channel.DistMap;
 import life.genny.models.GennyToken;
@@ -1905,7 +1906,7 @@ public class BaseEntityUtils implements Serializable {
 	{
 		List<String> attributeFilter = new ArrayList<String>();
 
-		List<Tuple2> sortFilters = new ArrayList<Tuple2>();
+		List<Tuple3> sortFilters = new ArrayList<Tuple3>();
 		List<String> beFilters = new ArrayList<String>();
 		List<Tuple2> attributeFilters = new ArrayList<Tuple2>();
 
@@ -1958,21 +1959,29 @@ public class BaseEntityUtils implements Serializable {
 						customSortString = ".valueTime " + sortValue.toString();
 					}
 				}
+				
+				Integer index = null;
+				for (Tuple3<String, String, Double> sort : sortFilters) {
+					if (ea.getWeight() <= sort._3) {
+						index = sortFilters.indexOf(sort);
+						break;
+					}
+				}
 	            
 	            // Order Sorts by weight
-	            if (sortFilters.size() < ea.getWeight()-1) {
+	            if (index == null) {
 	            	if (standardSortString != null) {
-						sortFilters.add(Tuple.of("", standardSortString));
+						sortFilters.add(Tuple.of("", standardSortString, ea.getWeight()));
 					}
 					if (customSortString != null) {
-						sortFilters.add(Tuple.of(sortCode, customSortString));
+						sortFilters.add(Tuple.of(sortCode, customSortString, ea.getWeight()));
 					}
 	            } else {
 	            	if (standardSortString != null) {
-						sortFilters.add(ea.getWeight().intValue()-1, Tuple.of("", standardSortString));
+						sortFilters.add(index, Tuple.of("", standardSortString, ea.getWeight()));
 					}
 					if (customSortString != null) {
-						sortFilters.add(ea.getWeight().intValue()-1, Tuple.of(sortCode, customSortString));
+						sortFilters.add(index, Tuple.of(sortCode, customSortString, ea.getWeight()));
 					}
 	            }
 
@@ -2016,7 +2025,7 @@ public class BaseEntityUtils implements Serializable {
 		}
 		
 		for (int i = 0; i < sortFilters.size(); i++) {
-			Tuple2<String, String> sort = sortFilters.get(i);
+			Tuple3<String, String, Double> sort = sortFilters.get(i);
 			if (!sort._1.isEmpty()) {
 				hql += ", EntityAttribute ez" + i + " ";
 			}
@@ -2057,7 +2066,7 @@ public class BaseEntityUtils implements Serializable {
 		if (sortFilters.size() > 0) {
 			String orderBy = " order by";
 			for (int i = 0; i < sortFilters.size(); i++) {
-				Tuple2<String, String> sort = sortFilters.get(i);
+				Tuple3<String, String, Double> sort = sortFilters.get(i);
 				if (i > 0) {
 					orderBy += ",";
 				}
