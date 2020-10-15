@@ -1922,6 +1922,13 @@ public class BaseEntityUtils implements Serializable {
 		List<String> beFilters = new ArrayList<String>();
 		List<Tuple2> attributeFilters = new ArrayList<Tuple2>();
 
+		String stakeholderCode = null;
+		String sourceStakeholderCode = null;
+		String linkCode = null;
+		String linkValue = null;
+		String sourceCode = null;
+		String targetCode = null;
+
 		String wildcardValue = null;
 		Integer pageStart = searchBE.getPageStart(0);
 		Integer pageSize = searchBE.getPageSize(GennySettings.defaultPageSize);
@@ -1997,7 +2004,18 @@ public class BaseEntityUtils implements Serializable {
 					}
 	            }
 
-				
+			} else if (ea.getAttributeCode().startsWith("SCH_STAKEHOLDER_CODE")) {
+				stakeholderCode = ea.getValue();
+			} else if (ea.getAttributeCode().startsWith("SCH_SOURCE_STAKEHOLDER_CODE")) {
+				sourceStakeholderCode = ea.getValue();
+			} else if (ea.getAttributeCode().startsWith("SCH_LINK_CODE")) {
+				linkCode = ea.getValue();
+			} else if (ea.getAttributeCode().startsWith("SCH_LINK_VALUE")) {
+				linkValue = ea.getValue();
+			} else if (ea.getAttributeCode().startsWith("SCH_SOURCE_CODE")) {
+				sourceCode = ea.getValue();
+			} else if (ea.getAttributeCode().startsWith("SCH_TARGET_CODE")) {
+				targetCode = ea.getValue();
 				
 
 			} else if ((ea.getAttributeCode().startsWith("COL_")) || (ea.getAttributeCode().startsWith("CAL_"))) {
@@ -2009,7 +2027,6 @@ public class BaseEntityUtils implements Serializable {
 						wildcardValue = wildcardValue.replaceAll(("[^A-Za-z0-9 ]"), "");
 					}
 				}
-
 			} else if ((ea.getAttributeCode().startsWith("PRI_") || ea.getAttributeCode().startsWith("LNK_"))
 					&& (!ea.getAttributeCode().equals("PRI_CODE")) && (!ea.getAttributeCode().equals("PRI_TOTAL_RESULTS"))
 					&& (!ea.getAttributeCode().equals("PRI_INDEX"))) {
@@ -2041,6 +2058,19 @@ public class BaseEntityUtils implements Serializable {
 			if (!sort._1.isEmpty()) {
 				hql += ", EntityAttribute ez" + i + " ";
 			}
+		}
+
+		if (sourceCode != null || targetCode != null || linkCode != null || linkValue != null) {
+			hql += " inner join EntityEntity ee ";
+			hql += " on ";
+
+			hql += ( sourceCode != null ? " ee.SOURCE_CODE " + ( sourceCode.contains("%") ? "like " : "= " ) + sourceCode : "" );
+			hql += ( targetCode != null ? " and ee.TARGET_CODE " + ( targetCode.contains("%") ? "like " : "= " ) + targetCode : "" );
+
+			hql += ( linkCode != null ? " and ee.LINK_CODE " + ( linkCode.contains("%") ? "like " : "= " ) + linkCode : "" );
+			hql += ( linkValue != null ? " and ee.linkValue " + ( linkValue.contains("%") ? "like " : "= " ) + linkValue : "" );
+
+			hql.replace("on  and", "on ");
 		}
 
 		hql += " where ";
