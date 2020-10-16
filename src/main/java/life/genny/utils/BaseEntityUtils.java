@@ -1735,7 +1735,7 @@ public class BaseEntityUtils implements Serializable {
 	public void removeEntityAttribute(BaseEntity be, String attributeCode)
 	{
 		try {
-			QwandaUtils.apiDelete(this.qwandaServiceUrl + "/qwanda/baseentitys/"+be.getCode()+"/"+attributeCode, null, this.serviceToken.getToken());
+			QwandaUtils.apiDelete(this.qwandaServiceUrl + "/qwanda/baseentitys/delete/"+be.getCode()+"/"+attributeCode, null, this.serviceToken.getToken());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
