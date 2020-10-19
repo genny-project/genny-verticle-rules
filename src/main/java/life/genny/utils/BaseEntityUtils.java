@@ -1928,6 +1928,13 @@ public class BaseEntityUtils implements Serializable {
 		List<String> beFilters = new ArrayList<String>();
 		List<Tuple2> attributeFilters = new ArrayList<Tuple2>();
 
+		String stakeholderCode = null;
+		String sourceStakeholderCode = null;
+		String linkCode = null;
+		String linkValue = null;
+		String sourceCode = null;
+		String targetCode = null;
+
 		String wildcardValue = null;
 		Integer pageStart = searchBE.getPageStart(0);
 		Integer pageSize = searchBE.getPageSize(GennySettings.defaultPageSize);
@@ -2003,7 +2010,18 @@ public class BaseEntityUtils implements Serializable {
 					}
 	            }
 
-				
+			} else if (ea.getAttributeCode().startsWith("SCH_STAKEHOLDER_CODE")) {
+				stakeholderCode = ea.getValue();
+			} else if (ea.getAttributeCode().startsWith("SCH_SOURCE_STAKEHOLDER_CODE")) {
+				sourceStakeholderCode = ea.getValue();
+			} else if (ea.getAttributeCode().startsWith("SCH_LINK_CODE")) {
+				linkCode = ea.getValue();
+			} else if (ea.getAttributeCode().startsWith("SCH_LINK_VALUE")) {
+				linkValue = ea.getValue();
+			} else if (ea.getAttributeCode().startsWith("SCH_SOURCE_CODE")) {
+				sourceCode = ea.getValue();
+			} else if (ea.getAttributeCode().startsWith("SCH_TARGET_CODE")) {
+				targetCode = ea.getValue();
 				
 
 			} else if ((ea.getAttributeCode().startsWith("COL_")) || (ea.getAttributeCode().startsWith("CAL_"))) {
@@ -2015,7 +2033,6 @@ public class BaseEntityUtils implements Serializable {
 						wildcardValue = wildcardValue.replaceAll(("[^A-Za-z0-9 ]"), "");
 					}
 				}
-
 			} else if ((ea.getAttributeCode().startsWith("PRI_") || ea.getAttributeCode().startsWith("LNK_"))
 					&& (!ea.getAttributeCode().equals("PRI_CODE")) && (!ea.getAttributeCode().equals("PRI_TOTAL_RESULTS"))
 					&& (!ea.getAttributeCode().equals("PRI_INDEX"))) {
@@ -2028,50 +2045,76 @@ public class BaseEntityUtils implements Serializable {
 				attributeFilters.add(Tuple.of(ea.getAttributeCode(), getAttributeValue(ea, condition)));
 			}
 		}
-		String sortBit = "";
-		// if (sortCode != null) {
-		// sortBit = ","+sortType +" ";
-		// }
-		String hql = "select distinct ea.baseEntityCode " + sortBit + " from EntityAttribute ea ";
+
+		String hql = "select distinct ea.baseEntityCode from EntityAttribute ea";
 
 		for (int i = 0; i < attributeFilters.size(); i++) {
-			hql += ", EntityAttribute e" + i + " ";
+			hql += ", EntityAttribute e" + i;
 		}
 		
 		if (wildcardValue != null) {
-			hql += ", EntityAttribute ew ";
+			hql += ", EntityAttribute ew";
 		}
 		
 		for (int i = 0; i < sortFilters.size(); i++) {
 			Tuple3<String, String, Double> sort = sortFilters.get(i);
 			if (!sort._1.isEmpty()) {
-				hql += ", EntityAttribute ez" + i + " ";
+				hql += ", EntityAttribute ez" + i;
 			}
 		}
 
-		hql += " where ";
+		if (sourceCode != null || targetCode != null || linkCode != null || linkValue != null) {
+			hql += " inner join EntityEntity ee";
+			hql += " on (";
+
+			if (sourceCode != null && targetCode == null) {
+				targetCode = "ea.baseEntityCode";
+				sourceCode = "'" + sourceCode + "'";
+			} else if (targetCode != null && sourceCode == null) {
+				sourceCode = "ea.baseEntityCode";
+				targetCode = "'" + targetCode + "'";
+			} else if (sourceCode != null && targetCode != null) {
+				sourceCode = "'" + sourceCode + "'";
+				targetCode = "'" + targetCode + "'";
+			}
+
+			hql += ( sourceCode != null ? " ee.link.sourceCode " + ( sourceCode.contains("%") ? "like " : "= " ) + sourceCode : "" );
+			hql += ( targetCode != null ? " and ee.link.targetCode " + ( targetCode.contains("%") ? "like " : "= " ) + targetCode : "" );
+
+			hql += ( linkCode != null ? " and ee.link.attributeCode " + ( linkCode.contains("%") ? "like " : "= " ) +  "'" + linkCode + "'" : "" );
+			hql += ( linkValue != null ? " and ee.link.linkValue " + ( linkValue.contains("%") ? "like " : "= " ) + "'" + linkValue + "'" : "" );
+
+			hql = hql.replace("on ( and", "on (");
+			hql += " )";
+		}
+		
+		
+		if (beFilters.size() > 0 || searchBE.getCode().startsWith("SBE_SEARCHBAR") 
+				|| attributeFilters.size() > 0 || wildcardValue != null || sortFilters.size() > 0) {
+			hql += " where";
+		}
 
 		if (beFilters.size() > 0) {
-			hql += " ( ";
+			hql += " (";
 			for (int i = 0; i < beFilters.size(); i++) {
 				if (i > 0) {
-					hql += "or ";
+					hql += " or";
 				}
-				hql += "ea.baseEntityCode like '" + beFilters.get(i) + "'  ";
+				hql += " ea.baseEntityCode like '" + beFilters.get(i) + "'";
 			}
-			hql += ")  ";
+			hql += " )";
 		}
 
 		if (searchBE.getCode().startsWith("SBE_SEARCHBAR")) {
 			// search across people and companies
-			hql += " and (ea.baseEntityCode like 'PER_%' or ea.baseEntityCode like 'CPY_%') ";
+			hql += " and (ea.baseEntityCode like 'PER_%' or ea.baseEntityCode like 'CPY_%')";
 		}
 
 		if (attributeFilters.size() > 0) {
 			for (int i = 0; i < attributeFilters.size(); i++) {
 				String filterCode = attributeFilters.get(i)._1.toString();
 				String filterValue = attributeFilters.get(i)._2.toString();
-				hql += " and ea.baseEntityCode=e" + i + ".baseEntityCode ";
+				hql += " and ea.baseEntityCode=e" + i + ".baseEntityCode";
 				hql += " and e" + i + ".attributeCode = '" + filterCode + "'"
 					+ ((!StringUtils.isBlank(filterValue)) ? (" and e" + i + filterValue) : "");
 			}
@@ -2091,12 +2134,14 @@ public class BaseEntityUtils implements Serializable {
 				if (sort._1.isEmpty()) {
 					orderBy += " ea" + sort._2;
 				} else {
-					hql += " and ea.baseEntityCode=ez" + i + ".baseEntityCode and ez" + i + ".attributeCode='" + sort._1.toString() + "' ";
+					hql += " and ea.baseEntityCode=ez" + i + ".baseEntityCode and ez" + i + ".attributeCode='" + sort._1.toString() + "'";
 					orderBy += " ez" + i + sort._2.toString();
 				}
 			}
 			hql += orderBy;
 		}
+
+		hql = hql.replace("where and", "where");
 
 		return Tuple.of(hql, attributeFilter);
 	}
