@@ -2039,63 +2039,76 @@ public class BaseEntityUtils implements Serializable {
 				attributeFilters.add(Tuple.of(ea.getAttributeCode(), getAttributeValue(ea, condition)));
 			}
 		}
-		String sortBit = "";
-		// if (sortCode != null) {
-		// sortBit = ","+sortType +" ";
-		// }
-		String hql = "select distinct ea.baseEntityCode " + sortBit + " from EntityAttribute ea ";
+
+		String hql = "select distinct ea.baseEntityCode from EntityAttribute ea";
 
 		for (int i = 0; i < attributeFilters.size(); i++) {
-			hql += ", EntityAttribute e" + i + " ";
+			hql += ", EntityAttribute e" + i;
 		}
 		
 		if (wildcardValue != null) {
-			hql += ", EntityAttribute ew ";
+			hql += ", EntityAttribute ew";
 		}
 		
 		for (int i = 0; i < sortFilters.size(); i++) {
 			Tuple3<String, String, Double> sort = sortFilters.get(i);
 			if (!sort._1.isEmpty()) {
-				hql += ", EntityAttribute ez" + i + " ";
+				hql += ", EntityAttribute ez" + i;
 			}
 		}
 
 		if (sourceCode != null || targetCode != null || linkCode != null || linkValue != null) {
-			hql += " inner join EntityEntity ee ";
-			hql += " on ";
+			hql += " inner join EntityEntity ee";
+			hql += " on (";
 
-			hql += ( sourceCode != null ? " ee.SOURCE_CODE " + ( sourceCode.contains("%") ? "like " : "= " ) + sourceCode : "" );
-			hql += ( targetCode != null ? " and ee.TARGET_CODE " + ( targetCode.contains("%") ? "like " : "= " ) + targetCode : "" );
+			if (sourceCode != null && targetCode == null) {
+				targetCode = "ea.baseEntityCode";
+				sourceCode = "'" + sourceCode + "'";
+			} else if (targetCode != null && sourceCode == null) {
+				sourceCode = "ea.baseEntityCode";
+				targetCode = "'" + targetCode + "'";
+			} else if (sourceCode != null && targetCode != null) {
+				sourceCode = "'" + sourceCode + "'";
+				targetCode = "'" + targetCode + "'";
+			}
 
-			hql += ( linkCode != null ? " and ee.LINK_CODE " + ( linkCode.contains("%") ? "like " : "= " ) + linkCode : "" );
-			hql += ( linkValue != null ? " and ee.linkValue " + ( linkValue.contains("%") ? "like " : "= " ) + linkValue : "" );
+			hql += ( sourceCode != null ? " ee.link.sourceCode " + ( sourceCode.contains("%") ? "like " : "= " ) + sourceCode : "" );
+			hql += ( targetCode != null ? " and ee.link.targetCode " + ( targetCode.contains("%") ? "like " : "= " ) + targetCode : "" );
 
-			hql.replace("on  and", "on ");
+			hql += ( linkCode != null ? " and ee.link.attributeCode " + ( linkCode.contains("%") ? "like " : "= " ) +  "'" + linkCode + "'" : "" );
+			hql += ( linkValue != null ? " and ee.link.linkValue " + ( linkValue.contains("%") ? "like " : "= " ) + "'" + linkValue + "'" : "" );
+
+			hql = hql.replace("on ( and", "on (");
+			hql += " )";
+		}
+		
+		
+		if (beFilters.size() > 0 || searchBE.getCode().startsWith("SBE_SEARCHBAR") 
+				|| attributeFilters.size() > 0 || wildcardValue != null || sortFilters.size() > 0) {
+			hql += " where";
 		}
 
-		hql += " where ";
-
 		if (beFilters.size() > 0) {
-			hql += " ( ";
+			hql += " (";
 			for (int i = 0; i < beFilters.size(); i++) {
 				if (i > 0) {
-					hql += "or ";
+					hql += " or";
 				}
-				hql += "ea.baseEntityCode like '" + beFilters.get(i) + "'  ";
+				hql += " ea.baseEntityCode like '" + beFilters.get(i) + "'";
 			}
-			hql += ")  ";
+			hql += " )";
 		}
 
 		if (searchBE.getCode().startsWith("SBE_SEARCHBAR")) {
 			// search across people and companies
-			hql += " and (ea.baseEntityCode like 'PER_%' or ea.baseEntityCode like 'CPY_%') ";
+			hql += " and (ea.baseEntityCode like 'PER_%' or ea.baseEntityCode like 'CPY_%')";
 		}
 
 		if (attributeFilters.size() > 0) {
 			for (int i = 0; i < attributeFilters.size(); i++) {
 				String filterCode = attributeFilters.get(i)._1.toString();
 				String filterValue = attributeFilters.get(i)._2.toString();
-				hql += " and ea.baseEntityCode=e" + i + ".baseEntityCode ";
+				hql += " and ea.baseEntityCode=e" + i + ".baseEntityCode";
 				hql += " and e" + i + ".attributeCode = '" + filterCode + "'"
 					+ ((!StringUtils.isBlank(filterValue)) ? (" and e" + i + filterValue) : "");
 			}
@@ -2115,12 +2128,14 @@ public class BaseEntityUtils implements Serializable {
 				if (sort._1.isEmpty()) {
 					orderBy += " ea" + sort._2;
 				} else {
-					hql += " and ea.baseEntityCode=ez" + i + ".baseEntityCode and ez" + i + ".attributeCode='" + sort._1.toString() + "' ";
+					hql += " and ea.baseEntityCode=ez" + i + ".baseEntityCode and ez" + i + ".attributeCode='" + sort._1.toString() + "'";
 					orderBy += " ez" + i + sort._2.toString();
 				}
 			}
 			hql += orderBy;
 		}
+
+		hql = hql.replace("where and", "where");
 
 		return Tuple.of(hql, attributeFilter);
 	}
