@@ -2125,9 +2125,13 @@ public class BaseEntityUtils implements Serializable {
 		}
 
 		if (sortFilters.size() > 0) {
+			// sort the sorts
+			List<Tuple3> sortedFilters = sortFilters.stream()
+					.sorted((o1, o2)->((Double)(o1._3)).compareTo((Double)(o2._3)))
+					.collect(Collectors.toList());
 			String orderBy = " order by";
-			for (int i = 0; i < sortFilters.size(); i++) {
-				Tuple3<String, String, Double> sort = sortFilters.get(i);
+			for (int i = 0; i < sortedFilters.size(); i++) {
+				Tuple3<String, String, Double> sort = sortedFilters.get(i);
 				if (i > 0) {
 					orderBy += ",";
 				}
