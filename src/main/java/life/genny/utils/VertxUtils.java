@@ -672,6 +672,14 @@ public class VertxUtils {
 	}
 
 
+	static public JsonObject writeMsgScheduled(String channel, final String jsonMessage, BaseEntity source, String cron, final GennyToken userToken) {
+
+		QScheduleMessage scheduleMessage = new QScheduleMessage(jsonMessage, source.getCode(), channel, cron, userToken.getRealm());
+
+		QwandaUtils.apiPostEntity(GennySettings.scheduleServiceUrl , jsonMessage, userToken.getToken());
+
+		
+	}
 
 
 	
