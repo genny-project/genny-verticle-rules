@@ -15,11 +15,7 @@ import life.genny.qwanda.attribute.Attribute;
 import life.genny.qwanda.attribute.EntityAttribute;
 import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.exception.BadDataException;
-import life.genny.qwanda.message.MessageData;
-import life.genny.qwanda.message.QBulkMessage;
-import life.genny.qwanda.message.QCmdMessage;
-import life.genny.qwanda.message.QDataBaseEntityMessage;
-import life.genny.qwanda.message.QEventMessage;
+import life.genny.qwanda.message.*;
 import life.genny.qwandautils.GennyCacheInterface;
 import life.genny.qwandautils.GennySettings;
 import life.genny.qwandautils.JsonUtils;
@@ -672,7 +668,8 @@ public class VertxUtils {
 	}
 
 
-	static public JsonObject writeMsgScheduled(String channel, final String jsonMessage, BaseEntity source, String cron, final GennyToken userToken) {
+	/*
+	static public JsonObject writeMsgScheduled(String channel, final String jsonMessage, BaseEntity source, String cron, final GennyToken userToken) throws IOException {
 
 		QScheduleMessage scheduleMessage = new QScheduleMessage(jsonMessage, source.getCode(), channel, cron, userToken.getRealm());
 
@@ -680,6 +677,7 @@ public class VertxUtils {
 
 		
 	}
+	 */
 
 
 	
