@@ -498,6 +498,26 @@ public class BaseEntityUtils implements Serializable {
 		T be = BaseEntityByCode(code, true, BaseEntity.class, filteredStrings);
 
 		for (EntityAttribute ea : be.getBaseEntityAttributes()) {
+
+			if (ea.getAttributeCode().equals("PRI_ADDRESS_FULL")) {
+				// add PRI_ADDRESS_LATITUDE and PRI_ADDRESS_LONGITUDE to EntityAttribute
+				log.info("be has PRI_ADDRESS_FULL");
+				try {
+					Optional<EntityAttribute> eaLatitude = be.findEntityAttribute("PRI_ADDRESS_LATITUDE");
+					if (eaLatitude.isPresent()) {
+						log.info("adding PRI_ADDRESS_LATITUDE");
+						be.addAttribute(eaLatitude.get());
+					}
+					Optional<EntityAttribute> eaLongitude = be.findEntityAttribute("PRI_ADDRESS_LONGITUDE");
+					if (eaLongitude.isPresent()) {
+						log.info("adding PRI_ADDRESS_LONGITUDE");
+						be.addAttribute(eaLongitude.get());
+					}
+			
+				} catch (Exception e) {
+					log.error("Failed to read entityAttribute ");
+				}
+			}
 			if (ea.getAttributeCode().equals("PRI_VIDEO_URL")) {
 				String value = ea.getValueString();
 				if (value.startsWith("http")) {
