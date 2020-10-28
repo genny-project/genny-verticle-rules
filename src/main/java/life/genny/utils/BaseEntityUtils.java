@@ -2020,8 +2020,7 @@ public class BaseEntityUtils implements Serializable {
 				targetCode = ea.getValue();
 
 			} else if ((ea.getAttributeCode().startsWith("COL_")) || (ea.getAttributeCode().startsWith("CAL_"))) {
-				// if it is PRI_ADDRESS_FULL
-				// be -> add PRI_ADDRESS_LONGITUDE AND PRI_ADDRESS_LATTITUDE
+				// add latittude and longitude to attributeFilter list if the current ea is PRI_ADDRESS_FULL
 				if(ea.getAttributeCode().equals("COL_PRI_ADDRESS_FULL")){
 					attributeFilter.add("PRI_ADDRESS_LATITUDE");
 					attributeFilter.add("PRI_ADDRESS_LONGITUDE");
