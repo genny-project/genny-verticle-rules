@@ -276,54 +276,11 @@ public class BaseEntityUtils implements Serializable {
 						Attribute attribute = RulesUtils.attributeMap.get(ea.getAttributeCode());
 						if (attribute != null) {
 							ea.setAttribute(attribute);
-							// if (ea.getAttributeCode().equals("PRI_MIV")) {
-							// log.info("Found PRI_MIV. Processing the attribute");
-							// processVideoAttribute(ea);
-							// }
-
-							if (ea.getAttributeCode().equals("PRI_ADDRESS_FULL")) {
-								// add PRI_ADDRESS_LATITUDE and PRI_ADDRESS_LONGITUDE to EntityAttribute
-								log.info("be has PRI_ADDRESS_FULL");
-								try {
-									Optional<EntityAttribute> eaLatitude = be.findEntityAttribute("PRI_ADDRESS_LATITUDE");
-									if (eaLatitude.isPresent()) {
-										log.info("adding PRI_ADDRESS_LATITUDE");
-										be.addAttribute(eaLatitude.get());
-									}
-									Optional<EntityAttribute> eaLongitude = be.findEntityAttribute("PRI_ADDRESS_LONGITUDE");
-									if (eaLongitude.isPresent()) {
-										log.info("adding PRI_ADDRESS_LONGITUDE");
-										be.addAttribute(eaLongitude.get());
-									}
-
-								} catch (Exception e) {
-									log.error("Failed to read entityAttribute ");
-								}
-							}
 						} else {
 							RulesUtils.loadAllAttributesIntoCache(this.token);
 							attribute = RulesUtils.attributeMap.get(ea.getAttributeCode());
 							if (attribute != null) {
 								ea.setAttribute(attribute);
-
-								if (ea.getAttributeCode().equals("PRI_ADDRESS_FULL")) {
-									log.info("be has PRI_ADDRESS_FULL");
-									try {
-										Optional<EntityAttribute> eaLatitude = be.findEntityAttribute("PRI_ADDRESS_LATITUDE");
-										if (eaLatitude.isPresent()) {
-											log.info("adding PRI_ADDRESS_LATITUDE");
-											be.addAttribute(eaLatitude.get());
-										}
-										Optional<EntityAttribute> eaLongitude = be.findEntityAttribute("PRI_ADDRESS_LONGITUDE");
-										if (eaLongitude.isPresent()) {
-											log.info("adding PRI_ADDRESS_LONGITUDE");
-											be.addAttribute(eaLongitude.get());
-										}
-									} catch (Exception e) {
-										log.error("Failed to read entityAttribute ");
-									}
-								}
-
 							} else {
 								log.error("Cannot get Attribute - " + ea.getAttributeCode());
 
@@ -538,25 +495,6 @@ public class BaseEntityUtils implements Serializable {
 
 		for (EntityAttribute ea : be.getBaseEntityAttributes()) {
 
-			if (ea.getAttributeCode().equals("PRI_ADDRESS_FULL")) {
-				// add PRI_ADDRESS_LATITUDE and PRI_ADDRESS_LONGITUDE to EntityAttribute
-				log.info("be has PRI_ADDRESS_FULL");
-				try {
-					Optional<EntityAttribute> eaLatitude = be.findEntityAttribute("PRI_ADDRESS_LATITUDE");
-					if (eaLatitude.isPresent()) {
-						log.info("adding PRI_ADDRESS_LATITUDE");
-						be.addAttribute(eaLatitude.get());
-					}
-					Optional<EntityAttribute> eaLongitude = be.findEntityAttribute("PRI_ADDRESS_LONGITUDE");
-					if (eaLongitude.isPresent()) {
-						log.info("adding PRI_ADDRESS_LONGITUDE");
-						be.addAttribute(eaLongitude.get());
-					}
-
-				} catch (Exception e) {
-					log.error("Failed to read entityAttribute ");
-				}
-			}
 			if (ea.getAttributeCode().equals("PRI_VIDEO_URL")) {
 				String value = ea.getValueString();
 				if (value.startsWith("http")) {
@@ -2082,6 +2020,12 @@ public class BaseEntityUtils implements Serializable {
 				targetCode = ea.getValue();
 
 			} else if ((ea.getAttributeCode().startsWith("COL_")) || (ea.getAttributeCode().startsWith("CAL_"))) {
+				// if it is PRI_ADDRESS_FULL
+				// be -> add PRI_ADDRESS_LONGITUDE AND PRI_ADDRESS_LATTITUDE
+				if(ea.getAttributeCode().equals("COL_PRI_ADDRESS_FULL")){
+					attributeFilter.add("PRI_ADDRESS_LATITUDE");
+					attributeFilter.add("PRI_ADDRESS_LONGITUDE");
+				}
 				attributeFilter.add(ea.getAttributeCode().substring("COL_".length()));
 			} else if (ea.getAttributeCode().startsWith("SCH_WILDCARD")) {
 				if (ea.getValueString() != null) {
