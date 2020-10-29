@@ -276,10 +276,6 @@ public class BaseEntityUtils implements Serializable {
 						Attribute attribute = RulesUtils.attributeMap.get(ea.getAttributeCode());
 						if (attribute != null) {
 							ea.setAttribute(attribute);
-//							if (ea.getAttributeCode().equals("PRI_MIV")) {
-//								log.info("Found PRI_MIV. Processing the attribute");
-//								processVideoAttribute(ea);
-//							}
 						} else {
 							RulesUtils.loadAllAttributesIntoCache(this.token);
 							attribute = RulesUtils.attributeMap.get(ea.getAttributeCode());
@@ -498,6 +494,7 @@ public class BaseEntityUtils implements Serializable {
 		T be = BaseEntityByCode(code, true, BaseEntity.class, filteredStrings);
 
 		for (EntityAttribute ea : be.getBaseEntityAttributes()) {
+
 			if (ea.getAttributeCode().equals("PRI_VIDEO_URL")) {
 				String value = ea.getValueString();
 				if (value.startsWith("http")) {
@@ -1731,23 +1728,22 @@ public class BaseEntityUtils implements Serializable {
 			return "Failed";
 		}
 	}
-	
-	public void removeEntityAttribute(BaseEntity be, String attributeCode)
-	{
+
+	public void removeEntityAttribute(BaseEntity be, String attributeCode) {
 		try {
-			QwandaUtils.apiDelete(this.qwandaServiceUrl + "/qwanda/baseentitys/delete/"+be.getCode()+"/"+attributeCode, null, this.serviceToken.getToken());
+			QwandaUtils.apiDelete(this.qwandaServiceUrl + "/qwanda/baseentitys/delete/" + be.getCode() + "/" + attributeCode,
+					null, this.serviceToken.getToken());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		// Find EA
-		Optional<EntityAttribute> ea  = be.findEntityAttribute(attributeCode);
+		Optional<EntityAttribute> ea = be.findEntityAttribute(attributeCode);
 		if (ea.isPresent()) {
 			be.removeAttribute(attributeCode);
 			updateBaseEntity(be);
 		}
 	}
-	
 
 	/*
 	 * Returns comma seperated list of all the childcode for the given parent code
@@ -1945,7 +1941,7 @@ public class BaseEntityUtils implements Serializable {
 				beFilters.add(ea.getAsString());
 
 			} else if ((ea.getAttributeCode().startsWith("SRT_"))) {
-				
+
 				String sortCode = null;
 				String standardSortString = null;
 				String customSortString = null;
@@ -1984,7 +1980,7 @@ public class BaseEntityUtils implements Serializable {
 						customSortString = ".valueTime " + sortValue.toString();
 					}
 				}
-				
+
 				Integer index = null;
 				for (Tuple3<String, String, Double> sort : sortFilters) {
 					if (ea.getWeight() <= sort._3) {
@@ -1992,23 +1988,23 @@ public class BaseEntityUtils implements Serializable {
 						break;
 					}
 				}
-	            
-	            // Order Sorts by weight
-	            if (index == null) {
-	            	if (standardSortString != null) {
+
+				// Order Sorts by weight
+				if (index == null) {
+					if (standardSortString != null) {
 						sortFilters.add(Tuple.of("", standardSortString, ea.getWeight()));
 					}
 					if (customSortString != null) {
 						sortFilters.add(Tuple.of(sortCode, customSortString, ea.getWeight()));
 					}
-	            } else {
-	            	if (standardSortString != null) {
+				} else {
+					if (standardSortString != null) {
 						sortFilters.add(index, Tuple.of("", standardSortString, ea.getWeight()));
 					}
 					if (customSortString != null) {
 						sortFilters.add(index, Tuple.of(sortCode, customSortString, ea.getWeight()));
 					}
-	            }
+				}
 
 			} else if (ea.getAttributeCode().startsWith("SCH_STAKEHOLDER_CODE")) {
 				stakeholderCode = ea.getValue();
@@ -2022,9 +2018,13 @@ public class BaseEntityUtils implements Serializable {
 				sourceCode = ea.getValue();
 			} else if (ea.getAttributeCode().startsWith("SCH_TARGET_CODE")) {
 				targetCode = ea.getValue();
-				
 
 			} else if ((ea.getAttributeCode().startsWith("COL_")) || (ea.getAttributeCode().startsWith("CAL_"))) {
+				// add latittude and longitude to attributeFilter list if the current ea is PRI_ADDRESS_FULL
+				if(ea.getAttributeCode().equals("COL_PRI_ADDRESS_FULL")){
+					attributeFilter.add("PRI_ADDRESS_LATITUDE");
+					attributeFilter.add("PRI_ADDRESS_LONGITUDE");
+				}
 				attributeFilter.add(ea.getAttributeCode().substring("COL_".length()));
 			} else if (ea.getAttributeCode().startsWith("SCH_WILDCARD")) {
 				if (ea.getValueString() != null) {
@@ -2041,7 +2041,7 @@ public class BaseEntityUtils implements Serializable {
 					log.error("SQL condition is NULL, " + "EntityAttribute baseEntityCode is:" + ea.getBaseEntityCode()
 							+ ", attributeCode is:" + ea.getAttributeCode());
 				}
-				
+
 				attributeFilters.add(Tuple.of(ea.getAttributeCode(), getAttributeValue(ea, condition)));
 			}
 		}
@@ -2051,11 +2051,11 @@ public class BaseEntityUtils implements Serializable {
 		for (int i = 0; i < attributeFilters.size(); i++) {
 			hql += ", EntityAttribute e" + i;
 		}
-		
+
 		if (wildcardValue != null) {
 			hql += ", EntityAttribute ew";
 		}
-		
+
 		for (int i = 0; i < sortFilters.size(); i++) {
 			Tuple3<String, String, Double> sort = sortFilters.get(i);
 			if (!sort._1.isEmpty()) {
@@ -2078,19 +2078,24 @@ public class BaseEntityUtils implements Serializable {
 				targetCode = "'" + targetCode + "'";
 			}
 
-			hql += ( sourceCode != null ? " ee.link.sourceCode " + ( sourceCode.contains("%") ? "like " : "= " ) + sourceCode : "" );
-			hql += ( targetCode != null ? " and ee.link.targetCode " + ( targetCode.contains("%") ? "like " : "= " ) + targetCode : "" );
+			hql += (sourceCode != null ? " ee.link.sourceCode " + (sourceCode.contains("%") ? "like " : "= ") + sourceCode
+					: "");
+			hql += (targetCode != null ? " and ee.link.targetCode " + (targetCode.contains("%") ? "like " : "= ") + targetCode
+					: "");
 
-			hql += ( linkCode != null ? " and ee.link.attributeCode " + ( linkCode.contains("%") ? "like " : "= " ) +  "'" + linkCode + "'" : "" );
-			hql += ( linkValue != null ? " and ee.link.linkValue " + ( linkValue.contains("%") ? "like " : "= " ) + "'" + linkValue + "'" : "" );
+			hql += (linkCode != null
+					? " and ee.link.attributeCode " + (linkCode.contains("%") ? "like " : "= ") + "'" + linkCode + "'"
+					: "");
+			hql += (linkValue != null
+					? " and ee.link.linkValue " + (linkValue.contains("%") ? "like " : "= ") + "'" + linkValue + "'"
+					: "");
 
 			hql = hql.replace("on ( and", "on (");
 			hql += " )";
 		}
-		
-		
-		if (beFilters.size() > 0 || searchBE.getCode().startsWith("SBE_SEARCHBAR") 
-				|| attributeFilters.size() > 0 || wildcardValue != null || sortFilters.size() > 0) {
+
+		if (beFilters.size() > 0 || searchBE.getCode().startsWith("SBE_SEARCHBAR") || attributeFilters.size() > 0
+				|| wildcardValue != null || sortFilters.size() > 0) {
 			hql += " where";
 		}
 
@@ -2116,7 +2121,7 @@ public class BaseEntityUtils implements Serializable {
 				String filterValue = attributeFilters.get(i)._2.toString();
 				hql += " and ea.baseEntityCode=e" + i + ".baseEntityCode";
 				hql += " and e" + i + ".attributeCode = '" + filterCode + "'"
-					+ ((!StringUtils.isBlank(filterValue)) ? (" and e" + i + filterValue) : "");
+						+ ((!StringUtils.isBlank(filterValue)) ? (" and e" + i + filterValue) : "");
 			}
 		}
 
@@ -2127,8 +2132,7 @@ public class BaseEntityUtils implements Serializable {
 		if (sortFilters.size() > 0) {
 			// sort the sorts
 			List<Tuple3> sortedFilters = sortFilters.stream()
-					.sorted((o1, o2)->((Double)(o1._3)).compareTo((Double)(o2._3)))
-					.collect(Collectors.toList());
+					.sorted((o1, o2) -> ((Double) (o1._3)).compareTo((Double) (o2._3))).collect(Collectors.toList());
 			String orderBy = " order by";
 			for (int i = 0; i < sortedFilters.size(); i++) {
 				Tuple3<String, String, Double> sort = sortedFilters.get(i);
@@ -2138,7 +2142,8 @@ public class BaseEntityUtils implements Serializable {
 				if (sort._1.isEmpty()) {
 					orderBy += " ea" + sort._2;
 				} else {
-					hql += " and ea.baseEntityCode=ez" + i + ".baseEntityCode and ez" + i + ".attributeCode='" + sort._1.toString() + "'";
+					hql += " and ea.baseEntityCode=ez" + i + ".baseEntityCode and ez" + i + ".attributeCode='"
+							+ sort._1.toString() + "'";
 					orderBy += " ez" + i + sort._2.toString();
 				}
 			}
@@ -2240,19 +2245,19 @@ public class BaseEntityUtils implements Serializable {
 		return person;
 	}
 
-	public JsonObject writeMsg(BaseEntity be) { 
-		return writeMsg(be,new String[0]);
+	public JsonObject writeMsg(BaseEntity be) {
+		return writeMsg(be, new String[0]);
 	}
-	
-	public JsonObject writeMsg(BaseEntity be, String... rxList) { 
+
+	public JsonObject writeMsg(BaseEntity be, String... rxList) {
 		QDataBaseEntityMessage msg = new QDataBaseEntityMessage(be);
 		msg.setToken(this.gennyToken.getToken());
 		msg.setReplace(true);
-		if ((rxList!= null)&&(rxList.length>0)) {
+		if ((rxList != null) && (rxList.length > 0)) {
 			msg.setRecipientCodeArray(rxList);
 			return VertxUtils.writeMsg("project", msg);
 		} else {
-			return VertxUtils.writeMsg("webdata",msg);
+			return VertxUtils.writeMsg("webdata", msg);
 		}
 	}
 
