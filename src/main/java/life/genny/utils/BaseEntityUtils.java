@@ -799,9 +799,9 @@ public class BaseEntityUtils implements Serializable {
 		return this.getParent(targetCode, linkCode, null);
 	}
 
-	public BaseEntity getParent(String targetCode, String linkCode, String prefix) {
+	public BaseEntity getParent(String targetCode, String linkCode, String linkValue) {
 
-		List<BaseEntity> parents = this.getParents(targetCode, linkCode, prefix);
+		List<BaseEntity> parents = this.getParents(targetCode, linkCode, linkValue);
 		if (parents != null && !parents.isEmpty()) {
 			return parents.get(0);
 		}
@@ -809,46 +809,61 @@ public class BaseEntityUtils implements Serializable {
 		return null;
 	}
 
+	public List<BaseEntity> getParents(final String targetCode) {
+		return this.getParents(targetCode, null, null);
+	}
+
 	public List<BaseEntity> getParents(final String targetCode, final String linkCode) {
 		return this.getParents(targetCode, linkCode, null);
 	}
 
-	public List<BaseEntity> getParents(String targetCode, String linkCode, String prefix) {
+	public List<BaseEntity> getParents(String targetCode, String linkCode, String linkValue) {
 
 		List<BaseEntity> parents = null;
-		long sTime = System.nanoTime();
-		try {
+		parents = new CopyOnWriteArrayList<BaseEntity>();
 
-			String beJson = QwandaUtils.apiGet(
-					this.qwandaServiceUrl + "/qwanda/entityentitys/" + targetCode + "/linkcodes/" + linkCode + "/parents",
-					this.token);
+		List<Link> arrayList = getParentLinks(targetCode, linkCode, linkValue);
+
+		for (Link lnk : arrayList) {
+
+			BaseEntity linkedBe = getBaseEntityByCode(lnk.getSourceCode());
+			if (linkedBe != null) {
+				parents.add(linkedBe);
+			}
+		}
+		return parents;
+
+	}
+
+	public List<Link> getParentLinks(String targetCode, String linkCode, String linkValue) {
+
+		long sTime = System.nanoTime();
+		List<Link> arrayList = new ArrayList<>();
+		try {
+			String beJson = null;
+			if (linkCode == null && linkValue == null)
+				beJson = QwandaUtils.apiGet(
+						this.qwandaServiceUrl + "/qwanda/entityentitys/" + targetCode + "/parents",
+						this.token);
+			else if (linkValue == null) {
+				beJson = QwandaUtils.apiGet(
+						this.qwandaServiceUrl + "/qwanda/entityentitys/" + targetCode + "/linkcodes/" + linkCode + "/parents",
+						this.token);
+			} else {
+				beJson = QwandaUtils.apiGet(
+						this.qwandaServiceUrl + "/qwanda/entityentitys/" + targetCode + "/linkcodes/" + linkCode + "/parents/" + linkValue,
+						this.token);
+			}
 			Link[] linkArray = JsonUtils.fromJson(beJson, Link[].class);
 			if (linkArray != null && linkArray.length > 0) {
-
-				List<Link> arrayList = new CopyOnWriteArrayList<Link>(Arrays.asList(linkArray));
-				parents = new CopyOnWriteArrayList<BaseEntity>();
-				for (Link lnk : arrayList) {
-
-					BaseEntity linkedBe = getBaseEntityByCode(lnk.getSourceCode());
-					if (linkedBe != null) {
-
-						if (prefix == null) {
-							parents.add(linkedBe);
-						} else {
-							if (linkedBe.getCode().startsWith(prefix)) {
-								parents.add(linkedBe);
-							}
-						}
-					}
-				}
-
+				arrayList = new CopyOnWriteArrayList<Link>(Arrays.asList(linkArray));				
 			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		double difference = (System.nanoTime() - sTime) / 1e6; // get ms
-		return parents;
+		return arrayList;
 	}
 
 	public List<EntityEntity> getLinks(BaseEntity be) {
