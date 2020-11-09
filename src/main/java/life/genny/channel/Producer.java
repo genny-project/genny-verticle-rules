@@ -3,12 +3,10 @@ package life.genny.channel;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.MessageProducer;
 import io.vertx.core.json.JsonObject;
-import io.vertx.rxjava.core.eventbus.EventBus;
-import io.vertx.rxjava.core.eventbus.Message;
-import io.vertx.rxjava.core.eventbus.MessageProducer;
 import life.genny.qwandautils.GennySettings;
-import rx.Observable;
 
 public class Producer {
 

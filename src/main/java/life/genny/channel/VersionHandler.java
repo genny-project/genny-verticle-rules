@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.Properties;
 import org.apache.logging.log4j.Logger;
-import io.vertx.rxjava.ext.web.RoutingContext;
+import io.vertx.ext.web.RoutingContext;
 import life.genny.qwandautils.GitUtils;
 
 public class VersionHandler {

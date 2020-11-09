@@ -6,7 +6,7 @@ import com.google.gson.reflect.TypeToken;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.rxjava.core.eventbus.MessageProducer;
+import io.vertx.core.eventbus.MessageProducer;
 import life.genny.eventbus.EventBusInterface;
 import life.genny.eventbus.EventBusMock;
 import life.genny.models.GennyToken;

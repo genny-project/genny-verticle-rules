@@ -1,13 +1,11 @@
 package life.genny.channel;
 
 import java.lang.invoke.MethodHandles;
-
 import org.apache.logging.log4j.Logger;
-
+import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerOptions;
-import io.vertx.rxjava.core.Vertx;
-import io.vertx.rxjava.ext.web.Router;
+import io.vertx.ext.web.Router;
 import life.genny.qwandautils.GennySettings;
 
 public class Routers {

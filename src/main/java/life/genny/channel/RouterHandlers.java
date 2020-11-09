@@ -2,20 +2,16 @@ package life.genny.channel;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
-
 import org.apache.logging.log4j.Logger;
-import org.json.JSONArray;
 import org.json.JSONObject;
-
+import io.vertx.core.MultiMap;
+import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonObject;
-import io.vertx.rxjava.core.MultiMap;
-import io.vertx.rxjava.core.Vertx;
-import io.vertx.rxjava.core.http.HttpServerRequest;
-import io.vertx.rxjava.ext.web.RoutingContext;
-import io.vertx.rxjava.ext.web.handler.CorsHandler;
+import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.CorsHandler;
 import life.genny.models.GennyToken;
-import life.genny.qwandautils.GennySettings;
 import life.genny.qwandautils.KeycloakUtils;
 import life.genny.security.TokenIntrospection;
 import life.genny.utils.VertxUtils;

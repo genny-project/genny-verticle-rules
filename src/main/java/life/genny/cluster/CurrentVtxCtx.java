@@ -1,6 +1,6 @@
 package life.genny.cluster;
 
-import io.vertx.rxjava.core.Vertx;
+import io.vertx.core.Vertx;
 
 public class CurrentVtxCtx {
   private static CurrentVtxCtx currentVtx;

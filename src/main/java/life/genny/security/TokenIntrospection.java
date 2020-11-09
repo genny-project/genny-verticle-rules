@@ -2,18 +2,13 @@ package life.genny.security;
 
 import java.util.Arrays;
 import java.util.List;
-
 import java.util.Map;
-
 import java.util.function.BiPredicate;
-
 import com.github.javaparser.utils.Log;
-
 import io.vertx.core.json.JsonObject;
 import io.vertx.rxjava.core.Vertx;
 import io.vertx.rxjava.ext.auth.AuthProvider;
 import io.vertx.rxjava.ext.auth.User;
-
 import life.genny.qwandautils.KeycloakUtils;
 
 

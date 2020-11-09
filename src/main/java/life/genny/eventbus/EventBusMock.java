@@ -1,10 +1,9 @@
 package life.genny.eventbus;
 
 import java.lang.invoke.MethodHandles;
-
 import org.apache.logging.log4j.Logger;
+import io.vertx.core.eventbus.EventBus;
 
-import io.vertx.rxjava.core.eventbus.EventBus;
 
 public class EventBusMock  implements EventBusInterface
 {	

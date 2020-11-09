@@ -1,8 +1,7 @@
 package life.genny.eventbus;
 
 import javax.naming.NamingException;
-
-import io.vertx.rxjava.core.eventbus.EventBus;
+import io.vertx.core.eventbus.EventBus;
 import life.genny.channel.Producer;
 import life.genny.cluster.CurrentVtxCtx;
 import life.genny.qwanda.entity.BaseEntity;
