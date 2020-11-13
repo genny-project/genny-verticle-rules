@@ -725,6 +725,44 @@ public class BaseEntityUtils implements Serializable {
 
 		return null;
 	}
+    
+    public BaseEntity getBaseEntityFromLNKAttr(String baseEntityCode, String attributeCode) {
+        
+        String newBaseEntityCode = getBaseEntityCodeFromLNKAttr(baseEntityCode, attributeCode);
+        if (newBaseEntityCode != null) {
+            BaseEntity newBe = getBaseEntityByCode(newBaseEntityCode);
+            return newBe;
+        } else {
+            return null;
+        } 
+    }
+
+    public String getBaseEntityCodeFromLNKAttr(String baseEntityCode, String attributeCode) {
+        
+        String newBaseEntityCode = getBaseEntityValueAsString(baseEntityCode, attributeCode);
+        if (newBaseEntityCode != null) {
+		    newBaseEntityCode = cleanUpBaseEntityCode(newBaseEntityCode);
+            return newBaseEntityCode;
+        } else {
+            return null;
+        }
+    }
+    
+    public String[] getBaseEntityCodeArrayFromLNK(String baseEntityCode, String attributeCode) {
+        
+        String newBaseEntityCode = getBaseEntityValueAsString(baseEntityCode, attributeCode);
+        if (newBaseEntityCode != null) {
+            String[] baseEntityCodeArray = newBaseEntityCode.replace("\"", "").replace("[", "").replace("]", "").replace(" ", "").split(",");
+            return baseEntityCodeArray;
+        } else {
+            return null;
+        }
+    }
+
+    public String cleanUpBaseEntityCode(String baseEntityCode) {
+        String cleanCode = baseEntityCode.replace("\"", "").replace("[", "").replace("]", "");
+        return cleanCode;
+    }
 
 	public Object getBaseEntityValue(final String baseEntityCode, final String attributeCode) {
 		BaseEntity be = getBaseEntityByCode(baseEntityCode);
