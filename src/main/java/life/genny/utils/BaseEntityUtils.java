@@ -741,7 +741,7 @@ public class BaseEntityUtils implements Serializable {
         
         String newBaseEntityCode = getBaseEntityValueAsString(baseEntityCode, attributeCode);
         if (newBaseEntityCode != null) {
-		    newBaseEntityCode = cleanUpBaseEntityCode(newBaseEntityCode);
+            newBaseEntityCode = cleanUpBaseEntityCode(newBaseEntityCode);
             return newBaseEntityCode;
         } else {
             return null;
