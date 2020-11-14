@@ -748,12 +748,13 @@ public class BaseEntityUtils implements Serializable {
         }
     }
     
-    public String[] getBaseEntityCodeArrayFromLNK(String baseEntityCode, String attributeCode) {
+    public List<String> getBaseEntityCodeArrayFromLNK(String baseEntityCode, String attributeCode) {
         
         String newBaseEntityCode = getBaseEntityValueAsString(baseEntityCode, attributeCode);
         if (newBaseEntityCode != null) {
             String[] baseEntityCodeArray = newBaseEntityCode.replace("\"", "").replace("[", "").replace("]", "").replace(" ", "").split(",");
-            return baseEntityCodeArray;
+            List<String> beCodeList = new ArrayList(Arrays.asList(baseEntityCodeArray));
+            return beCodeList;
         } else {
             return null;
         }
