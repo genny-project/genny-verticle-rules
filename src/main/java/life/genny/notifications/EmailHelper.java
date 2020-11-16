@@ -410,13 +410,23 @@ public class EmailHelper extends NotificationHelper {
     personalization.addTo(to);
     personalization.setSubject(subject);
 
+    
+    for (String i : templateData.keySet()) {
+        System.out.println("key: " + i + " value: " + templateData.get(i));
+        personalization.addDynamicTemplateData(i, templateData.get(i));
+    }
+    
+    /*
     for (Map.Entry<String, String> entry : templateData.entrySet()) {
 
       String key = entry.getKey();
       String value = entry.getValue();
+      
+      System.out.println("key: " + key);
+      System.out.println("value: " + value);
 
       personalization.addDynamicTemplateData(key, value);
-    }
+    }*/
 
     Mail mail = new Mail();
     mail.addPersonalization(personalization);
