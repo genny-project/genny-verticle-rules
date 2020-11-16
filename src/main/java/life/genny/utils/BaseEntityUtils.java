@@ -1429,7 +1429,7 @@ public class BaseEntityUtils implements Serializable {
 
 	public Link createLink(String sourceCode, String targetCode, String linkCode, String linkValue, Double weight) {
 
-		System.out.println("CREATING LINK between " + sourceCode + "and" + targetCode + "with LINK VALUE = " + linkValue);
+		System.out.println("CREATING LINK between " + sourceCode + " and " + targetCode + " with LINK VALUE = " + linkValue);
 		Link link = new Link(sourceCode, targetCode, linkCode, linkValue);
 		link.setWeight(weight);
 		try {
