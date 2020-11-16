@@ -2095,8 +2095,10 @@ public class BaseEntityUtils implements Serializable {
 					log.error("SQL condition is NULL, " + "EntityAttribute baseEntityCode is:" + ea.getBaseEntityCode()
 							+ ", attributeCode is:" + ea.getAttributeCode());
 				}
-
-				attributeFilters.add(Tuple.of(ea.getAttributeCode(), getAttributeValue(ea, condition)));
+				if (!((ea.getValueString()!=null)&&(ea.getValueString().equals("%"))&&(ea.getAttributeName().equals("LIKE")))) {
+					// Only add a filter if it is not a wildcard
+					attributeFilters.add(Tuple.of(ea.getAttributeCode(), getAttributeValue(ea, condition)));
+				}
 			}
 		}
 

@@ -252,9 +252,86 @@ public class EmailHelper extends NotificationHelper {
  //   sendGrid("christopher.pyke@gada.io", "Recommended letter","d-4880601ff6b444dca5b49265e1bdd186");
  // }
 
+  public static void sendGrid(String recipient, String subject, String templateId, String p1, String d1, String p2, String d2, String p3, String d3, String p4, String d4) throws IOException {
+		System.out.println("Hey I got inside the sendGrid method 256");
+		
+		Email from = new Email(System.getenv("SENDGRID_EMAIL_SENDER"));
+	    Email to = new Email(recipient);
 
+	    SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
+
+	    Personalization personalization = new Personalization();
+
+	    personalization.addTo(to);
+	    personalization.addDynamicTemplateData(p1, d1);
+	    personalization.addDynamicTemplateData(p2, d2);
+	    personalization.addDynamicTemplateData(p3, d3);
+	    personalization.addDynamicTemplateData(p4, d4);
+	    personalization.setSubject(subject);
+
+	    Mail mail = new Mail();
+	    mail.addPersonalization(personalization);
+	    mail.setTemplateId(templateId);
+	    mail.setFrom(from);
+
+	    Request request = new Request();
+	    try {
+	      request.setMethod(Method.POST);
+	      request.setEndpoint("mail/send");
+	      request.setBody(mail.build());
+	      Response response = sg.api(request);
+	      System.out.println(response.getStatusCode());
+	      System.out.println(response.getBody());
+	      System.out.println(response.getHeaders());
+
+	    } catch (IOException ex) {
+	      throw ex;
+	    }
+	  }
+
+  
+  public static void sendGrid(String recipient, String subject, String templateId, String p1, String d1, String p2, String d2, String p3, String d3, String p4, String d4, String p5, String d5, String p6, String d6 ,String p7, String d7) throws IOException {
+		System.out.println("Hey I got inside the sendGrid method 294");
+		
+		Email from = new Email(System.getenv("SENDGRID_EMAIL_SENDER"));
+	    Email to = new Email(recipient);
+
+	    SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
+
+	    Personalization personalization = new Personalization();
+
+	    personalization.addTo(to);
+	    personalization.addDynamicTemplateData(p1, d1);
+	    personalization.addDynamicTemplateData(p2, d2);
+	    personalization.addDynamicTemplateData(p3, d3);
+	    personalization.addDynamicTemplateData(p4, d4);
+	    personalization.addDynamicTemplateData(p5, d5);
+	    personalization.addDynamicTemplateData(p6, d6);
+	    personalization.addDynamicTemplateData(p7, d7);
+	    personalization.setSubject(subject);
+
+	    Mail mail = new Mail();
+	    mail.addPersonalization(personalization);
+	    mail.setTemplateId(templateId);
+	    mail.setFrom(from);
+
+	    Request request = new Request();
+	    try {
+	      request.setMethod(Method.POST);
+	      request.setEndpoint("mail/send");
+	      request.setBody(mail.build());
+	      Response response = sg.api(request);
+	      System.out.println(response.getStatusCode());
+	      System.out.println(response.getBody());
+	      System.out.println(response.getHeaders());
+
+	    } catch (IOException ex) {
+	      throw ex;
+	    }
+	  }
+  
 	public static void sendGrid(String recipient, String subject, String templateId, String hardcodedPointer1, String hardcodedData1, String hardcodedPointer2, String hardcodedData2, String hardcodedPointer3, String hardcodedData3) throws IOException {
-	System.out.println("Hey I got inside the sendGrid method 256");
+	System.out.println("Hey I got inside the sendGrid method 334");
 	
 	Email from = new Email(System.getenv("SENDGRID_EMAIL_SENDER"));
     Email to = new Email(recipient);
@@ -290,7 +367,7 @@ public class EmailHelper extends NotificationHelper {
   }
 	
 	public static void sendGrid(String recipient, String subject, String templateId, String hardcodedTemplateData1, String hardcodedTemplateData2) throws IOException {
-		System.out.println("Hey I got inside the sendGrid method 292");
+		System.out.println("Hey I got inside the sendGrid method 370");
 		Email from = new Email(System.getenv("SENDGRID_EMAIL_SENDER"));
 	    Email to = new Email(recipient);
 
