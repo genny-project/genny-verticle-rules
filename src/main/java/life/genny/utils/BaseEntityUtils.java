@@ -725,6 +725,45 @@ public class BaseEntityUtils implements Serializable {
 
 		return null;
 	}
+    
+    public BaseEntity getBaseEntityFromLNKAttr(String baseEntityCode, String attributeCode) {
+        
+        String newBaseEntityCode = getBaseEntityCodeFromLNKAttr(baseEntityCode, attributeCode);
+        if (newBaseEntityCode != null) {
+            BaseEntity newBe = getBaseEntityByCode(newBaseEntityCode);
+            return newBe;
+        } else {
+            return null;
+        } 
+    }
+
+    public String getBaseEntityCodeFromLNKAttr(String baseEntityCode, String attributeCode) {
+        
+        String newBaseEntityCode = getBaseEntityValueAsString(baseEntityCode, attributeCode);
+        if (newBaseEntityCode != null) {
+            newBaseEntityCode = cleanUpBaseEntityCode(newBaseEntityCode);
+            return newBaseEntityCode;
+        } else {
+            return null;
+        }
+    }
+    
+    public List<String> getBaseEntityCodeArrayFromLNKAttr(String baseEntityCode, String attributeCode) {
+        
+        String newBaseEntityCode = getBaseEntityValueAsString(baseEntityCode, attributeCode);
+        if (newBaseEntityCode != null) {
+            String[] baseEntityCodeArray = newBaseEntityCode.replace("\"", "").replace("[", "").replace("]", "").replace(" ", "").split(",");
+            List<String> beCodeList = new ArrayList(Arrays.asList(baseEntityCodeArray));
+            return beCodeList;
+        } else {
+            return null;
+        }
+    }
+
+    public String cleanUpBaseEntityCode(String baseEntityCode) {
+        String cleanCode = baseEntityCode.replace("\"", "").replace("[", "").replace("]", "");
+        return cleanCode;
+    }
 
 	public Object getBaseEntityValue(final String baseEntityCode, final String attributeCode) {
 		BaseEntity be = getBaseEntityByCode(baseEntityCode);
@@ -1390,7 +1429,7 @@ public class BaseEntityUtils implements Serializable {
 
 	public Link createLink(String sourceCode, String targetCode, String linkCode, String linkValue, Double weight) {
 
-		System.out.println("CREATING LINK between " + sourceCode + "and" + targetCode + "with LINK VALUE = " + linkValue);
+		System.out.println("CREATING LINK between " + sourceCode + " and " + targetCode + " with LINK VALUE = " + linkValue);
 		Link link = new Link(sourceCode, targetCode, linkCode, linkValue);
 		link.setWeight(weight);
 		try {
