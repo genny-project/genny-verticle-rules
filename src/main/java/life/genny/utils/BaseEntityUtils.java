@@ -748,7 +748,7 @@ public class BaseEntityUtils implements Serializable {
         }
     }
     
-    public List<String> getBaseEntityCodeArrayFromLNK(String baseEntityCode, String attributeCode) {
+    public List<String> getBaseEntityCodeArrayFromLNKAttr(String baseEntityCode, String attributeCode) {
         
         String newBaseEntityCode = getBaseEntityValueAsString(baseEntityCode, attributeCode);
         if (newBaseEntityCode != null) {
