@@ -753,7 +753,7 @@ public class BaseEntityUtils implements Serializable {
         String newBaseEntityCode = getBaseEntityValueAsString(baseEntityCode, attributeCode);
         if (newBaseEntityCode != null) {
             String[] baseEntityCodeArray = newBaseEntityCode.replace("\"", "").replace("[", "").replace("]", "").replace(" ", "").split(",");
-            List<String> beCodeList = new ArrayList(Arrays.asList(baseEntityCodeArray));
+            List<String> beCodeList = Arrays.asList(baseEntityCodeArray);
             return beCodeList;
         } else {
             return null;
