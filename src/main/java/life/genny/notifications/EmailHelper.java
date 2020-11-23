@@ -407,11 +407,17 @@ public class EmailHelper extends NotificationHelper {
 	    }
 	  }
 
-	public static void sendGrid(String recipient, String subject, String templateId, HashMap<String, String> templateData) throws IOException {
-    Email from = new Email(System.getenv("SENDGRID_EMAIL_SENDER"));
+	public static void sendGrid(BaseEntityUtils beUtils,String recipient, String subject, String templateId, HashMap<String, String> templateData) throws IOException {
+		
+	BaseEntity projectBE = beUtils.getBaseEntityByCode("PRJ_"+beUtils.getGennyToken().getRealm().toUpperCase());
+	String sendGridEmailSender = projectBE.getValueAsString("ENV_SENDGRID_EMAIL_SENDER");
+	String sendGridApiKey = projectBE.getValueAsString("ENV_SENDGRID_API_KEY");
+	
+		
+    Email from = new Email(sendGridEmailSender);
     Email to = new Email(recipient);
 
-    SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
+    SendGrid sg = new SendGrid(sendGridApiKey);
 
     Personalization personalization = new Personalization();
 
