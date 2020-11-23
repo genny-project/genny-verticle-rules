@@ -29,7 +29,9 @@ import com.sendgrid.helpers.mail.objects.Email;
 import com.sendgrid.helpers.mail.objects.Personalization;
 // import com.sendgrid.Personalization;
 import io.vertx.core.json.JsonObject;
+import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwandautils.GennySettings;
+import life.genny.utils.BaseEntityUtils;
 
 public class EmailHelper extends NotificationHelper {
 
@@ -181,11 +183,17 @@ public class EmailHelper extends NotificationHelper {
     return null;
   }
 
-  public static void sendGrid(String recipient, String subject, String templateId) throws IOException {
-    Email from = new Email(System.getenv("SENDGRID_EMAIL_SENDER"));
+  public static void sendGrid(BaseEntityUtils beUtils,String recipient, String subject, String templateId) throws IOException {
+   
+	  BaseEntity projectBE = beUtils.getBaseEntityByCode("PRJ_"+beUtils.getGennyToken().getRealm().toUpperCase());
+	  String sendGridEmailSender = projectBE.getValueAsString("ENV_SENDGRID_EMAIL_SENDER");
+	  String sendGridApiKey = projectBE.getValueAsString("ENV_SENDGRID_API_KEY");
+	  
+	  
+	  Email from = new Email(sendGridEmailSender);
     Email to = new Email(recipient);
 
-    SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
+    SendGrid sg = new SendGrid(sendGridApiKey);
 
     Personalization personalization = new Personalization();
 
