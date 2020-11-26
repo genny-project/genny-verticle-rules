@@ -12,6 +12,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.CorsHandler;
 import life.genny.models.GennyToken;
+import life.genny.qwandautils.GennySettings;
 import life.genny.qwandautils.KeycloakUtils;
 import life.genny.security.TokenIntrospection;
 import life.genny.utils.VertxUtils;
@@ -22,8 +23,15 @@ public class RouterHandlers {
 			.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
 
 	public static CorsHandler cors() {
-		return CorsHandler.create("*").allowedMethod(HttpMethod.GET).allowedMethod(HttpMethod.POST).allowedMethod(HttpMethod.PUT)
-				.allowedMethod(HttpMethod.OPTIONS).allowedHeader("X-PINGARUNER").allowedHeader("Content-Type")
+		return CorsHandler.create(
+        "http://localhost:\\d\\d|"+
+        "https://localhost:\\d\\d|"+
+        "http://localhost:\\d\\d\\d\\d|"+
+        "https://localhost:\\d\\d\\d\\d|"+
+        "https://.*.genny.life|https://.*.gada.io|"+
+        GennySettings.projectUrl).allowedMethod(HttpMethod.GET).allowedMethod(HttpMethod.POST).allowedMethod(HttpMethod.PUT)
+				.allowedMethod(HttpMethod.OPTIONS).allowedHeader("X-PINGARUNER").allowedHeader("Content-Type").allowedHeader("Authorization")
+				.allowedHeader("Accept")
 				.allowedHeader("X-Requested-With");
 	}
 
