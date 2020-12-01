@@ -1310,6 +1310,38 @@ public class BaseEntityUtils implements Serializable {
 		return ret;
 	}
 
+	
+	public String saveBaseEntity(BaseEntity be) { // TODO: Ugly
+		String ret = null;
+		try {
+			if (be != null) {
+				if (!be.hasCode()) {
+					log.error("ERROR! BaseEntity se has no code!");
+				}
+				if (be.getId() == null) {
+					BaseEntity existing = VertxUtils.readFromDDT(getRealm(), be.getCode(), this.token);
+					if (existing != null) {
+						be.setId(existing.getId());
+					}
+				}
+				VertxUtils.writeCachedJson(getRealm(), be.getCode(), JsonUtils.toJson(be));
+				if (be.getId() != null) {
+					ret = QwandaUtils.apiPutEntity(this.qwandaServiceUrl + "/qwanda/baseentitys", JsonUtils.toJson(be),
+							this.token);
+
+				} else {
+					ret = QwandaUtils.apiPostEntity(this.qwandaServiceUrl + "/qwanda/baseentitys", JsonUtils.toJson(be),
+							this.token);
+				}
+				saveBaseEntityAttributes(be);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+
+		}
+		return ret;
+	}
+	
 	public void saveBaseEntityAttributes(BaseEntity be) {
 		if ((be == null) || (be.getCode() == null)) {
 			throw new NullPointerException("Cannot save be because be is null or be.getCode is null");
