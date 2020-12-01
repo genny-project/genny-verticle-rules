@@ -2048,21 +2048,21 @@ public class BaseEntityUtils implements Serializable {
 					Object sortValue = ea.getValue();
 					if (dtt.equals("Text")) {
 						customSortString = ".valueString " + sortValue.toString();
-					} else if (dtt.equals("java.lang.String")) {
+					} else if (dtt.equals("java.lang.String") || dtt.equals("String")) {
 						customSortString = ".valueString " + sortValue.toString();
-					} else if (dtt.equals("java.lang.Boolean")) {
+					} else if (dtt.equals("java.lang.Boolean") || dtt.equals("Boolean")) {
 						customSortString = ".valueBoolean " + sortValue.toString();
-					} else if (dtt.equals("java.lang.Double")) {
+					} else if (dtt.equals("java.lang.Double") || dtt.equals("Double")) {
 						customSortString = ".valueDouble " + sortValue.toString();
-					} else if (dtt.equals("java.lang.Integer")) {
+					} else if (dtt.equals("java.lang.Integer") || dtt.equals("Integer")) {
 						customSortString = ".valueInteger " + sortValue.toString();
-					} else if (dtt.equals("java.lang.Long")) {
+					} else if (dtt.equals("java.lang.Long") || dtt.equals("Long")) {
 						customSortString = ".valueLong " + sortValue.toString();
-					} else if (dtt.equals("java.time.LocalDateTime")) {
+					} else if (dtt.equals("java.time.LocalDateTime") || dtt.equals("LocalDateTime")) {
 						customSortString = ".valueDateTime " + sortValue.toString();
-					} else if (dtt.equals("java.time.LocalDate")) {
+					} else if (dtt.equals("java.time.LocalDate") || dtt.equals("LocalDate")) {
 						customSortString = ".valueDate " + sortValue.toString();
-					} else if (dtt.equals("java.time.LocalTime")) {
+					} else if (dtt.equals("java.time.LocalTime") || dtt.equals("LocalTime")) {
 						customSortString = ".valueTime " + sortValue.toString();
 					}
 				}
