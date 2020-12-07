@@ -2127,6 +2127,8 @@ public class BaseEntityUtils implements Serializable {
 					log.error("SQL condition is NULL, " + "EntityAttribute baseEntityCode is:" + ea.getBaseEntityCode()
 							+ ", attributeCode is:" + ea.getAttributeCode());
 				}
+				//String aName = ea.getAttributeName();
+				
 				if (!((ea.getValueString()!=null)&&(ea.getValueString().equals("%"))&&(ea.getAttributeName().equals("LIKE")))) {
 					// Only add a filter if it is not a wildcard
 					attributeFilters.add(Tuple.of(ea.getAttributeCode(), getAttributeValue(ea, condition)));
@@ -2244,12 +2246,25 @@ public class BaseEntityUtils implements Serializable {
 	}
 
 	public String getAttributeValue(EntityAttribute ea, String condition) {
+		
 		if (ea.getValueString() != null) {
-			return ".valueString " + condition + " '" + ea.getValueString() + "'";
+			String val = ea.getValueString();
+			if (ea.getValueString().contains(":")) {
+				String[] split = ea.getValueString().split(":");
+				if (StringUtils.isBlank(split[0])) {
+					condition = "LIKE";
+					val = "%"+split[1]+"%";
+				} else {
+					condition = split[0];
+					val = split[1];
+				}
+			}
+			return ".valueString " + condition + " '" + val + "'";
 		} else if (ea.getValueBoolean() != null) {
+			
 			return ".valueBoolean = " + (ea.getValueBoolean() ? "true" : "false");
 		} else if (ea.getValueDouble() != null) {
-			return ".valueDouble =ls" + ":q" + " " + ea.getValueDouble() + "";
+			return ".valueDouble = " + condition + " " + ea.getValueDouble() + "";
 		} else if (ea.getValueInteger() != null) {
 			return ".valueInteger " + condition + " " + ea.getValueInteger() + "";
 		} else if (ea.getValueDate() != null) {
