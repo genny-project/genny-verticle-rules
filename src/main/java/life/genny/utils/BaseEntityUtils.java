@@ -2388,13 +2388,15 @@ public class BaseEntityUtils implements Serializable {
 		}
 	}
 	
-	public String getValueSaveAnswer(String beSource, BaseEntity beTarget, BaseEntity beValue, String getAttribute, String setAttribute, String value) {
+	public String getValueSaveAnswer(String beSource, String beTarget, String beValue, String getAttribute, String setAttribute, String value) {
 		
 		try {
-			value = beValue.getValue(getAttribute, null);
+			BaseEntity beValueBE = this.getBaseEntityByCode(beValue);
+			
+			value = beValueBE.getValue(getAttribute, null);
 			System.out.println(value +": " + value);
 			if(value != null) {
-					saveAnswer(new Answer(beSource, beTarget.getCode(), setAttribute, value));
+					saveAnswer(new Answer(beSource, beTarget, setAttribute, value));
 			}
 		} catch (Exception e) {
 		}
