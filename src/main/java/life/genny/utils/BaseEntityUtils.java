@@ -2389,7 +2389,6 @@ public class BaseEntityUtils implements Serializable {
 	}
 	
 	public String getValueSaveAnswer(String beSource, String beTarget, String beValue, String getAttribute, String setAttribute, String value) {
-		
 		try {
 			BaseEntity beValueBE = this.getBaseEntityByCode(beValue);
 			
