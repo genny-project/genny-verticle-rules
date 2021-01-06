@@ -2024,8 +2024,8 @@ public class BaseEntityUtils implements Serializable {
 
 		for (EntityAttribute ea : searchBE.getBaseEntityAttributes()) {
 
-            String attributeCode = formatCodeWithOr(ea.getAttributeCode());
-            attributeCode = formatCodeWithAnd(attributeCode);
+            String attributeCode = removePrefixFromCode(ea.getAttributeCode(), "OR");
+            attributeCode = removePrefixFromCode(attributeCode, "AND");
 
 			if (attributeCode.equals("PRI_CODE")) {
 				beFilters.add(ea.getAsString());
@@ -2123,14 +2123,13 @@ public class BaseEntityUtils implements Serializable {
 						wildcardValue = wildcardValue.replaceAll(("[^A-Za-z0-9 ]"), "");
 					}
 				}
-			} else if ((attributeCode.startsWith("PRI_") || attributeCode.startsWith("LNK_")
-                        || attributeCode.startsWith("OR_"))
+			} else if ((attributeCode.startsWith("PRI_") || attributeCode.startsWith("LNK_"))
 					&& (!attributeCode.equals("PRI_CODE")) && (!attributeCode.equals("PRI_TOTAL_RESULTS"))
 					&& (!attributeCode.equals("PRI_INDEX"))) {
 				String condition = SearchEntity.convertFromSaveable(ea.getAttributeName());
 				if (condition == null) {
 					log.error("SQL condition is NULL, " + "EntityAttribute baseEntityCode is:" + ea.getBaseEntityCode()
-							+ ", attributeCode is:" + attributeCode);
+							+ ", attributeCode is: " + attributeCode + ", ea.getAttributeCode() is: " + ea.getAttributeCode());
 				}
 				//String aName = ea.getAttributeName();
 				
@@ -2224,7 +2223,7 @@ public class BaseEntityUtils implements Serializable {
 		if (attributeFilters.size() > 0) {
             int i = 0;
 			for (String key : attributeFilters.keySet()) {
-                hql += " and ea.baseEntityCode=e" + i + ".baseEntityCode and e" + i + ".attributeCode = '" + formatCodeWithAnd(key) + "' and";
+                hql += " and ea.baseEntityCode=e" + i + ".baseEntityCode and e" + i + ".attributeCode = '" + removePrefixFromCode(key, "AND") + "' and";
                 ArrayList<String> valueList = attributeFilters.get(key);
                 if (valueList.size() > 1) {
                     hql += " (";
@@ -2274,29 +2273,17 @@ public class BaseEntityUtils implements Serializable {
 	}
 
     /**
-     * Quick tool to remove any "OR_" strings from attribute codes
+     * Quick tool to remove any prefix strings from attribute codes,
+     * even if the prefix occurs multiple times.
      * @param code The attribute code
+     * @param prefix The prefix to remove
      * @return formatted The formatted code
      */
-    public String formatCodeWithOr(String code) {
+    public String removePrefixFromCode(String code, String prefix) {
 
         String formatted = code;
-        while (formatted.startsWith("OR_")) {
-            formatted = formatted.substring(3);
-        }
-        return formatted;
-    }
-
-    /**
-     * Quick tool to remove any "AND_" strings from attribute codes
-     * @param code The attribute code
-     * @return formatted The formatted code
-     */
-    public String formatCodeWithAnd(String code) {
-
-        String formatted = code;
-        while (formatted.startsWith("AND_")) {
-            formatted = formatted.substring(4);
+        while (formatted.startsWith(prefix + "_")) {
+            formatted = formatted.substring(prefix.length()+1);
         }
         return formatted;
     }
@@ -2324,9 +2311,9 @@ public class BaseEntityUtils implements Serializable {
 		} else if (ea.getValueInteger() != null) {
 			return ".valueInteger " + condition + " " + ea.getValueInteger() + "";
 		} else if (ea.getValueDate() != null) {
-			return ".valueDate = " + ea.getValueDate() + "";
+			return ".valueDate " + condition + " '" + ea.getValueDate() + "'";
 		} else if (ea.getValueDateTime() != null) {
-			return ".valueDateTime = " + ea.getValueDateTime() + "";
+			return ".valueDateTime " + condition + " '" + ea.getValueDateTime() + "'";
 		}
 		return null;
 	}
