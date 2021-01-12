@@ -93,6 +93,12 @@ public class QuestionUtils {
 			JsonObject jsonQuestion = VertxUtils.readCachedJson(gToken.getRealm(), questionCode, token);
 			if ("ok".equalsIgnoreCase(jsonQuestion.getString("status"))) {
 				Question cachedQuestion = JsonUtils.fromJson(jsonQuestion.getString("value"), Question.class);
+				// Make sure we grab the icon too
+				if (question.getIcon() != null) {
+					if (!question.getIcon().equals(cachedQuestion.getIcon())) {
+						cachedQuestion.setIcon(question.getIcon());
+					}
+				}
 				ask.setQuestion(cachedQuestion);
 				ask.setContextList(cachedQuestion.getContextList());
 			}
