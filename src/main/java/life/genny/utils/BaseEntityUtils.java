@@ -2008,7 +2008,8 @@ public class BaseEntityUtils implements Serializable {
 
 		List<Tuple3> sortFilters = new ArrayList<Tuple3>();
 		List<String> beFilters = new ArrayList<String>();
-		List<Tuple2> attributeFilters = new ArrayList<Tuple2>();
+		// List<List<Tuple2>> attributeFilters = new ArrayList<ArrayList<Tuple2>>();
+		HashMap<String, ArrayList<String>> attributeFilters = new HashMap<String, ArrayList<String>>();
 
 		String stakeholderCode = null;
 		String sourceStakeholderCode = null;
@@ -2023,26 +2024,29 @@ public class BaseEntityUtils implements Serializable {
 
 		for (EntityAttribute ea : searchBE.getBaseEntityAttributes()) {
 
-			if (ea.getAttributeCode().startsWith("PRI_CODE")) {
+            String attributeCode = removePrefixFromCode(ea.getAttributeCode(), "OR");
+            attributeCode = removePrefixFromCode(attributeCode, "AND");
+
+			if (attributeCode.equals("PRI_CODE")) {
 				beFilters.add(ea.getAsString());
 
-			} else if ((ea.getAttributeCode().startsWith("SRT_"))) {
+			} else if (attributeCode.startsWith("SRT_")) {
 
 				String sortCode = null;
 				String standardSortString = null;
 				String customSortString = null;
-				if (ea.getAttributeCode().startsWith("SRT_PRI_CREATED")) {
+				if (attributeCode.startsWith("SRT_PRI_CREATED")) {
 					standardSortString = ".created " + ea.getValueString();
-				} else if (ea.getAttributeCode().startsWith("SRT_PRI_UPDATED")) {
+				} else if (attributeCode.startsWith("SRT_PRI_UPDATED")) {
 					standardSortString = ".updated " + ea.getValueString();
-				} else if (ea.getAttributeCode().startsWith("SRT_PRI_CODE")) {
+				} else if (attributeCode.startsWith("SRT_PRI_CODE")) {
 					standardSortString = ".baseEntityCode " + ea.getValueString();
-				} else if (ea.getAttributeCode().startsWith("SRT_PRI_NAME")) {
+				} else if (attributeCode.startsWith("SRT_PRI_NAME")) {
 					standardSortString = ".pk.baseEntity.name " + ea.getValueString();
 				}
 
 				else {
-					sortCode = (ea.getAttributeCode().substring("SRT_".length()));
+					sortCode = (attributeCode.substring("SRT_".length()));
 					Attribute attr = RulesUtils.getAttribute(sortCode, this.token);
 					String dtt = attr.getDataType().getClassName();
 					Object sortValue = ea.getValue();
@@ -2092,46 +2096,57 @@ public class BaseEntityUtils implements Serializable {
 					}
 				}
 
-			} else if (ea.getAttributeCode().startsWith("SCH_STAKEHOLDER_CODE")) {
+			} else if (attributeCode.startsWith("SCH_STAKEHOLDER_CODE")) {
 				stakeholderCode = ea.getValue();
-			} else if (ea.getAttributeCode().startsWith("SCH_SOURCE_STAKEHOLDER_CODE")) {
+			} else if (attributeCode.startsWith("SCH_SOURCE_STAKEHOLDER_CODE")) {
 				sourceStakeholderCode = ea.getValue();
-			} else if (ea.getAttributeCode().startsWith("SCH_LINK_CODE")) {
+			} else if (attributeCode.startsWith("SCH_LINK_CODE")) {
 				linkCode = ea.getValue();
-			} else if (ea.getAttributeCode().startsWith("SCH_LINK_VALUE")) {
+			} else if (attributeCode.startsWith("SCH_LINK_VALUE")) {
 				linkValue = ea.getValue();
-			} else if (ea.getAttributeCode().startsWith("SCH_SOURCE_CODE")) {
+			} else if (attributeCode.startsWith("SCH_SOURCE_CODE")) {
 				sourceCode = ea.getValue();
-			} else if (ea.getAttributeCode().startsWith("SCH_TARGET_CODE")) {
+			} else if (attributeCode.startsWith("SCH_TARGET_CODE")) {
 				targetCode = ea.getValue();
 
-			} else if ((ea.getAttributeCode().startsWith("COL_")) || (ea.getAttributeCode().startsWith("CAL_"))) {
+			} else if ((attributeCode.startsWith("COL_")) || (attributeCode.startsWith("CAL_"))) {
 				// add latittude and longitude to attributeFilter list if the current ea is PRI_ADDRESS_FULL
-				if(ea.getAttributeCode().equals("COL_PRI_ADDRESS_FULL")){
+				if(attributeCode.equals("COL_PRI_ADDRESS_FULL")){
 					attributeFilter.add("PRI_ADDRESS_LATITUDE");
 					attributeFilter.add("PRI_ADDRESS_LONGITUDE");
 				}
-				attributeFilter.add(ea.getAttributeCode().substring("COL_".length()));
-			} else if (ea.getAttributeCode().startsWith("SCH_WILDCARD")) {
+				attributeFilter.add(attributeCode.substring("COL_".length()));
+			} else if (attributeCode.startsWith("SCH_WILDCARD")) {
 				if (ea.getValueString() != null) {
 					if (!StringUtils.isBlank(ea.getValueString())) {
 						wildcardValue = ea.getValueString();
 						wildcardValue = wildcardValue.replaceAll(("[^A-Za-z0-9 ]"), "");
 					}
 				}
-			} else if ((ea.getAttributeCode().startsWith("PRI_") || ea.getAttributeCode().startsWith("LNK_"))
-					&& (!ea.getAttributeCode().equals("PRI_CODE")) && (!ea.getAttributeCode().equals("PRI_TOTAL_RESULTS"))
-					&& (!ea.getAttributeCode().equals("PRI_INDEX"))) {
+			} else if ((attributeCode.startsWith("PRI_") || attributeCode.startsWith("LNK_"))
+					&& (!attributeCode.equals("PRI_CODE")) && (!attributeCode.equals("PRI_TOTAL_RESULTS"))
+					&& (!attributeCode.equals("PRI_INDEX"))) {
 				String condition = SearchEntity.convertFromSaveable(ea.getAttributeName());
 				if (condition == null) {
 					log.error("SQL condition is NULL, " + "EntityAttribute baseEntityCode is:" + ea.getBaseEntityCode()
-							+ ", attributeCode is:" + ea.getAttributeCode());
+							+ ", attributeCode is: " + attributeCode + ", ea.getAttributeCode() is: " + ea.getAttributeCode());
 				}
 				//String aName = ea.getAttributeName();
 				
 				if (!((ea.getValueString()!=null)&&(ea.getValueString().equals("%"))&&(ea.getAttributeName().equals("LIKE")))) {
 					// Only add a filter if it is not a wildcard
-					attributeFilters.add(Tuple.of(ea.getAttributeCode(), getAttributeValue(ea, condition)));
+                    if (ea.getAttributeCode().startsWith("AND_")) {
+                        attributeCode = ea.getAttributeCode();
+                    }
+                    ArrayList<String> valueList = new ArrayList<String>();
+                    for (String key : attributeFilters.keySet()) {
+                        if (key.equals(attributeCode)) {
+                            valueList = attributeFilters.get(key);
+                        }
+                    }
+                    valueList.add(getAttributeValue(ea, condition));
+                    attributeFilters.put(attributeCode, valueList);
+					// attributeFilters.add(Tuple.of(ea.getAttributeCode(), getAttributeValue(ea, condition)));
 				}
 			}
 		}
@@ -2206,14 +2221,26 @@ public class BaseEntityUtils implements Serializable {
 		}
 
 		if (attributeFilters.size() > 0) {
-			for (int i = 0; i < attributeFilters.size(); i++) {
-				String filterCode = attributeFilters.get(i)._1.toString();
-				String filterValue = attributeFilters.get(i)._2.toString();
-				hql += " and ea.baseEntityCode=e" + i + ".baseEntityCode";
-				hql += " and e" + i + ".attributeCode = '" + filterCode + "'"
-						+ ((!StringUtils.isBlank(filterValue)) ? (" and e" + i + filterValue) : "");
+            int i = 0;
+			for (String key : attributeFilters.keySet()) {
+                hql += " and ea.baseEntityCode=e" + i + ".baseEntityCode and e" + i + ".attributeCode = '" + removePrefixFromCode(key, "AND") + "' and";
+                ArrayList<String> valueList = attributeFilters.get(key);
+                if (valueList.size() > 1) {
+                    hql += " (";
+                }
+                for (String value : valueList) {
+                    if (valueList.size() > 1) {
+                        hql += " or";
+                    }
+                    hql += (!StringUtils.isBlank(value)) ? (" e" + i + value) : "";
+                }
+                if (valueList.size() > 1) {
+                    hql += " )";
+                }
+                i += 1;
 			}
 		}
+		hql = hql.replace("( or", "(");
 
 		if (wildcardValue != null) {
 			hql += " and ea.baseEntityCode=ew.baseEntityCode and ew.valueString like '%" + wildcardValue + "%' ";
@@ -2245,6 +2272,22 @@ public class BaseEntityUtils implements Serializable {
 		return Tuple.of(hql, attributeFilter);
 	}
 
+    /**
+     * Quick tool to remove any prefix strings from attribute codes,
+     * even if the prefix occurs multiple times.
+     * @param code The attribute code
+     * @param prefix The prefix to remove
+     * @return formatted The formatted code
+     */
+    public String removePrefixFromCode(String code, String prefix) {
+
+        String formatted = code;
+        while (formatted.startsWith(prefix + "_")) {
+            formatted = formatted.substring(prefix.length()+1);
+        }
+        return formatted;
+    }
+
 	public String getAttributeValue(EntityAttribute ea, String condition) {
 		
 		if (ea.getValueString() != null) {
@@ -2268,9 +2311,9 @@ public class BaseEntityUtils implements Serializable {
 		} else if (ea.getValueInteger() != null) {
 			return ".valueInteger " + condition + " " + ea.getValueInteger() + "";
 		} else if (ea.getValueDate() != null) {
-			return ".valueDate = " + ea.getValueDate() + "";
+			return ".valueDate " + condition + " '" + ea.getValueDate() + "'";
 		} else if (ea.getValueDateTime() != null) {
-			return ".valueDateTime = " + ea.getValueDateTime() + "";
+			return ".valueDateTime " + condition + " '" + ea.getValueDateTime() + "'";
 		}
 		return null;
 	}
