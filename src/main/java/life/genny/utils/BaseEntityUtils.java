@@ -2005,7 +2005,8 @@ public class BaseEntityUtils implements Serializable {
 
 	{
 		List<String> attributeFilter = new ArrayList<String>();
-
+		List<String> assocAttributeFilter = new ArrayList<String>();
+		
 		List<Tuple3> sortFilters = new ArrayList<Tuple3>();
 		List<String> beFilters = new ArrayList<String>();
 		// List<List<Tuple2>> attributeFilters = new ArrayList<ArrayList<Tuple2>>();
@@ -2108,6 +2109,8 @@ public class BaseEntityUtils implements Serializable {
 				sourceCode = ea.getValue();
 			} else if (attributeCode.startsWith("SCH_TARGET_CODE")) {
 				targetCode = ea.getValue();
+			} else if ((attributeCode.startsWith("COL__")) || (attributeCode.startsWith("CAL_"))) {
+				assocAttributeFilter.add(attributeCode.substring("COL__".length()));
 
 			} else if ((attributeCode.startsWith("COL_")) || (attributeCode.startsWith("CAL_"))) {
 				// add latittude and longitude to attributeFilter list if the current ea is PRI_ADDRESS_FULL
@@ -2268,7 +2271,7 @@ public class BaseEntityUtils implements Serializable {
 		}
 
 		hql = hql.replace("where and", "where");
-
+		attributeFilter.addAll(assocAttributeFilter);
 		return Tuple.of(hql, attributeFilter);
 	}
 
