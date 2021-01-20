@@ -2110,7 +2110,9 @@ public class BaseEntityUtils implements Serializable {
 			} else if (attributeCode.startsWith("SCH_TARGET_CODE")) {
 				targetCode = ea.getValue();
 			} else if ((attributeCode.startsWith("COL__")) || (attributeCode.startsWith("CAL_"))) {
-				assocAttributeFilter.add(attributeCode.substring("COL__".length()));
+				String[] splitCode = attributeCode.substring("COL__".length()).split("__");
+				assocAttributeFilter.add(splitCode[0]);
+				//assocAttributeFilter.add(splitCode[1]);
 
 			} else if ((attributeCode.startsWith("COL_")) || (attributeCode.startsWith("CAL_"))) {
 				// add latittude and longitude to attributeFilter list if the current ea is PRI_ADDRESS_FULL
