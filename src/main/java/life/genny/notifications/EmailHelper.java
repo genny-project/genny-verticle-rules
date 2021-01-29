@@ -204,8 +204,12 @@ public class EmailHelper extends NotificationHelper {
 		personalization.addTo(to);
 		personalization.setSubject(subject);
 
-		ccList.stream().forEach(email -> personalization.addCc(new Email(email)));
-		bccList.stream().forEach(email -> personalization.addBcc(new Email(email)));
+		if (ccList != null) {
+			ccList.stream().forEach(email -> personalization.addCc(new Email(email)));
+		}
+		if (bccList != null) {
+			bccList.stream().forEach(email -> personalization.addBcc(new Email(email)));
+		}
 
 		for (String i : templateData.keySet()) {
 			System.out.println("key: " + i + " value: " + templateData.get(i));
