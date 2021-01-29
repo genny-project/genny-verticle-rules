@@ -183,283 +183,53 @@ public class EmailHelper extends NotificationHelper {
     return null;
   }
 
-  public static void sendGrid(BaseEntityUtils beUtils,String recipient, String subject, String templateId) throws IOException {
-   
-	  BaseEntity projectBE = beUtils.getBaseEntityByCode("PRJ_"+beUtils.getGennyToken().getRealm().toUpperCase());
-	  String sendGridEmailSender = projectBE.getValueAsString("ENV_SENDGRID_EMAIL_SENDER");
-	  String sendGridApiKey = projectBE.getValueAsString("ENV_SENDGRID_API_KEY");
-	  
-	  
-	  Email from = new Email(sendGridEmailSender);
-    Email to = new Email(recipient);
-
-    SendGrid sg = new SendGrid(sendGridApiKey);
-
-    Personalization personalization = new Personalization();
-
-    personalization.addTo(to);
-    personalization.addDynamicTemplateData("hostCompanyName", "Internmatch");
-    personalization.addDynamicTemplateData("intern", "Sam");
-    personalization.setSubject(subject);
-
-    Mail mail = new Mail();
-    mail.addPersonalization(personalization);
-    mail.setTemplateId(templateId);
-    mail.setFrom(from);
-
-    Request request = new Request();
-    try {
-      request.setMethod(Method.POST);
-      request.setEndpoint("mail/send");
-      request.setBody(mail.build());
-      Response response = sg.api(request);
-      System.out.println(response.getStatusCode());
-      System.out.println(response.getBody());
-      System.out.println(response.getHeaders());
-
-    } catch (IOException ex) {
-      throw ex;
-    }
-  }
-  
-    
-//    Email from = new Email(System.getenv("SENDGRID_EMAIL_SENDER"));
-//    subject = "Sent from Grid";
-//    Email to = new Email(recipient);
-//    Content content = new Content("text/html", emailHtml);
-//    Mail mail = new Mail(from, subject, to, content);
-//
-//    SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
-//    Request request = new Request();
-//    try {
-//      request.setMethod(Method.POST);
-//      request.setEndpoint("mail/send");
-//      request.setBody(mail.build());
-//      Response response = sg.api(request);
-//    } catch (IOException ex) {
-//      throw ex;
-//    }
-//    try {
-//      request.setMethod(Method.POST);
-//      request.setEndpoint("templates");
-//      request.setBody("{\"name\":\"example_name\"}");
-//      Response response = sg.api(request);
-//    } catch (IOException ex) {
-//      throw ex;
-//    }
-//  }
-  // public static void sendGridTemplate(List<String> recipients, Map<String,String> dynamicData) {
-  // Personalization personalization = new Personalization();
-  // recipients.stream().map(Email::new).forEach(personalization::addTo);
-  // dynamicData.entrySet().stream().forEach(d -> personalization.addDynamicTemplateData(, ));
-  //
-  //
-  // }
-
- // public static void main(String... args) throws IOException {
- //   sendGrid("christopher.pyke@gada.io", "Recommended letter","d-4880601ff6b444dca5b49265e1bdd186");
- // }
-
-  public static void sendGrid(String recipient, String subject, String templateId, String p1, String d1, String p2, String d2, String p3, String d3, String p4, String d4) throws IOException {
-		System.out.println("Hey I got inside the sendGrid method 256");
-		
-		Email from = new Email(System.getenv("SENDGRID_EMAIL_SENDER"));
-	    Email to = new Email(recipient);
-
-	    SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
-
-	    Personalization personalization = new Personalization();
-
-	    personalization.addTo(to);
-	    personalization.addDynamicTemplateData(p1, d1);
-	    personalization.addDynamicTemplateData(p2, d2);
-	    personalization.addDynamicTemplateData(p3, d3);
-	    personalization.addDynamicTemplateData(p4, d4);
-	    personalization.setSubject(subject);
-
-	    Mail mail = new Mail();
-	    mail.addPersonalization(personalization);
-	    mail.setTemplateId(templateId);
-	    mail.setFrom(from);
-
-	    Request request = new Request();
-	    try {
-	      request.setMethod(Method.POST);
-	      request.setEndpoint("mail/send");
-	      request.setBody(mail.build());
-	      Response response = sg.api(request);
-	      System.out.println(response.getStatusCode());
-	      System.out.println(response.getBody());
-	      System.out.println(response.getHeaders());
-
-	    } catch (IOException ex) {
-	      throw ex;
-	    }
-	  }
-
-  
-  public static void sendGrid(String recipient, String subject, String templateId, String p1, String d1, String p2, String d2, String p3, String d3, String p4, String d4, String p5, String d5, String p6, String d6 ,String p7, String d7) throws IOException {
-		System.out.println("Hey I got inside the sendGrid method 294");
-		
-		Email from = new Email(System.getenv("SENDGRID_EMAIL_SENDER"));
-	    Email to = new Email(recipient);
-
-	    SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
-
-	    Personalization personalization = new Personalization();
-
-	    personalization.addTo(to);
-	    personalization.addDynamicTemplateData(p1, d1);
-	    personalization.addDynamicTemplateData(p2, d2);
-	    personalization.addDynamicTemplateData(p3, d3);
-	    personalization.addDynamicTemplateData(p4, d4);
-	    personalization.addDynamicTemplateData(p5, d5);
-	    personalization.addDynamicTemplateData(p6, d6);
-	    personalization.addDynamicTemplateData(p7, d7);
-	    personalization.setSubject(subject);
-
-	    Mail mail = new Mail();
-	    mail.addPersonalization(personalization);
-	    mail.setTemplateId(templateId);
-	    mail.setFrom(from);
-
-	    Request request = new Request();
-	    try {
-	      request.setMethod(Method.POST);
-	      request.setEndpoint("mail/send");
-	      request.setBody(mail.build());
-	      Response response = sg.api(request);
-	      System.out.println(response.getStatusCode());
-	      System.out.println(response.getBody());
-	      System.out.println(response.getHeaders());
-
-	    } catch (IOException ex) {
-	      throw ex;
-	    }
-	  }
-  
-	public static void sendGrid(String recipient, String subject, String templateId, String hardcodedPointer1, String hardcodedData1, String hardcodedPointer2, String hardcodedData2, String hardcodedPointer3, String hardcodedData3) throws IOException {
-	System.out.println("Hey I got inside the sendGrid method 334");
-	
-	Email from = new Email(System.getenv("SENDGRID_EMAIL_SENDER"));
-    Email to = new Email(recipient);
-
-    SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
-
-    Personalization personalization = new Personalization();
-
-    personalization.addTo(to);
-    personalization.addDynamicTemplateData(hardcodedPointer1, hardcodedData1);
-    personalization.addDynamicTemplateData(hardcodedPointer2, hardcodedData2);
-    personalization.addDynamicTemplateData(hardcodedPointer3, hardcodedData3);
-    personalization.setSubject(subject);
-
-    Mail mail = new Mail();
-    mail.addPersonalization(personalization);
-    mail.setTemplateId(templateId);
-    mail.setFrom(from);
-
-    Request request = new Request();
-    try {
-      request.setMethod(Method.POST);
-      request.setEndpoint("mail/send");
-      request.setBody(mail.build());
-      Response response = sg.api(request);
-      System.out.println(response.getStatusCode());
-      System.out.println(response.getBody());
-      System.out.println(response.getHeaders());
-
-    } catch (IOException ex) {
-      throw ex;
-    }
-  }
-	
-	public static void sendGrid(String recipient, String subject, String templateId, String hardcodedTemplateData1, String hardcodedTemplateData2) throws IOException {
-		System.out.println("Hey I got inside the sendGrid method 370");
-		Email from = new Email(System.getenv("SENDGRID_EMAIL_SENDER"));
-	    Email to = new Email(recipient);
-
-	    SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
-
-	    Personalization personalization = new Personalization();
-
-	    personalization.addTo(to);
-	    personalization.addDynamicTemplateData(hardcodedTemplateData1, hardcodedTemplateData2);
-	    personalization.setSubject(subject);
-
-	    Mail mail = new Mail();
-	    mail.addPersonalization(personalization);
-	    mail.setTemplateId(templateId);
-	    mail.setFrom(from);
-
-	    Request request = new Request();
-	    try {
-	      request.setMethod(Method.POST);
-	      request.setEndpoint("mail/send");
-	      request.setBody(mail.build());
-	      Response response = sg.api(request);
-	      System.out.println(response.getStatusCode());
-	      System.out.println(response.getBody());
-	      System.out.println(response.getHeaders());
-
-	    } catch (IOException ex) {
-	      throw ex;
-	    }
-	  }
-
 	public static void sendGrid(BaseEntityUtils beUtils,String recipient, String subject, String templateId, HashMap<String, String> templateData) throws IOException {
+
+		sendGrid(beUtils, recipient, null, null, subject, templateId, templateData);
+	}
+
+	public static void sendGrid(BaseEntityUtils beUtils, String recipient, List<String> ccList, List<String> bccList, String subject, String templateId, HashMap<String, String> templateData) throws IOException {
 		
-	BaseEntity projectBE = beUtils.getBaseEntityByCode("PRJ_"+beUtils.getGennyToken().getRealm().toUpperCase());
-	String sendGridEmailSender = projectBE.getValueAsString("ENV_SENDGRID_EMAIL_SENDER");
-	String sendGridApiKey = projectBE.getValueAsString("ENV_SENDGRID_API_KEY");
-	
-		
-    Email from = new Email(sendGridEmailSender);
-    Email to = new Email(recipient);
+		BaseEntity projectBE = beUtils.getBaseEntityByCode("PRJ_"+beUtils.getGennyToken().getRealm().toUpperCase());
+		String sendGridEmailSender = projectBE.getValueAsString("ENV_SENDGRID_EMAIL_SENDER");
+		String sendGridApiKey = projectBE.getValueAsString("ENV_SENDGRID_API_KEY");
+			
+		Email from = new Email(sendGridEmailSender);
+		Email to = new Email(recipient);
 
-    SendGrid sg = new SendGrid(sendGridApiKey);
+		SendGrid sg = new SendGrid(sendGridApiKey);
 
-    Personalization personalization = new Personalization();
+		Personalization personalization = new Personalization();
 
-    personalization.addTo(to);
-    personalization.setSubject(subject);
+		personalization.addTo(to);
+		personalization.setSubject(subject);
 
-    
-    for (String i : templateData.keySet()) {
-        System.out.println("key: " + i + " value: " + templateData.get(i));
-        personalization.addDynamicTemplateData(i, templateData.get(i));
-    }
-    
-    /*
-    for (Map.Entry<String, String> entry : templateData.entrySet()) {
+		ccList.stream().forEach(email -> personalization.addCc(new Email(email)));
+		bccList.stream().forEach(email -> personalization.addBcc(new Email(email)));
 
-      String key = entry.getKey();
-      String value = entry.getValue();
-      
-      System.out.println("key: " + key);
-      System.out.println("value: " + value);
+		for (String i : templateData.keySet()) {
+			System.out.println("key: " + i + " value: " + templateData.get(i));
+			personalization.addDynamicTemplateData(i, templateData.get(i));
+		}
 
-      personalization.addDynamicTemplateData(key, value);
-    }*/
+		Mail mail = new Mail();
+		mail.addPersonalization(personalization);
+		mail.setTemplateId(templateId);
+		mail.setFrom(from);
 
-    Mail mail = new Mail();
-    mail.addPersonalization(personalization);
-    mail.setTemplateId(templateId);
-    mail.setFrom(from);
+		Request request = new Request();
+		try {
+		  request.setMethod(Method.POST);
+		  request.setEndpoint("mail/send");
+		  request.setBody(mail.build());
+		  Response response = sg.api(request);
+		  System.out.println(response.getStatusCode());
+		  System.out.println(response.getBody());
+		  System.out.println(response.getHeaders());
 
-    Request request = new Request();
-    try {
-      request.setMethod(Method.POST);
-      request.setEndpoint("mail/send");
-      request.setBody(mail.build());
-      Response response = sg.api(request);
-      System.out.println(response.getStatusCode());
-      System.out.println(response.getBody());
-      System.out.println(response.getHeaders());
-
-    } catch (IOException ex) {
-      throw ex;
-    }
+		} catch (IOException ex) {
+		  throw ex;
+		}
   }
   
 }
