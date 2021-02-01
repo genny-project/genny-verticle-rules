@@ -39,5 +39,16 @@ public class ShleemyUtils {
 
 	}
 		
+	public static void deleteSchedule(GennyToken userToken, String scheduleMsgCode) {
+
+		String deleteEndpoint = GennySettings.projectUrl+"/api/schedule/code";
+
+		try {
+            System.out.println("Attempting to delete scheduled message with code " + scheduleMsgCode);
+			QwandaUtils.apiDelete(deleteEndpoint + "/" + scheduleMsgCode, userToken.getToken());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}		
+	}
 }
 
