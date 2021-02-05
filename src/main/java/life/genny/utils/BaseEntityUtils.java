@@ -2131,14 +2131,16 @@ public class BaseEntityUtils implements Serializable {
 			} else if ((attributeCode.startsWith("PRI_") || attributeCode.startsWith("LNK_"))
 					&& (!attributeCode.equals("PRI_CODE")) && (!attributeCode.equals("PRI_TOTAL_RESULTS"))
 					&& (!attributeCode.equals("PRI_INDEX"))) {
-				String condition = SearchEntity.convertFromSaveable(ea.getAttributeName());
+				String attributeName = ea.getAttributeName();
+				String valueString = ea.getValueString();
+				String condition = SearchEntity.convertFromSaveable(attributeName);
 				if (condition == null) {
 					log.error("SQL condition is NULL, " + "EntityAttribute baseEntityCode is:" + ea.getBaseEntityCode()
 							+ ", attributeCode is: " + attributeCode + ", ea.getAttributeCode() is: " + ea.getAttributeCode());
 				}
 				//String aName = ea.getAttributeName();
 				
-				if (!((ea.getValueString()!=null)&&(ea.getValueString().equals("%"))&&(ea.getAttributeName().equals("LIKE")))) {
+				if (!((valueString!=null)&&((valueString.equals("%"))||(valueString.equals("%%")))&&(attributeName.equals("LIKE")))) {
 					// Only add a filter if it is not a wildcard
                     if (ea.getAttributeCode().startsWith("AND_")) {
                         attributeCode = ea.getAttributeCode();
@@ -2306,6 +2308,12 @@ public class BaseEntityUtils implements Serializable {
 					condition = split[0];
 					val = split[1];
 				}
+			}
+			
+			// Hack
+			if ("L".equalsIgnoreCase(condition)) {
+				condition = "LIKE";
+				val = "%"+val+"%";
 			}
 			return ".valueString " + condition + " '" + val + "'";
 		} else if (ea.getValueBoolean() != null) {
