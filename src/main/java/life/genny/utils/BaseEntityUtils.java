@@ -2309,6 +2309,13 @@ public class BaseEntityUtils implements Serializable {
 					val = split[1];
 				}
 			}
+			
+			// Hack
+			if ("L".equalsIgnoreCase(condition)) {
+				condition = "LIKE";
+				val = "%"+val+"%";
+			}
+			
 			return ".valueString " + condition + " '" + val + "'";
 		} else if (ea.getValueBoolean() != null) {
 			
