@@ -8,6 +8,8 @@ import life.genny.models.GennyToken;
 import life.genny.qwandautils.QwandaUtils;
 import life.genny.qwandautils.JsonUtils;
 import java.time.LocalDateTime;
+import java.time.Duration;
+import java.time.ZoneOffset;
 import java.io.IOException;
 
 public class ShleemyUtils {
@@ -49,6 +51,17 @@ public class ShleemyUtils {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}		
+	}
+
+	public static LocalDateTime convertToUTC(LocalDateTime dateTime) {
+			
+        LocalDateTime utc = LocalDateTime.now(ZoneOffset.UTC);
+        LocalDateTime dateTimeHere = LocalDateTime.now();
+
+		Duration dur = Duration.between(utc, dateTimeHere);
+
+		return dateTime.plus(dur);
+
 	}
 }
 
