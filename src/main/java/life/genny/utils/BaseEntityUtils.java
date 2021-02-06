@@ -4,15 +4,19 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Type;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.mindrot.jbcrypt.BCrypt;
 
+import com.amazonaws.services.waf.model.AssociateWebACLRequest;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -1361,7 +1366,7 @@ public class BaseEntityUtils implements Serializable {
 		// Add an attribute if not already there
 		try {
 			String attributeCode = answer.getAttributeCode();
-			if (!attributeCode.startsWith("RAW_")) {
+			if ((!attributeCode.startsWith("RAW_"))) {
 				Attribute attribute = answer.getAttribute();
 
 				if (RulesUtils.attributeMap != null) {
@@ -1369,6 +1374,10 @@ public class BaseEntityUtils implements Serializable {
 						RulesUtils.loadAllAttributesIntoCache(token);
 					}
 					attribute = RulesUtils.attributeMap.get(attributeCode);
+					if (attribute == null) {
+						Attribute primaryAttribute = RulesUtils.attributeMap.get(attributeCode.substring("FLD_".length()));
+						attribute = new AttributeText(attributeCode,primaryAttribute.getName());
+					}
 
 					if (attribute != null) {
 						answer.setAttribute(attribute);
@@ -2128,7 +2137,7 @@ public class BaseEntityUtils implements Serializable {
 						wildcardValue = wildcardValue.replaceAll(("[^A-Za-z0-9 ]"), "");
 					}
 				}
-			} else if ((attributeCode.startsWith("PRI_") || attributeCode.startsWith("LNK_"))
+			} else if ((attributeCode.startsWith("FLD_") ||attributeCode.startsWith("PRI_") || attributeCode.startsWith("LNK_"))
 					&& (!attributeCode.equals("PRI_CODE")) && (!attributeCode.equals("PRI_TOTAL_RESULTS"))
 					&& (!attributeCode.equals("PRI_INDEX"))) {
 				String attributeName = ea.getAttributeName();
@@ -2289,6 +2298,9 @@ public class BaseEntityUtils implements Serializable {
     public String removePrefixFromCode(String code, String prefix) {
 
         String formatted = code;
+        if (formatted.startsWith("FLD_")) {
+        	formatted = formatted.substring("FLD_".length());
+        }
         while (formatted.startsWith(prefix + "_")) {
             formatted = formatted.substring(prefix.length()+1);
         }
@@ -2296,40 +2308,128 @@ public class BaseEntityUtils implements Serializable {
     }
 
 	public String getAttributeValue(EntityAttribute ea, String condition) {
-		
-		if (ea.getValueString() != null) {
-			String val = ea.getValueString();
-			if (ea.getValueString().contains(":")) {
-				String[] split = ea.getValueString().split(":");
-				if (StringUtils.isBlank(split[0])) {
+		// TODO Check for SQL injection
+		String attributeCode = ea.getAttributeCode();
+		Attribute attribute = ea.getAttribute();
+		String valueString = ea.getValueString();
+		if (ea.getAttributeCode().startsWith("FLD_")) {
+			// This is a filter field
+			attributeCode = ea.getAttributeCode().substring("FLD_".length());
+			// get The real attribute datatype
+			attribute = RulesUtils.getAttribute(attributeCode, this.serviceToken);
+			if ((attribute != null) && (!StringUtils.isBlank(ea.getValueString()))) {
+				String[] splitStr = ea.getValueString().split(":");
+				condition = splitStr[0];
+
+				valueString = splitStr[1]; // this is in the String format of the real attribute
+			}
+			
+			if ((attribute.dataType.getClassName().equals(String.class.getCanonicalName()))||(attribute.dataType.getClassName().equals("Text"))) {
+				if ("L".equalsIgnoreCase(condition)) {
 					condition = "LIKE";
-					val = "%"+split[1]+"%";
-				} else {
-					condition = split[0];
-					val = split[1];
+					valueString = "%"+valueString+"%";
 				}
+				return ".valueString " + condition + " '" + valueString + "'";
+			} else if (attribute.dataType.getClassName().equals(Boolean.class.getCanonicalName())) {
+				if ("TRUE".equalsIgnoreCase(valueString)) {
+					return ".valueBoolean = true ";
+				} else {
+					return ".valueBoolean = false ";
+				}
+				
+			} else if (attribute.dataType.getClassName().equals(Double.class.getCanonicalName())) {
+				return ".valueDouble = " + condition + " " + valueString + "";
+			} else if (attribute.dataType.getClassName().equals(LocalDateTime.class.getCanonicalName())) {
+				LocalDateTime valueDateTime = null;
+				List<String> formatStrings = Arrays.asList("yyyy-MM-dd'T'HH:mm:ss.SSSZ", "yyyy-MM-dd'T'HH:mm:ss",
+						"yyyy-MM-dd");
+				for (String formatString : formatStrings) {
+					try {
+						Date olddate = new SimpleDateFormat(formatString).parse(valueString);
+						valueDateTime = olddate.toInstant().atZone(ZoneId.systemDefault())
+								.toLocalDateTime();
+						break;
+						
+					} catch (ParseException e) {
+					}
+				}
+				return ".valueDateTime " + condition + " '" + valueDateTime + "'";			
+
+			} else if (attribute.dataType.getClassName().equals(LocalDate.class.getCanonicalName())) {
+				LocalDate valueDate = null;
+				List<String> formatStrings = Arrays.asList("yyyy-MM-dd", "yyyy-MM-dd'T'HH:mm:ss",
+						"yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+				for (String formatString : formatStrings) {
+					try {
+						Date olddate = new SimpleDateFormat(formatString).parse(valueString);
+						valueDate = olddate.toInstant().atZone(ZoneId.systemDefault())
+								.toLocalDate();
+						break;
+						
+					} catch (ParseException e) {
+					}
+				}
+				return ".valueDate " + condition + " '" + valueDate + "'";			
+				
+			} else if (attribute.dataType.getClassName().equals(LocalTime.class.getCanonicalName())) {
+				LocalTime valueTime = null;
+				List<String> formatStrings = Arrays.asList("HH:mm:ss",
+						"HH:mm:ss.SSSZ");
+				for (String formatString : formatStrings) {
+					try {
+						Date olddate = new SimpleDateFormat(formatString).parse(valueString);
+						valueTime = olddate.toInstant().atZone(ZoneId.systemDefault())
+								.toLocalTime();
+						break;
+						
+					} catch (ParseException e) {
+					}
+				}
+				return ".valueTime " + condition + " '" + valueTime + "'";			
+
+			} else if (attribute.dataType.getClassName().equals(Integer.class.getCanonicalName())) {
+				return ".valueInteger " + condition + " " + valueString + "";
+			} else if (attribute.dataType.getClassName().equals(Long.class.getCanonicalName())) {
+				return ".valueLong " + condition + " " + valueString + "";
+			} else { // default to Sgtring
+				if ("L".equalsIgnoreCase(condition)) {
+					condition = "LIKE";
+					valueString = "%"+valueString+"%";
+				}
+				return ".valueString " + condition + " '" + valueString + "'";
 			}
-			
-			// Hack
-			if ("L".equalsIgnoreCase(condition)) {
-				condition = "LIKE";
-				val = "%"+val+"%";
+		} else {
+			if (attribute==null) {
+				attribute = RulesUtils.getAttribute(attributeCode, this.serviceToken);
 			}
+
+				if (attribute.dataType.getClassName().equals(String.class.getCanonicalName())) {
+					if ("L".equalsIgnoreCase(condition)) {
+						condition = "LIKE";
+						valueString = "%"+valueString+"%";
+					}
+					return ".valueString " + condition + " '" + valueString + "'";
+				} else if (attribute.dataType.getClassName().equals(Boolean.class.getCanonicalName())) {
+					return ".valueBoolean = " + (ea.getValueBoolean() ? "true" : "false");
+				} else if (attribute.dataType.getClassName().equals(Double.class.getCanonicalName())) {
+					return ".valueDouble = " + condition + " " + ea.getValueDouble() + "";
+				} else if (attribute.dataType.getClassName().equals(LocalDateTime.class.getCanonicalName())) {
+					return ".valueDateTime " + condition + " '" + ea.getValueDateTime() + "'";
+				} else if (attribute.dataType.getClassName().equals(LocalDate.class.getCanonicalName())) {
+					return ".valueDate " + condition + " '" + ea.getValueDate() + "'";
+				} else if (attribute.dataType.getClassName().equals(LocalTime.class.getCanonicalName())) {
+					return ".valueTime " + condition + " '" + ea.getValueTime() + "'";
+				} else if (attribute.dataType.getClassName().equals(Integer.class.getCanonicalName())) {
+					return ".valueInteger " + condition + " " + ea.getValueInteger() + "";
+				} else if (attribute.dataType.getClassName().equals(Long.class.getCanonicalName())) {
+					return ".valueInteger " + condition + " " + ea.getValueLong() + "";
+				}
+				
 			
-			return ".valueString " + condition + " '" + val + "'";
-		} else if (ea.getValueBoolean() != null) {
-			
-			return ".valueBoolean = " + (ea.getValueBoolean() ? "true" : "false");
-		} else if (ea.getValueDouble() != null) {
-			return ".valueDouble = " + condition + " " + ea.getValueDouble() + "";
-		} else if (ea.getValueInteger() != null) {
-			return ".valueInteger " + condition + " " + ea.getValueInteger() + "";
-		} else if (ea.getValueDate() != null) {
-			return ".valueDate " + condition + " '" + ea.getValueDate() + "'";
-		} else if (ea.getValueDateTime() != null) {
-			return ".valueDateTime " + condition + " '" + ea.getValueDateTime() + "'";
 		}
-		return null;
+		
+
+			return null;
 	}
 
 	public List<BaseEntity> getRoles() {
