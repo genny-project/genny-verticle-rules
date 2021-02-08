@@ -2258,6 +2258,12 @@ public class BaseEntityUtils implements Serializable {
 		}
 		hql = hql.replace("( or", "(");
 
+		
+		// remove any hanging 'and'
+		hql = hql.trim();
+		StringUtils.removeEnd(hql, "and");
+		
+		
 		if (wildcardValue != null) {
 			hql += " and ea.baseEntityCode=ew.baseEntityCode and ew.valueString like '%" + wildcardValue + "%' ";
 		}
