@@ -2261,7 +2261,7 @@ public class BaseEntityUtils implements Serializable {
 		
 		// remove any hanging 'and'
 		hql = hql.trim();
-		StringUtils.removeEnd(hql, "and");
+		hql = StringUtils.removeEnd(hql, "and");
 		
 		
 		if (wildcardValue != null) {
