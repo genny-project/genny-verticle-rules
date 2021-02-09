@@ -851,7 +851,7 @@ public class RulesUtils {
 	public static Attribute getAttribute(final String attributeCode, final String token) {
 		Attribute ret = attributeMap.get(attributeCode);
 		if (ret == null) {
-			if (attributeCode.startsWith("SRT_") || attributeCode.startsWith("RAW_") || attributeCode.startsWith("FLD_")) {
+			if (attributeCode.startsWith("SRT_") || attributeCode.startsWith("RAW_")) {
 				ret = new AttributeText(attributeCode, attributeCode);
 			} else {
 				loadAllAttributesIntoCache(token);
