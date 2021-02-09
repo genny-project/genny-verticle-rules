@@ -235,8 +235,8 @@ public class BaseEntityUtils implements Serializable {
 
 		// Now force the role to only have these capabilitys
 		try {
-			String result = QwandaUtils.apiPutEntity(qwandaServiceUrl + "/qwanda/baseentitys/force", JsonUtils.toJson(role),
-					this.token);
+			String result = QwandaUtils.apiPutEntity(qwandaServiceUrl + "/qwanda/baseentitys/force",
+					JsonUtils.toJson(role), this.token);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -370,7 +370,8 @@ public class BaseEntityUtils implements Serializable {
 
 					try {
 						if (!VertxUtils.cachedEnabled) { // only post if not in junit
-							QwandaUtils.apiPostEntity(this.qwandaServiceUrl + "/qwanda/answers/bulk", jsonAnswer, token);
+							QwandaUtils.apiPostEntity(this.qwandaServiceUrl + "/qwanda/answers/bulk", jsonAnswer,
+									token);
 						}
 					} catch (IOException e) {
 						log.error("Socket error trying to post answer");
@@ -507,7 +508,8 @@ public class BaseEntityUtils implements Serializable {
 				} else {
 					log.info("My Interview");
 
-					BaseEntity project = this.getBaseEntityByCode("PRJ_" + this.getGennyToken().getRealm().toUpperCase());
+					BaseEntity project = this
+							.getBaseEntityByCode("PRJ_" + this.getGennyToken().getRealm().toUpperCase());
 					String apiKey = project.getValueAsString("ENV_API_KEY_MY_INTERVIEW");
 					String secretToken = project.getValueAsString("ENV_SECRET_MY_INTERVIEW");
 					long unixTimestamp = Instant.now().getEpochSecond();
@@ -688,8 +690,8 @@ public class BaseEntityUtils implements Serializable {
 
 		List<BaseEntity> bes = null;
 
-		bes = RulesUtils.getBaseEntitysByParentAndLinkCodeAndLinkValueWithAttributes(qwandaServiceUrl, this.decodedMapToken,
-				this.token, parentCode, linkCode, linkValue, pageStart, pageSize);
+		bes = RulesUtils.getBaseEntitysByParentAndLinkCodeAndLinkValueWithAttributes(qwandaServiceUrl,
+				this.decodedMapToken, this.token, parentCode, linkCode, linkValue, pageStart, pageSize);
 		return bes;
 	}
 
@@ -722,53 +724,54 @@ public class BaseEntityUtils implements Serializable {
 		try {
 
 			/* we call the api */
-			QwandaUtils.apiPostEntity(qwandaServiceUrl + "/qwanda/baseentitys/move/" + targetCode, JsonUtils.toJson(link),
-					this.token);
+			QwandaUtils.apiPostEntity(qwandaServiceUrl + "/qwanda/baseentitys/move/" + targetCode,
+					JsonUtils.toJson(link), this.token);
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		}
 
 		return null;
 	}
-    
-    public BaseEntity getBaseEntityFromLNKAttr(String baseEntityCode, String attributeCode) {
-        
-        String newBaseEntityCode = getBaseEntityCodeFromLNKAttr(baseEntityCode, attributeCode);
-        if (newBaseEntityCode != null) {
-            BaseEntity newBe = getBaseEntityByCode(newBaseEntityCode);
-            return newBe;
-        } else {
-            return null;
-        } 
-    }
 
-    public String getBaseEntityCodeFromLNKAttr(String baseEntityCode, String attributeCode) {
-        
-        String newBaseEntityCode = getBaseEntityValueAsString(baseEntityCode, attributeCode);
-        if (newBaseEntityCode != null) {
-            newBaseEntityCode = cleanUpBaseEntityCode(newBaseEntityCode);
-            return newBaseEntityCode;
-        } else {
-            return null;
-        }
-    }
-    
-    public List<String> getBaseEntityCodeArrayFromLNKAttr(String baseEntityCode, String attributeCode) {
-        
-        String newBaseEntityCode = getBaseEntityValueAsString(baseEntityCode, attributeCode);
-        if (newBaseEntityCode != null) {
-            String[] baseEntityCodeArray = newBaseEntityCode.replace("\"", "").replace("[", "").replace("]", "").replace(" ", "").split(",");
-            List<String> beCodeList = Arrays.asList(baseEntityCodeArray);
-            return beCodeList;
-        } else {
-            return null;
-        }
-    }
+	public BaseEntity getBaseEntityFromLNKAttr(String baseEntityCode, String attributeCode) {
 
-    public String cleanUpBaseEntityCode(String baseEntityCode) {
-        String cleanCode = baseEntityCode.replace("\"", "").replace("[", "").replace("]", "");
-        return cleanCode;
-    }
+		String newBaseEntityCode = getBaseEntityCodeFromLNKAttr(baseEntityCode, attributeCode);
+		if (newBaseEntityCode != null) {
+			BaseEntity newBe = getBaseEntityByCode(newBaseEntityCode);
+			return newBe;
+		} else {
+			return null;
+		}
+	}
+
+	public String getBaseEntityCodeFromLNKAttr(String baseEntityCode, String attributeCode) {
+
+		String newBaseEntityCode = getBaseEntityValueAsString(baseEntityCode, attributeCode);
+		if (newBaseEntityCode != null) {
+			newBaseEntityCode = cleanUpBaseEntityCode(newBaseEntityCode);
+			return newBaseEntityCode;
+		} else {
+			return null;
+		}
+	}
+
+	public List<String> getBaseEntityCodeArrayFromLNKAttr(String baseEntityCode, String attributeCode) {
+
+		String newBaseEntityCode = getBaseEntityValueAsString(baseEntityCode, attributeCode);
+		if (newBaseEntityCode != null) {
+			String[] baseEntityCodeArray = newBaseEntityCode.replace("\"", "").replace("[", "").replace("]", "")
+					.replace(" ", "").split(",");
+			List<String> beCodeList = Arrays.asList(baseEntityCodeArray);
+			return beCodeList;
+		} else {
+			return null;
+		}
+	}
+
+	public String cleanUpBaseEntityCode(String baseEntityCode) {
+		String cleanCode = baseEntityCode.replace("\"", "").replace("[", "").replace("]", "");
+		return cleanCode;
+	}
 
 	public Object getBaseEntityValue(final String baseEntityCode, final String attributeCode) {
 		BaseEntity be = getBaseEntityByCode(baseEntityCode);
@@ -886,21 +889,18 @@ public class BaseEntityUtils implements Serializable {
 		try {
 			String beJson = null;
 			if (linkCode == null && linkValue == null)
-				beJson = QwandaUtils.apiGet(
-						this.qwandaServiceUrl + "/qwanda/entityentitys/" + targetCode + "/parents",
+				beJson = QwandaUtils.apiGet(this.qwandaServiceUrl + "/qwanda/entityentitys/" + targetCode + "/parents",
 						this.token);
 			else if (linkValue == null) {
-				beJson = QwandaUtils.apiGet(
-						this.qwandaServiceUrl + "/qwanda/entityentitys/" + targetCode + "/linkcodes/" + linkCode + "/parents",
-						this.token);
+				beJson = QwandaUtils.apiGet(this.qwandaServiceUrl + "/qwanda/entityentitys/" + targetCode
+						+ "/linkcodes/" + linkCode + "/parents", this.token);
 			} else {
-				beJson = QwandaUtils.apiGet(
-						this.qwandaServiceUrl + "/qwanda/entityentitys/" + targetCode + "/linkcodes/" + linkCode + "/parents/" + linkValue,
-						this.token);
+				beJson = QwandaUtils.apiGet(this.qwandaServiceUrl + "/qwanda/entityentitys/" + targetCode
+						+ "/linkcodes/" + linkCode + "/parents/" + linkValue, this.token);
 			}
 			Link[] linkArray = JsonUtils.fromJson(beJson, Link[].class);
 			if (linkArray != null && linkArray.length > 0) {
-				arrayList = new CopyOnWriteArrayList<Link>(Arrays.asList(linkArray));				
+				arrayList = new CopyOnWriteArrayList<Link>(Arrays.asList(linkArray));
 			}
 
 		} catch (Exception e) {
@@ -986,11 +986,13 @@ public class BaseEntityUtils implements Serializable {
 
 							/* If a linkCode is passed we filter using its value */
 							if (linkCode != null) {
-								if (entityLink.getAttributeCode() != null && entityLink.getAttributeCode().equals(linkCode)) {
+								if (entityLink.getAttributeCode() != null
+										&& entityLink.getAttributeCode().equals(linkCode)) {
 
 									/* If a linkValue is passed we filter using its value */
 									if (linkValue != null) {
-										if (entityLink.getLinkValue() != null && entityLink.getLinkValue().equals(linkValue)) {
+										if (entityLink.getLinkValue() != null
+												&& entityLink.getLinkValue().equals(linkValue)) {
 											linkedBaseEntities.add(targetBe);
 										}
 									} else {
@@ -1088,7 +1090,8 @@ public class BaseEntityUtils implements Serializable {
 	}
 
 	/* Check If Link Exists and Available */
-	public Boolean checkIfLinkExistsAndAvailable(String parentCode, String linkCode, String linkValue, String childCode) {
+	public Boolean checkIfLinkExistsAndAvailable(String parentCode, String linkCode, String linkValue,
+			String childCode) {
 		Boolean isLinkExists = false;
 		List<Link> links = getLinks(parentCode, linkCode);
 		if (links != null) {
@@ -1136,7 +1139,8 @@ public class BaseEntityUtils implements Serializable {
 		List<Answer> duplicateAnswerList = new CopyOnWriteArrayList<>();
 
 		for (EntityAttribute ea : oldBe.getBaseEntityAttributes()) {
-			duplicateAnswerList.add(new Answer(newBe.getCode(), newBe.getCode(), ea.getAttributeCode(), ea.getAsString()));
+			duplicateAnswerList
+					.add(new Answer(newBe.getCode(), newBe.getCode(), ea.getAttributeCode(), ea.getAsString()));
 		}
 
 		this.saveAnswers(duplicateAnswerList);
@@ -1236,24 +1240,24 @@ public class BaseEntityUtils implements Serializable {
 
 		/* new status for v3 */
 		switch (status) {
-			case "green":
-			case "red":
-			case "orange":
-			case "yellow": {
+		case "green":
+		case "red":
+		case "orange":
+		case "yellow": {
 
-				BaseEntity be = this.getBaseEntityByCode(beCode);
-				if (be != null) {
+			BaseEntity be = this.getBaseEntityByCode(beCode);
+			if (be != null) {
 
-					String attributeCodeStatus = "STA_" + status.toUpperCase();
-					String existingValueArray = be.getValue(attributeCodeStatus, "[]");
-					JsonParser jsonParser = new JsonParser();
-					JsonArray existingValues = jsonParser.parse(existingValueArray).getAsJsonArray();
-					existingValues.add(userCode);
-					this.saveAnswer(new Answer(beCode, beCode, attributeCodeStatus, JsonUtils.toJson(existingValues)));
-				}
+				String attributeCodeStatus = "STA_" + status.toUpperCase();
+				String existingValueArray = be.getValue(attributeCodeStatus, "[]");
+				JsonParser jsonParser = new JsonParser();
+				JsonArray existingValues = jsonParser.parse(existingValueArray).getAsJsonArray();
+				existingValues.add(userCode);
+				this.saveAnswer(new Answer(beCode, beCode, attributeCodeStatus, JsonUtils.toJson(existingValues)));
 			}
-			default: {
-			}
+		}
+		default: {
+		}
 		}
 	}
 
@@ -1277,7 +1281,8 @@ public class BaseEntityUtils implements Serializable {
 	public String updateBaseEntity(BaseEntity be) {
 		try {
 			VertxUtils.writeCachedJson(getRealm(), be.getCode(), JsonUtils.toJson(be));
-			return QwandaUtils.apiPutEntity(this.qwandaServiceUrl + "/qwanda/baseentitys", JsonUtils.toJson(be), this.token);
+			return QwandaUtils.apiPutEntity(this.qwandaServiceUrl + "/qwanda/baseentitys", JsonUtils.toJson(be),
+					this.token);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1315,7 +1320,6 @@ public class BaseEntityUtils implements Serializable {
 		return ret;
 	}
 
-	
 	public String saveBaseEntity(BaseEntity be) { // TODO: Ugly
 		String ret = null;
 		try {
@@ -1346,7 +1350,7 @@ public class BaseEntityUtils implements Serializable {
 		}
 		return ret;
 	}
-	
+
 	public void saveBaseEntityAttributes(BaseEntity be) {
 		if ((be == null) || (be.getCode() == null)) {
 			throw new NullPointerException("Cannot save be because be is null or be.getCode is null");
@@ -1375,8 +1379,9 @@ public class BaseEntityUtils implements Serializable {
 					}
 					attribute = RulesUtils.attributeMap.get(attributeCode);
 					if (attribute == null) {
-						Attribute primaryAttribute = RulesUtils.attributeMap.get(attributeCode.substring("FLD_".length()));
-						attribute = new AttributeText(attributeCode,primaryAttribute.getName());
+						Attribute primaryAttribute = RulesUtils.attributeMap
+								.get(attributeCode.substring("FLD_".length()));
+						attribute = new AttributeText(attributeCode, primaryAttribute.getName());
 					}
 
 					if (attribute != null) {
@@ -1388,7 +1393,8 @@ public class BaseEntityUtils implements Serializable {
 					} else {
 						cachedBe.addAnswer(answer);
 					}
-					VertxUtils.writeCachedJson(getRealm(), answer.getTargetCode(), JsonUtils.toJson(cachedBe), this.token);
+					VertxUtils.writeCachedJson(getRealm(), answer.getTargetCode(), JsonUtils.toJson(cachedBe),
+							this.token);
 				}
 			}
 
@@ -1470,7 +1476,8 @@ public class BaseEntityUtils implements Serializable {
 
 	public Link createLink(String sourceCode, String targetCode, String linkCode, String linkValue, Double weight) {
 
-		System.out.println("CREATING LINK between " + sourceCode + " and " + targetCode + " with LINK VALUE = " + linkValue);
+		System.out.println(
+				"CREATING LINK between " + sourceCode + " and " + targetCode + " with LINK VALUE = " + linkValue);
 		Link link = new Link(sourceCode, targetCode, linkCode, linkValue);
 		link.setWeight(weight);
 		try {
@@ -1481,7 +1488,8 @@ public class BaseEntityUtils implements Serializable {
 				source.addTarget(target, linkAttribute, weight, linkValue);
 				this.updateBaseEntity(source);
 
-				QwandaUtils.apiPostEntity(qwandaServiceUrl + "/qwanda/entityentitys", JsonUtils.toJson(link), this.token);
+				QwandaUtils.apiPostEntity(qwandaServiceUrl + "/qwanda/entityentitys", JsonUtils.toJson(link),
+						this.token);
 			} catch (BadDataException e) {
 				e.printStackTrace();
 			}
@@ -1494,7 +1502,8 @@ public class BaseEntityUtils implements Serializable {
 
 	public Link updateLink(String sourceCode, String targetCode, String linkCode, String linkValue, Double weight) {
 
-		System.out.println("UPDATING LINK between " + sourceCode + "and" + targetCode + "with LINK VALUE = " + linkValue);
+		System.out
+				.println("UPDATING LINK between " + sourceCode + "and" + targetCode + "with LINK VALUE = " + linkValue);
 		Link link = new Link(sourceCode, targetCode, linkCode, linkValue);
 		link.setWeight(weight);
 		try {
@@ -1557,8 +1566,8 @@ public class BaseEntityUtils implements Serializable {
 		List linkList = null;
 
 		try {
-			String attributeString = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl + "/qwanda/entityentitys/" + groupCode
-					+ "/linkcodes/" + linkCode + "/children/" + linkValue, token);
+			String attributeString = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl + "/qwanda/entityentitys/"
+					+ groupCode + "/linkcodes/" + linkCode + "/children/" + linkValue, token);
 			if (attributeString != null) {
 				linkList = JsonUtils.fromJson(attributeString, List.class);
 			}
@@ -1701,7 +1710,8 @@ public class BaseEntityUtils implements Serializable {
 				 */
 				String beModifiedTime = beLayout.getValue("PRI_LAYOUT_MODIFIED_DATE", null);
 
-				log.debug("*** match layout mod date [" + layout.getModifiedDate() + "] with be layout [" + beModifiedTime);
+				log.debug("*** match layout mod date [" + layout.getModifiedDate() + "] with be layout ["
+						+ beModifiedTime);
 
 				/* if the modified time is not the same, we update the layout BE */
 				/* setting layout attributes */
@@ -1730,19 +1740,22 @@ public class BaseEntityUtils implements Serializable {
 				{
 					log.info("Resaving layout: " + layoutCode);
 
-					Answer newAnswerContent = new Answer(beLayout.getCode(), beLayout.getCode(), "PRI_LAYOUT_DATA", content);
+					Answer newAnswerContent = new Answer(beLayout.getCode(), beLayout.getCode(), "PRI_LAYOUT_DATA",
+							content);
 
 					newAnswerContent.setChangeEvent(false);
 					answers.add(newAnswerContent);
 
-					Answer newAnswer = new Answer(beLayout.getCode(), beLayout.getCode(), "PRI_LAYOUT_URI", layout.getPath());
+					Answer newAnswer = new Answer(beLayout.getCode(), beLayout.getCode(), "PRI_LAYOUT_URI",
+							layout.getPath());
 					answers.add(newAnswer);
 
 					Answer newAnswer2 = new Answer(beLayout.getCode(), beLayout.getCode(), "PRI_LAYOUT_URL",
 							layout.getDownloadUrl());
 					answers.add(newAnswer2);
 
-					Answer newAnswer3 = new Answer(beLayout.getCode(), beLayout.getCode(), "PRI_LAYOUT_NAME", layout.getName());
+					Answer newAnswer3 = new Answer(beLayout.getCode(), beLayout.getCode(), "PRI_LAYOUT_NAME",
+							layout.getName());
 					answers.add(newAnswer3);
 
 					Answer newAnswer4 = new Answer(beLayout.getCode(), beLayout.getCode(), "PRI_LAYOUT_MODIFIED_DATE",
@@ -1790,7 +1803,8 @@ public class BaseEntityUtils implements Serializable {
 	public String removeLink(final String parentCode, final String childCode, final String linkCode) {
 		Link link = new Link(parentCode, childCode, linkCode);
 		try {
-			return QwandaUtils.apiDelete(this.qwandaServiceUrl + "/qwanda/entityentitys", JsonUtils.toJson(link), this.token);
+			return QwandaUtils.apiDelete(this.qwandaServiceUrl + "/qwanda/entityentitys", JsonUtils.toJson(link),
+					this.token);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1803,7 +1817,8 @@ public class BaseEntityUtils implements Serializable {
 			final String linkValue) {
 		Link link = new Link(parentCode, childCode, linkCode, linkValue);
 		try {
-			return QwandaUtils.apiDelete(this.qwandaServiceUrl + "/qwanda/entityentitys", JsonUtils.toJson(link), this.token);
+			return QwandaUtils.apiDelete(this.qwandaServiceUrl + "/qwanda/entityentitys", JsonUtils.toJson(link),
+					this.token);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1826,8 +1841,9 @@ public class BaseEntityUtils implements Serializable {
 
 	public void removeEntityAttribute(BaseEntity be, String attributeCode) {
 		try {
-			QwandaUtils.apiDelete(this.qwandaServiceUrl + "/qwanda/baseentitys/delete/" + be.getCode() + "/" + attributeCode,
-					null, this.serviceToken.getToken());
+			QwandaUtils.apiDelete(
+					this.qwandaServiceUrl + "/qwanda/baseentitys/delete/" + be.getCode() + "/" + attributeCode, null,
+					this.serviceToken.getToken());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1884,8 +1900,8 @@ public class BaseEntityUtils implements Serializable {
 		UUID uuid = UUID.randomUUID();
 		// DistMap.getDistBE(gennyToken.getRealm()).put("PONTOON_"+uuid.toString(),
 		// JsonUtils.toJson(msg), 2, TimeUnit.MINUTES);
-		VertxUtils.writeCachedJson(gennyToken.getRealm(), "PONTOON_" + uuid.toString().toUpperCase(), JsonUtils.toJson(msg),
-				this.getGennyToken().getToken(), GennySettings.pontoonTimeout); // 2 minutes
+		VertxUtils.writeCachedJson(gennyToken.getRealm(), "PONTOON_" + uuid.toString().toUpperCase(),
+				JsonUtils.toJson(msg), this.getGennyToken().getToken(), GennySettings.pontoonTimeout); // 2 minutes
 
 		// DistMap.getDistPontoonBE(gennyToken.getRealm()).put(uuid.toString(),
 		// JsonUtils.toJson(msg), 2, TimeUnit.MINUTES);
@@ -1984,8 +2000,9 @@ public class BaseEntityUtils implements Serializable {
 
 		hql = Base64.getUrlEncoder().encodeToString(hql.getBytes());
 		try {
-			String resultJsonStr = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/search24/" + hql
-					+ "/" + searchBE.getPageStart(0) + "/" + searchBE.getPageSize(GennySettings.defaultPageSize),
+			String resultJsonStr = QwandaUtils.apiGet(
+					GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/search24/" + hql + "/"
+							+ searchBE.getPageStart(0) + "/" + searchBE.getPageSize(GennySettings.defaultPageSize),
 					serviceToken.getToken(), 120);
 
 			JsonObject resultJson = null;
@@ -2015,7 +2032,7 @@ public class BaseEntityUtils implements Serializable {
 	{
 		List<String> attributeFilter = new ArrayList<String>();
 		List<String> assocAttributeFilter = new ArrayList<String>();
-		
+
 		List<Tuple3> sortFilters = new ArrayList<Tuple3>();
 		List<String> beFilters = new ArrayList<String>();
 		// List<List<Tuple2>> attributeFilters = new ArrayList<ArrayList<Tuple2>>();
@@ -2034,8 +2051,8 @@ public class BaseEntityUtils implements Serializable {
 
 		for (EntityAttribute ea : searchBE.getBaseEntityAttributes()) {
 
-            String attributeCode = removePrefixFromCode(ea.getAttributeCode(), "OR");
-            attributeCode = removePrefixFromCode(attributeCode, "AND");
+			String attributeCode = removePrefixFromCode(ea.getAttributeCode(), "OR");
+			attributeCode = removePrefixFromCode(attributeCode, "AND");
 
 			if (attributeCode.equals("PRI_CODE")) {
 				beFilters.add(ea.getAsString());
@@ -2121,11 +2138,12 @@ public class BaseEntityUtils implements Serializable {
 			} else if ((attributeCode.startsWith("COL__")) || (attributeCode.startsWith("CAL_"))) {
 				String[] splitCode = attributeCode.substring("COL__".length()).split("__");
 				assocAttributeFilter.add(splitCode[0]);
-				//assocAttributeFilter.add(splitCode[1]);
+				// assocAttributeFilter.add(splitCode[1]);
 
 			} else if ((attributeCode.startsWith("COL_")) || (attributeCode.startsWith("CAL_"))) {
-				// add latittude and longitude to attributeFilter list if the current ea is PRI_ADDRESS_FULL
-				if(attributeCode.equals("COL_PRI_ADDRESS_FULL")){
+				// add latittude and longitude to attributeFilter list if the current ea is
+				// PRI_ADDRESS_FULL
+				if (attributeCode.equals("COL_PRI_ADDRESS_FULL")) {
 					attributeFilter.add("PRI_ADDRESS_LATITUDE");
 					attributeFilter.add("PRI_ADDRESS_LONGITUDE");
 				}
@@ -2137,32 +2155,35 @@ public class BaseEntityUtils implements Serializable {
 						wildcardValue = wildcardValue.replaceAll(("[^A-Za-z0-9 ]"), "");
 					}
 				}
-			} else if ((attributeCode.startsWith("FLD_") ||attributeCode.startsWith("PRI_") || attributeCode.startsWith("LNK_"))
-					&& (!attributeCode.equals("PRI_CODE")) && (!attributeCode.equals("PRI_TOTAL_RESULTS"))
-					&& (!attributeCode.equals("PRI_INDEX"))) {
+			} else if ((attributeCode.startsWith("FLD_") || attributeCode.startsWith("PRI_")
+					|| attributeCode.startsWith("LNK_")) && (!attributeCode.equals("PRI_CODE"))
+					&& (!attributeCode.equals("PRI_TOTAL_RESULTS")) && (!attributeCode.equals("PRI_INDEX"))) {
 				String attributeName = ea.getAttributeName();
 				String valueString = ea.getValueString();
 				String condition = SearchEntity.convertFromSaveable(attributeName);
 				if (condition == null) {
 					log.error("SQL condition is NULL, " + "EntityAttribute baseEntityCode is:" + ea.getBaseEntityCode()
-							+ ", attributeCode is: " + attributeCode + ", ea.getAttributeCode() is: " + ea.getAttributeCode());
+							+ ", attributeCode is: " + attributeCode + ", ea.getAttributeCode() is: "
+							+ ea.getAttributeCode());
 				}
-				//String aName = ea.getAttributeName();
-				
-				if (!((valueString!=null)&&((valueString.equals("%"))||(valueString.equals("%%")))&&(attributeName.equals("LIKE")))) {
+				// String aName = ea.getAttributeName();
+
+				if (!((valueString != null) && ((valueString.equals("%")) || (valueString.equals("%%")))
+						&& (attributeName.equals("LIKE")))) {
 					// Only add a filter if it is not a wildcard
-                    if (ea.getAttributeCode().startsWith("AND_")) {
-                        attributeCode = ea.getAttributeCode();
-                    }
-                    ArrayList<String> valueList = new ArrayList<String>();
-                    for (String key : attributeFilters.keySet()) {
-                        if (key.equals(attributeCode)) {
-                            valueList = attributeFilters.get(key);
-                        }
-                    }
-                    valueList.add(getAttributeValue(ea, condition));
-                    attributeFilters.put(attributeCode, valueList);
-					// attributeFilters.add(Tuple.of(ea.getAttributeCode(), getAttributeValue(ea, condition)));
+					if (ea.getAttributeCode().startsWith("AND_")) {
+						attributeCode = ea.getAttributeCode();
+					}
+					ArrayList<String> valueList = new ArrayList<String>();
+					for (String key : attributeFilters.keySet()) {
+						if (key.equals(attributeCode)) {
+							valueList = attributeFilters.get(key);
+						}
+					}
+					valueList.add(getAttributeValue(ea, condition));
+					attributeFilters.put(attributeCode, valueList);
+					// attributeFilters.add(Tuple.of(ea.getAttributeCode(), getAttributeValue(ea,
+					// condition)));
 				}
 			}
 		}
@@ -2199,9 +2220,11 @@ public class BaseEntityUtils implements Serializable {
 				targetCode = "'" + targetCode + "'";
 			}
 
-			hql += (sourceCode != null ? " ee.link.sourceCode " + (sourceCode.contains("%") ? "like " : "= ") + sourceCode
+			hql += (sourceCode != null
+					? " ee.link.sourceCode " + (sourceCode.contains("%") ? "like " : "= ") + sourceCode
 					: "");
-			hql += (targetCode != null ? " and ee.link.targetCode " + (targetCode.contains("%") ? "like " : "= ") + targetCode
+			hql += (targetCode != null
+					? " and ee.link.targetCode " + (targetCode.contains("%") ? "like " : "= ") + targetCode
 					: "");
 
 			hql += (linkCode != null
@@ -2237,33 +2260,40 @@ public class BaseEntityUtils implements Serializable {
 		}
 
 		if (attributeFilters.size() > 0) {
-            int i = 0;
+			int i = 0;
 			for (String key : attributeFilters.keySet()) {
-                hql += " and ea.baseEntityCode=e" + i + ".baseEntityCode and e" + i + ".attributeCode = '" + removePrefixFromCode(key, "AND") + "' and";
-                ArrayList<String> valueList = attributeFilters.get(key);
-                if (valueList.size() > 1) {
-                    hql += " (";
-                }
-                for (String value : valueList) {
-                    if (valueList.size() > 1) {
-                        hql += " or";
-                    }
-                    hql += (!StringUtils.isBlank(value)) ? (" e" + i + value) : "";
-                }
-                if (valueList.size() > 1) {
-                    hql += " )";
-                }
-                i += 1;
+				hql += " and ea.baseEntityCode=e" + i + ".baseEntityCode and e" + i + ".attributeCode = '"
+						+ removePrefixFromCode(key, "AND") + "' and";
+				ArrayList<String> valueList = attributeFilters.get(key);
+				if (valueList.size() > 1) {
+					hql += " (";
+				}
+				for (String value : valueList) {
+					if (valueList.size() > 1) {
+						hql += " or";
+					}
+					hql += (!StringUtils.isBlank(value)) ? (" e" + i + value) : "";
+				}
+				if (valueList.size() > 1) {
+					hql += " )";
+				}
+				i += 1;
 			}
 		}
 		hql = hql.replace("( or", "(");
 
-		
 		// remove any hanging 'and'
-		hql = hql.trim();
-		hql = StringUtils.removeEnd(hql, "and");
-		
-		
+		boolean ands_exist = true;
+		while (ands_exist) {
+			hql = hql.trim();
+			if (StringUtils.endsWithIgnoreCase(hql, "and")) {
+				hql = StringUtils.removeEnd(hql, "and");
+				hql += " ";
+			} else {
+				ands_exist = false;
+			}
+		}
+
 		if (wildcardValue != null) {
 			hql += " and ea.baseEntityCode=ew.baseEntityCode and ew.valueString like '%" + wildcardValue + "%' ";
 		}
@@ -2294,24 +2324,25 @@ public class BaseEntityUtils implements Serializable {
 		return Tuple.of(hql, attributeFilter);
 	}
 
-    /**
-     * Quick tool to remove any prefix strings from attribute codes,
-     * even if the prefix occurs multiple times.
-     * @param code The attribute code
-     * @param prefix The prefix to remove
-     * @return formatted The formatted code
-     */
-    public String removePrefixFromCode(String code, String prefix) {
+	/**
+	 * Quick tool to remove any prefix strings from attribute codes, even if the
+	 * prefix occurs multiple times.
+	 * 
+	 * @param code   The attribute code
+	 * @param prefix The prefix to remove
+	 * @return formatted The formatted code
+	 */
+	public String removePrefixFromCode(String code, String prefix) {
 
-        String formatted = code;
-        if (formatted.startsWith("FLD_")) {
-        	formatted = formatted.substring("FLD_".length());
-        }
-        while (formatted.startsWith(prefix + "_")) {
-            formatted = formatted.substring(prefix.length()+1);
-        }
-        return formatted;
-    }
+		String formatted = code;
+		if (formatted.startsWith("FLD_")) {
+			formatted = formatted.substring("FLD_".length());
+		}
+		while (formatted.startsWith(prefix + "_")) {
+			formatted = formatted.substring(prefix.length() + 1);
+		}
+		return formatted;
+	}
 
 	public String getAttributeValue(EntityAttribute ea, String condition) {
 		// TODO Check for SQL injection
@@ -2329,11 +2360,12 @@ public class BaseEntityUtils implements Serializable {
 
 				valueString = splitStr[1]; // this is in the String format of the real attribute
 			}
-			
-			if ((attribute.dataType.getClassName().equals(String.class.getCanonicalName()))||(attribute.dataType.getClassName().equals("Text"))) {
+
+			if ((attribute.dataType.getClassName().equals(String.class.getCanonicalName()))
+					|| (attribute.dataType.getClassName().equals("Text"))) {
 				if ("L".equalsIgnoreCase(condition)) {
 					condition = "LIKE";
-					valueString = "%"+valueString+"%";
+					valueString = "%" + valueString + "%";
 				}
 				return ".valueString " + condition + " '" + valueString + "'";
 			} else if (attribute.dataType.getClassName().equals(Boolean.class.getCanonicalName())) {
@@ -2342,7 +2374,7 @@ public class BaseEntityUtils implements Serializable {
 				} else {
 					return ".valueBoolean = false ";
 				}
-				
+
 			} else if (attribute.dataType.getClassName().equals(Double.class.getCanonicalName())) {
 				return ".valueDouble = " + condition + " " + valueString + "";
 			} else if (attribute.dataType.getClassName().equals(LocalDateTime.class.getCanonicalName())) {
@@ -2352,14 +2384,13 @@ public class BaseEntityUtils implements Serializable {
 				for (String formatString : formatStrings) {
 					try {
 						Date olddate = new SimpleDateFormat(formatString).parse(valueString);
-						valueDateTime = olddate.toInstant().atZone(ZoneId.systemDefault())
-								.toLocalDateTime();
+						valueDateTime = olddate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 						break;
-						
+
 					} catch (ParseException e) {
 					}
 				}
-				return ".valueDateTime " + condition + " '" + valueDateTime + "'";			
+				return ".valueDateTime " + condition + " '" + valueDateTime + "'";
 
 			} else if (attribute.dataType.getClassName().equals(LocalDate.class.getCanonicalName())) {
 				LocalDate valueDate = null;
@@ -2368,30 +2399,27 @@ public class BaseEntityUtils implements Serializable {
 				for (String formatString : formatStrings) {
 					try {
 						Date olddate = new SimpleDateFormat(formatString).parse(valueString);
-						valueDate = olddate.toInstant().atZone(ZoneId.systemDefault())
-								.toLocalDate();
+						valueDate = olddate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 						break;
-						
+
 					} catch (ParseException e) {
 					}
 				}
-				return ".valueDate " + condition + " '" + valueDate + "'";			
-				
+				return ".valueDate " + condition + " '" + valueDate + "'";
+
 			} else if (attribute.dataType.getClassName().equals(LocalTime.class.getCanonicalName())) {
 				LocalTime valueTime = null;
-				List<String> formatStrings = Arrays.asList("HH:mm:ss",
-						"HH:mm:ss.SSSZ");
+				List<String> formatStrings = Arrays.asList("HH:mm:ss", "HH:mm:ss.SSSZ");
 				for (String formatString : formatStrings) {
 					try {
 						Date olddate = new SimpleDateFormat(formatString).parse(valueString);
-						valueTime = olddate.toInstant().atZone(ZoneId.systemDefault())
-								.toLocalTime();
+						valueTime = olddate.toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
 						break;
-						
+
 					} catch (ParseException e) {
 					}
 				}
-				return ".valueTime " + condition + " '" + valueTime + "'";			
+				return ".valueTime " + condition + " '" + valueTime + "'";
 
 			} else if (attribute.dataType.getClassName().equals(Integer.class.getCanonicalName())) {
 				return ".valueInteger " + condition + " " + valueString + "";
@@ -2400,42 +2428,40 @@ public class BaseEntityUtils implements Serializable {
 			} else { // default to Sgtring
 				if ("L".equalsIgnoreCase(condition)) {
 					condition = "LIKE";
-					valueString = "%"+valueString+"%";
+					valueString = "%" + valueString + "%";
 				}
 				return ".valueString " + condition + " '" + valueString + "'";
 			}
 		} else {
-			if (attribute==null) {
+			if (attribute == null) {
 				attribute = RulesUtils.getAttribute(attributeCode, this.serviceToken);
 			}
 
-				if (attribute.dataType.getClassName().equals(String.class.getCanonicalName())) {
-					if ("L".equalsIgnoreCase(condition)) {
-						condition = "LIKE";
-						valueString = "%"+valueString+"%";
-					}
-					return ".valueString " + condition + " '" + valueString + "'";
-				} else if (attribute.dataType.getClassName().equals(Boolean.class.getCanonicalName())) {
-					return ".valueBoolean = " + (ea.getValueBoolean() ? "true" : "false");
-				} else if (attribute.dataType.getClassName().equals(Double.class.getCanonicalName())) {
-					return ".valueDouble = " + condition + " " + ea.getValueDouble() + "";
-				} else if (attribute.dataType.getClassName().equals(LocalDateTime.class.getCanonicalName())) {
-					return ".valueDateTime " + condition + " '" + ea.getValueDateTime() + "'";
-				} else if (attribute.dataType.getClassName().equals(LocalDate.class.getCanonicalName())) {
-					return ".valueDate " + condition + " '" + ea.getValueDate() + "'";
-				} else if (attribute.dataType.getClassName().equals(LocalTime.class.getCanonicalName())) {
-					return ".valueTime " + condition + " '" + ea.getValueTime() + "'";
-				} else if (attribute.dataType.getClassName().equals(Integer.class.getCanonicalName())) {
-					return ".valueInteger " + condition + " " + ea.getValueInteger() + "";
-				} else if (attribute.dataType.getClassName().equals(Long.class.getCanonicalName())) {
-					return ".valueInteger " + condition + " " + ea.getValueLong() + "";
+			if (attribute.dataType.getClassName().equals(String.class.getCanonicalName())) {
+				if ("L".equalsIgnoreCase(condition)) {
+					condition = "LIKE";
+					valueString = "%" + valueString + "%";
 				}
-				
-			
-		}
-		
+				return ".valueString " + condition + " '" + valueString + "'";
+			} else if (attribute.dataType.getClassName().equals(Boolean.class.getCanonicalName())) {
+				return ".valueBoolean = " + (ea.getValueBoolean() ? "true" : "false");
+			} else if (attribute.dataType.getClassName().equals(Double.class.getCanonicalName())) {
+				return ".valueDouble = " + condition + " " + ea.getValueDouble() + "";
+			} else if (attribute.dataType.getClassName().equals(LocalDateTime.class.getCanonicalName())) {
+				return ".valueDateTime " + condition + " '" + ea.getValueDateTime() + "'";
+			} else if (attribute.dataType.getClassName().equals(LocalDate.class.getCanonicalName())) {
+				return ".valueDate " + condition + " '" + ea.getValueDate() + "'";
+			} else if (attribute.dataType.getClassName().equals(LocalTime.class.getCanonicalName())) {
+				return ".valueTime " + condition + " '" + ea.getValueTime() + "'";
+			} else if (attribute.dataType.getClassName().equals(Integer.class.getCanonicalName())) {
+				return ".valueInteger " + condition + " " + ea.getValueInteger() + "";
+			} else if (attribute.dataType.getClassName().equals(Long.class.getCanonicalName())) {
+				return ".valueInteger " + condition + " " + ea.getValueLong() + "";
+			}
 
-			return null;
+		}
+
+		return null;
 	}
 
 	public List<BaseEntity> getRoles() {
@@ -2478,7 +2504,8 @@ public class BaseEntityUtils implements Serializable {
 	public BaseEntity getPersonFromEmail(String email) {
 		BaseEntity person = null;
 
-		SearchEntity searchBE = new SearchEntity("SBE_TEST", "email").addSort("PRI_NAME", "Created", SearchEntity.Sort.ASC)
+		SearchEntity searchBE = new SearchEntity("SBE_TEST", "email")
+				.addSort("PRI_NAME", "Created", SearchEntity.Sort.ASC)
 				.addFilter("PRI_CODE", SearchEntity.StringFilter.LIKE, "PER_%")
 				.addFilter("PRI_EMAIL", SearchEntity.StringFilter.LIKE, email).addColumn("PRI_CODE", "Name")
 				.addColumn("PRI_EMAIL", "Email");
@@ -2491,11 +2518,10 @@ public class BaseEntityUtils implements Serializable {
 
 		emailhql = Base64.getUrlEncoder().encodeToString(emailhql.getBytes());
 		try {
-			String resultJsonStr = QwandaUtils
-					.apiGet(
-							GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/search24/" + emailhql + "/"
-									+ searchBE.getPageStart(0) + "/" + searchBE.getPageSize(GennySettings.defaultPageSize),
-							serviceToken.getToken(), 120);
+			String resultJsonStr = QwandaUtils.apiGet(
+					GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/search24/" + emailhql + "/"
+							+ searchBE.getPageStart(0) + "/" + searchBE.getPageSize(GennySettings.defaultPageSize),
+					serviceToken.getToken(), 120);
 
 			JsonObject resultJson = null;
 			resultJson = new JsonObject(resultJsonStr);
@@ -2539,10 +2565,10 @@ public class BaseEntityUtils implements Serializable {
 			String apiSecret = apiKey + secretToken + unixTimestamp;
 			String hashed = BCrypt.hashpw(apiSecret, BCrypt.gensalt(10));
 			String videoId = ea.getValueString();
-			String url = "https://api.myinterview.com/2.21.2/getVideo?apiKey=" + apiKey + "&hashTimestamp=" + unixTimestamp
-					+ "&hash=" + hashed + "&video=" + videoId;
-			String url2 = "https://embed.myinterview.com/player.v3.html?apiKey=" + apiKey + "&hashTimestamp=" + unixTimestamp
-					+ "&hash=" + hashed + "&video=" + videoId + "&autoplay=1&fs=0";
+			String url = "https://api.myinterview.com/2.21.2/getVideo?apiKey=" + apiKey + "&hashTimestamp="
+					+ unixTimestamp + "&hash=" + hashed + "&video=" + videoId;
+			String url2 = "https://embed.myinterview.com/player.v3.html?apiKey=" + apiKey + "&hashTimestamp="
+					+ unixTimestamp + "&hash=" + hashed + "&video=" + videoId + "&autoplay=1&fs=0";
 
 			log.info("MyInterview Hash is " + url);
 			log.info("MyInterview Hash2 is " + url2);
@@ -2550,19 +2576,19 @@ public class BaseEntityUtils implements Serializable {
 
 		}
 	}
-	
-	public String getValueSaveAnswer(String beSource, String beTarget, String beValue, String getAttribute, String setAttribute, String value) {
+
+	public String getValueSaveAnswer(String beSource, String beTarget, String beValue, String getAttribute,
+			String setAttribute, String value) {
 		try {
 			BaseEntity beValueBE = this.getBaseEntityByCode(beValue);
-			
+
 			value = beValueBE.getValue(getAttribute, null);
-			System.out.println(value +": " + value);
-			if(value != null) {
-					saveAnswer(new Answer(beSource, beTarget, setAttribute, value));
+			System.out.println(value + ": " + value);
+			if (value != null) {
+				saveAnswer(new Answer(beSource, beTarget, setAttribute, value));
 			}
 		} catch (Exception e) {
 		}
 		return value;
 	}
 }
-
