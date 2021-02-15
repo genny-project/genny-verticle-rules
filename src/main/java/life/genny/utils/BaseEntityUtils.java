@@ -725,43 +725,109 @@ public class BaseEntityUtils implements Serializable {
 
 		return null;
 	}
-    
+
+	/**
+	 * Get the BaseEntity that is linked with a specific attribute.
+	 * Generally this will be a LNK attribute, although it 
+	 * doesn't have to be.
+	* 
+	* @param baseEntityCode The targeted BaseEntity Code
+	* @param attributeCode The attribute storing the data
+	* @return The baseEntity with code stored in the attribute
+	 */
     public BaseEntity getBaseEntityFromLNKAttr(String baseEntityCode, String attributeCode) {
         
-        String newBaseEntityCode = getBaseEntityCodeFromLNKAttr(baseEntityCode, attributeCode);
-        if (newBaseEntityCode != null) {
-            BaseEntity newBe = getBaseEntityByCode(newBaseEntityCode);
-            return newBe;
-        } else {
-            return null;
-        } 
+		BaseEntity be = getBaseEntityByCode(baseEntityCode);
+		return getBaseEntityFromLNKAttr(be, attributeCode);
     }
 
+	/**
+	 * Get the BaseEntity that is linked with a specific attribute.
+	* 
+	* @param baseEntity The targeted BaseEntity
+	* @param attributeCode The attribute storing the data
+	* @return The baseEntity with code stored in the attribute
+	 */
+    public BaseEntity getBaseEntityFromLNKAttr(BaseEntity baseEntity, String attributeCode) {
+        
+        String newBaseEntityCode = getBaseEntityCodeFromLNKAttr(baseEntity, attributeCode);
+        if (newBaseEntityCode == null) {
+			return null;
+		}
+		BaseEntity newBe = getBaseEntityByCode(newBaseEntityCode);
+		return newBe;
+    }
+
+	/**
+	 * Get the code of the BaseEntity that is linked with a specific attribute.
+	* 
+	* @param baseEntityCode The targeted BaseEntity Code
+	* @param attributeCode The attribute storing the data
+	* @return The baseEntity code stored in the attribute
+	 */
     public String getBaseEntityCodeFromLNKAttr(String baseEntityCode, String attributeCode) {
+
+		BaseEntity be = getBaseEntityByCode(baseEntityCode);
+		return getBaseEntityCodeFromLNKAttr(be, attributeCode);
+	}
+
+	/**
+	 * Get the code of the BaseEntity that is linked with a specific attribute.
+	* 
+	* @param baseEntity The targeted BaseEntity
+	* @param attributeCode The attribute storing the data
+	* @return The baseEntity code stored in the attribute
+	 */
+    public String getBaseEntityCodeFromLNKAttr(BaseEntity baseEntity, String attributeCode) {
         
-        String newBaseEntityCode = getBaseEntityValueAsString(baseEntityCode, attributeCode);
-        if (newBaseEntityCode != null) {
-            newBaseEntityCode = cleanUpBaseEntityCode(newBaseEntityCode);
-            return newBaseEntityCode;
-        } else {
-            return null;
-        }
-    }
-    
-    public List<String> getBaseEntityCodeArrayFromLNKAttr(String baseEntityCode, String attributeCode) {
-        
-        String newBaseEntityCode = getBaseEntityValueAsString(baseEntityCode, attributeCode);
-        if (newBaseEntityCode != null) {
-            String[] baseEntityCodeArray = newBaseEntityCode.replace("\"", "").replace("[", "").replace("]", "").replace(" ", "").split(",");
-            List<String> beCodeList = Arrays.asList(baseEntityCodeArray);
-            return beCodeList;
-        } else {
-            return null;
-        }
+		String attributeValue = baseEntity.getValue(attributeCode, null);
+		if (attributeValue == null) {
+			return null;
+		}
+        String newBaseEntityCode = cleanUpAttributeValue(attributeValue);
+		return newBaseEntityCode;
     }
 
-    public String cleanUpBaseEntityCode(String baseEntityCode) {
-        String cleanCode = baseEntityCode.replace("\"", "").replace("[", "").replace("]", "");
+	/**
+	 * Get an ArrayList of BaseEntity codes that are linked with a specific attribute.
+	* 
+	* @param baseEntityCode The targeted BaseEntity Code
+	* @param attributeCode The attribute storing the data
+	* @return An ArrayList of codes stored in the attribute
+	 */
+    public List<String> getBaseEntityCodeArrayFromLNKAttr(String baseEntityCode, String attributeCode) {
+
+		BaseEntity be = getBaseEntityByCode(baseEntityCode);
+		return getBaseEntityCodeArrayFromLNKAttr(be, attributeCode);
+	}
+    
+	/**
+	 * Get an ArrayList of BaseEntity codes that are linked with a specific attribute.
+	* 
+	* @param baseEntity The targeted BaseEntity
+	* @param attributeCode The attribute storing the data
+	* @return An ArrayList of codes stored in the attribute
+	 */
+    public List<String> getBaseEntityCodeArrayFromLNKAttr(BaseEntity baseEntity, String attributeCode) {
+
+		String attributeValue = getBaseEntityCodeFromLNKAttr(baseEntity, attributeCode);
+		if (attributeValue == null) {
+			return null;
+		}
+
+		String[] baseEntityCodeArray = attributeValue.split(",");
+		List<String> beCodeList = Arrays.asList(baseEntityCodeArray);
+		return beCodeList;
+    }
+
+	/**
+	* Classic Genny style string clean up. Hope this makes our code look a little nicer :)
+	*
+	* @param value The value to clean
+	* @return A clean string
+	 */
+    public String cleanUpAttributeValue(String value) {
+        String cleanCode = value.replace("\"", "").replace("[", "").replace("]", "").replace(" ", "");
         return cleanCode;
     }
 
