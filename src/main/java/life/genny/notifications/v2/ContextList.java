@@ -11,7 +11,7 @@ public class ContextList {
 	
 	
 	public void addContext(EntityAttribute entityAttribute) {
-		contexts.put(entityAttribute.getBaseEntityCode(), entityAttribute.getAsString());
+ 		contexts.put(entityAttribute.getAttributeCode(), entityAttribute.getAsString());
 	}
 	
 	public void addContext(String key, String value) {
@@ -22,5 +22,10 @@ public class ContextList {
 	public String getEntityAttribute(String code) {
 		return contexts.get(code);
 	}
-
+	
+	public void print() {
+		contexts.forEach((k,v) ->{
+			System.out.println(k+" : "+v);
+		} );
+	} 
 }
