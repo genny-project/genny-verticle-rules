@@ -59,15 +59,7 @@ public class MessageUtils {
 		contextList.print();
 
 		try {
-//			String recipient = contextList.getEntityAttribute("PER_HGFHGFHGFHGFHJF");
-//			String code = "MSG_INTERNSHIP_RECOMMENDATION";
-//			String name = "Internship Recommendation";
-//			QBaseMSGMessageType[] qBaseMSGMessageType = new QBaseMSGMessageType[] { QBaseMSGMessageType.EMAIL,
-//					QBaseMSGMessageType.SMS };
-			 //sendMessage(code, name, contextList, qBaseMSGMessageType, recipient); // Note that by putting the
-																								// recipient code ast we
-																								// can do a String... in
-			 																					// the function
+
 			if(qBaseMSGMessageType == null) {
 				throw new Exception("qBaseMSGMessageType is empty or null");
 			}
