@@ -21,18 +21,18 @@ public class MessageTest {
 	public void  message_sendWithValidContext_returnSuccessBaseEntity() throws IOException {		
 		VertxUtils.cacheInterface =  new MockCache();
 		
-		String clientId = "internmatch";
+		String clientId = System.getenv("CLIENT_ID"); 
 		String secret = System.getenv("CLIENT_SECRET");
 		String username = "test1234@gmail.com";
 		String password = System.getenv("USER_PASSWORD");
-		String realm = "internmatch";
+		String realm = System.getenv("REALM"); ;
 		String keycloakUrl = "https://keycloak.gada.io";
 
 		String tokenString = KeycloakUtils.getToken(keycloakUrl, realm, clientId, secret, username, password).getString("access_token");
 		
 		GennyToken gennyToken = new GennyToken(tokenString);
 	
-		String code = System.getenv("INTERNMATCH_CODE");;
+		String code = System.getenv("BASE_ENTITY_CODE");;
 		
 		BaseEntityUtils be = new BaseEntityUtils(gennyToken);
 		BaseEntity baseEntity = be.getBaseEntityByCode(code);
