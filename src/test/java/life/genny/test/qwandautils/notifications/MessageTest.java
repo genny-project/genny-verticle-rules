@@ -3,11 +3,13 @@ package life.genny.test.qwandautils.notifications;
 import java.io.IOException;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import life.genny.eventbus.MockCache;
 import life.genny.notifications.v2.MessageSendUtils;
 import life.genny.notifications.v2.model.EmailMessagePayload;
+import life.genny.notifications.v2.model.FirebaseMessagePayload;
 import life.genny.notifications.v2.model.SMSMessagePayload;
 import life.genny.notifications.v2.model.SendGridMessagePayload;
 import life.genny.qwandautils.GennyCacheInterface;
@@ -19,6 +21,7 @@ public class MessageTest {
 	private GennyCacheInterface cacheInterface;
 	private String code;
 	private String name;
+	
 	@Before
 	public void setup() throws IOException {
 		// CONFIG ENV
@@ -46,6 +49,7 @@ public class MessageTest {
 	
 	
 	@Test
+	//@Ignore
 	public void  messageSMS_sendWithValidContext_returnSuccessBaseEntity() throws Exception {
 
 		// CONFIG ENV
@@ -62,6 +66,7 @@ public class MessageTest {
 	}
 	
 	@Test
+	//@Ignore
 	public void  messageEmail_sendWithValidContext_returnSuccessBaseEntity() throws Exception {
 		// CONFIG ENV
 		// EMAIL_SMTP_AUTH=true
@@ -79,6 +84,25 @@ public class MessageTest {
 	}
 	
 	@Test
+	//@Ignore
+	public void  messageFirebase_sendWithValidContext_returnSuccessBaseEntity() throws Exception {
+		// CONFIG ENV
+		// FIREBASE_RECIPIENT=xxxxxxx
+		// FIREBASE_API_KEY=xxxxxxx
+		 
+		
+		FirebaseMessagePayload firebaseMessagePayload = new FirebaseMessagePayload();
+		firebaseMessagePayload.setRecipient(System.getenv("FIREBASE_RECIPIENT"));
+		firebaseMessagePayload.setApiKey(System.getenv("FIREBASE_API_KEY"));
+
+		firebaseMessagePayload.setBody("Hi this is the firebase message");
+		firebaseMessagePayload.setTitle("Send from rx");
+		
+		MessageSendUtils.sendMessage(code, name, tokenString, cacheInterface, firebaseMessagePayload);
+	}
+	
+	@Test
+	//@Ignore
 	public void  messageSendGrid_sendWithValidContext_returnSuccessBaseEntity() throws Exception {
 		// CONFIG ENV
 		// SEND_GRID_RECIPIENT=XXXXXXX@hotmail.com
@@ -99,6 +123,7 @@ public class MessageTest {
 	
 	
 	@Test
+	//@Ignore
 	public void  messageMutiple_sendWithValidContext_returnSuccessBaseEntity() throws Exception {
 		//MessageSendUtils.sendMessage(code, name, tokenString, cacheInterface, messagePayLoads);
 		

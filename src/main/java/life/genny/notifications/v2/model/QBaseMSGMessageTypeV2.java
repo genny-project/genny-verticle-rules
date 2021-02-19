@@ -4,4 +4,5 @@ public enum QBaseMSGMessageTypeV2 {
 	SMS,
 	EMAIL,
  	SENDGRID,
+ 	FIREBASE,
  }

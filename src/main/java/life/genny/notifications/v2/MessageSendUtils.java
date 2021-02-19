@@ -17,6 +17,7 @@ import life.genny.models.GennyToken;
 import life.genny.notifications.EmailHelper;
 import life.genny.notifications.SmsHelper;
 import life.genny.notifications.v2.model.EmailMessagePayload;
+import life.genny.notifications.v2.model.FirebaseMessagePayload;
 import life.genny.notifications.v2.model.MessagePayLoad;
 import life.genny.notifications.v2.model.QBaseMSGMessageTypeV2;
 import life.genny.notifications.v2.model.SMSMessagePayload;
@@ -28,6 +29,7 @@ import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwandautils.GennyCacheInterface;
 import life.genny.utils.BaseEntityUtils;
 import life.genny.utils.VertxUtils;
+import life.genny.qwandautils.FirebaseUtils;
  
 public class MessageSendUtils {
 
@@ -41,6 +43,7 @@ public class MessageSendUtils {
 		GennyToken gennyToken = new GennyToken(tokenString);
 		BaseEntityUtils be = new BaseEntityUtils(gennyToken);
 		BaseEntity baseEntity = be.getBaseEntityByCode(code);
+		 
 		
 		// Map base entity to ContextList
 		ContextList contextList = new ContextList();
@@ -63,6 +66,9 @@ public class MessageSendUtils {
 				case EMAIL:
 					sendEmail(  contextList,   messagePayLoad);
 					break;
+				case FIREBASE:
+					sendFirebase(  contextList,  messagePayLoad);
+					break;
 			default: 
 				  log.error(String.format("%s not implemented yet! ", type.name()));
 				break;
@@ -79,6 +85,16 @@ public class MessageSendUtils {
 		
 	}
 	
+	private static void sendFirebase(ContextList contextList,  MessagePayLoad messagePayLoad) {
+		FirebaseMessagePayload firebaseMessagePayload = (FirebaseMessagePayload) messagePayLoad;
+		String recipient = firebaseMessagePayload.getRecipient();
+		String body = firebaseMessagePayload.getBody();
+		String title = firebaseMessagePayload.getTitle();
+		String apiKey = firebaseMessagePayload.getApiKey();
+	 	FirebaseUtils.send(recipient, title, body, apiKey);
+		
+	}
+
 	private static void sendSms(ContextList contextList, MessagePayLoad messagePayLoad) {
 		SMSMessagePayload smsMessagePayload = (SMSMessagePayload) messagePayLoad;
 		String recipient = smsMessagePayload.getRecipient();
