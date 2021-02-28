@@ -233,6 +233,7 @@ public class VertxUtils {
 					}
 //					resultStr =  readFromDDT(realm, key, token).toString();
 				}
+				
 				if (resultStr != null) {
 					try {
 						result = new JsonObject(resultStr);
@@ -561,13 +562,16 @@ public class VertxUtils {
 			}
 		}
 		
-		if ("webdata".equals(channel) || "webcmds".equals(channel)|| "events".equals(channel)|| "data".equals(channel)) {
+		if ("webdata".equals(channel) || "webcmds".equals(channel)|| "events".equals(channel)|| "data".equals(channel) ||"messages".equals(channel) ) {
 			// This is a standard session only
 		} else {
 			// This looks like we are sending data to a subscription channel
-
 			if (payload instanceof String) {
 				JsonObject msg = (JsonObject) new JsonObject((String)payload);
+				System.out.println(msg.toString()
+						
+					);
+
 				log.info(msg.getValue("event_type"));
 				JsonArray jsonArray = msg.getJsonArray("recipientCodeArray");
 
@@ -653,6 +657,7 @@ public class VertxUtils {
 		}
 		
 			try {
+				
 				eb.writeMsg(channel, payload);
 				if (!rxList.isEmpty()) {
 					// send ends

@@ -36,21 +36,30 @@ public class MessageSendUtils {
 	protected static final Logger log = org.apache.logging.log4j.LogManager
 			.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
 
-	public static void sendMessage( String code, String name, String tokenString, GennyCacheInterface cacheInterface, MessagePayLoad... messagePayLoads) throws Exception {
+	public static void sendMessage( String messageCode, String name, String tokenString, GennyCacheInterface cacheInterface, MessagePayLoad... messagePayLoads) throws Exception {
         
 		VertxUtils.cacheInterface = (cacheInterface == null)?new MockCache(): cacheInterface;  
 		
 		GennyToken gennyToken = new GennyToken(tokenString);
-		BaseEntityUtils be = new BaseEntityUtils(gennyToken);
-		BaseEntity baseEntity = be.getBaseEntityByCode(code);
+		BaseEntityUtils beUtils = new BaseEntityUtils(gennyToken);
+		BaseEntity messageTemplate = beUtils.getBaseEntityByCode(messageCode);
 		 
 		
 		// Map base entity to ContextList
 		ContextList contextList = new ContextList();
 		List<Context> contexts = new LinkedList<>();
 
-		contexts.add(new Context(ContextType.THEME, baseEntity));
+		contexts.add(new Context(ContextType.THEME, messageTemplate));
 		contextList.setContextList(contexts);
+		
+		
+		// mail merge
+		
+		/*
+		 * 
+		 *    
+		 * 
+		 */
 		
 		Arrays
 		  .asList(messagePayLoads)
@@ -61,7 +70,7 @@ public class MessageSendUtils {
 					sendSms( contextList, messagePayLoad);
 					break;
 				case SENDGRID:
-					sendSendGrid(contextList,be, messagePayLoad);
+					sendSendGrid(contextList,beUtils, messagePayLoad);
 					break;
 				case EMAIL:
 					sendEmail(  contextList,   messagePayLoad);
