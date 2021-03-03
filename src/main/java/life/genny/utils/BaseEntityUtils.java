@@ -2225,17 +2225,19 @@ public class BaseEntityUtils implements Serializable {
 		String hql = "select distinct ea.baseEntityCode from EntityAttribute ea";
 
 		for (int i = 0; i < attributeFilters.size(); i++) {
-			hql += ", EntityAttribute e" + i;
+			hql += " left outer join EntityAttribute e"+i+" on e"+i+".baseEntityCode=ea.baseEntityCode";
 		}
 
 		if (wildcardValue != null) {
-			hql += ", EntityAttribute ew";
+			hql += " left outer join EntityAttribute ew on ew.baseEntityCode=ea.baseEntityCode";
 		}
 
 		for (int i = 0; i < sortFilters.size(); i++) {
 			Tuple3<String, String, Double> sort = sortFilters.get(i);
 			if (!sort._1.isEmpty()) {
-				hql += ", EntityAttribute ez" + i;
+				hql += " left outer join EntityAttribute ez"+i+" on ez"+i+".baseEntityCode=ea.baseEntityCode";
+				hql += " and ea.baseEntityCode=ez" + i + ".baseEntityCode and ez" + i + ".attributeCode='"
+						+ sort._1.toString() + "'";
 			}
 		}
 
@@ -2294,7 +2296,7 @@ public class BaseEntityUtils implements Serializable {
 		if (attributeFilters.size() > 0) {
             int i = 0;
 			for (String key : attributeFilters.keySet()) {
-                hql += " and ea.baseEntityCode=e" + i + ".baseEntityCode and e" + i + ".attributeCode = '" + removePrefixFromCode(key, "AND") + "' and";
+				hql += " and";
                 ArrayList<String> valueList = attributeFilters.get(key);
                 if (valueList.size() > 1) {
                     hql += " (";
@@ -2314,7 +2316,7 @@ public class BaseEntityUtils implements Serializable {
 		hql = hql.replace("( or", "(");
 
 		if (wildcardValue != null) {
-			hql += " and ea.baseEntityCode=ew.baseEntityCode and ew.valueString like '%" + wildcardValue + "%' ";
+			hql += " and ew.valueString like '%" + wildcardValue + "%'";
 		}
 
 		if (sortFilters.size() > 0) {
@@ -2327,11 +2329,10 @@ public class BaseEntityUtils implements Serializable {
 				if (i > 0) {
 					orderBy += ",";
 				}
+
 				if (sort._1.isEmpty()) {
-					orderBy += " ea" + sort._2;
+					orderBy += " ea" + sort._2.toString();
 				} else {
-					hql += " and ea.baseEntityCode=ez" + i + ".baseEntityCode and ez" + i + ".attributeCode='"
-							+ sort._1.toString() + "'";
 					orderBy += " ez" + i + sort._2.toString();
 				}
 			}
