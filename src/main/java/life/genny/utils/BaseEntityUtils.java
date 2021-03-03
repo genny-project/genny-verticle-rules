@@ -2333,7 +2333,7 @@ public class BaseEntityUtils implements Serializable {
 				if (sort._1.isEmpty()) {
 					orderBy += " ea" + sort._2.toString();
 				} else {
-					orderBy += " ez" + i + sort._2.toString();
+					orderBy += " ez" + i + sort._2.toString() + " nulls last";
 				}
 			}
 			hql += orderBy;
