@@ -2224,8 +2224,11 @@ public class BaseEntityUtils implements Serializable {
 
 		String hql = "select distinct ea.baseEntityCode from EntityAttribute ea";
 
-		for (int i = 0; i < attributeFilters.size(); i++) {
-			hql += " left outer join EntityAttribute e"+i+" on e"+i+".baseEntityCode=ea.baseEntityCode";
+		int c = 0;
+		for (String key : attributeFilters.keySet()) {
+			hql += " left outer join EntityAttribute e"+c+" on e"+c+".baseEntityCode=ea.baseEntityCode";
+			hql += " and e"+c+".attributeCode = '" + removePrefixFromCode(key, "AND") + "'";
+			c += 1;
 		}
 
 		if (wildcardValue != null) {
