@@ -31,13 +31,13 @@ public class VertxCache implements GennyCacheInterface {
 			throw new IllegalArgumentException("Key is null");
 		}
 		if (value == null) {
-			DistMap.getMapBaseEntitys(realm).delete(key);
+			DistMap.getMapBaseEntitys(realm).remove(key);
 		} else {
 			if (key == null) {
 				log.error("Null Key provided! with value=["+value+"]");
 				
 			} else {
-				DistMap.getMapBaseEntitys(realm).put(key, value, ttl_seconds,TimeUnit.SECONDS);
+				DistMap.getMapBaseEntitys(realm).put(key, value);
 			}
 		}
 

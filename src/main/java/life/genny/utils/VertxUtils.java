@@ -180,13 +180,13 @@ public class VertxUtils {
 				// log.info("VERTX READING DIRECTLY FROM CACHE! USING
 				// "+(GennySettings.isCacheServer?" LOCAL DDT":"CLIENT "));
 				if (key == null) {
-					log.error("Cache is  null");
+					log.error("The key needed for the cache to retrieve an entry is null");
 			
 					return null;
 				}
 				ret = (String) cacheInterface.readCache(realm, key, token);
 			} catch (Exception e) {
-				log.error("Cache is  null");
+					log.error("Cache is  null maybe the realm is not provided or was the wrong realm. The realm is a follows::: " + realm + " ::: if nothing appears within the colons the realm is a empty string");
 				e.printStackTrace();
 			}
 			if (ret != null) {
@@ -253,16 +253,19 @@ public class VertxUtils {
 	}
 
 	static public JsonObject writeCachedJson(final String realm, final String key, final String value) {
+     log.info("The realm provided to writeCachedJson is :::" + realm);
 		return writeCachedJson(realm, key, value, DEFAULT_TOKEN);
 	}
 
 	static public JsonObject writeCachedJson(final String realm, final String key, final String value,
 			final String token) {
+     log.info("The realm provided to writeCachedJson is :::" + realm);
 		return writeCachedJson(realm, key, value, token, 0L);
 	}
 
 	static public JsonObject writeCachedJson(String realm, final String key, String value, final String token,
 			long ttl_seconds) {
+     log.info("The realm provided to writeCachedJson is :::" + realm);
 		if (!GennySettings.forceCacheApi) {
 			cacheInterface.writeCache(realm, key, value, token, ttl_seconds);
 		} else {
@@ -274,6 +277,7 @@ public class VertxUtils {
 					} else {
 						GennyToken temp = new GennyToken(token);
 						realm = temp.getRealm();
+            log.info("A temporal realm was provided :::" + realm + "::: realm is within the colons");
 					}
 					if (value == null) {
 						localCache.remove(realm + ":" + key);
@@ -481,6 +485,7 @@ public class VertxUtils {
 
 	static public Set<String> getSetString(final String realm, final String keyPrefix, final String key) {
 		String[] resultArray = getObject(realm, keyPrefix, key, String[].class);
+    log.info("realm provided to getSetString is :::" + realm );
 		if (resultArray == null) {
 			return new HashSet<String>();
 		}
