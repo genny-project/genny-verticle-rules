@@ -253,19 +253,19 @@ public class VertxUtils {
 	}
 
 	static public JsonObject writeCachedJson(final String realm, final String key, final String value) {
-     log.info("The realm provided to writeCachedJson is :::" + realm);
+     log.debug("The realm provided to writeCachedJson is :::" + realm);
 		return writeCachedJson(realm, key, value, DEFAULT_TOKEN);
 	}
 
 	static public JsonObject writeCachedJson(final String realm, final String key, final String value,
 			final String token) {
-     log.info("The realm provided to writeCachedJson is :::" + realm);
+     log.debug("The realm provided to writeCachedJson is :::" + realm);
 		return writeCachedJson(realm, key, value, token, 0L);
 	}
 
 	static public JsonObject writeCachedJson(String realm, final String key, String value, final String token,
 			long ttl_seconds) {
-     log.info("The realm provided to writeCachedJson is :::" + realm);
+     log.debug("The realm provided to writeCachedJson is :::" + realm);
 		if (!GennySettings.forceCacheApi) {
 			cacheInterface.writeCache(realm, key, value, token, ttl_seconds);
 		} else {
