@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hazelcast.config.Config;
-import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.config.EvictionPolicy;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MaxSizeConfig;
@@ -15,7 +14,6 @@ import com.hazelcast.config.MultiMapConfig;
 import com.hazelcast.config.SemaphoreConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.client.HazelcastClient;
 
 import io.vertx.core.VertxOptions;
 import io.vertx.core.eventbus.EventBusOptions;
@@ -67,14 +65,6 @@ public class ClusterConfig {
 		return eb;
 	}
 
-	 public static HazelcastInstance getHazelcastClientInstance(){
-	        ClientConfig cfg = new ClientConfig();
-	        cfg.addAddress(GennySettings.cacheServerName);
-	        cfg.getGroupConfig().setName(GennySettings.username);
-	        cfg.getGroupConfig().setPassword(GennySettings.username);
-			HazelcastInstance haInst = HazelcastClient.newHazelcastClient(cfg);//.getAllHazelcastClients();//hazelcastInstance();
-	        return haInst;
-	    }
 		/**
 		 * @param toClientOutbount
 		 *            the toClientOutbount to set
@@ -85,7 +75,8 @@ public class ClusterConfig {
 	        if(GennySettings.isCacheServer){
 	            haInst = haInstServer;
 	        }else{
-	            haInst = getHazelcastClientInstance();
+	            haInst = haInstServer;
+							//haInst = getHazelcastClientInstance();
 	        }
 			DistMap.registerDataStructure(haInst); // TODO, get all realms
 

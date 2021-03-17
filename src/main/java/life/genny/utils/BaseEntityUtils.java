@@ -2224,23 +2224,18 @@ public class BaseEntityUtils implements Serializable {
 
 		String hql = "select distinct ea.baseEntityCode from EntityAttribute ea";
 
-		int c = 0;
-		for (String key : attributeFilters.keySet()) {
-			hql += " left outer join EntityAttribute e"+c+" on e"+c+".baseEntityCode=ea.baseEntityCode";
-			hql += " and e"+c+".attributeCode = '" + removePrefixFromCode(key, "AND") + "'";
-			c += 1;
+		for (int i = 0; i < attributeFilters.size(); i++) {
+			hql += ", EntityAttribute e" + i;
 		}
 
 		if (wildcardValue != null) {
-			hql += " left outer join EntityAttribute ew on ew.baseEntityCode=ea.baseEntityCode";
+			hql += ", EntityAttribute ew";
 		}
 
 		for (int i = 0; i < sortFilters.size(); i++) {
 			Tuple3<String, String, Double> sort = sortFilters.get(i);
 			if (!sort._1.isEmpty()) {
-				hql += " left outer join EntityAttribute ez"+i+" on ez"+i+".baseEntityCode=ea.baseEntityCode";
-				hql += " and ea.baseEntityCode=ez" + i + ".baseEntityCode and ez" + i + ".attributeCode='"
-						+ sort._1.toString() + "'";
+				hql += ", EntityAttribute ez" + i;
 			}
 		}
 
@@ -2299,7 +2294,7 @@ public class BaseEntityUtils implements Serializable {
 		if (attributeFilters.size() > 0) {
             int i = 0;
 			for (String key : attributeFilters.keySet()) {
-				hql += " and";
+                hql += " and ea.baseEntityCode=e" + i + ".baseEntityCode and e" + i + ".attributeCode = '" + removePrefixFromCode(key, "AND") + "' and";
                 ArrayList<String> valueList = attributeFilters.get(key);
                 if (valueList.size() > 1) {
                     hql += " (";
@@ -2319,7 +2314,7 @@ public class BaseEntityUtils implements Serializable {
 		hql = hql.replace("( or", "(");
 
 		if (wildcardValue != null) {
-			hql += " and ew.valueString like '%" + wildcardValue + "%'";
+			hql += " and ea.baseEntityCode=ew.baseEntityCode and ew.valueString like '%" + wildcardValue + "%' ";
 		}
 
 		if (sortFilters.size() > 0) {
@@ -2332,11 +2327,12 @@ public class BaseEntityUtils implements Serializable {
 				if (i > 0) {
 					orderBy += ",";
 				}
-
 				if (sort._1.isEmpty()) {
-					orderBy += " ea" + sort._2.toString();
+					orderBy += " ea" + sort._2;
 				} else {
-					orderBy += " ez" + i + sort._2.toString() + " nulls last";
+					hql += " and ea.baseEntityCode=ez" + i + ".baseEntityCode and ez" + i + ".attributeCode='"
+							+ sort._1.toString() + "'";
+					orderBy += " ez" + i + sort._2.toString();
 				}
 			}
 			hql += orderBy;
@@ -2518,5 +2514,44 @@ public class BaseEntityUtils implements Serializable {
 		} catch (Exception e) {
 		}
 		return value;
+	}
+	
+	
+	public void quantumCopy(BaseEntity sourceBE, String sourceAtt, Boolean saveLink, Boolean strip, String userToken, String targetBE, String targetAtt) {
+		try {
+			
+			String value = sourceBE.getValue(sourceAtt, null);
+			System.out.println("value = " +value);
+			if (value != null) {
+					if (saveLink) { 
+						this.saveAnswer(new Answer(userToken, targetBE, sourceAtt, value)); 
+					}
+					if (strip) {
+						value = value.replace("\"", "").replace("[", "").replace("]", "");
+						
+						BaseEntity valueBE = this.getBaseEntityByCode(value);
+						System.out.println("valueBE = " + valueBE);
+						
+						if (valueBE != null) {
+								String name = valueBE.getValue("PRI_NAME", null);
+								System.out.println("name = " +name);
+								
+								if (name != null) {
+									this.saveAnswer(new Answer(userToken, targetBE, targetAtt, name));
+								} else {
+									System.out.println("ERROR: Null String - name"); 
+								}	
+						} else {
+							System.out.println("ERROR: Null BaseEnity - valueBE"); 
+						}
+					} 
+						
+			} else {
+				System.out.println("ERROR: Null String - value"); 
+			}
+			
+			
+		} catch (Exception e) {
+		}
 	}
 }
