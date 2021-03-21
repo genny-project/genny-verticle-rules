@@ -2332,7 +2332,6 @@ public class BaseEntityUtils implements Serializable {
 				if (i > 0) {
 					orderBy += ",";
 				}
-
 				if (sort._1.isEmpty()) {
 					orderBy += " ea" + sort._2.toString();
 				} else {
@@ -2518,5 +2517,44 @@ public class BaseEntityUtils implements Serializable {
 		} catch (Exception e) {
 		}
 		return value;
+	}
+	
+	
+	public void quantumCopy(BaseEntity sourceBE, String sourceAtt, Boolean saveLink, Boolean strip, String userToken, String targetBE, String targetAtt) {
+		try {
+			
+			String value = sourceBE.getValue(sourceAtt, null);
+			System.out.println("value = " +value);
+			if (value != null) {
+					if (saveLink) { 
+						this.saveAnswer(new Answer(userToken, targetBE, sourceAtt, value)); 
+					}
+					if (strip) {
+						value = value.replace("\"", "").replace("[", "").replace("]", "");
+						
+						BaseEntity valueBE = this.getBaseEntityByCode(value);
+						System.out.println("valueBE = " + valueBE);
+						
+						if (valueBE != null) {
+								String name = valueBE.getValue("PRI_NAME", null);
+								System.out.println("name = " +name);
+								
+								if (name != null) {
+									this.saveAnswer(new Answer(userToken, targetBE, targetAtt, name));
+								} else {
+									System.out.println("ERROR: Null String - name"); 
+								}	
+						} else {
+							System.out.println("ERROR: Null BaseEnity - valueBE"); 
+						}
+					} 
+						
+			} else {
+				System.out.println("ERROR: Null String - value"); 
+			}
+			
+			
+		} catch (Exception e) {
+		}
 	}
 }

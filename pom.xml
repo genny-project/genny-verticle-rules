@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>life.genny</groupId>
 	<artifactId>genny-verticle-rules</artifactId>
-	<version>7.23.0</version>
+	<version>7.24.0</version>
 	<name>genny-verticle-rules</name>
 
 	<licenses>
@@ -28,7 +28,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<!--java version -->
-		<java-version>1.8</java-version>
+		<java-version>11</java-version>
 		<!-- plugin versions -->
 		<ejb-plugin-version>2.3</ejb-plugin-version>
 		<war-plugin-version>2.4</war-plugin-version>
