@@ -192,9 +192,10 @@ public class EmailHelper extends NotificationHelper {
 		
 		BaseEntity projectBE = beUtils.getBaseEntityByCode("PRJ_"+beUtils.getGennyToken().getRealm().toUpperCase());
 		String sendGridEmailSender = projectBE.getValueAsString("ENV_SENDGRID_EMAIL_SENDER");
+		String sendGridEmailNameSender = projectBE.getValueAsString("ENV_SENDGRID_EMAIL_NAME_SENDER");
 		String sendGridApiKey = projectBE.getValueAsString("ENV_SENDGRID_API_KEY");
 			
-		Email from = new Email(sendGridEmailSender);
+		Email from = new Email(sendGridEmailSender, sendGridEmailNameSender);
 		Email to = new Email(recipient);
 
 		SendGrid sg = new SendGrid(sendGridApiKey);
@@ -220,6 +221,7 @@ public class EmailHelper extends NotificationHelper {
 		mail.addPersonalization(personalization);
 		mail.setTemplateId(templateId);
 		mail.setFrom(from);
+    
 
 		Request request = new Request();
 		try {
