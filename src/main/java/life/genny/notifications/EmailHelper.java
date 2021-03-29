@@ -195,7 +195,7 @@ public class EmailHelper extends NotificationHelper {
 		String sendGridEmailNameSender = projectBE.getValueAsString("ENV_SENDGRID_EMAIL_NAME_SENDER");
 		String sendGridApiKey = projectBE.getValueAsString("ENV_SENDGRID_API_KEY");
 	  System.out.println("the name for email sender "+ sendGridEmailNameSender);		
-		Email from = new Email(sendGridEmailSender/*, sendGridEmailNameSender*/);
+		Email from = new Email(sendGridEmailSender, sendGridEmailNameSender);
 		Email to = new Email(recipient);
 
 		SendGrid sg = new SendGrid(sendGridApiKey);
