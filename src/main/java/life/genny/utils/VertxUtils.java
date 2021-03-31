@@ -786,7 +786,7 @@ public class VertxUtils {
 		Set<EntityAttribute> allowedAttributes = new HashSet<EntityAttribute>();
 		for (EntityAttribute entityAttribute : be.getBaseEntityAttributes()) {
 			// log.info("ATTRIBUTE:"+entityAttribute.getAttributeCode()+(entityAttribute.getPrivacyFlag()?"PRIVACYFLAG=TRUE":"PRIVACYFLAG=FALSE"));
-			if ((be.getCode().startsWith("PER_")) && (!be.getCode().equals(user.getCode()))) {
+			if (( (be.getCode().startsWith("PER_")) || be.getCode().startsWith("PRJ_"))   && (!be.getCode().equals(user.getCode()))) {
 				String attributeCode = entityAttribute.getAttributeCode();
 
 				if (Arrays.stream(filterAttributes).anyMatch(x -> x.equals(attributeCode))) {
