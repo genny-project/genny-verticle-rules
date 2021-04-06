@@ -21,12 +21,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.commons.beanutils.BeanUtils;
+import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.mindrot.jbcrypt.BCrypt;
@@ -40,22 +39,18 @@ import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.Tuple3;
 import io.vertx.core.json.JsonObject;
-import life.genny.channel.DistMap;
 import life.genny.models.GennyToken;
 import life.genny.qwanda.Answer;
 import life.genny.qwanda.Layout;
 import life.genny.qwanda.Link;
-import life.genny.qwanda.Question;
 import life.genny.qwanda.attribute.Attribute;
 import life.genny.qwanda.attribute.AttributeLink;
 import life.genny.qwanda.attribute.AttributeText;
 import life.genny.qwanda.attribute.EntityAttribute;
-import life.genny.qwanda.datatype.DataType;
 import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.entity.EntityEntity;
 import life.genny.qwanda.entity.SearchEntity;
 import life.genny.qwanda.exception.BadDataException;
-import life.genny.qwanda.message.QBulkMessage;
 import life.genny.qwanda.message.QBulkPullMessage;
 import life.genny.qwanda.message.QDataAnswerMessage;
 import life.genny.qwanda.message.QDataBaseEntityMessage;
@@ -63,7 +58,6 @@ import life.genny.qwanda.message.QMessage;
 import life.genny.qwandautils.GennySettings;
 import life.genny.qwandautils.JsonUtils;
 import life.genny.qwandautils.QwandaUtils;
-import life.genny.utils.VertxUtils;
 import life.genny.utils.Layout.LayoutUtils;
 
 public class BaseEntityUtils implements Serializable {
@@ -2561,7 +2555,7 @@ public class BaseEntityUtils implements Serializable {
 	public void quantumLink(String sourceCode, String targetCode, String focusCode, String attribute) {
 		try {
 			
-			String targetBe = this.getBaseEntityByCode(targetCode);
+			BaseEntity targetBe = getBaseEntityByCode(targetCode);
 			System.out.println(targetBe);
 			Optional<String> optLnkApplication = targetBe.getValue(attribute);
 			
