@@ -25,11 +25,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.mindrot.jbcrypt.BCrypt;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -2597,7 +2597,7 @@ public class BaseEntityUtils implements Serializable {
 	public void removeQuantumLinkElement(String sourceCode, String targetCode, String focusCode, String attribute) {
 		try {
 			
-			String targetBe = this.getBaseEntityByCode(targetCode);
+			BaseEntity targetBe = this.getBaseEntityByCode(targetCode);
 			System.out.println(targetBe);
 			Optional<String> optLnkApplication = targetBe.getValue(attribute);
 			
