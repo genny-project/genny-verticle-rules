@@ -2593,4 +2593,41 @@ public class BaseEntityUtils implements Serializable {
 		} catch (Exception e) {
 		}
 	}
+	
+	public void removeQuantumLinkElement(String sourceCode, String targetCode, String focusCode, String attribute) {
+		try {
+			
+			String targetBe = this.getBaseEntityByCode(targetCode);
+			System.out.println(targetBe);
+			Optional<String> optLnkApplication = targetBe.getValue(attribute);
+			
+			if (optLnkApplication.isPresent()) {
+				System.out.println("Multiple links detected");
+				
+				String lnkApp = optLnkApplication.get();
+				System.out.println(attribute + "  before::  " + lnkApp);
+				if(lnkApp != null){	
+					/* convert to list */
+					Gson gson = new Gson();
+					List<String> appList = gson.fromJson(lnkApp, List.class);
+
+					/* add the new BE code to list */
+					appList.remove(focusCode);
+
+					/* convert to string */
+					String results =gson.toJson(appList);
+					System.out.println(attribute + "  after::  " + results);
+
+					/* save the answer to target */
+					this.saveAnswer(new Answer(sourceCode, targetCode, attribute, results));
+				}
+			} else {
+				/* if no: the intern has not been applied to other applications */
+				/* save the answer to internBe */
+				System.out.println("No similar links detected");	
+			}	
+		} catch (Exception e) {
+		}
+	}
+	
 }
