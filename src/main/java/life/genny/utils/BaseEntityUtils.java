@@ -292,9 +292,13 @@ public class BaseEntityUtils implements Serializable {
 	public BaseEntity saveAnswer(Answer answer) {
 
 		BaseEntity ret = addAnswer(answer);
+		String returnValue = null;
 		try {
 			if (!VertxUtils.cachedEnabled) { // only post if not in junit
-				QwandaUtils.apiPostEntity(qwandaServiceUrl + "/qwanda/answers", JsonUtils.toJson(answer), this.token);
+				returnValue = QwandaUtils.apiPostEntity(qwandaServiceUrl + "/qwanda/answers", JsonUtils.toJson(answer), this.token);
+				if(returnValue.length() > 0){
+					log.error("Save answer failed and response is " + returnValue + ", Answer is:" + answer.toString());
+				}
 			}
 			// Now update the Cache
 
@@ -2044,9 +2048,11 @@ public class BaseEntityUtils implements Serializable {
 			try {
 				resultJson = new JsonObject(resultJsonStr);
 				io.vertx.core.json.JsonArray result = resultJson.getJsonArray("codes");
-				for (int i = 0; i < result.size(); i++) {
+				int size = result.size();
+				for (int i = 0; i < size; i++) {
 					String code = result.getString(i);
 					BaseEntity be = getBaseEntityByCode(code);
+//					System.out.println("code:" + code + ",index:" + (i+1) + "/" + size);
 					be.setIndex(i);
 					results.add(be);
 				}
