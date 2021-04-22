@@ -226,7 +226,8 @@ public class VertxUtils {
 
 				} else {
 					log.debug(" DDT URL:" + GennySettings.ddtUrl + ", realm:" + realm + "key:" + key + "token:" + token );
-					resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/service/cache/read/" + realm + "/" + key, token);
+					//resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/service/cache/read/" + realm + "/" + key, token);
+					resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/service/cache/read/" + key, token);
 					if (resultStr==null) {
 						resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/" + realm + "/" + key, token);	
 					}
@@ -290,10 +291,12 @@ public class VertxUtils {
 
 					log.debug("WRITING TO CACHE USING API! " + key);
 					JsonObject json = new JsonObject();
-					json.put("key", key);
-					json.put("json", value);
-					json.put("ttl", ttl_seconds + "");
-					QwandaUtils.apiPostEntity(GennySettings.ddtUrl + "/write", json.toString(), token);
+					
+//					json.put("key", key);
+//					json.put("json", value);
+//					json.put("ttl", ttl_seconds + "");
+//					QwandaUtils.apiPostEntity(GennySettings.ddtUrl + "/service/cache/write/"+key, json.toString(), token);
+					QwandaUtils.apiPostEntity(GennySettings.ddtUrl + "/service/cache/write/"+key, value, token);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

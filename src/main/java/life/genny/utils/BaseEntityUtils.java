@@ -2395,7 +2395,7 @@ public class BaseEntityUtils implements Serializable {
 	public List<BaseEntity> getRoles() {
 		List<BaseEntity> roles = new ArrayList<BaseEntity>();
 		BaseEntity be = this.getBaseEntityByCode(this.getGennyToken().getUserCode());
-		if (be.getCode().startsWith("PER_")) {
+		if ((be != null)&&(be.getCode().startsWith("PER_"))) {
 			for (EntityAttribute ea : be.getBaseEntityAttributes()) {
 				if (ea.getAttributeCode().startsWith("PRI_IS_")) {
 					String roleCode = "ROL_" + ea.getAttributeCode().substring("PRI_IS_".length());
