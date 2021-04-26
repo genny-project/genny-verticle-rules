@@ -2647,13 +2647,14 @@ public class BaseEntityUtils implements Serializable {
 		return linkedCode;
 	}
 	
+	
 	public static BaseEntity quantumBe(String linkedCode, String logString) {
 		try {
 			if (linkedCode != null) {
 				BaseEntity assocBe = this.getBaseEntityByCode(linkedCode); 
 				System.out.println(logString + " = " + assocBe);
 			}
-		}catch (Exception e) {
+		} catch (Exception e) {
 		}
 		return assocBe;
 	}
