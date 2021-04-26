@@ -2638,24 +2638,20 @@ public class BaseEntityUtils implements Serializable {
 	
 	
 	public String quantumStrip(BaseEntity sourceBe, String attribute, String logString) {
-		try {
-			String linkedCode = sourceBe.getValue(attribute, null);
-			linkedCode = linkedCode.replace("\"", "").replace("[", "").replace("]", "");
-			System.out.println(logString + " = " +linkedCode);
-		} catch (Exception e) {
-		} 
+
+		String linkedCode = sourceBe.getValue(attribute, null);
+		linkedCode = linkedCode.replace("\"", "").replace("[", "").replace("]", "");
+		System.out.println(logString + " = " +linkedCode);
+
 		return linkedCode;
 	}
 	
 	
 	public BaseEntity quantumBe(String linkedCode, String logString) {
-		try {
-			if (linkedCode != null) {
-				BaseEntity assocBe = this.getBaseEntityByCode(linkedCode); 
-				System.out.println(logString + " = " + assocBe);
-			} 
-		} catch (Exception e) {
-		}  
+		if (linkedCode != null) {
+			BaseEntity assocBe = this.getBaseEntityByCode(linkedCode); 
+			System.out.println(logString + " = " + assocBe);
+		} 
 		return assocBe;
 	}
 	
