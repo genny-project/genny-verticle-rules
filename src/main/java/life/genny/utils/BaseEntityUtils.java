@@ -2641,9 +2641,21 @@ public class BaseEntityUtils implements Serializable {
 		try {
 			String linkedCode = sourceBe.getValue(attribute, null);
 			linkedCode = linkedCode.replace("\"", "").replace("[", "").replace("]", "");
-			System.out.println(logString +" = " +linkedCode);
+			System.out.println(logString + " = " +linkedCode);
+		} catch (Exception e) {
+		} 
+		return linkedCode;
+	}
+	
+	public static BaseEntity quantumBe(String linkedCode, String logString) {
+		try {
+			if (linkedCode != null) {
+				BaseEntity assocBe = this.getBaseEntityByCode(linkedCode); 
+				System.out.println(logString + " = " + assocBe);
+			}
 		}catch (Exception e) {
 		}
+		return assocBe;
 	}
 	
 }
