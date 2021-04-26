@@ -2648,12 +2648,15 @@ public class BaseEntityUtils implements Serializable {
 	
 	
 	public BaseEntity quantumBe(String linkedCode, String logString) {
-		if (linkedCode != null) {
-			BaseEntity assocBe = this.getBaseEntityByCode(linkedCode); 
-			System.out.println(logString + " = " + assocBe);
-			return assocBe;
-		} 
 		
+		BaseEntity assocBe = null;
+		
+		if (linkedCode != null) {
+			assocBe = this.getBaseEntityByCode(linkedCode); 
+			System.out.println(logString + " = " + assocBe);
+			
+		} 
+		return assocBe;
 	}
 	
 }
