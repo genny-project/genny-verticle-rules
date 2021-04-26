@@ -2642,11 +2642,9 @@ public class BaseEntityUtils implements Serializable {
 			String linkedCode = sourceBe.getValue(attribute, null);
 			linkedCode = linkedCode.replace("\"", "").replace("[", "").replace("]", "");
 			System.out.println(logString + " = " +linkedCode);
-			
-			return linkedCode;
-			
 		} catch (Exception e) {
 		} 
+		return linkedCode;
 	}
 	
 	
@@ -2655,10 +2653,10 @@ public class BaseEntityUtils implements Serializable {
 			if (linkedCode != null) {
 				BaseEntity assocBe = this.getBaseEntityByCode(linkedCode); 
 				System.out.println(logString + " = " + assocBe);
-				return assocBe;
 			} 
 		} catch (Exception e) {
-		}
+		}  
+		return assocBe;
 	}
 	
 }
