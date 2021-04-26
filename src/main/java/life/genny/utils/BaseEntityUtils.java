@@ -2651,8 +2651,9 @@ public class BaseEntityUtils implements Serializable {
 		if (linkedCode != null) {
 			BaseEntity assocBe = this.getBaseEntityByCode(linkedCode); 
 			System.out.println(logString + " = " + assocBe);
+			return assocBe;
 		} 
-		return assocBe;
+		
 	}
 	
 }
