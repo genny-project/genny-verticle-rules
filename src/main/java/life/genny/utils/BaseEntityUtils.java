@@ -2395,7 +2395,7 @@ public class BaseEntityUtils implements Serializable {
 	public List<BaseEntity> getRoles() {
 		List<BaseEntity> roles = new ArrayList<BaseEntity>();
 		BaseEntity be = this.getBaseEntityByCode(this.getGennyToken().getUserCode());
-		if (be.getCode().startsWith("PER_")) {
+		if ((be != null)&&(be.getCode().startsWith("PER_"))) {
 			for (EntityAttribute ea : be.getBaseEntityAttributes()) {
 				if (ea.getAttributeCode().startsWith("PRI_IS_")) {
 					String roleCode = "ROL_" + ea.getAttributeCode().substring("PRI_IS_".length());
@@ -2634,6 +2634,29 @@ public class BaseEntityUtils implements Serializable {
 			}	
 		} catch (Exception e) {
 		}
+	}
+	
+	
+	public String quantumStrip(BaseEntity sourceBe, String attribute, String logString) {
+
+		String linkedCode = sourceBe.getValue(attribute, null);
+		linkedCode = linkedCode.replace("\"", "").replace("[", "").replace("]", "");
+		System.out.println(logString + " = " +linkedCode);
+
+		return linkedCode;
+	}
+	
+	
+	public BaseEntity quantumBe(String linkedCode, String logString) {
+		
+		BaseEntity assocBe = null;
+		
+		if (linkedCode != null) {
+			assocBe = this.getBaseEntityByCode(linkedCode); 
+			System.out.println(logString + " = " + assocBe);
+			
+		} 
+		return assocBe;
 	}
 	
 }
