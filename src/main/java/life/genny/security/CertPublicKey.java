@@ -47,7 +47,7 @@ public enum CertPublicKey {
             + "/"
             + realm;
     try {
-      apiGet = QwandaUtils.apiGet(keycloakCertUrl, null);
+      apiGet = QwandaUtils.sendGET(keycloakCertUrl);
     } catch (IOException e) {
       e.printStackTrace();
     }
