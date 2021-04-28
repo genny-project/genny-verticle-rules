@@ -44,11 +44,12 @@ public class TokenIntrospection {
       };
 
 
-  public static Boolean checkAuthForRoles(Vertx vertx, List<String> roles,
+  public static Boolean checkAuthForRoles(io.vertx.core.Vertx vertx, List<String> roles,
       String token) {
 
+    
     Boolean checked = false;
-    avertx = vertx;
+    avertx = Vertx.newInstance(vertx);
     
     try {
 		checked = roles.stream()
