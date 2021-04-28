@@ -1537,6 +1537,7 @@ public class BaseEntityUtils implements Serializable {
 				this.updateBaseEntity(source);
 
 				QwandaUtils.apiPostEntity(qwandaServiceUrl + "/qwanda/entityentitys", JsonUtils.toJson(link), this.token);
+				VertxUtils.writeCachedJson(source.getRealm(), source.getCode(), JsonUtils.toJson(source), this.token);
 			} catch (BadDataException e) {
 				e.printStackTrace();
 			}
