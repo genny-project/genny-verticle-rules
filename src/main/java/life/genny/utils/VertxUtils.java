@@ -296,7 +296,7 @@ public class VertxUtils {
 //					json.put("json", value);
 //					json.put("ttl", ttl_seconds + "");
 //					QwandaUtils.apiPostEntity(GennySettings.ddtUrl + "/service/cache/write/"+key, json.toString(), token);
-					QwandaUtils.apiPostEntity(GennySettings.ddtUrl + "/service/cache/write/"+key, value, token);
+					QwandaUtils.apiPostEntity2(GennySettings.ddtUrl + "/service/cache/write/"+key, value, token,null);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
