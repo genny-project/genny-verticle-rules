@@ -295,7 +295,7 @@ public class BaseEntityUtils implements Serializable {
 		String returnValue = null;
 		try {
 			if (!VertxUtils.cachedEnabled) { // only post if not in junit
-				returnValue = QwandaUtils.apiPostEntity(qwandaServiceUrl + "/qwanda/answers", JsonUtils.toJson(answer), this.token);
+				returnValue = QwandaUtils.apiPostEntity2(qwandaServiceUrl + "/qwanda/answers", JsonUtils.toJson(answer), this.token,null);
 				if(returnValue.length() > 0){
 					log.error("Save answer failed and response is " + returnValue + ", Answer is:" + answer.toString());
 				}
