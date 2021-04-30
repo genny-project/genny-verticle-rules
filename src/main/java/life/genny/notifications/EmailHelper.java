@@ -243,14 +243,14 @@ public class EmailHelper extends NotificationHelper {
 			nonProdTest = false;
 			System.out.println("WARNING: Email not sent because it is not the Production server");
 		}
-		
+		/*
 		if (!nonProdTest) {				
 			QCmdMessage msg = new QCmdMessage("TOAST", "INFO");
 			msg.setMessage("Email not sent because you are not on the Production server!!");
 			msg.setToken(beUtils.getGennyToken().getToken());
 			msg.setSend(true);
 			VertxUtils.writeMsg("webcmds", msg);
-		}
+		}*/
   }
   
 }
