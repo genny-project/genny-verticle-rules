@@ -183,9 +183,9 @@ public class EmailHelper extends NotificationHelper {
     return null;
   }
 
-	public static void sendGrid(BaseEntityUtils beUtils,String recipient, String subject, String templateId, HashMap<String, String> templateData) throws IOException {
+	public static void sendGrid(BaseEntityUtils beUtils,String recipient, String subject, String templateId, HashMap<String, String> templateData,  Boolean nonProdTest) throws IOException {
 
-		sendGrid(beUtils, recipient, null, null, subject, templateId, templateData);
+		sendGrid(beUtils, recipient, null, null, subject, templateId, templateData, nonProdTest);
 	}
 
 	public static void sendGrid(BaseEntityUtils beUtils, String recipient, List<String> ccList, List<String> bccList, String subject, String templateId, HashMap<String, String> templateData, Boolean nonProdTest) throws IOException {
