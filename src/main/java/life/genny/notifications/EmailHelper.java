@@ -238,6 +238,7 @@ public class EmailHelper extends NotificationHelper {
 			} catch (IOException ex) {
 			  throw ex;
 			}
+			
 		} else {
 			nonProdTest = false;
 			System.out.println("WARNING: Email not sent because it is not the Production server");
