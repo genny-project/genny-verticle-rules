@@ -207,7 +207,6 @@ public class EmailHelper extends NotificationHelper {
 			personalization.addTo(to);
 			personalization.setSubject(subject);
 	    
-	
 			if (ccList != null) {
 				ccList.stream().forEach(email -> personalization.addCc(new Email(email)));
 			}
