@@ -188,54 +188,68 @@ public class EmailHelper extends NotificationHelper {
 		sendGrid(beUtils, recipient, null, null, subject, templateId, templateData);
 	}
 
-	public static void sendGrid(BaseEntityUtils beUtils, String recipient, List<String> ccList, List<String> bccList, String subject, String templateId, HashMap<String, String> templateData) throws IOException {
+	public static void sendGrid(BaseEntityUtils beUtils, String recipient, List<String> ccList, List<String> bccList, String subject, String templateId, HashMap<String, String> templateData, Boolean nonProdTest) throws IOException {
 		
-		BaseEntity projectBE = beUtils.getBaseEntityByCode("PRJ_"+beUtils.getGennyToken().getRealm().toUpperCase());
-		String sendGridEmailSender = projectBE.getValueAsString("ENV_SENDGRID_EMAIL_SENDER");
-		String sendGridEmailNameSender = projectBE.getValueAsString("ENV_SENDGRID_EMAIL_NAME_SENDER");
-		String sendGridApiKey = projectBE.getValueAsString("ENV_SENDGRID_API_KEY");
-	  System.out.println("the name for email sender "+ sendGridEmailNameSender);		
-		Email from = new Email(sendGridEmailSender, sendGridEmailNameSender);
-		Email to = new Email(recipient);
-
-		SendGrid sg = new SendGrid(sendGridApiKey);
-
-		Personalization personalization = new Personalization();
-
-		personalization.addTo(to);
-		personalization.setSubject(subject);
-    
-
-		if (ccList != null) {
-			ccList.stream().forEach(email -> personalization.addCc(new Email(email)));
+		
+		if (GennySettings.projectUrl.contains("interns") || nonProdTest) {
+			BaseEntity projectBE = beUtils.getBaseEntityByCode("PRJ_"+beUtils.getGennyToken().getRealm().toUpperCase());
+			String sendGridEmailSender = projectBE.getValueAsString("ENV_SENDGRID_EMAIL_SENDER");
+			String sendGridEmailNameSender = projectBE.getValueAsString("ENV_SENDGRID_EMAIL_NAME_SENDER");
+			String sendGridApiKey = projectBE.getValueAsString("ENV_SENDGRID_API_KEY");
+			System.out.println("The name for email sender "+ sendGridEmailNameSender);		
+			Email from = new Email(sendGridEmailSender, sendGridEmailNameSender);
+			Email to = new Email(recipient);
+	
+			SendGrid sg = new SendGrid(sendGridApiKey);
+	
+			Personalization personalization = new Personalization();
+	
+			personalization.addTo(to);
+			personalization.setSubject(subject);
+	    
+	
+			if (ccList != null) {
+				ccList.stream().forEach(email -> personalization.addCc(new Email(email)));
+			}
+			if (bccList != null) {
+				bccList.stream().forEach(email -> personalization.addBcc(new Email(email)));
+			}
+	
+			for (String i : templateData.keySet()) {
+				System.out.println("key: " + i + " value: " + templateData.get(i));
+				personalization.addDynamicTemplateData(i, templateData.get(i));
+			}
+	
+			Mail mail = new Mail();
+			mail.addPersonalization(personalization);
+			mail.setTemplateId(templateId);
+			mail.setFrom(from);
+	    
+	
+			Request request = new Request();
+			try {
+			  request.setMethod(Method.POST);
+			  request.setEndpoint("mail/send");
+			  request.setBody(mail.build());
+			  Response response = sg.api(request);
+			  System.out.println(response.getStatusCode());
+			  System.out.println(response.getBody());
+			  System.out.println(response.getHeaders());
+	
+			} catch (IOException ex) {
+			  throw ex;
+			}
+		} else {
+			nonProdTest = false;
+			System.out.println("WARNING: Email not sent because it is not the Production server");
 		}
-		if (bccList != null) {
-			bccList.stream().forEach(email -> personalization.addBcc(new Email(email)));
-		}
-
-		for (String i : templateData.keySet()) {
-			System.out.println("key: " + i + " value: " + templateData.get(i));
-			personalization.addDynamicTemplateData(i, templateData.get(i));
-		}
-
-		Mail mail = new Mail();
-		mail.addPersonalization(personalization);
-		mail.setTemplateId(templateId);
-		mail.setFrom(from);
-    
-
-		Request request = new Request();
-		try {
-		  request.setMethod(Method.POST);
-		  request.setEndpoint("mail/send");
-		  request.setBody(mail.build());
-		  Response response = sg.api(request);
-		  System.out.println(response.getStatusCode());
-		  System.out.println(response.getBody());
-		  System.out.println(response.getHeaders());
-
-		} catch (IOException ex) {
-		  throw ex;
+		
+		if (!nonProdTest) {				
+			QCmdMessage msg = new QCmdMessage("TOAST", "INFO");
+			msg.setMessage("Email not sent because you are not on the Production server!!");
+			msg.setToken(beUtils.getGennyToken().getToken());
+			msg.setSend(true);
+			VertxUtils.writeMsg("webcmds", msg);
 		}
   }
   
