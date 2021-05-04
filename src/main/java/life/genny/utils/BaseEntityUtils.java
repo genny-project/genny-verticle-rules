@@ -2058,7 +2058,7 @@ public class BaseEntityUtils implements Serializable {
 				}
 
 			} catch (Exception e1) {
-				log.error("Bad Json -> [" + resultJsonStr);
+				log.error("Bad Json -> " + resultJsonStr);
 			}
 
 		} catch (Exception e1) {
@@ -2658,6 +2658,46 @@ public class BaseEntityUtils implements Serializable {
 			
 		} 
 		return assocBe;
+	}
+	
+	public String whoAreYou(String targetCode) {
+		
+		String attribute = null;
+		
+		BaseEntity targetBe = this.getBaseEntityByCode(targetCode);
+		System.out.println("targetBe: " +targetBe);
+		
+		Boolean isI = targetBe.getValue("PRI_IS_INTERN", false);
+		Boolean isIS = targetBe.getValue("PRI_IS_INTERNSHIP", false);
+		Boolean isEPR = targetBe.getValue("PRI_IS_EDU_PRO_REP", false);
+		Boolean isEP = targetBe.getValue("PRI_IS_EDU_PROVIDER", false);
+		Boolean isHCR = targetBe.getValue("PRI_IS_HOST_CPY_REP", false);
+		Boolean isHC = targetBe.getValue("PRI_IS_HOST_CPY", false);
+		Boolean isA = targetBe.getValue("PRI_IS_AGENT", false);
+		Boolean isAG = targetBe.getValue("PRI_IS_AGENCY", false);
+			
+		System.out.println("===== Which type of user =====");
+		System.out.println("Intern:" + isI);
+		System.out.println("Internship:" + isIS);
+		System.out.println("EPR:" + isEPR);
+		System.out.println("EP:" + isEP);
+		System.out.println("HCR:" + isHCR);
+		System.out.println("HC:" + isHC);
+		System.out.println("Agent:" + isA);
+		System.out.println("Agency:" + isAG);
+		System.out.println("==============================");
+		
+		if (isI) {attribute = "PRI_IS_INTERN";}
+		if (isIS) {attribute = "PRI_IS_INTERNSHIP";}
+		if (isEPR) {attribute = "PRI_IS_EDU_PRO_REP";}
+		if (isEP) {attribute = "PRI_IS_EDU_PROVIDER";}
+		if (isHCR) {attribute = "PRI_IS_HOST_CPY_REP";}
+		if (isHC) {attribute = "PRI_IS_HOST_CPY";}
+		if (isA) {attribute = "PRI_IS_AGENT";}
+		if (isAG) {attribute = "PRI_IS_AGENCY";}
+		System.out.println("Who are you? " + attribute);
+		
+		return attribute;
 	}
 	
 }
