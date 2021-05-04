@@ -227,13 +227,20 @@ public class VertxUtils {
 				} else {
 					log.debug(" DDT URL:" + GennySettings.ddtUrl + ", realm:" + realm + "key:" + key + "token:" + token );
 					//resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/service/cache/read/" + realm + "/" + key, token);
-					resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/service/cache/read/" + key, token);
-					if (resultStr==null) {
-						resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/" + realm + "/" + key, token);	
+					int count=5;
+					while (count>0) {
+						resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/service/cache/read/" + key, token);
+						count--;
+						if ( resultStr == null || ("<html><head><title>Error</title></head><body>Not Found</body></html>".equals(resultStr)) || ("<html><body><h1>Resource not found</h1></body></html>".equals(resultStr))) {
+								
+						} else {
+							count=0;
+						}
+
 					}
-					if (("<html><head><title>Error</title></head><body>Not Found</body></html>".equals(resultStr)) || ("<html><body><h1>Resource not found</h1></body></html>".equals(resultStr))) {
-						resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/service/cache/read/" + key, token);		
-					}
+//					if (resultStr==null) {
+//						resultStr = QwandaUtils.apiGet(GennySettings.ddtUrl + "/read/" + realm + "/" + key, token);	
+//					}
 //					resultStr =  readFromDDT(realm, key, token).toString();
 				}
 				if (resultStr != null) {

@@ -15,7 +15,7 @@ public class ShleemyUtils {
 	public static void scheduleMessage(GennyToken userToken, String eventMsgCode, String scheduleMsgCode, LocalDateTime triggertime, String targetCode) {
 
 		String shleemyEndPoint = GennySettings.projectUrl+"/api/schedule";
-
+		System.out.println(" sending scheduler shleemyEndPoint " + shleemyEndPoint);
 		QEventMessage evtMsg = new QEventMessage("SCHEDULE_EVT", eventMsgCode);
 		evtMsg.setToken(userToken.getToken());
 		
@@ -32,7 +32,7 @@ public class ShleemyUtils {
 		System.out.println("scheduleMessage = " + scheduleMessage);
 
 		try {
-			QwandaUtils.apiPostEntity(shleemyEndPoint, JsonUtils.toJson(scheduleMessage), userToken.getToken());
+			QwandaUtils.apiPostEntity2(shleemyEndPoint, JsonUtils.toJson(scheduleMessage), userToken.getToken(), null);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}		
