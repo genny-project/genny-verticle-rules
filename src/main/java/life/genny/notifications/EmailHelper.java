@@ -191,7 +191,7 @@ public class EmailHelper extends NotificationHelper {
 	public static void sendGrid(BaseEntityUtils beUtils, String recipient, List<String> ccList, List<String> bccList, String subject, String templateId, HashMap<String, String> templateData, Boolean nonProdTest) throws IOException {
 		
 		
-		if (GennySettings.projectUrl.contains("interns") || nonProdTest) {
+		if (GennySettings.projectUrl.contains("interns") || GennySettings.projectUrl.contains("staging") || nonProdTest) {
 			BaseEntity projectBE = beUtils.getBaseEntityByCode("PRJ_"+beUtils.getGennyToken().getRealm().toUpperCase());
 			String sendGridEmailSender = projectBE.getValueAsString("ENV_SENDGRID_EMAIL_SENDER");
 			String sendGridEmailNameSender = projectBE.getValueAsString("ENV_SENDGRID_EMAIL_NAME_SENDER");
@@ -214,9 +214,13 @@ public class EmailHelper extends NotificationHelper {
 				bccList.stream().forEach(email -> personalization.addBcc(new Email(email)));
 			}
 	
-			for (String i : templateData.keySet()) {
-				System.out.println("key: " + i + " value: " + templateData.get(i));
-				personalization.addDynamicTemplateData(i, templateData.get(i));
+			for (String key : templateData.keySet()) {
+				String printValue = templateData.get(key);
+				if (key.equals("password")) {
+					printValue = "REDACTED";
+				}
+				System.out.println("key: " + key + ", value: " + printValue);
+				personalization.addDynamicTemplateData(key, templateData.get(key));
 			}
 	
 			Mail mail = new Mail();
