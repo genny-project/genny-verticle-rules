@@ -2692,7 +2692,7 @@ public class BaseEntityUtils implements Serializable {
 		return assocBe;
 	}
 	
-	public String whoAreYou(String targetCode) {
+	public String whoAreYou(String targetCode) { // TODO, ths is only internmatch?? 
 		
 		String attribute = null;
 		
@@ -2730,6 +2730,75 @@ public class BaseEntityUtils implements Serializable {
 		System.out.println("Who are you? " + attribute);
 		
 		return attribute;
+	}
+	
+	
+	public BaseEntity getDEF(final BaseEntity be)
+	{
+		Set<EntityAttribute> newMerge = new HashSet<>();
+		List<EntityAttribute> isAs =  be.findPrefixEntityAttributes("PRI_IS_");
+		if (isAs.size()==1) {
+			// Easy
+			BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_"+isAs.get(0).getAttributeCode().substring("PRI_IS_".length()));
+			return defBe;
+		} else if (isAs.isEmpty()) {
+			if (be.getCode().startsWith("CPY_")) {
+				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_COMPANY");
+				return defBe;
+			} 
+			else if (be.getCode().startsWith("PER_")) {
+				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_PERSON");
+				return defBe;
+			} 
+			else if (be.getCode().startsWith("APP_")) {
+				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_APPLICATION");
+				if (defBe == null) {
+					log.error("NO DEF ASSOCIATED WITH APP be "+be.getCode());
+					return new BaseEntity("ERR_DEF","No DEF");
+				}
+				return defBe;
+			} 
+			
+			log.error("NO DEF ASSOCIATED WITH be "+be.getCode());
+			return new BaseEntity("ERR_DEF","No DEF");
+		} else {
+			// Create sorted merge code
+			String mergedCode = "DEF_"+isAs.stream().sorted(Comparator.comparing(EntityAttribute::getAttributeCode)).map(ea -> ea.getAttributeCode()).collect(Collectors.joining("_"));
+			BaseEntity mergedBe = RulesUtils.defs.get(be.getRealm()).get(mergedCode);
+			if (mergedBe == null) {
+				log.info("Detected NEW Combination DEF - "+mergedCode);
+				// Get primary PRI_IS
+				Optional<EntityAttribute> topDog = be.getHighestEA("PRI_IS_");
+				if (topDog.isPresent()) {
+					String topCode = topDog.get().getAttributeCode().substring("PRI_IS_".length());
+					BaseEntity defTopDog = RulesUtils.defs.get(be.getRealm()).get("DEF_"+topCode);
+					String topDogName = defTopDog.getName();
+					mergedBe = new BaseEntity(mergedCode,topDogName); // So this combination DEF inherits top dogs name
+					// now copy all the combined DEF eas.
+					for (EntityAttribute isea : isAs) {
+						BaseEntity defEa = RulesUtils.defs.get(be.getRealm()).get("DEF_"+isea.getAttributeCode().substring("PRI_IS_".length()));
+						for (EntityAttribute ea : defEa.getBaseEntityAttributes()) {
+							try {
+								mergedBe.addAttribute(ea);
+							} catch (BadDataException e) {
+								log.error("Bad data in getDEF ea merge "+mergedCode);
+							}
+						}
+					}
+					RulesUtils.defs.get(be.getRealm()).put(mergedCode, mergedBe);
+					return mergedBe;
+					
+				} else {
+					log.error("NO DEF EXISTS FOR "+be.getCode());
+					return null;
+				}
+			} else {
+				return mergedBe; // return 'merged' composite
+			}
+		}
+		
+		
+		
 	}
 	
 }
