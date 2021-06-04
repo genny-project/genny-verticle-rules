@@ -191,7 +191,7 @@ public class EmailHelper extends NotificationHelper {
 	public static void sendGrid(BaseEntityUtils beUtils, String recipient, List<String> ccList, List<String> bccList, String subject, String templateId, HashMap<String, String> templateData, Boolean nonProdTest) throws IOException {
 		
 		
-		if (GennySettings.projectUrl.contains("interns") || GennySettings.projectUrl.contains("staging") || nonProdTest) {
+		if (GennySettings.projectUrl.contains("interns") || nonProdTest) {
 			BaseEntity projectBE = beUtils.getBaseEntityByCode("PRJ_"+beUtils.getGennyToken().getRealm().toUpperCase());
 			String sendGridEmailSender = projectBE.getValueAsString("ENV_SENDGRID_EMAIL_SENDER");
 			String sendGridEmailNameSender = projectBE.getValueAsString("ENV_SENDGRID_EMAIL_NAME_SENDER");
