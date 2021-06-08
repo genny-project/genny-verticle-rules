@@ -813,17 +813,6 @@ public class VertxUtils {
 
 					} else if (attributeCode.startsWith("LNK_")) {
 						allowedAttributes.add(entityAttribute);// allow attributes that starts with "LNK_"
-
-					} else if (attributeCode.equals("PRI_CREATED")) {
-						Attribute createdAttr = new Attribute("PRI_CREATED", "Created", new DataType(LocalDateTime.class));
-						EntityAttribute created = new EntityAttribute(be, createdAttr, 1.0);
-						created.setValueDateTime(be.getCreated());
-						allowedAttributes.add(created);// allow attributes that starts with "LNK_"
-					} else if (attributeCode.equals("PRI_UPDATED")) {
-						Attribute updatedAttr = new Attribute("PRI_UPDATED", "Updated", new DataType(LocalDateTime.class));
-						EntityAttribute updated = new EntityAttribute(be, updatedAttr, 1.0);
-						updated.setValueDateTime(be.getUpdated());
-						allowedAttributes.add(updated);// allow attributes that starts with "LNK_"
 					}
 				}
 			} else {
@@ -834,6 +823,19 @@ public class VertxUtils {
 			if (entityAttribute.getAttributeCode().equals("PRI_INTERVIEW_URL")) {
 				log.info("My Interview");
 			}
+		}
+		// Handle Created and Updated attributes
+		if (Arrays.asList(filterAttributes).contains("PRI_CREATED")) {
+			Attribute createdAttr = new Attribute("PRI_CREATED", "Created", new DataType(LocalDateTime.class));
+			EntityAttribute created = new EntityAttribute(be, createdAttr, 1.0);
+			created.setValueDateTime(be.getCreated());
+			allowedAttributes.add(created);// allow attributes that starts with "LNK_"
+		}
+		if (Arrays.asList(filterAttributes).contains("PRI_UPDATED")) {
+			Attribute updatedAttr = new Attribute("PRI_UPDATED", "Updated", new DataType(LocalDateTime.class));
+			EntityAttribute updated = new EntityAttribute(be, updatedAttr, 1.0);
+			updated.setValueDateTime(be.getUpdated());
+			allowedAttributes.add(updated);// allow attributes that starts with "LNK_"
 		}
 		be.setBaseEntityAttributes(allowedAttributes);
 
