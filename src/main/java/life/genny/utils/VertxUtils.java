@@ -11,6 +11,7 @@ import life.genny.eventbus.EventBusInterface;
 import life.genny.eventbus.EventBusMock;
 import life.genny.models.GennyToken;
 import life.genny.qwanda.Answer;
+import life.genny.qwanda.datatype.DataType;
 import life.genny.qwanda.attribute.Attribute;
 import life.genny.qwanda.attribute.EntityAttribute;
 import life.genny.qwanda.entity.BaseEntity;
@@ -35,6 +36,8 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import java.time.LocalDateTime;
 
 public class VertxUtils {
 
@@ -807,9 +810,20 @@ public class VertxUtils {
 				} else {
 					if (attributeCode.startsWith("PRI_IS_")) {
 						allowedAttributes.add(entityAttribute);// allow all roles
-					}
-					if (attributeCode.startsWith("LNK_")) {
+
+					} else if (attributeCode.startsWith("LNK_")) {
 						allowedAttributes.add(entityAttribute);// allow attributes that starts with "LNK_"
+
+					} else if (attributeCode.equals("PRI_CREATED")) {
+						Attribute createdAttr = new Attribute("PRI_CREATED", "Created", new DataType(LocalDateTime.class));
+						EntityAttribute created = new EntityAttribute(be, createdAttr, 1.0);
+						created.setValueDateTime(be.getCreated());
+						allowedAttributes.add(created);// allow attributes that starts with "LNK_"
+					} else if (attributeCode.equals("PRI_UPDATED")) {
+						Attribute updatedAttr = new Attribute("PRI_UPDATED", "Updated", new DataType(LocalDateTime.class));
+						EntityAttribute updated = new EntityAttribute(be, updatedAttr, 1.0);
+						updated.setValueDateTime(be.getUpdated());
+						allowedAttributes.add(updated);// allow attributes that starts with "LNK_"
 					}
 				}
 			} else {
