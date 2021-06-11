@@ -870,18 +870,30 @@ public class VertxUtils {
 		// Handle Created and Updated attributes
 		if (Arrays.asList(filterAttributes).contains("PRI_CREATED")) {
 			log.info("filterAttributes contains PRI_CREATED");
-			System.out.println("Found PRI_CREATED");
 			Attribute createdAttr = new Attribute("PRI_CREATED", "Created", new DataType(LocalDateTime.class));
 			EntityAttribute created = new EntityAttribute(be, createdAttr, 1.0);
 			created.setValueDateTime(be.getCreated());
 			allowedAttributes.add(created);// allow attributes that starts with "LNK_"
 		}
+		if (Arrays.asList(filterAttributes).contains("PRI_CREATED_DATE")) {
+			log.info("filterAttributes contains PRI_CREATED_DATE");
+			Attribute createdAttr = new Attribute("PRI_CREATED", "Created", new DataType(LocalDate.class));
+			EntityAttribute created = new EntityAttribute(be, createdAttr, 1.0);
+			created.setValueDate(be.getCreated().toLocalDate());
+			allowedAttributes.add(created);// allow attributes that starts with "LNK_"
+		}
 		if (Arrays.asList(filterAttributes).contains("PRI_UPDATED")) {
 			log.info("filterAttributes contains PRI_UPDATED");
-			System.out.println("Found PRI_UPDATED");
 			Attribute updatedAttr = new Attribute("PRI_UPDATED", "Updated", new DataType(LocalDateTime.class));
 			EntityAttribute updated = new EntityAttribute(be, updatedAttr, 1.0);
 			updated.setValueDateTime(be.getUpdated());
+			allowedAttributes.add(updated);// allow attributes that starts with "LNK_"
+		}
+		if (Arrays.asList(filterAttributes).contains("PRI_UPDATED_DATE")) {
+			log.info("filterAttributes contains PRI_UPDATED_DATE");
+			Attribute updatedAttr = new Attribute("PRI_UPDATED", "Updated", new DataType(LocalDate.class));
+			EntityAttribute updated = new EntityAttribute(be, updatedAttr, 1.0);
+			updated.setValueDate(be.getUpdated().toLocalDate());
 			allowedAttributes.add(updated);// allow attributes that starts with "LNK_"
 		}
 		be.setBaseEntityAttributes(allowedAttributes);
