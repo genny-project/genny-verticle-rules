@@ -2060,11 +2060,32 @@ public class BaseEntityUtils implements Serializable {
 	public List<BaseEntity> getBaseEntitys(final SearchEntity searchBE) {
 		List<BaseEntity> results = new ArrayList<BaseEntity>();
 
+		
+		
+
+		
+		
+		
 		try {
-			String resultJsonStr = QwandaUtils.apiPostEntity2(
+			String resultJsonStr = null;
+			
+			if (GennySettings.forceCacheApi) {
+				Tuple2<String, List<String>> emailhqlTuple = getHql(searchBE);
+				String emailhql = emailhqlTuple._1;
+
+				emailhql = Base64.getUrlEncoder().encodeToString(emailhql.getBytes());
+
+				resultJsonStr = QwandaUtils.apiGet(
+							GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/search24/" + emailhql + "/"
+									+ searchBE.getPageStart(0) + "/" + searchBE.getPageSize(GennySettings.defaultPageSize),
+							serviceToken.getToken(), 120);
+			} else {
+			
+			resultJsonStr = QwandaUtils.apiPostEntity2(
 					GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/search25/",
 					JsonUtils.toJson(searchBE), serviceToken.getToken(), null);
-
+			}
+			
 			JsonObject resultJson = null;
 
 			try {
