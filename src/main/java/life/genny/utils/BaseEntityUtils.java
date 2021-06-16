@@ -2574,11 +2574,14 @@ public class BaseEntityUtils implements Serializable {
 			String targetBE, String targetAtt) {
 		try {
 
+			List<Answer> answers = new ArrayList<>();
+
 			String value = sourceBE.getValue(sourceAtt, null);
 			System.out.println("value = " + value);
 			if (value != null) {
 				if (saveLink) {
-					this.saveAnswer(new Answer(userToken, targetBE, sourceAtt, value));
+					answers.add(new Answer(userToken, targetBE, sourceAtt, value));
+					this.saveAnswers(answers);
 				}
 				if (strip) {
 					value = value.replace("\"", "").replace("[", "").replace("]", "");
@@ -2591,7 +2594,8 @@ public class BaseEntityUtils implements Serializable {
 						System.out.println("name = " + name);
 
 						if (name != null) {
-							this.saveAnswer(new Answer(userToken, targetBE, targetAtt, name));
+							answers.add(new Answer(userToken, targetBE, targetAtt, name));
+							this.saveAnswers(answers);
 						} else {
 							System.out.println("ERROR: Null String - name");
 						}
