@@ -183,6 +183,16 @@ public class EmailHelper extends NotificationHelper {
     return null;
   }
 
+  	public static String encodeUrl(String base, String parentCode, String code, String targetCode)
+	{
+		String encodedParentCode = new String(Base64.getEncoder().encode(parentCode.getBytes()));
+		String encodedCode = new String(Base64.getEncoder().encode(code.getBytes()));
+		String encodedTargetCode = new String(Base64.getEncoder().encode(targetCode.getBytes()));
+
+		String url = base+"/"+encodedParentCode+"/"+encodedCode+"/"+encodedTargetCode;
+		return url;
+	}
+
 	public static void sendGrid(BaseEntityUtils beUtils,String recipient, String subject, String templateId, HashMap<String, String> templateData,  Boolean nonProdTest) throws IOException {
 
 		sendGrid(beUtils, recipient, null, null, subject, templateId, templateData, nonProdTest);

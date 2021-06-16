@@ -11,6 +11,7 @@ import life.genny.eventbus.EventBusInterface;
 import life.genny.eventbus.EventBusMock;
 import life.genny.models.GennyToken;
 import life.genny.qwanda.Answer;
+import life.genny.qwanda.datatype.DataType;
 import life.genny.qwanda.attribute.Attribute;
 import life.genny.qwanda.attribute.EntityAttribute;
 import life.genny.qwanda.entity.BaseEntity;
@@ -35,6 +36,9 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public class VertxUtils {
 
@@ -807,8 +811,8 @@ public class VertxUtils {
 				} else {
 					if (attributeCode.startsWith("PRI_IS_")) {
 						allowedAttributes.add(entityAttribute);// allow all roles
-					}
-					if (attributeCode.startsWith("LNK_")) {
+
+					} else if (attributeCode.startsWith("LNK_")) {
 						allowedAttributes.add(entityAttribute);// allow attributes that starts with "LNK_"
 					}
 				}
@@ -820,6 +824,35 @@ public class VertxUtils {
 			if (entityAttribute.getAttributeCode().equals("PRI_INTERVIEW_URL")) {
 				log.info("My Interview");
 			}
+		}
+		// Handle Created and Updated attributes
+		if (Arrays.asList(filterAttributes).contains("PRI_CREATED")) {
+			// log.info("filterAttributes contains PRI_CREATED");
+			Attribute createdAttr = new Attribute("PRI_CREATED", "Created", new DataType(LocalDateTime.class));
+			EntityAttribute created = new EntityAttribute(be, createdAttr, 1.0);
+			created.setValueDateTime(be.getCreated());
+			allowedAttributes.add(created);// allow attributes that starts with "LNK_"
+		}
+		if (Arrays.asList(filterAttributes).contains("PRI_CREATED_DATE")) {
+			// log.info("filterAttributes contains PRI_CREATED_DATE");
+			Attribute createdAttr = new Attribute("PRI_CREATED_DATE", "Created", new DataType(LocalDate.class));
+			EntityAttribute created = new EntityAttribute(be, createdAttr, 1.0);
+			created.setValueDate(be.getCreated().toLocalDate());
+			allowedAttributes.add(created);// allow attributes that starts with "LNK_"
+		}
+		if (Arrays.asList(filterAttributes).contains("PRI_UPDATED")) {
+			// log.info("filterAttributes contains PRI_UPDATED");
+			Attribute updatedAttr = new Attribute("PRI_UPDATED", "Updated", new DataType(LocalDateTime.class));
+			EntityAttribute updated = new EntityAttribute(be, updatedAttr, 1.0);
+			updated.setValueDateTime(be.getUpdated());
+			allowedAttributes.add(updated);// allow attributes that starts with "LNK_"
+		}
+		if (Arrays.asList(filterAttributes).contains("PRI_UPDATED_DATE")) {
+			// log.info("filterAttributes contains PRI_UPDATED_DATE");
+			Attribute updatedAttr = new Attribute("PRI_UPDATED_DATE", "Updated", new DataType(LocalDate.class));
+			EntityAttribute updated = new EntityAttribute(be, updatedAttr, 1.0);
+			updated.setValueDate(be.getUpdated().toLocalDate());
+			allowedAttributes.add(updated);// allow attributes that starts with "LNK_"
 		}
 		be.setBaseEntityAttributes(allowedAttributes);
 
@@ -833,6 +866,35 @@ public class VertxUtils {
 				if (Arrays.stream(filterAttributes).anyMatch(x -> x.equals(attributeCode))) {
 					allowedAttributes.add(entityAttribute);
 				} 
+		}
+		// Handle Created and Updated attributes
+		if (Arrays.asList(filterAttributes).contains("PRI_CREATED")) {
+			// log.info("filterAttributes contains PRI_CREATED");
+			Attribute createdAttr = new Attribute("PRI_CREATED", "Created", new DataType(LocalDateTime.class));
+			EntityAttribute created = new EntityAttribute(be, createdAttr, 1.0);
+			created.setValueDateTime(be.getCreated());
+			allowedAttributes.add(created);// allow attributes that starts with "LNK_"
+		}
+		if (Arrays.asList(filterAttributes).contains("PRI_CREATED_DATE")) {
+			// log.info("filterAttributes contains PRI_CREATED_DATE");
+			Attribute createdAttr = new Attribute("PRI_CREATED_DATE", "Created", new DataType(LocalDate.class));
+			EntityAttribute created = new EntityAttribute(be, createdAttr, 1.0);
+			created.setValueDate(be.getCreated().toLocalDate());
+			allowedAttributes.add(created);// allow attributes that starts with "LNK_"
+		}
+		if (Arrays.asList(filterAttributes).contains("PRI_UPDATED")) {
+			// log.info("filterAttributes contains PRI_UPDATED");
+			Attribute updatedAttr = new Attribute("PRI_UPDATED", "Updated", new DataType(LocalDateTime.class));
+			EntityAttribute updated = new EntityAttribute(be, updatedAttr, 1.0);
+			updated.setValueDateTime(be.getUpdated());
+			allowedAttributes.add(updated);// allow attributes that starts with "LNK_"
+		}
+		if (Arrays.asList(filterAttributes).contains("PRI_UPDATED_DATE")) {
+			// log.info("filterAttributes contains PRI_UPDATED_DATE");
+			Attribute updatedAttr = new Attribute("PRI_UPDATED_DATE", "Updated", new DataType(LocalDate.class));
+			EntityAttribute updated = new EntityAttribute(be, updatedAttr, 1.0);
+			updated.setValueDate(be.getUpdated().toLocalDate());
+			allowedAttributes.add(updated);// allow attributes that starts with "LNK_"
 		}
 		be.setBaseEntityAttributes(allowedAttributes);
 
