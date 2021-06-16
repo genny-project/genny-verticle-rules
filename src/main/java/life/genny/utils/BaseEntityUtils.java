@@ -2594,6 +2594,8 @@ public class BaseEntityUtils implements Serializable {
 			System.out.println(targetBe);
 			Optional<String> optLnkApplication = targetBe.getValue(attribute);
 
+			List<Answer> answers = new ArrayList<>();
+
 			if (optLnkApplication.isPresent()) {
 				System.out.println("Multiple links detected");
 
@@ -2612,7 +2614,8 @@ public class BaseEntityUtils implements Serializable {
 					System.out.println(attribute + "  after::  " + results);
 
 					/* save the answer to target */
-					this.saveAnswer(new Answer(sourceCode, targetCode, attribute, results));
+					answers.add(new Answer(sourceCode, targetCode, attribute, results));
+					this.saveAnswers(answers);
 				}
 			} else {
 				/* if no: the intern has not been applied to other applications */
@@ -2622,7 +2625,8 @@ public class BaseEntityUtils implements Serializable {
 				String results = "[\"" + focusCode + "\"]";
 				System.out.println(attribute + "  ::  " + results);
 
-				this.saveAnswer(new Answer(sourceCode, targetCode, attribute, results));
+				answers.add(new Answer(sourceCode, targetCode, attribute, results));
+				this.saveAnswers(answers);
 
 			}
 		} catch (Exception e) {
