@@ -2077,7 +2077,7 @@ public class BaseEntityUtils implements Serializable {
 
 				resultJsonStr = QwandaUtils.apiGet(
 							GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/search24/" + emailhql + "/"
-									+ searchBE.getPageStart(0) + "/" + searchBE.getPageSize(GennySettings.defaultPageSize),
+									+ searchBE.getPageStart(searchBE.getPageStart(0)) + "/" + searchBE.getPageSize(GennySettings.defaultPageSize),
 							serviceToken.getToken(), 120);
 			} else {
 			
@@ -2766,6 +2766,7 @@ public class BaseEntityUtils implements Serializable {
 			BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_"+isAs.get(0).getAttributeCode().substring("PRI_IS_".length()));
 			return defBe;
 		} else if (isAs.isEmpty()) {
+			// THIS HANDLES CURRENT BAD BEs
 			if (be.getCode().startsWith("CPY_")) {
 				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_COMPANY");
 				return defBe;
@@ -2774,6 +2775,39 @@ public class BaseEntityUtils implements Serializable {
 				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_PERSON");
 				return defBe;
 			} 
+			else if (be.getCode().startsWith("BEG_")) {
+				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_INTERNSHIP");
+				return defBe;
+			} 
+			else if (be.getCode().startsWith("JNL_")) {
+				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_JOURNAL");
+				return defBe;
+			} 
+			else if (be.getCode().startsWith("RUL_")) {
+				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_RULE");
+				return defBe;
+			} 
+			else if (be.getCode().startsWith("ROL_")) {
+				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_ROLE");
+				return defBe;
+			} 
+			else if (be.getCode().startsWith("BKT_")) {
+				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_BUCKET_PAGE");
+				return defBe;
+			} 
+			else if (be.getCode().startsWith("APT_")) {
+				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_APPOINTMENT");
+				return defBe;
+			} 
+			else if (be.getCode().startsWith("DEV_")) {
+				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_DEVICE");
+				return defBe;
+			} 
+			else if (be.getCode().startsWith("FRM_")) {
+				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_FORM");
+				return defBe;
+			} 
+
 			else if (be.getCode().startsWith("APP_")) {
 				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_APPLICATION");
 				if (defBe == null) {
