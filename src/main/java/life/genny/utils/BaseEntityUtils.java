@@ -2574,11 +2574,14 @@ public class BaseEntityUtils implements Serializable {
 			String targetBE, String targetAtt) {
 		try {
 
+			List<Answer> answers = new ArrayList<>();
+
 			String value = sourceBE.getValue(sourceAtt, null);
 			System.out.println("value = " + value);
 			if (value != null) {
 				if (saveLink) {
-					this.saveAnswer(new Answer(userToken, targetBE, sourceAtt, value));
+					answers.add(new Answer(userToken, targetBE, sourceAtt, value));
+					this.saveAnswers(answers);
 				}
 				if (strip) {
 					value = value.replace("\"", "").replace("[", "").replace("]", "");
@@ -2591,7 +2594,8 @@ public class BaseEntityUtils implements Serializable {
 						System.out.println("name = " + name);
 
 						if (name != null) {
-							this.saveAnswer(new Answer(userToken, targetBE, targetAtt, name));
+							answers.add(new Answer(userToken, targetBE, targetAtt, name));
+							this.saveAnswers(answers);
 						} else {
 							System.out.println("ERROR: Null String - name");
 						}
@@ -2615,6 +2619,8 @@ public class BaseEntityUtils implements Serializable {
 			System.out.println(targetBe);
 			Optional<String> optLnkApplication = targetBe.getValue(attribute);
 
+			List<Answer> answers = new ArrayList<>();
+
 			if (optLnkApplication.isPresent()) {
 				System.out.println("Multiple links detected");
 
@@ -2633,7 +2639,8 @@ public class BaseEntityUtils implements Serializable {
 					System.out.println(attribute + "  after::  " + results);
 
 					/* save the answer to target */
-					this.saveAnswer(new Answer(sourceCode, targetCode, attribute, results));
+					answers.add(new Answer(sourceCode, targetCode, attribute, results));
+					this.saveAnswers(answers);
 				}
 			} else {
 				/* if no: the intern has not been applied to other applications */
@@ -2643,7 +2650,8 @@ public class BaseEntityUtils implements Serializable {
 				String results = "[\"" + focusCode + "\"]";
 				System.out.println(attribute + "  ::  " + results);
 
-				this.saveAnswer(new Answer(sourceCode, targetCode, attribute, results));
+				answers.add(new Answer(sourceCode, targetCode, attribute, results));
+				this.saveAnswers(answers);
 
 			}
 		} catch (Exception e) {
