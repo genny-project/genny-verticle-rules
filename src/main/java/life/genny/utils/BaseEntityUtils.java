@@ -292,28 +292,15 @@ public class BaseEntityUtils implements Serializable {
 	public BaseEntity saveAnswer(Answer answer) {
 
 		BaseEntity ret = addAnswer(answer);
-		String returnValue = null;
-		try {
-			if (!VertxUtils.cachedEnabled) { // only post if not in junit
-				int count = 5;
-				while (count > 0) {
-					returnValue = QwandaUtils.apiPostEntity2(qwandaServiceUrl + "/qwanda/answers",
-							JsonUtils.toJson(answer), this.token, null);
-					if (returnValue != null) {
-						if (returnValue.length() > 0) {
-							log.error("Save answer failed and response is " + returnValue + ", Answer is:"
-									+ answer.toString());
-						}
-					} else {
-						log.error("response is null, Answer is:" + answer.toString());
-					}
-					count--;
-				}
-			}
-			// Now update the Cache
 
-		} catch (IOException e) {
-			e.printStackTrace();
+		try {
+			JsonObject json = new JsonObject(JsonUtils.toJson(answer));
+			json.put("token",this.token);
+		  log.info("Saving answer");
+			VertxUtils.eb.write("answer",json);
+		  log.info("Finished saving answer");
+		} catch (NamingException e) {
+		  log.error("Error in saving answer through kafka :::: " + e.getMessage());
 		}
 		return ret;
 	}
