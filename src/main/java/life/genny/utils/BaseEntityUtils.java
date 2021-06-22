@@ -296,12 +296,12 @@ public class BaseEntityUtils implements Serializable {
 
 		try {
 			JsonObject json = new JsonObject(JsonUtils.toJson(answer));
-			json.put("token",this.token);
-		  log.info("Saving answer");
-			VertxUtils.eb.write("answer",json);
-		  log.info("Finished saving answer");
+			json.put("token", this.token);
+			log.info("Saving answer");
+			VertxUtils.eb.write("answer", json);
+			log.info("Finished saving answer");
 		} catch (NamingException e) {
-		  log.error("Error in saving answer through kafka :::: " + e.getMessage());
+			log.error("Error in saving answer through kafka :::: " + e.getMessage());
 		}
 		return ret;
 	}
@@ -356,16 +356,24 @@ public class BaseEntityUtils implements Serializable {
 				this.updateCachedBaseEntity(targetAnswers);
 
 				if (!VertxUtils.cachedEnabled) { // if not running junit, no need for api
-					String jsonAnswer = JsonUtils.toJson(msg);
+					//String jsonAnswer = JsonUtils.toJson(msg);
 					// jsonAnswer.replace("\\\"", "\"");
 
-					try {
-						if (!VertxUtils.cachedEnabled) { // only post if not in junit
-							QwandaUtils.apiPostEntity(this.qwandaServiceUrl + "/qwanda/answers/bulk", jsonAnswer,
-									token);
+					if (!VertxUtils.cachedEnabled) { // only post if not in junit
+//							QwandaUtils.apiPostEntity(this.qwandaServiceUrl + "/qwanda/answers/bulk", jsonAnswer,
+//									token);
+						for (Answer answer : targetAnswers) {
+							try {
+								JsonObject json = new JsonObject(JsonUtils.toJson(answer));
+								json.put("token", this.token);
+								log.info("Saving answer");
+								VertxUtils.eb.write("answer", json);
+								log.info("Finished saving answer");
+							} catch (NamingException e) {
+								log.error("Error in saving answer through kafka :::: " + e.getMessage());
+							}
+
 						}
-					} catch (IOException e) {
-						log.error("Socket error trying to post answer");
 					}
 				} else {
 					for (Answer answer : answers) {
@@ -2048,32 +2056,25 @@ public class BaseEntityUtils implements Serializable {
 	public List<BaseEntity> getBaseEntitys(final SearchEntity searchBE) {
 		List<BaseEntity> results = new ArrayList<BaseEntity>();
 
-		
-		
-
-		
-		
-		
 		try {
 			String resultJsonStr = null;
-			
-			if (true /*GennySettings.forceCacheApi*/) {// TODO - Work out search25
+
+			if (true /* GennySettings.forceCacheApi */) {// TODO - Work out search25
 				Tuple2<String, List<String>> emailhqlTuple = getHql(searchBE);
 				String emailhql = emailhqlTuple._1;
 
 				emailhql = Base64.getUrlEncoder().encodeToString(emailhql.getBytes());
 
-				resultJsonStr = QwandaUtils.apiGet(
-							GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/search24/" + emailhql + "/"
-									+ searchBE.getPageStart(searchBE.getPageStart(0)) + "/" + searchBE.getPageSize(GennySettings.defaultPageSize),
-							serviceToken.getToken(), 120);
+				resultJsonStr = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/search24/"
+						+ emailhql + "/" + searchBE.getPageStart(searchBE.getPageStart(0)) + "/"
+						+ searchBE.getPageSize(GennySettings.defaultPageSize), serviceToken.getToken(), 120);
 			} else {
-			
-			resultJsonStr = QwandaUtils.apiPostEntity2(
-					GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/search25/",
-					JsonUtils.toJson(searchBE), serviceToken.getToken(), null);
+
+				resultJsonStr = QwandaUtils.apiPostEntity2(
+						GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/search25/", JsonUtils.toJson(searchBE),
+						serviceToken.getToken(), null);
 			}
-			
+
 			JsonObject resultJson = null;
 
 			try {
@@ -2703,14 +2704,14 @@ public class BaseEntityUtils implements Serializable {
 		}
 		return assocBe;
 	}
-	
-	public String whoAreYou(String targetCode) { // TODO, ths is only internmatch?? 
-		
+
+	public String whoAreYou(String targetCode) { // TODO, ths is only internmatch??
+
 		String attribute = null;
-		
+
 		BaseEntity targetBe = this.getBaseEntityByCode(targetCode);
-		System.out.println("targetBe: " +targetBe);
-		
+		System.out.println("targetBe: " + targetBe);
+
 		Boolean isI = targetBe.getValue("PRI_IS_INTERN", false);
 		Boolean isIS = targetBe.getValue("PRI_IS_INTERNSHIP", false);
 		Boolean isEPR = targetBe.getValue("PRI_IS_EDU_PRO_REP", false);
@@ -2719,7 +2720,7 @@ public class BaseEntityUtils implements Serializable {
 		Boolean isHC = targetBe.getValue("PRI_IS_HOST_CPY", false);
 		Boolean isA = targetBe.getValue("PRI_IS_AGENT", false);
 		Boolean isAG = targetBe.getValue("PRI_IS_AGENCY", false);
-			
+
 		System.out.println("===== Which type of user =====");
 		System.out.println("Intern:" + isI);
 		System.out.println("Internship:" + isIS);
@@ -2730,121 +2731,127 @@ public class BaseEntityUtils implements Serializable {
 		System.out.println("Agent:" + isA);
 		System.out.println("Agency:" + isAG);
 		System.out.println("==============================");
-		
-		if (isI) {attribute = "PRI_IS_INTERN";}
-		if (isIS) {attribute = "PRI_IS_INTERNSHIP";}
-		if (isEPR) {attribute = "PRI_IS_EDU_PRO_REP";}
-		if (isEP) {attribute = "PRI_IS_EDU_PROVIDER";}
-		if (isHCR) {attribute = "PRI_IS_HOST_CPY_REP";}
-		if (isHC) {attribute = "PRI_IS_HOST_CPY";}
-		if (isA) {attribute = "PRI_IS_AGENT";}
-		if (isAG) {attribute = "PRI_IS_AGENCY";}
+
+		if (isI) {
+			attribute = "PRI_IS_INTERN";
+		}
+		if (isIS) {
+			attribute = "PRI_IS_INTERNSHIP";
+		}
+		if (isEPR) {
+			attribute = "PRI_IS_EDU_PRO_REP";
+		}
+		if (isEP) {
+			attribute = "PRI_IS_EDU_PROVIDER";
+		}
+		if (isHCR) {
+			attribute = "PRI_IS_HOST_CPY_REP";
+		}
+		if (isHC) {
+			attribute = "PRI_IS_HOST_CPY";
+		}
+		if (isA) {
+			attribute = "PRI_IS_AGENT";
+		}
+		if (isAG) {
+			attribute = "PRI_IS_AGENCY";
+		}
 		System.out.println("Who are you? " + attribute);
-		
+
 		return attribute;
 	}
-	
-	
-	public BaseEntity getDEF(final BaseEntity be)
-	{
+
+	public BaseEntity getDEF(final BaseEntity be) {
 		Set<EntityAttribute> newMerge = new HashSet<>();
-		List<EntityAttribute> isAs =  be.findPrefixEntityAttributes("PRI_IS_");
-		if (isAs.size()==1) {
+		List<EntityAttribute> isAs = be.findPrefixEntityAttributes("PRI_IS_");
+		if (isAs.size() == 1) {
 			// Easy
-			BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_"+isAs.get(0).getAttributeCode().substring("PRI_IS_".length()));
+			BaseEntity defBe = RulesUtils.defs.get(be.getRealm())
+					.get("DEF_" + isAs.get(0).getAttributeCode().substring("PRI_IS_".length()));
 			return defBe;
 		} else if (isAs.isEmpty()) {
 			// THIS HANDLES CURRENT BAD BEs
 			if (be.getCode().startsWith("CPY_")) {
 				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_COMPANY");
 				return defBe;
-			} 
-			else if (be.getCode().startsWith("PER_")) {
+			} else if (be.getCode().startsWith("PER_")) {
 				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_PERSON");
 				return defBe;
-			} 
-			else if (be.getCode().startsWith("BEG_")) {
+			} else if (be.getCode().startsWith("BEG_")) {
 				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_INTERNSHIP");
 				return defBe;
-			} 
-			else if (be.getCode().startsWith("JNL_")) {
+			} else if (be.getCode().startsWith("JNL_")) {
 				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_JOURNAL");
 				return defBe;
-			} 
-			else if (be.getCode().startsWith("RUL_")) {
+			} else if (be.getCode().startsWith("RUL_")) {
 				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_RULE");
 				return defBe;
-			} 
-			else if (be.getCode().startsWith("ROL_")) {
+			} else if (be.getCode().startsWith("ROL_")) {
 				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_ROLE");
 				return defBe;
-			} 
-			else if (be.getCode().startsWith("BKT_")) {
+			} else if (be.getCode().startsWith("BKT_")) {
 				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_BUCKET_PAGE");
 				return defBe;
-			} 
-			else if (be.getCode().startsWith("APT_")) {
+			} else if (be.getCode().startsWith("APT_")) {
 				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_APPOINTMENT");
 				return defBe;
-			} 
-			else if (be.getCode().startsWith("DEV_")) {
+			} else if (be.getCode().startsWith("DEV_")) {
 				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_DEVICE");
 				return defBe;
-			} 
-			else if (be.getCode().startsWith("FRM_")) {
+			} else if (be.getCode().startsWith("FRM_")) {
 				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_FORM");
 				return defBe;
-			} 
+			}
 
 			else if (be.getCode().startsWith("APP_")) {
 				BaseEntity defBe = RulesUtils.defs.get(be.getRealm()).get("DEF_APPLICATION");
 				if (defBe == null) {
-					log.error("NO DEF ASSOCIATED WITH APP be "+be.getCode());
-					return new BaseEntity("ERR_DEF","No DEF");
+					log.error("NO DEF ASSOCIATED WITH APP be " + be.getCode());
+					return new BaseEntity("ERR_DEF", "No DEF");
 				}
 				return defBe;
-			} 
-			
-			log.error("NO DEF ASSOCIATED WITH be "+be.getCode());
-			return new BaseEntity("ERR_DEF","No DEF");
+			}
+
+			log.error("NO DEF ASSOCIATED WITH be " + be.getCode());
+			return new BaseEntity("ERR_DEF", "No DEF");
 		} else {
 			// Create sorted merge code
-			String mergedCode = "DEF_"+isAs.stream().sorted(Comparator.comparing(EntityAttribute::getAttributeCode)).map(ea -> ea.getAttributeCode()).collect(Collectors.joining("_"));
+			String mergedCode = "DEF_" + isAs.stream().sorted(Comparator.comparing(EntityAttribute::getAttributeCode))
+					.map(ea -> ea.getAttributeCode()).collect(Collectors.joining("_"));
 			BaseEntity mergedBe = RulesUtils.defs.get(be.getRealm()).get(mergedCode);
 			if (mergedBe == null) {
-				log.info("Detected NEW Combination DEF - "+mergedCode);
+				log.info("Detected NEW Combination DEF - " + mergedCode);
 				// Get primary PRI_IS
 				Optional<EntityAttribute> topDog = be.getHighestEA("PRI_IS_");
 				if (topDog.isPresent()) {
 					String topCode = topDog.get().getAttributeCode().substring("PRI_IS_".length());
-					BaseEntity defTopDog = RulesUtils.defs.get(be.getRealm()).get("DEF_"+topCode);
+					BaseEntity defTopDog = RulesUtils.defs.get(be.getRealm()).get("DEF_" + topCode);
 					String topDogName = defTopDog.getName();
-					mergedBe = new BaseEntity(mergedCode,topDogName); // So this combination DEF inherits top dogs name
+					mergedBe = new BaseEntity(mergedCode, topDogName); // So this combination DEF inherits top dogs name
 					// now copy all the combined DEF eas.
 					for (EntityAttribute isea : isAs) {
-						BaseEntity defEa = RulesUtils.defs.get(be.getRealm()).get("DEF_"+isea.getAttributeCode().substring("PRI_IS_".length()));
+						BaseEntity defEa = RulesUtils.defs.get(be.getRealm())
+								.get("DEF_" + isea.getAttributeCode().substring("PRI_IS_".length()));
 						for (EntityAttribute ea : defEa.getBaseEntityAttributes()) {
 							try {
 								mergedBe.addAttribute(ea);
 							} catch (BadDataException e) {
-								log.error("Bad data in getDEF ea merge "+mergedCode);
+								log.error("Bad data in getDEF ea merge " + mergedCode);
 							}
 						}
 					}
 					RulesUtils.defs.get(be.getRealm()).put(mergedCode, mergedBe);
 					return mergedBe;
-					
+
 				} else {
-					log.error("NO DEF EXISTS FOR "+be.getCode());
+					log.error("NO DEF EXISTS FOR " + be.getCode());
 					return null;
 				}
 			} else {
 				return mergedBe; // return 'merged' composite
 			}
 		}
-		
-		
-		
+
 	}
-	
+
 }
