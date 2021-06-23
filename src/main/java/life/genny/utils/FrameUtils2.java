@@ -461,6 +461,7 @@ public class FrameUtils2 {
 				} else {
 					be = QwandaUtils.getBaseEntityByCodeWithAttributes(beCode, serviceToken.getToken());
 					System.out.println("Test log Cache NOT Enabled");
+					System.out.println(be.getCode());
 					LocalDateTime dt = be.getValue("PRI_INTERNSHIP_START_DATE", null);
 					if (dt == null) {
 						System.out.println("DT is NULLLLLL");
