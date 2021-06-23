@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import java.time.LocalDateTime;
+
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -453,10 +455,19 @@ public class FrameUtils2 {
 		if (be == null) {
 			try {
 				if (VertxUtils.cachedEnabled) {
+					System.out.println("Test log Cach Enabled");
 					be = new BaseEntity(beCode, beName);
 					be.setRealm(serviceToken.getRealm());
 				} else {
 					be = QwandaUtils.getBaseEntityByCodeWithAttributes(beCode, serviceToken.getToken());
+					System.out.println("Test log Cache NOT Enabled");
+					LocalDateTime dt = be.getValue("PRI_INTERNSHIP_START_DATE", null);
+					if (dt == null) {
+						System.out.println("DT is NULLLLLL");
+					} else {
+						System.out.println("DT has a value");
+						System.out.println(dt.toString());
+					}
 					if (be == null) {
 						try {
 							be = QwandaUtils.createBaseEntityByCode(beCode, beName, GennySettings.qwandaServiceUrl,
