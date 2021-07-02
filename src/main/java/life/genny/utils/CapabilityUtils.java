@@ -204,6 +204,40 @@ public class CapabilityUtils implements Serializable {
 		return false;
 	}
 
+	// NOTE: This is temporary until ROL_ attributes are properly in place
+	public boolean hasCapabilityThroughPriIs(final String capabilityCode, final CapabilityMode mode) {
+		// allow keycloak admin and devcs to do anything
+		if (beUtils.getGennyToken().hasRole("admin")||beUtils.getGennyToken().hasRole("dev")||("service".equals(beUtils.getGennyToken().getUsername()))) {
+			return true;
+		}
+		// Create a capabilityCode and mode combined unique key
+		String key = beUtils.getGennyToken().getRealm() + ":" + capabilityCode + ":" + mode.name();
+		// Look up from cache
+		JsonObject json = VertxUtils.readCachedJson(beUtils.getGennyToken().getRealm(), key,
+				beUtils.getGennyToken().getToken());
+		// if no cache then return false
+		if ("error".equals(json.getString("status"))) {
+			return false;
+		}
+
+		// else get the list of roles associated with the key
+		String roleCodesString = json.getString("value");
+		String roleCodes[] = roleCodesString.split(",");
+
+		// check if the user has any of these roles
+		String userCode = beUtils.getGennyToken().getUserCode();
+		BaseEntity user = beUtils.getBaseEntityByCode(userCode);
+		for (String roleCode : roleCodes) {
+			String priIsCode = "PRI_IS_" + roleCode.split("ROL_")[1];
+			if (user.getBaseEntityAttributes().parallelStream()
+					.anyMatch(ti -> ti.getAttributeCode().equals(priIsCode))) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public void process() {
 		List<Attribute> existingCapability = new ArrayList<Attribute>();
 
