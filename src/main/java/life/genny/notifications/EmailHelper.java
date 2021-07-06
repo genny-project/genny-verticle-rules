@@ -209,15 +209,14 @@ public class EmailHelper extends NotificationHelper {
 			System.out.println("The name for email sender "+ sendGridEmailNameSender);		
 
 			Email from = new Email(sendGridEmailSender, sendGridEmailNameSender);
-			String sendTo = recipient;
+			Email to = new Email(recipient);
 
 			String urlBasedAttribute = GennySettings.projectUrl.replace("https://","").replace(".gada.io","").replace("-","_").toUpperCase();
 			String dedicatedTestEmail = projectBE.getValue("EML_" + urlBasedAttribute, null);
 			if (dedicatedTestEmail != null) {
 				System.out.println("Found email " + dedicatedTestEmail + " for project attribute EML_" + urlBasedAttribute);
-				sendTo = dedicatedTestEmail;
+				to = new Email(dedicatedTestEmail);
 			}
-			Email to = new Email(sendTo);
 	
 			SendGrid sg = new SendGrid(sendGridApiKey);
 	
@@ -228,14 +227,14 @@ public class EmailHelper extends NotificationHelper {
 	    
 			if (ccList != null) {
 				for (String email : ccList) {
-					if (!email.equals(sendTo)) {
+					if (!email.equals(to.getEmail())) {
 						personalization.addCc(new Email(email));
 					}
 				}
 			}
 			if (bccList != null) {
 				for (String email : ccList) {
-					if (!email.equals(sendTo)) {
+					if (!email.equals(to.getEmail())) {
 						personalization.addBcc(new Email(email));
 					}
 				}
