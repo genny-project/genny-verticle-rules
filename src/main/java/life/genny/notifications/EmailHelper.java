@@ -210,7 +210,7 @@ public class EmailHelper extends NotificationHelper {
 			Email from = new Email(sendGridEmailSender, sendGridEmailNameSender);
 			Email to = null;
 
-			String urlBasedAttribute = GennySettings.projectUrl.toUpperCase().split("https://")[1].split(".gada.io")[0].replace("-","_");
+			String urlBasedAttribute = GennySettings.projectUrl.replace("https://","").replace(".gada.io","").replace("-","_").toUpperCase();
 			String dedicatedTestEmail = projectBE.getValue("EML_" + urlBasedAttribute, null);
 			if (dedicatedTestEmail != null) {
 				System.out.println("Found email " + dedicatedTestEmail + " for project attribute EML_" + urlBasedAttribute);
