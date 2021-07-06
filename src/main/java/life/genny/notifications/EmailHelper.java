@@ -233,7 +233,7 @@ public class EmailHelper extends NotificationHelper {
 				}
 			}
 			if (bccList != null) {
-				for (String email : ccList) {
+				for (String email : bccList) {
 					if (!email.equals(to.getEmail())) {
 						personalization.addBcc(new Email(email));
 					}
