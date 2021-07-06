@@ -208,7 +208,16 @@ public class EmailHelper extends NotificationHelper {
 			String sendGridApiKey = projectBE.getValueAsString("ENV_SENDGRID_API_KEY");
 			System.out.println("The name for email sender "+ sendGridEmailNameSender);		
 			Email from = new Email(sendGridEmailSender, sendGridEmailNameSender);
-			Email to = new Email(recipient);
+			Email to = null;
+
+			String urlBasedAttribute = GennySettings.projectUrl.toUpperCase().split("https://")[1].split(".gada.io")[0].replace("-","_");
+			String dedicatedTestEmail = projectBE.getValue("EML_" + urlBasedAttribute, null);
+			if (dedicatedTestEmail != null) {
+				System.out.println("Found email " + dedicatedTestEmail + " for project attribute EML_" + urlBasedAttribute);
+				to = new Email(dedicatedTestEmail);
+			} else {
+				to = new Email(recipient);
+			}
 	
 			SendGrid sg = new SendGrid(sendGridApiKey);
 	
