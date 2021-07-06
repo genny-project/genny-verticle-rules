@@ -207,17 +207,17 @@ public class EmailHelper extends NotificationHelper {
 			String sendGridEmailNameSender = projectBE.getValueAsString("ENV_SENDGRID_EMAIL_NAME_SENDER");
 			String sendGridApiKey = projectBE.getValueAsString("ENV_SENDGRID_API_KEY");
 			System.out.println("The name for email sender "+ sendGridEmailNameSender);		
+
 			Email from = new Email(sendGridEmailSender, sendGridEmailNameSender);
-			Email to = null;
+			String sendTo = recipient;
 
 			String urlBasedAttribute = GennySettings.projectUrl.replace("https://","").replace(".gada.io","").replace("-","_").toUpperCase();
 			String dedicatedTestEmail = projectBE.getValue("EML_" + urlBasedAttribute, null);
 			if (dedicatedTestEmail != null) {
 				System.out.println("Found email " + dedicatedTestEmail + " for project attribute EML_" + urlBasedAttribute);
-				to = new Email(dedicatedTestEmail);
-			} else {
-				to = new Email(recipient);
+				sendTo = dedicatedTestEmail;
 			}
+			Email to = new Email(sendTo);
 	
 			SendGrid sg = new SendGrid(sendGridApiKey);
 	
@@ -227,10 +227,18 @@ public class EmailHelper extends NotificationHelper {
 			personalization.setSubject(subject);
 	    
 			if (ccList != null) {
-				ccList.stream().forEach(email -> personalization.addCc(new Email(email)));
+				for (String email : ccList) {
+					if (!email.equals(sendTo)) {
+						personalization.addCc(new Email(email));
+					}
+				}
 			}
 			if (bccList != null) {
-				bccList.stream().forEach(email -> personalization.addBcc(new Email(email)));
+				for (String email : ccList) {
+					if (!email.equals(sendTo)) {
+						personalization.addBcc(new Email(email));
+					}
+				}
 			}
 	
 			for (String key : templateData.keySet()) {
