@@ -10,6 +10,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.logging.log4j.Logger;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpRequest.BodyPublisher;
+
 import life.genny.models.GennyToken;
 import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.message.QBaseMSGMessageTemplate;
@@ -188,5 +194,31 @@ public abstract class NotificationHelper {
 
   public void setEmailSubject(String emailSubject) {
     this.emailSubject = emailSubject;
+  }
+
+
+  public static void slackNotification(String body, String service) {
+
+	String uri = "https://hooks.slack.com/services/" + service;
+
+	HttpClient client = HttpClient.newHttpClient();
+	HttpRequest request = HttpRequest.newBuilder()
+			.uri(URI.create(uri))
+			.POST(HttpRequest.BodyPublishers.ofString(body))
+			.build();
+
+	HttpResponse<String> response = null;
+	try {
+		response = client.send(request,
+				HttpResponse.BodyHandlers.ofString());
+	} catch (IOException | InterruptedException e) {
+		log.error(e.getLocalizedMessage());
+	}
+
+	if (response != null) {
+		log.info("SLACK response status code = " + response.statusCode());
+	} else {
+		log.info("SLACK response is NULL");
+	}
   }
 }
