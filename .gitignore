@@ -22,3 +22,4 @@ src/main/resources/genny-verticle-rules-git.properties
 **/bin/*
 bin/
 /bin
+.project
