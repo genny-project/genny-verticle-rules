@@ -191,7 +191,12 @@ public class FrameUtils2 {
 		}
 		if (ruleEntity == null) {
 
-			beUtils.create("RUL_" + rootFrame.getCode().toUpperCase(), "RUL_" + rootFrame.getCode().toUpperCase());
+			BaseEntity defBE = beUtils.getDEFByCode("DEF_RULE");
+			try {
+				beUtils.create(defBE, "RUL_" + rootFrame.getCode().toUpperCase(), "RUL_" + rootFrame.getCode().toUpperCase());
+			} catch (Exception e) {
+				log.error(e.getStackTrace().toString());
+			}
 			log.error("!!!!!!!!!!!!!!!!!!!!!!!! RUL_" + rootFrame.getCode().toUpperCase() + " WAS NOT IN DB????");
 		}
 
