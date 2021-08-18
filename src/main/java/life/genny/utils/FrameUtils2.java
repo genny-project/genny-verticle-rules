@@ -465,23 +465,15 @@ public class FrameUtils2 {
 					be.setRealm(serviceToken.getRealm());
 				} else {
 					be = QwandaUtils.getBaseEntityByCodeWithAttributes(beCode, serviceToken.getToken());
-					System.out.println("Test log Cache NOT Enabled");
-					System.out.println(be.getCode());
-					LocalDateTime dt = be.getValue("PRI_INTERNSHIP_START_DATE", null);
-					if (dt == null) {
-						System.out.println("DT is NULLLLLL");
-					} else {
-						System.out.println("DT has a value");
-						System.out.println(dt.toString());
-					}
-					if (be == null) {
-						try {
-							be = QwandaUtils.createBaseEntityByCode(beCode, beName, GennySettings.qwandaServiceUrl,
-									serviceToken.getToken());
-						} catch (java.lang.NumberFormatException e) {
-							be = new BaseEntity(beCode, beName);
-						}
-					}
+					System.out.println("Test log Cache NOT Enabled "+be.getCode());
+//					if (be == null) {
+//						try {
+//							be = QwandaUtils.createBaseEntityByCode(beCode, beName, GennySettings.qwandaServiceUrl,
+//									serviceToken.getToken());
+//						} catch (java.lang.NumberFormatException e) {
+//							be = new BaseEntity(beCode, beName);
+//						}
+//					}
 				}
 			} catch (Exception e) {
 				be = QwandaUtils.createBaseEntityByCode(beCode, beName, GennySettings.qwandaServiceUrl,
