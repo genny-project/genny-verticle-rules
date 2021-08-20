@@ -284,11 +284,11 @@ public class FrameUtils2 {
 		Set<BaseEntity> baseEntityList = new HashSet<BaseEntity>();
 		Set<Ask> askListFromFrames = new HashSet<>();
 
-		//BaseEntity root = getBaseEntity(rootFrame, serviceToken);
-		//baseEntityList.add(root);
+		BaseEntity root = getBaseEntity(rootFrame, serviceToken);
+		baseEntityList.add(root);
 
 		/* Traverse the frame tree and build BaseEntitys and links */
-		//processFrames(rootFrame, serviceToken, baseEntityList, root, askListFromFrames);
+		processFrames(rootFrame, serviceToken, baseEntityList, root, askListFromFrames);
 
 		QDataBaseEntityMessage msg = new QDataBaseEntityMessage(new ArrayList<>(baseEntityList));
 		msg.setTotal(msg.getReturnCount());
