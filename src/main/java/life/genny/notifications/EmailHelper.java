@@ -228,7 +228,7 @@ public class EmailHelper extends NotificationHelper {
 						.setPageSize(10000);
 
 				List<BaseEntity> results = beUtils.getBaseEntitys(searchBE);
-				if ((results != null) || (!results.isEmpty())) {
+				if (results != null && !(results.isEmpty())) {
 					recipientBE = results.get(0);
 					timezoneId = recipientBE.getValue("PRI_TIMEZONE_ID",
 							recipientBE.getValue("PRI_TIME_ZONE", "Australia/Melbourne"));
