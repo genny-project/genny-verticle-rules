@@ -233,7 +233,7 @@ public class EmailHelper extends NotificationHelper {
 					timezoneId = recipientBE.getValue("PRI_TIMEZONE_ID",
 							recipientBE.getValue("PRI_TIME_ZONE", "Australia/Melbourne"));
 				} else {
-					log.error("CANNOT FIND RECIPIENT from email " + recipient);
+					log.error("CANNOT FIND RECIPIENT from email:" + recipient + ", skip sending email!!!");
 					return;
 				}
 			}
