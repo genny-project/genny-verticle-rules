@@ -225,6 +225,7 @@ public class EmailHelper extends NotificationHelper {
 				SearchEntity searchBE = new SearchEntity("SBE_EMAIL", "Search By Email")
 						.addFilter("PRI_EMAIL", SearchEntity.StringFilter.EQUAL, recipient.trim())
 						.addFilter("PRI_CODE", SearchEntity.StringFilter.LIKE, "PER_%").setPageStart(0)
+						.setSearchStatus(EEntityStatus.PENDING)
 						.setPageSize(10000);
 
 				List<BaseEntity> results = beUtils.getBaseEntitys(searchBE);
