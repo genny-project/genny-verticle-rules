@@ -455,8 +455,9 @@ public class FrameUtils2 {
 	}
 
 	public static BaseEntity getBaseEntity(final String beCode, final String beName, final GennyToken serviceToken) {
-		BaseEntity be = null; // VertxUtils.getObject(serviceToken.getRealm(), "", beCode, BaseEntity.class,
-		// serviceToken.getToken());
+		BaseEntityUtils baseEntityUtils = new BaseEntityUtils(serviceToken);
+
+		BaseEntity be = baseEntityUtils.getBaseEntityByCode(beCode);
 		if (be == null) {
 			try {
 				if (VertxUtils.cachedEnabled) {
@@ -464,18 +465,11 @@ public class FrameUtils2 {
 					be = new BaseEntity(beCode, beName);
 					be.setRealm(serviceToken.getRealm());
 				} else {
-					be = QwandaUtils.getBaseEntityByCodeWithAttributes(beCode, serviceToken.getToken());
-					//System.out.println("Test log Cache NOT Enabled "+be.getCode());
-//					if (be == null) {
-//						try {
-//							be = QwandaUtils.createBaseEntityByCode(beCode, beName, GennySettings.qwandaServiceUrl,
-//									serviceToken.getToken());
-//						} catch (java.lang.NumberFormatException e) {
-//							be = new BaseEntity(beCode, beName);
-//						}
-//					}
+					be = QwandaUtils.createBaseEntityByCode(beCode, beName, GennySettings.qwandaServiceUrl,
+							serviceToken.getToken());
 				}
 			} catch (Exception e) {
+				log.error("Got exception:" + e.getMessage()  + ", try to create be for beCode:" + beCode);
 				be = QwandaUtils.createBaseEntityByCode(beCode, beName, GennySettings.qwandaServiceUrl,
 						serviceToken.getToken());
 			}
