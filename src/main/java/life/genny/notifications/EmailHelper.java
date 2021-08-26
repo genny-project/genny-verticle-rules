@@ -32,6 +32,7 @@ import com.sendgrid.helpers.mail.objects.Personalization;
 import io.vertx.core.json.JsonObject;
 import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.entity.SearchEntity;
+import life.genny.qwanda.EEntityStatus;
 import life.genny.qwandautils.GennySettings;
 import life.genny.utils.BaseEntityUtils;
 
