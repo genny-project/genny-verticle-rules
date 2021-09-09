@@ -26,7 +26,7 @@ public class ShleemyUtils {
 		rxList[1] = userToken.getUserCode();
 		evtMsg.setRecipientCodeArray(rxList);
 
-		System.out.println("Scheduling event message for " + triggertime.toString());
+		System.out.println("Scheduling event: " + eventMsgCode + ", Trigger time: " + triggertime.toString());
 
 		QScheduleMessage scheduleMessage = new QScheduleMessage(scheduleMsgCode, JsonUtils.toJson(evtMsg), userToken.getUserCode(), "project", triggertime, userToken.getRealm());
 		System.out.println("scheduleMessage = " + scheduleMessage);
