@@ -138,7 +138,7 @@ public class QuestionUtils {
 
 						VertxUtils.putObject(gToken.getRealm(), "", "ACTIVE_ATTRIBUTES", activeAttributesSet, token);
 
-						log.info("Total Active AttributeCodes = " + activeAttributesSet.size());
+						log.debug("Total Active AttributeCodes = " + activeAttributesSet.size());
 					}
 					return msg;
 				}
