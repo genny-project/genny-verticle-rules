@@ -532,6 +532,7 @@ public class QuestionUtils {
 			try {
 				qJson = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl+"/qwanda/questioncodes/"+questionCode, userToken.getToken());
 				q = JsonUtils.fromJson(qJson, Question.class);
+				VertxUtils.writeCachedJson(userToken.getRealm(), questionCode, JsonUtils.toJson(q));
 			} catch (ClientProtocolException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
