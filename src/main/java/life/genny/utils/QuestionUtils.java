@@ -510,4 +510,42 @@ public class QuestionUtils {
 		return question;
 	}
 
+	static public Question getQuestion(String questionCode, GennyToken userToken) {
+
+		Question q = null;
+		Integer retry = 4;
+		while (retry >= 0) { // Sometimes q is read properly from cache
+			JsonObject jsonQ = VertxUtils.readCachedJson(userToken.getRealm(), questionCode, userToken.getToken());
+			q = JsonUtils.fromJson(jsonQ.getString("value"), Question.class);
+			if (q == null) {
+				retry--;
+
+			} else {
+				break;
+			}
+
+		}
+
+		if (q == null) {
+			log.error("CANNOT READ " + questionCode + " from cache!!! Aborting (after having tried 4 times");
+			String qJson;
+			try {
+				qJson = QwandaUtils.apiGet(questionCode, userToken.getToken());
+				q = JsonUtils.fromJson(qJson, Question.class);
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			return null;
+		} else {
+			return q;
+		}
+	}
+
+	
+	
 }
