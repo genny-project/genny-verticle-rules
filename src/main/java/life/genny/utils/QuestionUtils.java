@@ -530,7 +530,7 @@ public class QuestionUtils {
 			log.error("CANNOT READ " + questionCode + " from cache!!! Aborting (after having tried 4 times");
 			String qJson;
 			try {
-				qJson = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl+"/questioncodes/"+questionCode, userToken.getToken());
+				qJson = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl+"/qwanda/questioncodes/"+questionCode, userToken.getToken());
 				q = JsonUtils.fromJson(qJson, Question.class);
 			} catch (ClientProtocolException e) {
 				// TODO Auto-generated catch block
