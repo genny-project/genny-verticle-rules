@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.logging.log4j.Logger;
 
@@ -513,7 +514,7 @@ public class QuestionUtils {
 	static public Question getQuestion(String questionCode, GennyToken userToken) {
 
 		Question q = null;
-		Integer retry = 4;
+		Integer retry = 2;
 		while (retry >= 0) { // Sometimes q is read properly from cache
 			JsonObject jsonQ = VertxUtils.readCachedJson(userToken.getRealm(), questionCode, userToken.getToken());
 			q = JsonUtils.fromJson(jsonQ.getString("value"), Question.class);
@@ -527,12 +528,19 @@ public class QuestionUtils {
 		}
 
 		if (q == null) {
-			log.error("CANNOT READ " + questionCode + " from cache!!! Aborting (after having tried 4 times");
+			log.warn("COULD NOT READ " + questionCode + " from cache!!! Aborting (after having tried 2 times");
 			String qJson;
 			try {
 				qJson = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl+"/qwanda/questioncodes/"+questionCode, userToken.getToken());
-				q = JsonUtils.fromJson(qJson, Question.class);
-				VertxUtils.writeCachedJson(userToken.getRealm(), questionCode, JsonUtils.toJson(q));
+				if (!StringUtils.isBlank(qJson)) {
+					q = JsonUtils.fromJson(qJson, Question.class);
+					VertxUtils.writeCachedJson(userToken.getRealm(), questionCode, JsonUtils.toJson(q));
+					log.info("WRITTEN " + questionCode + " tocache!!! Fetched from database");
+					return q;
+				} else {
+					log.error("Questionutils could not find question "+questionCode+" in database");
+				}
+
 			} catch (ClientProtocolException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
