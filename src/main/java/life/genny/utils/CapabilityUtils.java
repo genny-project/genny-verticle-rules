@@ -66,7 +66,7 @@ public class CapabilityUtils implements Serializable {
 	public Attribute addCapability(final String capabilityCode, final String name) {
 		String fullCapabilityCode = "PRM_" + capabilityCode.toUpperCase();
 		log.info("Setting Capability : " + fullCapabilityCode + " : " + name);
-		Attribute attribute = RulesUtils.attributeMap.get(fullCapabilityCode);
+		Attribute attribute = RulesUtils.realmAttributeMap.get(this.beUtils.getGennyToken().getRealm()).get(fullCapabilityCode);
 		if (attribute != null) {
 			capabilityManifest.add(attribute);
 			return attribute;
@@ -241,9 +241,9 @@ public class CapabilityUtils implements Serializable {
 	public void process() {
 		List<Attribute> existingCapability = new ArrayList<Attribute>();
 
-		for (String existingAttributeCode : RulesUtils.attributeMap.keySet()) {
+		for (String existingAttributeCode : RulesUtils.realmAttributeMap.get(this.beUtils.getGennyToken().getRealm()).keySet()) {
 			if (existingAttributeCode.startsWith("PRM_")) {
-				existingCapability.add(RulesUtils.attributeMap.get(existingAttributeCode));
+				existingCapability.add(RulesUtils.realmAttributeMap.get(this.beUtils.getGennyToken().getRealm()).get(existingAttributeCode));
 			}
 		}
 
@@ -256,7 +256,7 @@ public class CapabilityUtils implements Serializable {
 		 */
 		for (Attribute toBeRemovedCapability : existingCapability) {
 			try {
-				RulesUtils.attributeMap.remove(toBeRemovedCapability.getCode()); // remove from cache
+				RulesUtils.realmAttributeMap.get(this.beUtils.getGennyToken().getRealm()).remove(toBeRemovedCapability.getCode()); // remove from cache
 				if (!VertxUtils.cachedEnabled) { // only post if not in junit
 					QwandaUtils.apiDelete(GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/attributes/"
 							+ toBeRemovedCapability.getCode(), beUtils.getServiceToken().getToken());
