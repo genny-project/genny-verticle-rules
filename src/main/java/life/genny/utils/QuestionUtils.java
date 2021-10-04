@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.logging.log4j.Logger;
 
@@ -138,7 +139,7 @@ public class QuestionUtils {
 
 						VertxUtils.putObject(gToken.getRealm(), "", "ACTIVE_ATTRIBUTES", activeAttributesSet, token);
 
-						log.info("Total Active AttributeCodes = " + activeAttributesSet.size());
+						log.debug("Total Active AttributeCodes = " + activeAttributesSet.size());
 					}
 					return msg;
 				}
@@ -510,4 +511,50 @@ public class QuestionUtils {
 		return question;
 	}
 
+	static public Question getQuestion(String questionCode, GennyToken userToken) {
+
+		Question q = null;
+		Integer retry = 2;
+		while (retry >= 0) { // Sometimes q is read properly from cache
+			JsonObject jsonQ = VertxUtils.readCachedJson(userToken.getRealm(), questionCode, userToken.getToken());
+			q = JsonUtils.fromJson(jsonQ.getString("value"), Question.class);
+			if (q == null) {
+				retry--;
+
+			} else {
+				break;
+			}
+
+		}
+
+		if (q == null) {
+			log.warn("COULD NOT READ " + questionCode + " from cache!!! Aborting (after having tried 2 times");
+			String qJson;
+			try {
+				qJson = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl+"/qwanda/questioncodes/"+questionCode, userToken.getToken());
+				if (!StringUtils.isBlank(qJson)) {
+					q = JsonUtils.fromJson(qJson, Question.class);
+					VertxUtils.writeCachedJson(userToken.getRealm(), questionCode, JsonUtils.toJson(q));
+					log.info("WRITTEN " + questionCode + " tocache!!! Fetched from database");
+					return q;
+				} else {
+					log.error("Questionutils could not find question "+questionCode+" in database");
+				}
+
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			return null;
+		} else {
+			return q;
+		}
+	}
+
+	
+	
 }

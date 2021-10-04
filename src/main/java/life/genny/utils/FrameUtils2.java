@@ -193,7 +193,8 @@ public class FrameUtils2 {
 
 			BaseEntity defBE = beUtils.getDEFByCode("DEF_RULE");
 			try {
-				beUtils.create(defBE, "RUL_" + rootFrame.getCode().toUpperCase(), "RUL_" + rootFrame.getCode().toUpperCase());
+				beUtils.create(defBE, "RUL_" + rootFrame.getCode().toUpperCase(),
+						"RUL_" + rootFrame.getCode().toUpperCase());
 			} catch (Exception e) {
 				log.error(e.getStackTrace().toString());
 			}
@@ -314,17 +315,19 @@ public class FrameUtils2 {
 
 				}
 
-				// Don't bother sending if it is an empty array and not replacing anything
-				if (!askMsgFromQuestions.getReplace() && (!((askMsgFromQuestions.getItems() == null)
-						|| (askMsgFromQuestions.getItems().length == 0)))) {
-					List<BaseEntity> askContexts = processQDataAskMessage(askMsgFromQuestions, currentAskFromFrame,
-							contextListMap, serviceToken);
-					msg.add(askContexts);
+				if (askMsgFromQuestions != null) {
+					// Don't bother sending if it is an empty array and not replacing anything
+					if (!askMsgFromQuestions.getReplace() && (!((askMsgFromQuestions.getItems() == null)
+							|| (askMsgFromQuestions.getItems().length == 0)))) {
+						List<BaseEntity> askContexts = processQDataAskMessage(askMsgFromQuestions, currentAskFromFrame,
+								contextListMap, serviceToken);
+						msg.add(askContexts);
 
-					askMsgFromQuestions.setToken(serviceToken.getToken());
+						askMsgFromQuestions.setToken(serviceToken.getToken());
 
-					askMsgFromQuestions.setReplace(true);
-					asks.add(askMsgFromQuestions);
+						askMsgFromQuestions.setReplace(true);
+						asks.add(askMsgFromQuestions);
+					}
 				}
 			}
 		}
@@ -469,7 +472,7 @@ public class FrameUtils2 {
 							serviceToken.getToken());
 				}
 			} catch (Exception e) {
-				log.error("Got exception:" + e.getMessage()  + ", try to create be for beCode:" + beCode);
+				log.error("Got exception:" + e.getMessage() + ", try to create be for beCode:" + beCode);
 				be = QwandaUtils.createBaseEntityByCode(beCode, beName, GennySettings.qwandaServiceUrl,
 						serviceToken.getToken());
 			}

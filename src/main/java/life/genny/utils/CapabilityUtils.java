@@ -66,7 +66,7 @@ public class CapabilityUtils implements Serializable {
 	public Attribute addCapability(final String capabilityCode, final String name) {
 		String fullCapabilityCode = "PRM_" + capabilityCode.toUpperCase();
 		log.info("Setting Capability : " + fullCapabilityCode + " : " + name);
-		Attribute attribute = RulesUtils.attributeMap.get(fullCapabilityCode);
+		Attribute attribute = RulesUtils.realmAttributeMap.get(this.beUtils.getGennyToken().getRealm()).get(fullCapabilityCode);
 		if (attribute != null) {
 			capabilityManifest.add(attribute);
 			return attribute;
@@ -215,18 +215,32 @@ public class CapabilityUtils implements Serializable {
 		// Look up from cache
 		JsonObject json = VertxUtils.readCachedJson(beUtils.getGennyToken().getRealm(), key,
 				beUtils.getGennyToken().getToken());
+
+		// check if the user has any of these roles
+		String userCode = beUtils.getGennyToken().getUserCode();
+		BaseEntity user = beUtils.getBaseEntityByCode(userCode);
 		// if no cache then return false
 		if ("error".equals(json.getString("status"))) {
-			return false;
+			//// HACK HACK HACK
+
+			BaseEntity defBe = beUtils.getDEF(user);
+			if ("SBE_AVAILABLE_INTERNS".equals(capabilityCode)) {
+				if ("DEF_INTERN".equals(defBe.getCode()) || "DEF_HOST_CPY_REP".equals(defBe.getCode()) || "DEF_EDU_PROV_REP".equals(defBe.getCode())) {
+					return false ; // don't let these ones see it
+				}
+			}
+			return true; // TODO ACC THIS IS BAD.
+			//return false;
+			/// END HACK
+
+			
 		}
 
 		// else get the list of roles associated with the key
 		String roleCodesString = json.getString("value");
 		String roleCodes[] = roleCodesString.split(",");
 
-		// check if the user has any of these roles
-		String userCode = beUtils.getGennyToken().getUserCode();
-		BaseEntity user = beUtils.getBaseEntityByCode(userCode);
+
 		for (String roleCode : roleCodes) {
 			String priIsCode = "PRI_IS_" + roleCode.split("ROL_")[1];
 			if (user.getBaseEntityAttributes().parallelStream()
@@ -241,9 +255,9 @@ public class CapabilityUtils implements Serializable {
 	public void process() {
 		List<Attribute> existingCapability = new ArrayList<Attribute>();
 
-		for (String existingAttributeCode : RulesUtils.attributeMap.keySet()) {
+		for (String existingAttributeCode : RulesUtils.realmAttributeMap.get(this.beUtils.getGennyToken().getRealm()).keySet()) {
 			if (existingAttributeCode.startsWith("PRM_")) {
-				existingCapability.add(RulesUtils.attributeMap.get(existingAttributeCode));
+				existingCapability.add(RulesUtils.realmAttributeMap.get(this.beUtils.getGennyToken().getRealm()).get(existingAttributeCode));
 			}
 		}
 
@@ -256,7 +270,7 @@ public class CapabilityUtils implements Serializable {
 		 */
 		for (Attribute toBeRemovedCapability : existingCapability) {
 			try {
-				RulesUtils.attributeMap.remove(toBeRemovedCapability.getCode()); // remove from cache
+				RulesUtils.realmAttributeMap.get(this.beUtils.getGennyToken().getRealm()).remove(toBeRemovedCapability.getCode()); // remove from cache
 				if (!VertxUtils.cachedEnabled) { // only post if not in junit
 					QwandaUtils.apiDelete(GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/attributes/"
 							+ toBeRemovedCapability.getCode(), beUtils.getServiceToken().getToken());
