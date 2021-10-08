@@ -34,7 +34,7 @@ import life.genny.qwandautils.QwandaUtils;
 public class CapabilityUtils implements Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 
@@ -58,11 +58,11 @@ public class CapabilityUtils implements Serializable {
 		for (EntityAttribute permissionEA : perms) {
 			Attribute permission = permissionEA.getAttribute();
 			CapabilityMode mode = CapabilityMode.getMode(permissionEA.getValue());
-			ret = addCapabilityToRole(ret,permission.getCode(),mode);			
+			ret = addCapabilityToRole(ret,permission.getCode(),mode);
 		}
 		return ret;
 	}
-	
+
 	public Attribute addCapability(final String capabilityCode, final String name) {
 		String fullCapabilityCode = "PRM_" + capabilityCode.toUpperCase();
 		log.info("Setting Capability : " + fullCapabilityCode + " : " + name);
@@ -104,7 +104,7 @@ public class CapabilityUtils implements Serializable {
 		String cCode = capabilityCode;
 		if (!capabilityCode.startsWith("PRM_")) {
 			cCode = "PRM_"+capabilityCode;
-			
+
 		}
 		Attribute capabilityAttribute = RulesUtils.getAttribute(cCode,
 				beUtils.getServiceToken().getToken());
@@ -113,25 +113,25 @@ public class CapabilityUtils implements Serializable {
 
 		// Now update the list of roles associated with the key
 		switch (mode) {
-		
+
 		case NONE: updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.NONE);
 					break;
-		case VIEW: 
+		case VIEW:
 			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.NONE);
 			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.VIEW);
 			break;
-		case EDIT: 
+		case EDIT:
 			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.NONE);
 			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.VIEW);
 			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.EDIT);
 			break;
-		case ADD: 
+		case ADD:
 			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.NONE);
 			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.VIEW);
 			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.EDIT);
 			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.ADD);
 			break;
-		case DELETE: 
+		case DELETE:
 		case SELF:
 			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.NONE);
 			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.VIEW);
@@ -152,12 +152,13 @@ public class CapabilityUtils implements Serializable {
 	 */
 	private void updateCachedRoleSet(final String roleCode, final String capabilityCode, final CapabilityMode mode) {
 		String key = beUtils.getGennyToken().getRealm() + ":" + capabilityCode + ":" + mode.name();
+		log.info("updateCachedRoleSet test:: " + key);
 		// Look up from cache
 		JsonObject json = VertxUtils.readCachedJson(beUtils.getGennyToken().getRealm(), key,
 				beUtils.getGennyToken().getToken());
 		String roleCodesString = null;
 		// if no cache then create
-		
+
 		if ("error".equals(json.getString("status"))) {
 			roleCodesString = "";
 		} else {
@@ -212,6 +213,8 @@ public class CapabilityUtils implements Serializable {
 		}
 		// Create a capabilityCode and mode combined unique key
 		String key = beUtils.getGennyToken().getRealm() + ":" + capabilityCode + ":" + mode.name();
+		log.info("hasCapabilityThroughPriIs test:: " + key);
+
 		// Look up from cache
 		JsonObject json = VertxUtils.readCachedJson(beUtils.getGennyToken().getRealm(), key,
 				beUtils.getGennyToken().getToken());
@@ -220,10 +223,11 @@ public class CapabilityUtils implements Serializable {
 		String userCode = beUtils.getGennyToken().getUserCode();
 		BaseEntity user = beUtils.getBaseEntityByCode(userCode);
 		// if no cache then return false
-		if ("error".equals(json.getString("status"))) {
-			//// HACK HACK HACK
+		BaseEntity defBe = beUtils.getDEF(user);
 
-			BaseEntity defBe = beUtils.getDEF(user);
+		//// "HACK HACK HACK"
+		if ("error".equals(json.getString("status")) && "DEF_AGENT".equals(defBe.getCode()) ) {
+
 			if ("SBE_AVAILABLE_INTERNS".equals(capabilityCode)) {
 				if ("DEF_INTERN".equals(defBe.getCode()) || "DEF_HOST_CPY_REP".equals(defBe.getCode()) || "DEF_EDU_PROV_REP".equals(defBe.getCode())) {
 					return false ; // don't let these ones see it
@@ -233,7 +237,7 @@ public class CapabilityUtils implements Serializable {
 			//return false;
 			/// END HACK
 
-			
+
 		}
 
 		// else get the list of roles associated with the key
@@ -395,13 +399,13 @@ public class CapabilityUtils implements Serializable {
 				}
 			}
 		}
-		
+
 		/* now force the keycloak ones */
 		for (String role : userToken.getUserRoles()) {
 			allowable.add(
 					new Allowed(role.toUpperCase(), CapabilityMode.VIEW));
 		}
-		
+
 		return allowable;
 	}
 }
