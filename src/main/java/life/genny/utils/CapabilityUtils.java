@@ -229,7 +229,7 @@ public class CapabilityUtils implements Serializable {
 		BaseEntity user = beUtils.getBaseEntityByCode(userCode);
 		// if no cache then return false
 		BaseEntity defBe = beUtils.getDEF(user);
-		log.info("hasCapabilityThroughPriIs:: defBe.getCode " + defBe.getCode);
+		log.info("hasCapabilityThroughPriIs:: defBe.getCode " + defBe.getCode());
 
 		//// "HACK HACK HACK"
 		log.info("hasCapabilityThroughPriIs:: json.getString" + json.getString("status"));
