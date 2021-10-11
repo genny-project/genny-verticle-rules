@@ -238,7 +238,7 @@ public class CapabilityUtils implements Serializable {
 			if ("SBE_AVAILABLE_INTERNS".equals(capabilityCode)) {
 				log.info("hasCapabilityThroughPriIs:: Inside IF ::" + capabilityCode );
 				if ("DEF_INTERN".equals(defBe.getCode()) || "DEF_HOST_CPY_REP".equals(defBe.getCode()) || "DEF_EDU_PROV_REP".equals(defBe.getCode())) {
-					log.info("hasCapabilityThroughPriIs:: Inside IF ::" + defBe.getCode())
+					log.info("hasCapabilityThroughPriIs:: Inside IF ::" + defBe.getCode());
 					log.info("hasCapabilityThroughPriIs:: return false");
 					return false ; // don't let these ones see it
 				}
