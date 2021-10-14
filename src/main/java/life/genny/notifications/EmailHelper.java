@@ -212,7 +212,7 @@ public class EmailHelper extends NotificationHelper {
 			String sendGridEmailSender = projectBE.getValueAsString("ENV_SENDGRID_EMAIL_SENDER");
 			String sendGridEmailNameSender = projectBE.getValueAsString("ENV_SENDGRID_EMAIL_NAME_SENDER");
 			String sendGridApiKey = projectBE.getValueAsString("ENV_SENDGRID_API_KEY");
-			System.out.println("The name for email sender " + sendGridEmailNameSender);
+			System.out.println("The name for email sender " + sendGridEmailNameSender+" sending to "+recipient+" , SG templateID="+templateId);
 
 			// Find the recipient baseentity
 
