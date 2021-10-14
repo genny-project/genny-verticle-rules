@@ -208,7 +208,10 @@ public class CapabilityUtils implements Serializable {
 	// NOTE: This is temporary until ROL_ attributes are properly in place
 	public boolean hasCapabilityThroughPriIs(final String capabilityCode, final CapabilityMode mode) {
 		// allow keycloak admin and devcs to do anything
+		log.info("hasCapabilityThroughPriIs capabilityCode:: " + capabilityCode + "CapabilityMode" + mode.name());
+		
 		if (beUtils.getGennyToken().hasRole("admin")||beUtils.getGennyToken().hasRole("dev")||("service".equals(beUtils.getGennyToken().getUsername()))) {
+			log.info("hasCapabilityThroughPriIs:: Inside IF " );
 			return true;
 		}
 		// Create a capabilityCode and mode combined unique key
@@ -218,21 +221,29 @@ public class CapabilityUtils implements Serializable {
 		// Look up from cache
 		JsonObject json = VertxUtils.readCachedJson(beUtils.getGennyToken().getRealm(), key,
 				beUtils.getGennyToken().getToken());
-
+		log.info("hasCapabilityThroughPriIs:: Json " + json.toString());
 		// check if the user has any of these roles
 		String userCode = beUtils.getGennyToken().getUserCode();
+		log.info("hasCapabilityThroughPriIs:: userCode " + userCode);
+
 		BaseEntity user = beUtils.getBaseEntityByCode(userCode);
 		// if no cache then return false
 		BaseEntity defBe = beUtils.getDEF(user);
+		log.info("hasCapabilityThroughPriIs:: defBe.getCode " + defBe.getCode());
 
 		//// "HACK HACK HACK"
+		log.info("hasCapabilityThroughPriIs:: json.getString" + json.getString("status"));
 		if ("error".equals(json.getString("status")) && "DEF_AGENT".equals(defBe.getCode()) ) {
-
+			log.info("hasCapabilityThroughPriIs:: Inside IF " );
 			if ("SBE_AVAILABLE_INTERNS".equals(capabilityCode)) {
+				log.info("hasCapabilityThroughPriIs:: Inside IF ::" + capabilityCode );
 				if ("DEF_INTERN".equals(defBe.getCode()) || "DEF_HOST_CPY_REP".equals(defBe.getCode()) || "DEF_EDU_PROV_REP".equals(defBe.getCode())) {
+					log.info("hasCapabilityThroughPriIs:: Inside IF ::" + defBe.getCode());
+					log.info("hasCapabilityThroughPriIs:: return false");
 					return false ; // don't let these ones see it
 				}
 			}
+			log.info("hasCapabilityThroughPriIs:: return true");
 			return true; // TODO ACC THIS IS BAD.
 			//return false;
 			/// END HACK
@@ -242,17 +253,21 @@ public class CapabilityUtils implements Serializable {
 
 		// else get the list of roles associated with the key
 		String roleCodesString = json.getString("value");
+		
 		String roleCodes[] = roleCodesString.split(",");
-
+		log.info("hasCapabilityThroughPriIs:: roleCodesString " + roleCodesString);
 
 		for (String roleCode : roleCodes) {
+			log.info("hasCapabilityThroughPriIs:: roleCode " + roleCode);
 			String priIsCode = "PRI_IS_" + roleCode.split("ROL_")[1];
+			log.info("hasCapabilityThroughPriIs:: priIsCode " + priIsCode);
 			if (user.getBaseEntityAttributes().parallelStream()
 					.anyMatch(ti -> ti.getAttributeCode().equals(priIsCode))) {
+						log.info("hasCapabilityThroughPriIs:: return true");
 				return true;
 			}
 		}
-
+		log.info("hasCapabilityThroughPriIs:: return false");
 		return false;
 	}
 
