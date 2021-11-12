@@ -534,7 +534,7 @@ public class QuestionUtils {
 				qJson = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl+"/qwanda/questioncodes/"+questionCode, userToken.getToken());
 				if (!StringUtils.isBlank(qJson)) {
 					q = JsonUtils.fromJson(qJson, Question.class);
-					VertxUtils.writeCachedJson(userToken.getRealm(), questionCode, JsonUtils.toJson(q));
+					VertxUtils.writeCachedJson(userToken.getRealm(), questionCode, JsonUtils.toJson(q),userToken.getToken());
 					log.info("WRITTEN " + questionCode + " tocache!!! Fetched from database");
 					return q;
 				} else {
