@@ -4,6 +4,7 @@ import static java.lang.System.getProperties;
 import static javax.mail.Message.RecipientType.TO;
 import static javax.mail.Session.getDefaultInstance;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
@@ -17,6 +18,8 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.Logger;
+
 // import com.sendgrid.Content;
 // import com.sendgrid.Email;
 // import com.sendgrid.Mail;
@@ -35,8 +38,12 @@ import life.genny.qwanda.entity.SearchEntity;
 import life.genny.qwanda.EEntityStatus;
 import life.genny.qwandautils.GennySettings;
 import life.genny.utils.BaseEntityUtils;
+import life.genny.utils.VertxUtils;
 
 public class EmailHelper extends NotificationHelper {
+
+	protected static final Logger log = org.apache.logging.log4j.LogManager
+			.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
 
 	public EmailHelper() {
 		super("PRI_EMAIL");
@@ -212,28 +219,30 @@ public class EmailHelper extends NotificationHelper {
 			String sendGridEmailSender = projectBE.getValueAsString("ENV_SENDGRID_EMAIL_SENDER");
 			String sendGridEmailNameSender = projectBE.getValueAsString("ENV_SENDGRID_EMAIL_NAME_SENDER");
 			String sendGridApiKey = projectBE.getValueAsString("ENV_SENDGRID_API_KEY");
-			System.out.println("The name for email sender " + sendGridEmailNameSender+" sending to "+recipient+" , SG templateID="+templateId);
+			log.info("The name for email sender " + sendGridEmailNameSender + " sending to " + recipient
+					+ " , SG templateID=" + templateId);
 
 			// Find the recipient baseentity
 
 			BaseEntity recipientBE = null;
 			String timezoneId = "Australia/Melbourne";
 
-			if (("internmatch@outcomelife.com.au".equals(recipient.trim())) || ("spc@outcome.life".equals(recipient.trim())) ){
+			if (("internmatch@outcomelife.com.au".equals(recipient.trim()))
+					|| ("spc@outcome.life".equals(recipient.trim()))) {
 				recipientBE = beUtils.getBaseEntityByCode("PRJ_INTERNMATCH");
 			} else {
 
 				SearchEntity searchBE = new SearchEntity("SBE_EMAIL", "Search By Email")
 						.addFilter("PRI_EMAIL", SearchEntity.StringFilter.EQUAL, recipient.trim())
 						.addFilter("PRI_CODE", SearchEntity.StringFilter.LIKE, "PER_%").setPageStart(0)
-						.setSearchStatus(EEntityStatus.PENDING)
-						.setPageSize(10000);
+						.setSearchStatus(EEntityStatus.PENDING).setPageSize(10000);
 
 				List<BaseEntity> results = beUtils.getBaseEntitys(searchBE);
 				if (results != null && !(results.isEmpty())) {
 					recipientBE = results.get(0);
 					timezoneId = recipientBE.getValue("PRI_TIMEZONE_ID",
-							recipientBE.getValue("PRI_TIME_ZONE", "Australia/Melbourne"));
+							recipientBE.getValue("PRI_TIME_ZONE", "Australia/Melbourne")); // if not there , check for
+																							// incorrect tz
 				} else {
 					log.error("CANNOT FIND RECIPIENT from email:" + recipient + ", skip sending email!!!");
 					return;
@@ -243,12 +252,20 @@ public class EmailHelper extends NotificationHelper {
 			Email from = new Email(sendGridEmailSender, sendGridEmailNameSender);
 			Email to = new Email(recipient);
 
+			// TODO: HACK HACK HACK ACC
+			// To stop sending the same email to the same recipient more than once, we will
+			// make some assumptions...
+			// (1) The mutiple emails are being sent within the same short time session and
+			// we can assume that if
+			// we save a flag to the cache to indicate an email has been sent then it will
+			// remain in cache whilst the
+			// subsequent emails are being sent.
+
 			String urlBasedAttribute = GennySettings.projectUrl.replace("https://", "").replace(".gada.io", "")
 					.replace("-", "_").toUpperCase();
 			String dedicatedTestEmail = projectBE.getValue("EML_" + urlBasedAttribute, null);
 			if (dedicatedTestEmail != null) {
-				System.out.println(
-						"Found email " + dedicatedTestEmail + " for project attribute EML_" + urlBasedAttribute);
+				log.info("Found email " + dedicatedTestEmail + " for project attribute EML_" + urlBasedAttribute);
 				to = new Email(dedicatedTestEmail);
 			}
 
@@ -291,13 +308,13 @@ public class EmailHelper extends NotificationHelper {
 						timeStr = templateData.get(key);
 					}
 				} else {
-					System.out.println("key: " + key + ", value: " + printValue);
+					log.info("key: " + key + ", value: " + printValue);
 					personalization.addDynamicTemplateData(key, templateData.get(key));
 				}
 			}
 
 			if ((dateStr != null) || (timeStr != null)) {
-				log.info("'date' = " + dateStr + "     and 'time' = " + timeStr+" and timezone id ="+timezoneId);
+				log.info("'date' = " + dateStr + "     and 'time' = " + timeStr + " and timezone id =" + timezoneId);
 
 				// Find LocalDateTime
 
@@ -305,9 +322,9 @@ public class EmailHelper extends NotificationHelper {
 
 				// set date and timeStr and supply timezone
 				// hack
-				
+
 				personalization.addDynamicTemplateData("date", templateData.get("date"));
-				timeStr +=  " ("+timezoneId+")";
+				timeStr += " (" + timezoneId + ")";
 				personalization.addDynamicTemplateData("time", timeStr);
 			}
 
@@ -316,23 +333,44 @@ public class EmailHelper extends NotificationHelper {
 			mail.setTemplateId(templateId);
 			mail.setFrom(from);
 
-			Request request = new Request();
-			try {
-				request.setMethod(Method.POST);
-				request.setEndpoint("mail/send");
-				request.setBody(mail.build());
-				Response response = sg.api(request);
-				System.out.println(response.getStatusCode());
-				System.out.println(response.getBody());
-				System.out.println(response.getHeaders());
+			// ok, create a unique key
+			// use templateId and templateData
+			// key = templateId + templateData.get("intern")
+			// save a 'sent' flag to cache after sending once
+			String key = templateId + ":" + templateData.get("intern") + ":" + to.getEmail();
+			JsonObject emailSentFlag = VertxUtils.readCachedJson(beUtils.getGennyToken().getRealm(), key,
+					beUtils.getServiceToken().getToken());
+			Boolean sendAllowed = false;
+			if (emailSentFlag != null) {
+				if (emailSentFlag.containsKey("status")) {
+					if ("error".equalsIgnoreCase(emailSentFlag.getString("status"))) {
+						sendAllowed = true;
+						// Now set the flag to prevent sending this one again
+						VertxUtils.writeCachedJson(beUtils.getGennyToken().getRealm(), key,
+								"Sent " + LocalDateTime.now(), beUtils.getServiceToken().getToken());
+					}
+				}
+			}
 
-			} catch (IOException ex) {
-				throw ex;
+			if (sendAllowed) {
+				Request request = new Request();
+				try {
+					request.setMethod(Method.POST);
+					request.setEndpoint("mail/send");
+					request.setBody(mail.build());
+					Response response = sg.api(request);
+					log.info(response.getStatusCode());
+					log.info(response.getBody());
+					log.info(response.getHeaders());
+
+				} catch (IOException ex) {
+					throw ex;
+				}
 			}
 
 		} else {
 			nonProdTest = false;
-			System.out.println("WARNING: Email not sent because it is not on the Production server");
+			log.info("WARNING: Email not sent because it is not on the Production server");
 		}
 		/*
 		 * if (!nonProdTest) { QCmdMessage msg = new QCmdMessage("TOAST", "INFO"); msg.
