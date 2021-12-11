@@ -348,6 +348,9 @@ public class EmailHelper extends NotificationHelper {
 						// Now set the flag to prevent sending this one again
 						VertxUtils.writeCachedJson(beUtils.getGennyToken().getRealm(), key,
 								"Sent " + LocalDateTime.now(), beUtils.getServiceToken().getToken());
+						log.warn("Setting "+key+" to prevent email sending more than once");
+					} else {
+						log.warn("FOUND "+key+" and prevented email sending more than once");
 					}
 				}
 			}
