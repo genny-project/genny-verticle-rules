@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>life.genny</groupId>
 	<artifactId>genny-verticle-rules</artifactId>
-	<version>9.11.0</version>
+	<version>9.12.0</version>
 	<name>genny-verticle-rules</name>
 
 	<licenses>
