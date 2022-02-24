@@ -54,11 +54,17 @@ public class TokenIntrospection {
     try {
 		checked = roles.stream()
 		    .anyMatch(role -> checkAuth.test(token, role));
+        System.out.println("DEBUG: got isallowed:" + checked);
 	} catch (NullPointerException e) {
-	Log.error("Bad token - force false to CheckAuth");
-	}
-    
-    
+	    Log.error("Bad token - force false to CheckAuth");
+	    System.out.println("Got null pointer exception.");
+	    e.printStackTrace();
+	} catch (Exception e) {
+       Log.error("Exception:" + e.getMessage());
+       System.out.println("Exception:" + e.getMessage());
+       e.printStackTrace();
+    }
+
     return checked;
   }
 
