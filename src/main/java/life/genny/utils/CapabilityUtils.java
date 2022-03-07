@@ -32,14 +32,17 @@ import life.genny.qwandautils.JsonUtils;
 import life.genny.qwandautils.QwandaUtils;
 
 public class CapabilityUtils implements Serializable {
+	protected static final Logger log = org.apache.logging.log4j.LogManager
+			.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
 
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = 1L;
 
-	protected static final Logger log = org.apache.logging.log4j.LogManager
-			.getLogger(MethodHandles.lookup().lookupClass().getCanonicalName());
+	// Capability Attribute Prefix
+	public static final String CAP_MODE_PREFIX = "PRM_";
+
 
 	@Expose
 	List<Attribute> capabilityManifest = new ArrayList<Attribute>();
@@ -90,6 +93,31 @@ public class CapabilityUtils implements Serializable {
 		}
 	}
 
+	public BaseEntity addCapabilityToRoleRefactored(BaseEntity role, final String capabilityCode, final CapabilityMode... modes) {
+		// Check the user token has required capabilities
+		if (!hasCapability(capabilityCode,modes)) {
+			log.error(beUtils.getGennyToken().getUserCode()+" is NOT ALLOWED TO ADD THIS CAPABILITY TO A ROLE :"+role.getCode());
+			return role;
+		}
+
+		// Ensure the capability is well defined
+		String cleanCapabilityCode = capabilityCode;
+		if(!cleanCapabilityCode.startsWith(CAP_MODE_PREFIX)) {
+			log.warn("Capability Code: " + capabilityCode + " did not have " + CAP_MODE_PREFIX + " as its prefix! Ensure this is fixed in the relevant project drools");
+			cleanCapabilityCode = CAP_MODE_PREFIX + cleanCapabilityCode;
+		}
+
+		String valueString = "[";
+		for(CapabilityMode mode : modes) {
+			valueString += "\"" + mode.name() + "\",";
+		}
+		// Remove trailing , and add "]"
+		valueString = valueString.substring(0, valueString.length() - 1) + "]";
+
+
+		return null;
+	}
+
 	public BaseEntity addCapabilityToRole(BaseEntity role, final String capabilityCode, final CapabilityMode mode) {
 		// Check if the userToken is allowed to do this!
 
@@ -97,15 +125,17 @@ public class CapabilityUtils implements Serializable {
 			log.error(beUtils.getGennyToken().getUserCode()+" is NOT ALLOWED TO ADD THIS CAPABILITY TO A ROLE :"+role.getCode());
 			return role;
 		}
-		/* Construct answer with Source, Target, Attribute Code, Value */
-		Answer answer = new Answer(beUtils.getServiceToken().getUserCode(), role.getCode(), "PRM_" + capabilityCode,
-				mode.toString());
+
 		// TODO Ugly hack fix
 		String cCode = capabilityCode;
 		if (!capabilityCode.startsWith("PRM_")) {
 			cCode = "PRM_"+capabilityCode;
 
 		}
+
+		/* Construct answer with Source, Target, Attribute Code, Value */
+		Answer answer = new Answer(beUtils.getServiceToken().getUserCode(), role.getCode(), cCode,
+				mode.toString());
 		Attribute capabilityAttribute = RulesUtils.getAttribute(cCode,
 				beUtils.getServiceToken().getToken());
 		answer.setAttribute(capabilityAttribute);
@@ -114,35 +144,65 @@ public class CapabilityUtils implements Serializable {
 		// Now update the list of roles associated with the key
 		switch (mode) {
 
-		case NONE: updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.NONE);
+		case NONE: updateCachedRoleSet(role.getCode(), cCode, CapabilityMode.NONE);
 					break;
 		case VIEW:
-			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.NONE);
-			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.VIEW);
+			updateCachedRoleSet(role.getCode(), cCode, CapabilityMode.NONE);
+			updateCachedRoleSet(role.getCode(), cCode, CapabilityMode.VIEW);
 			break;
 		case EDIT:
-			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.NONE);
-			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.VIEW);
-			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.EDIT);
+			updateCachedRoleSet(role.getCode(), cCode, CapabilityMode.NONE);
+			updateCachedRoleSet(role.getCode(), cCode, CapabilityMode.VIEW);
+			updateCachedRoleSet(role.getCode(), cCode, CapabilityMode.EDIT);
 			break;
 		case ADD:
-			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.NONE);
-			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.VIEW);
-			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.EDIT);
-			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.ADD);
+			updateCachedRoleSet(role.getCode(), cCode, CapabilityMode.NONE);
+			updateCachedRoleSet(role.getCode(), cCode, CapabilityMode.VIEW);
+			updateCachedRoleSet(role.getCode(), cCode, CapabilityMode.EDIT);
+			updateCachedRoleSet(role.getCode(), cCode, CapabilityMode.ADD);
 			break;
 		case DELETE:
 		case SELF:
-			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.NONE);
-			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.VIEW);
-			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.EDIT);
-			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.ADD);
-			updateCachedRoleSet(role.getCode(), capabilityCode, CapabilityMode.DELETE);
+			updateCachedRoleSet(role.getCode(), cCode, CapabilityMode.NONE);
+			updateCachedRoleSet(role.getCode(), cCode, CapabilityMode.VIEW);
+			updateCachedRoleSet(role.getCode(), cCode, CapabilityMode.EDIT);
+			updateCachedRoleSet(role.getCode(), cCode, CapabilityMode.ADD);
+			updateCachedRoleSet(role.getCode(), cCode, CapabilityMode.DELETE);
 			break;
 
 
 		}
 		return role;
+	}
+
+
+	/**
+	 * @param role
+	 * @param capabilityCode
+	 * @param mode
+	 */
+	private void updateCachedRoleSet(final String roleCode, final String capabilityCode, final String valueString) {
+		// Use the roleCode and capability code as a key, with the permitted modes as values
+		String key = beUtils.getGennyToken().getRealm() + ":" + roleCode + ":" + capabilityCode;
+		log.info("updateCachedRoleSet test:: " + key);
+		// Look up from cache
+		JsonObject json = VertxUtils.readCachedJson(beUtils.getGennyToken().getRealm(), key,
+				beUtils.getGennyToken().getToken());
+		String roleCodesString = null;
+		// if no cache then create
+
+		if ("error".equals(json.getString("status"))) {
+			roleCodesString = "";
+		} else {
+			roleCodesString = json.getString("value");
+		}
+		String[] roleCodes = roleCodesString.split(",");
+		Set<String> roleCodeSet = new HashSet<>(Arrays. asList(roleCodes));
+		if (!roleCodeSet.contains(roleCode)) {
+			roleCodesString += roleCode+",";
+			VertxUtils.writeCachedJson(beUtils.getGennyToken().getRealm(), key, roleCodesString,
+					beUtils.getGennyToken().getToken());
+		}
 	}
 
 	/**
@@ -171,6 +231,21 @@ public class CapabilityUtils implements Serializable {
 			VertxUtils.writeCachedJson(beUtils.getGennyToken().getRealm(), key, roleCodesString,
 					beUtils.getGennyToken().getToken());
 		}
+	}
+
+	/**
+	 * Go through a list of capability modes and check that the token can manipulate the modes for the provided capabilityCode
+	 * @param capabilityCode capabilityCode to check against
+	 * @param modes array of modes to check against
+	 * @return whether or not the token can manipulate the supplied modes for the supplied capabilityCode
+	 */
+	public boolean hasCapability(final String capabilityCode, final CapabilityMode... modes) {
+		for(CapabilityMode mode : modes) {
+			if(!hasCapability(capabilityCode, mode))
+				return false;
+		}
+
+		return true;
 	}
 
 	public boolean hasCapability(final String capabilityCode, final CapabilityMode mode) {
