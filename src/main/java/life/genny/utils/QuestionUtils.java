@@ -572,7 +572,7 @@ public class QuestionUtils {
 
 		// create GRP ask
 		Attribute questionAttribute = RulesUtils.getAttribute("QQQ_QUESTION_GROUP", token);
-		Question question = new Question("QUE_EDIT_GRP", "Edit " + baseEntity.getCode(), questionAttribute);
+		Question question = new Question("QUE_EDIT_GRP", "Edit " + baseEntity.getCode() + " : " + baseEntity.getName(), questionAttribute);
 		Ask ask = new Ask(question, userToken.getUserCode(), baseEntity.getCode());
 
 		List<Ask> childAsks = new ArrayList<>();
@@ -584,7 +584,7 @@ public class QuestionUtils {
 
 				String questionCode = "QUE_" + StringUtils.removeStart(StringUtils.removeStart(ea.getAttributeCode(), "PRI_"), "LNK_");
 
-				Question childQues = new Question(questionCode, "Edit " + baseEntity.getCode(), ea.getAttribute());
+				Question childQues = new Question(questionCode, ea.getAttribute().getName(), ea.getAttribute());
 				Ask childAsk = new Ask(childQues, userToken.getUserCode(), baseEntity.getCode());
 
 				childAsks.add(childAsk);
