@@ -93,31 +93,6 @@ public class CapabilityUtils implements Serializable {
 		}
 	}
 
-	public BaseEntity addCapabilityToRoleRefactored(BaseEntity role, final String capabilityCode, final CapabilityMode... modes) {
-		// Check the user token has required capabilities
-		if (!hasCapability(capabilityCode,modes)) {
-			log.error(beUtils.getGennyToken().getUserCode()+" is NOT ALLOWED TO ADD THIS CAPABILITY TO A ROLE :"+role.getCode());
-			return role;
-		}
-
-		// Ensure the capability is well defined
-		String cleanCapabilityCode = capabilityCode;
-		if(!cleanCapabilityCode.startsWith(CAP_MODE_PREFIX)) {
-			log.warn("Capability Code: " + capabilityCode + " did not have " + CAP_MODE_PREFIX + " as its prefix! Ensure this is fixed in the relevant project drools");
-			cleanCapabilityCode = CAP_MODE_PREFIX + cleanCapabilityCode;
-		}
-
-		String valueString = "[";
-		for(CapabilityMode mode : modes) {
-			valueString += "\"" + mode.name() + "\",";
-		}
-		// Remove trailing , and add "]"
-		valueString = valueString.substring(0, valueString.length() - 1) + "]";
-
-
-		return null;
-	}
-
 	public BaseEntity addCapabilityToRole(BaseEntity role, final String capabilityCode, final CapabilityMode mode) {
 		// Check if the userToken is allowed to do this!
 

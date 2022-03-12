@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -16,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.gson.annotations.Expose;
 
+import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import life.genny.models.GennyToken;
@@ -44,6 +46,8 @@ public class CapabilityUtilsRefactored implements Serializable {
 	// Capability Attribute Prefix
 	public static final String CAP_MODE_PREFIX = "PRM_";
 
+	public static final String LNK_ROLE_CODE = "LNK_ROLE";
+
 
 	@Expose
 	List<Attribute> capabilityManifest = new ArrayList<Attribute>();
@@ -58,11 +62,11 @@ public class CapabilityUtilsRefactored implements Serializable {
 	public BaseEntity inheritRole(BaseEntity role, final BaseEntity parentRole)
 	{
 		BaseEntity ret = role;
-		List<EntityAttribute> perms = parentRole.findPrefixEntityAttributes("PRM_");
+		List<EntityAttribute> perms = parentRole.findPrefixEntityAttributes(CAP_MODE_PREFIX);
 		for (EntityAttribute permissionEA : perms) {
 			Attribute permission = permissionEA.getAttribute();
-			CapabilityMode mode = CapabilityMode.getMode(permissionEA.getValue());
-			ret = addCapabilityToRole(ret,permission.getCode(),mode);
+			CapabilityMode[] modes = getCapModesFromString(permissionEA.getValue());
+			ret = addCapabilityToRole(ret,permission.getCode(),modes);
 		}
 		return ret;
 	}
@@ -106,9 +110,20 @@ public class CapabilityUtilsRefactored implements Serializable {
 
 
 		updateCachedRoleSet(role.getCode(), cleanCapabilityCode, modes);
+		return role;
+	}
 
+	private CapabilityMode[] getCapabilitiesFromCache(final String roleCode, final String cleanCapabilityCode) {
+		GennyToken token = beUtils.getGennyToken();
+		String key = getCacheKey(token.getRealm(), roleCode, cleanCapabilityCode);
+		JsonObject object = VertxUtils.readCachedJson(token.getRealm(), key);
+		if("error".equals(object.getString("status"))) {
+			log.error("Error reading cache for realm: " + token.getRealm() + " with key: " + key);
+			return null;
+		}
 
-		return null;
+		String modeString = object.getString("value");
+		return getCapModesFromString(modeString);
 	}
 
 	/**
@@ -130,54 +145,61 @@ public class CapabilityUtilsRefactored implements Serializable {
 	 * Go through a list of capability modes and check that the token can manipulate the modes for the provided capabilityCode
 	 * @param capabilityCode capabilityCode to check against
 	 * @param modes array of modes to check against
-	 * @return whether or not the token can manipulate the supplied modes for the supplied capabilityCode
+	 * @return whether or not the token can manipulate all the supplied modes for the supplied capabilityCode
 	 */
-	public boolean hasCapability(final String capabilityCode, final CapabilityMode... modes) {
-		for(CapabilityMode mode : modes) {
-			if(!hasCapability(capabilityCode, mode))
-				return false;
-		}
-
-		return true;
-	}
-
-	public boolean hasCapability(final String capabilityCode, final CapabilityMode mode) {
+	public boolean hasCapability(final String rawCapabilityCode, final CapabilityMode... checkModes) {
 		// allow keycloak admin and devcs to do anything
 		if (beUtils.getGennyToken().hasRole("admin")||beUtils.getGennyToken().hasRole("dev")||("service".equals(beUtils.getGennyToken().getUsername()))) {
 			return true;
 		}
-		// Create a capabilityCode and mode combined unique key
-		String key = beUtils.getGennyToken().getRealm() + ":" + capabilityCode + ":" + mode.name();
-		// Look up from cache
-		JsonObject json = VertxUtils.readCachedJson(beUtils.getGennyToken().getRealm(), key,
-				beUtils.getGennyToken().getToken());
-		// if no cache then return false
-		if ("error".equals(json.getString("status"))) {
-			return false;
-		}
+		final String cleanCapabilityCode = cleanCapabilityCode(rawCapabilityCode);
+		BaseEntity user = beUtils.getUserBaseEntity();
 
-		// else get the list of roles associated with the key
-		String roleCodesString = json.getString("value");
-		String roleCodes[] = roleCodesString.split(",");
+		// Look through all the user entity attributes for the capability code. If it is there check the cache with the roleCode as the userCode
+		// TODO: Will need to revisit this implementation with Jasper
+		
+		Optional<EntityAttribute> lnkRole = user.findEntityAttribute(LNK_ROLE_CODE);
+		
+		// Make a list for the modes that have been found in the user's various roles
+		// TODO: Potentially change this to a system that matches from multiple roles instead of a single role
+		// List<CapabilityMode> foundModes = new ArrayList<>();
 
-		// check if the user has any of these roles
-		String userCode = beUtils.getGennyToken().getUserCode();
-		BaseEntity user = beUtils.getBaseEntityByCode(userCode);
-		for (String roleCode : roleCodes) {
-			if (user.getBaseEntityAttributes().parallelStream()
-					.anyMatch(ti -> ti.getAttributeCode().equals(roleCode))) {
-				return true;
+		if(lnkRole.isPresent()) {
+			String rolesValue = lnkRole.get().getValueString();
+			try {
+				// Look through cache using each role
+				JsonArray roleArray = new JsonArray(rolesValue);
+				for(int i = 0; i < roleArray.size(); i++) {
+					String roleCode = roleArray.getString(i);
+					
+					CapabilityMode[] modes = getCapabilitiesFromCache(roleCode, cleanCapabilityCode);
+					List<CapabilityMode> modeList = Arrays.asList(modes);
+					for(CapabilityMode checkMode : checkModes) {
+						if(!modeList.contains(checkMode))
+							return false;
+					}
+				}
+			} catch(DecodeException exception) {
+				log.error("Error decoding LNK_ROLE for BaseEntity: " + user.getCode());
+				log.error("Value: " + rolesValue + ". Expected: a json array of roles");
 			}
 		}
 
-		return false;
+		// TODO: Implement user checking
+		// Set<EntityAttribute> entityAttributes = user.getBaseEntityAttributes();
+		// for(EntityAttribute eAttribute : entityAttributes) {
+
+		// }
+		
+		// Since we are iterating through an array of modes to check, the above impl will have returned false if any of them were missing
+		return true;
 	}
 
 	public void process() {
 		List<Attribute> existingCapability = new ArrayList<Attribute>();
 
 		for (String existingAttributeCode : RulesUtils.realmAttributeMap.get(this.beUtils.getGennyToken().getRealm()).keySet()) {
-			if (existingAttributeCode.startsWith("PRM_")) {
+			if (existingAttributeCode.startsWith(CAP_MODE_PREFIX)) {
 				existingCapability.add(RulesUtils.realmAttributeMap.get(this.beUtils.getGennyToken().getRealm()).get(existingAttributeCode));
 			}
 		}
