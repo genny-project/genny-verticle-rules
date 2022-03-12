@@ -279,8 +279,17 @@ public class CapabilityUtilsRefactored implements Serializable {
 	 * @return
 	 */
 	static public List<AllowedSafe> generateAlloweds(GennyToken userToken, BaseEntity user) {
-		List<EntityAttribute> roles = user.findPrefixEntityAttributes("PRI_IS_");
 		List<AllowedSafe> allowables = new CopyOnWriteArrayList<AllowedSafe>();
+
+		// Look for user capabilities
+		List<EntityAttribute> capabilities = user.findPrefixEntityAttributes("PRM_");
+		for(EntityAttribute capability : capabilities) {
+			String modeString = capability.getValueString();
+			if(modeString != null) {
+				CapabilityMode[] modes = getCapModesFromString(modeString);
+				allowables.add(new AllowedSafe(capability.getAttributeCode(), modes));
+			}
+		}
 
 		Optional<EntityAttribute> LNK_ROLEOpt = user.findEntityAttribute(LNK_ROLE_CODE);
 		if(LNK_ROLEOpt.isPresent()) {
@@ -293,7 +302,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 				if(roleBE == null)
 					continue;
 				
-				List<EntityAttribute> capabilities = roleBE.findPrefixEntityAttributes("PRM_");
+				capabilities = roleBE.findPrefixEntityAttributes("PRM_");
 				for (EntityAttribute ea : capabilities) {
 					String modeString = null;
 					Boolean ignore = false;
