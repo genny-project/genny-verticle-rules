@@ -27,6 +27,7 @@ import life.genny.qwanda.attribute.AttributeBoolean;
 import life.genny.qwanda.attribute.AttributeText;
 import life.genny.qwanda.attribute.EntityAttribute;
 import life.genny.qwanda.datatype.Allowed;
+import life.genny.qwanda.datatype.AllowedSafe;
 import life.genny.qwanda.datatype.CapabilityMode;
 import life.genny.qwanda.entity.BaseEntity;
 import life.genny.qwanda.message.QDataBaseEntityMessage;
@@ -45,6 +46,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 
 	// Capability Attribute Prefix
 	public static final String CAP_MODE_PREFIX = "PRM_";
+	public static final String ROLE_BE_PREFIX = "ROL_";
 
 	public static final String LNK_ROLE_CODE = "LNK_ROLE";
 
@@ -179,9 +181,12 @@ public class CapabilityUtilsRefactored implements Serializable {
 							return false;
 					}
 				}
+
+			// There is a malformed LNK_ROLE Attribute, so we assume they don't have the capability
 			} catch(DecodeException exception) {
 				log.error("Error decoding LNK_ROLE for BaseEntity: " + user.getCode());
 				log.error("Value: " + rolesValue + ". Expected: a json array of roles");
+				return false;
 			}
 		}
 
@@ -273,33 +278,21 @@ public class CapabilityUtilsRefactored implements Serializable {
 	 * @param user
 	 * @return
 	 */
-	static public List<Allowed> generateAlloweds(GennyToken userToken, BaseEntity user) {
+	static public List<AllowedSafe> generateAlloweds(GennyToken userToken, BaseEntity user) {
 		List<EntityAttribute> roles = user.findPrefixEntityAttributes("PRI_IS_");
-		List<Allowed> allowable = new CopyOnWriteArrayList<Allowed>();
-		for (EntityAttribute role : roles) { // should store in cached map
-			Boolean value = false;
-			if (role.getValue() instanceof Boolean) {
-				value = role.getValue();
-			} else {
-				if (role.getValue() instanceof String) {
-					value = "TRUE".equalsIgnoreCase(role.getValue());
-//						log.info(callingWorkflow + " Running rule flow group " + ruleFlowGroup + " #2.5 role value = "
-//								+ role.getValue());
-				} else {
-//						log.info(callingWorkflow + " Running rule flow group " + ruleFlowGroup + " #2.6 role value = "
-//								+ role.getValue());
-				}
-			}
-			if (value) {
-				String roleBeCode = "ROL_" + role.getAttributeCode().substring("PRI_IS_".length());
-				BaseEntity roleBE = VertxUtils.readFromDDT(userToken.getRealm(), roleBeCode, userToken.getToken());
-				if (roleBE == null) {
+		List<AllowedSafe> allowables = new CopyOnWriteArrayList<AllowedSafe>();
+
+		Optional<EntityAttribute> LNK_ROLEOpt = user.findEntityAttribute(LNK_ROLE_CODE);
+		if(LNK_ROLEOpt.isPresent()) {
+			JsonArray roleCodesArray = new JsonArray(LNK_ROLEOpt.get().getValueString());
+
+			for(int i = 0; i < roleCodesArray.size(); i++) {
+				String roleBECode = roleCodesArray.getString(i);
+
+				BaseEntity roleBE = VertxUtils.readFromDDT(userToken.getRealm(), roleBECode, userToken.getToken());
+				if(roleBE == null)
 					continue;
-				}
-				// Add the actual role to capabilities
-				allowable.add(
-						new Allowed(role.getAttributeCode().substring("PRI_IS_".length()), CapabilityMode.VIEW));
-//					log.info(callingWorkflow + " got to here before capabilities");
+				
 				List<EntityAttribute> capabilities = roleBE.findPrefixEntityAttributes("PRM_");
 				for (EntityAttribute ea : capabilities) {
 					String modeString = null;
@@ -317,22 +310,8 @@ public class CapabilityUtilsRefactored implements Serializable {
 						e.printStackTrace();
 					}
 					if (!ignore) {
-						CapabilityMode mode = CapabilityMode.getMode(modeString);
-						// This is my cunning switch statement that takes into consideration the
-						// priority order of the modes... (note, no breaks and it relies upon the fall
-						// through)
-						switch (mode) {
-						case DELETE:
-							allowable.add(new Allowed(ea.getAttributeCode().substring(4), CapabilityMode.DELETE));
-						case ADD:
-							allowable.add(new Allowed(ea.getAttributeCode().substring(4), CapabilityMode.ADD));
-						case EDIT:
-							allowable.add(new Allowed(ea.getAttributeCode().substring(4), CapabilityMode.EDIT));
-						case VIEW:
-							allowable.add(new Allowed(ea.getAttributeCode().substring(4), CapabilityMode.VIEW));
-						case NONE:
-							allowable.add(new Allowed(ea.getAttributeCode().substring(4), CapabilityMode.NONE));
-						}
+						CapabilityMode[] modes = getCapModesFromString(modeString);
+						allowables.add(new AllowedSafe(ea.getAttributeCode(), modes));
 					}
 
 				}
@@ -341,11 +320,11 @@ public class CapabilityUtilsRefactored implements Serializable {
 
 		/* now force the keycloak ones */
 		for (String role : userToken.getUserRoles()) {
-			allowable.add(
-					new Allowed(role.toUpperCase(), CapabilityMode.VIEW));
+			allowables.add(
+					new AllowedSafe(role.toUpperCase(), CapabilityMode.VIEW));
 		}
 
-		return allowable;
+		return allowables;
 	}
 
 	private static String getModeString(CapabilityMode... modes) {
