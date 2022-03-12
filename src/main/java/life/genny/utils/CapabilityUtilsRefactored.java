@@ -5,10 +5,8 @@ import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.persistence.Transient;
@@ -21,12 +19,9 @@ import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import life.genny.models.GennyToken;
-import life.genny.qwanda.Answer;
 import life.genny.qwanda.attribute.Attribute;
-import life.genny.qwanda.attribute.AttributeBoolean;
 import life.genny.qwanda.attribute.AttributeText;
 import life.genny.qwanda.attribute.EntityAttribute;
-import life.genny.qwanda.datatype.Allowed;
 import life.genny.qwanda.datatype.AllowedSafe;
 import life.genny.qwanda.datatype.CapabilityMode;
 import life.genny.qwanda.entity.BaseEntity;
@@ -336,7 +331,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 		return allowables;
 	}
 
-	private static String getModeString(CapabilityMode... modes) {
+	public static String getModeString(CapabilityMode... modes) {
 		String modeString = "[";
 		for(CapabilityMode mode : modes) {
 			modeString += "\"" + mode.name() + "\"" + ",";
@@ -345,7 +340,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 		return modeString.substring(0, modeString.length() - 1) + "]";
 	}
 
-	private static CapabilityMode[] getCapModesFromString(String modeString) {
+	public static CapabilityMode[] getCapModesFromString(String modeString) {
 		JsonArray array = new JsonArray(modeString);
 		CapabilityMode[] modes = new CapabilityMode[array.size()];
 
@@ -356,7 +351,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 		return modes;
 	}
 
-	private static String cleanCapabilityCode(final String rawCapabilityCode) {
+	public static String cleanCapabilityCode(final String rawCapabilityCode) {
 		String cleanCapabilityCode = rawCapabilityCode.toUpperCase();
 		if(!cleanCapabilityCode.startsWith(CAP_MODE_PREFIX)) {
 			cleanCapabilityCode = CAP_MODE_PREFIX + cleanCapabilityCode;
