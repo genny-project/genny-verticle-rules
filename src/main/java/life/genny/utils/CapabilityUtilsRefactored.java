@@ -40,7 +40,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	// Capability Attribute Prefix
-	public static final String CAP_MODE_PREFIX = "PRM_";
+	public static final String CAP_CODE_PREFIX = "PRM_";
 	public static final String ROLE_BE_PREFIX = "ROL_";
 
 	public static final String LNK_ROLE_CODE = "LNK_ROLE";
@@ -59,7 +59,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 	public BaseEntity inheritRole(BaseEntity role, final BaseEntity parentRole)
 	{
 		BaseEntity ret = role;
-		List<EntityAttribute> perms = parentRole.findPrefixEntityAttributes(CAP_MODE_PREFIX);
+		List<EntityAttribute> perms = parentRole.findPrefixEntityAttributes(CAP_CODE_PREFIX);
 		for (EntityAttribute permissionEA : perms) {
 			Attribute permission = permissionEA.getAttribute();
 			CapabilityMode[] modes = getCapModesFromString(permissionEA.getValue());
@@ -188,7 +188,8 @@ public class CapabilityUtilsRefactored implements Serializable {
 		// TODO: Implement user checking
 		// Set<EntityAttribute> entityAttributes = user.getBaseEntityAttributes();
 		// for(EntityAttribute eAttribute : entityAttributes) {
-
+		// 	if(!eAttribute.getAttributeCode().startsWith(CAP_CODE_PREFIX))
+		// 		continue;
 		// }
 		
 		// Since we are iterating through an array of modes to check, the above impl will have returned false if any of them were missing
@@ -199,7 +200,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 		List<Attribute> existingCapability = new ArrayList<Attribute>();
 
 		for (String existingAttributeCode : RulesUtils.realmAttributeMap.get(this.beUtils.getGennyToken().getRealm()).keySet()) {
-			if (existingAttributeCode.startsWith(CAP_MODE_PREFIX)) {
+			if (existingAttributeCode.startsWith(CAP_CODE_PREFIX)) {
 				existingCapability.add(RulesUtils.realmAttributeMap.get(this.beUtils.getGennyToken().getRealm()).get(existingAttributeCode));
 			}
 		}
@@ -273,11 +274,11 @@ public class CapabilityUtilsRefactored implements Serializable {
 	 * @param user
 	 * @return
 	 */
-	static public List<AllowedSafe> generateAlloweds(GennyToken userToken, BaseEntity user) {
+	public static List<AllowedSafe> generateAlloweds(GennyToken userToken, BaseEntity user) {
 		List<AllowedSafe> allowables = new CopyOnWriteArrayList<AllowedSafe>();
 
 		// Look for user capabilities
-		List<EntityAttribute> capabilities = user.findPrefixEntityAttributes("PRM_");
+		List<EntityAttribute> capabilities = user.findPrefixEntityAttributes(CAP_CODE_PREFIX);
 		for(EntityAttribute capability : capabilities) {
 			String modeString = capability.getValueString();
 			if(modeString != null) {
@@ -297,7 +298,8 @@ public class CapabilityUtilsRefactored implements Serializable {
 				if(roleBE == null)
 					continue;
 				
-				capabilities = roleBE.findPrefixEntityAttributes("PRM_");
+				// Go through all the entity 
+				capabilities = roleBE.findPrefixEntityAttributes(CAP_CODE_PREFIX);
 				for (EntityAttribute ea : capabilities) {
 					String modeString = null;
 					Boolean ignore = false;
@@ -353,8 +355,8 @@ public class CapabilityUtilsRefactored implements Serializable {
 
 	public static String cleanCapabilityCode(final String rawCapabilityCode) {
 		String cleanCapabilityCode = rawCapabilityCode.toUpperCase();
-		if(!cleanCapabilityCode.startsWith(CAP_MODE_PREFIX)) {
-			cleanCapabilityCode = CAP_MODE_PREFIX + cleanCapabilityCode;
+		if(!cleanCapabilityCode.startsWith(CAP_CODE_PREFIX)) {
+			cleanCapabilityCode = CAP_CODE_PREFIX + cleanCapabilityCode;
 		}
 
 		String[] components = cleanCapabilityCode.split("_");
