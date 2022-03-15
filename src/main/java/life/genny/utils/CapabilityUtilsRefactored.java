@@ -146,7 +146,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 	 */
 	public boolean hasCapability(final String rawCapabilityCode, final CapabilityMode... checkModes) {
 		// allow keycloak admin and devcs to do anything
-		if (beUtils.getGennyToken().hasRole("admin")||beUtils.getGennyToken().hasRole("dev")||("service".equals(beUtils.getGennyToken().getUsername()))) {
+		if (beUtils.getGennyToken().hasRole("admin")||beUtils.getGennyToken().hasRole("dev")||(beUtils.tokenIsServiceUser())) {
 			return true;
 		}
 		final String cleanCapabilityCode = cleanCapabilityCode(rawCapabilityCode);
@@ -283,7 +283,8 @@ public class CapabilityUtilsRefactored implements Serializable {
 			String modeString = capability.getValueString();
 			if(modeString != null) {
 				CapabilityMode[] modes = getCapModesFromString(modeString);
-				allowables.add(new AllowedSafe(capability.getAttributeCode(), modes));
+				String cleanCapabilityCode = cleanCapabilityCode(capability.getAttributeCode());
+				allowables.add(new AllowedSafe(cleanCapabilityCode, modes));
 			}
 		}
 
@@ -303,10 +304,12 @@ public class CapabilityUtilsRefactored implements Serializable {
 				for (EntityAttribute ea : capabilities) {
 					String modeString = null;
 					Boolean ignore = false;
+
+					String cleanCapabilityCode = cleanCapabilityCode(ea.getAttributeCode());
 					try {
 						Object val = ea.getValue();
 						if (val instanceof Boolean) {
-							log.error("capability attributeCode=" + ea.getAttributeCode() + " is BOOLEAN??????");
+							log.error("capability attributeCode=" + cleanCapabilityCode + " is BOOLEAN??????");
 							ignore = true;
 						} else {
 							modeString = ea.getValue();
@@ -317,12 +320,12 @@ public class CapabilityUtilsRefactored implements Serializable {
 					}
 					if (!ignore) {
 						CapabilityMode[] modes = getCapModesFromString(modeString);
-						allowables.add(new AllowedSafe(ea.getAttributeCode(), modes));
+						allowables.add(new AllowedSafe(cleanCapabilityCode, modes));
 					}
 
 				}
 			}
-		}
+		} else log.info("Could not find " + LNK_ROLE_CODE + " in user: " + user.getCode());
 
 		/* now force the keycloak ones */
 		for (String role : userToken.getUserRoles()) {
