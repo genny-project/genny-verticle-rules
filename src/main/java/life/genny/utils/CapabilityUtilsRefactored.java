@@ -43,6 +43,9 @@ public class CapabilityUtilsRefactored implements Serializable {
 	public static final String CAP_CODE_PREFIX = "PRM_";
 	public static final String ROLE_BE_PREFIX = "ROL_";
 
+	// TODO: Confirm we want DEFs to have capabilities as well
+	public static final String[] ACCEPTED_CAP_PREFIXES = {ROLE_BE_PREFIX, "PER_", "DEF_"};
+
 	public static final String LNK_ROLE_CODE = "LNK_ROLE";
 
 
@@ -63,21 +66,21 @@ public class CapabilityUtilsRefactored implements Serializable {
 		for (EntityAttribute permissionEA : perms) {
 			Attribute permission = permissionEA.getAttribute();
 			CapabilityMode[] modes = getCapModesFromString(permissionEA.getValue());
-			ret = addCapabilityToRole(ret,permission.getCode(),modes);
+			ret = addCapabilityToBaseEntity(ret,permission.getCode(),modes);
 		}
 		return ret;
 	}
 
-	public Attribute addCapability(final String capabilityCode, final String name) {
-		String fullCapabilityCode = "PRM_" + capabilityCode.toUpperCase();
-		log.info("Setting Capability : " + fullCapabilityCode + " : " + name);
-		Attribute attribute = RulesUtils.realmAttributeMap.get(this.beUtils.getGennyToken().getRealm()).get(fullCapabilityCode);
+	public Attribute addCapability(final String rawCapabilityCode, final String name) {
+		String cleanCapabilityCode = cleanCapabilityCode(rawCapabilityCode);
+		log.info("Setting Capability : " + cleanCapabilityCode + " : " + name);
+		Attribute attribute = RulesUtils.realmAttributeMap.get(this.beUtils.getGennyToken().getRealm()).get(cleanCapabilityCode);
 		if (attribute != null) {
 			capabilityManifest.add(attribute);
 			return attribute;
 		} else {
 			// create new attribute
-			attribute = new AttributeText(fullCapabilityCode, name);
+			attribute = new AttributeText(cleanCapabilityCode, name);
 			// save to database and cache
 
 			try {
@@ -90,24 +93,36 @@ public class CapabilityUtilsRefactored implements Serializable {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			return null;
+			return attribute;
 
 		}
 	}
 
-	public BaseEntity addCapabilityToRole(BaseEntity role, final String rawCapabilityCode, final CapabilityMode... modes) {
+	@Deprecated
+	/**
+	 * Deprecated since 10.0.0. To be removed 10.1.0. Use {@link CapabilityUtilsRefactored#addCapabilityToBaseEntity(BaseEntity, String, CapabilityMode...)} instead
+	 * @param role
+	 * @param rawCapabilityCode
+	 * @param modes
+	 * @return
+	 */
+	public BaseEntity addCapabilityRoRole(BaseEntity role, final String rawCapabilityCode, final CapabilityMode... modes) {
+		return addCapabilityToBaseEntity(role, rawCapabilityCode, modes);
+		
+	}
+
+	public BaseEntity addCapabilityToBaseEntity(BaseEntity targetBe, final String rawCapabilityCode, final CapabilityMode... modes) {
 		// Ensure the capability is well defined
 		String cleanCapabilityCode = cleanCapabilityCode(rawCapabilityCode);
-
 		// Check the user token has required capabilities
 		if (!hasCapability(cleanCapabilityCode,modes)) {
-			log.error(beUtils.getGennyToken().getUserCode() + " is NOT ALLOWED TO ADD CAP: " + cleanCapabilityCode + " TO ROLE: " + role.getCode());
-			return role;
+			log.error(beUtils.getGennyToken().getUserCode() + " is NOT ALLOWED TO ADD CAP: " + cleanCapabilityCode + " TO BASE ENTITITY: " + targetBe.getCode());
+			return targetBe;
 		}
 
 
-		updateCachedRoleSet(role.getCode(), cleanCapabilityCode, modes);
-		return role;
+		updateCachedRoleSet(targetBe.getCode(), cleanCapabilityCode, modes);
+		return targetBe;
 	}
 
 	private CapabilityMode[] getCapabilitiesFromCache(final String roleCode, final String cleanCapabilityCode) {
@@ -383,7 +398,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 		return cleanCapabilityCode;
 	}
 
-	private static String getCacheKey(String realm, String roleCode, String capCode) {
-		return realm + ":" + roleCode + ":" + capCode;
+	private static String getCacheKey(String realm, String keyCode, String capCode) {
+		return realm + ":" + keyCode + ":" + capCode;
 	}
 }

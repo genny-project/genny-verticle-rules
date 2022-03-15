@@ -20,7 +20,6 @@ import io.vertx.core.json.JsonObject;
 import life.genny.models.GennyToken;
 import life.genny.qwanda.Answer;
 import life.genny.qwanda.attribute.Attribute;
-import life.genny.qwanda.attribute.AttributeBoolean;
 import life.genny.qwanda.attribute.AttributeText;
 import life.genny.qwanda.attribute.EntityAttribute;
 import life.genny.qwanda.datatype.Allowed;
@@ -54,6 +53,7 @@ public class CapabilityUtils implements Serializable {
 		this.beUtils = beUtils;
 	}
 
+	@Deprecated
 	public BaseEntity inheritRole(BaseEntity role, final BaseEntity parentRole)
 	{
 		BaseEntity ret = role;
@@ -66,6 +66,7 @@ public class CapabilityUtils implements Serializable {
 		return ret;
 	}
 
+	@Deprecated
 	public Attribute addCapability(final String capabilityCode, final String name) {
 		String fullCapabilityCode = "PRM_" + capabilityCode.toUpperCase();
 		log.info("Setting Capability : " + fullCapabilityCode + " : " + name);
@@ -93,6 +94,7 @@ public class CapabilityUtils implements Serializable {
 		}
 	}
 
+	@Deprecated
 	public BaseEntity addCapabilityToRole(BaseEntity role, final String capabilityCode, final CapabilityMode mode) {
 		// Check if the userToken is allowed to do this!
 
@@ -214,6 +216,7 @@ public class CapabilityUtils implements Serializable {
 	 * @param modes array of modes to check against
 	 * @return whether or not the token can manipulate the supplied modes for the supplied capabilityCode
 	 */
+	@Deprecated
 	public boolean hasCapability(final String capabilityCode, final CapabilityMode... modes) {
 		for(CapabilityMode mode : modes) {
 			if(!hasCapability(capabilityCode, mode))
@@ -223,6 +226,7 @@ public class CapabilityUtils implements Serializable {
 		return true;
 	}
 
+	@Deprecated
 	public boolean hasCapability(final String capabilityCode, final CapabilityMode mode) {
 		// allow keycloak admin and devcs to do anything
 		if (beUtils.getGennyToken().hasRole("admin")||beUtils.getGennyToken().hasRole("dev")||("service".equals(beUtils.getGennyToken().getUsername()))) {
@@ -256,6 +260,7 @@ public class CapabilityUtils implements Serializable {
 	}
 
 	// NOTE: This is temporary until ROL_ attributes are properly in place
+	@Deprecated
 	public boolean hasCapabilityThroughPriIs(final String capabilityCode, final CapabilityMode mode) {
 		// allow keycloak admin and devcs to do anything
 		log.info("hasCapabilityThroughPriIs capabilityCode:: " + capabilityCode + "CapabilityMode" + mode.name());
@@ -321,6 +326,7 @@ public class CapabilityUtils implements Serializable {
 		return false;
 	}
 
+	@Deprecated
 	public void process() {
 		List<Attribute> existingCapability = new ArrayList<Attribute>();
 
@@ -399,6 +405,7 @@ public class CapabilityUtils implements Serializable {
 	 * @param user
 	 * @return
 	 */
+	@Deprecated
 	static public List<Allowed> generateAlloweds(GennyToken userToken, BaseEntity user) {
 		List<EntityAttribute> roles = user.findPrefixEntityAttributes("PRI_IS_");
 		List<Allowed> allowable = new CopyOnWriteArrayList<Allowed>();
