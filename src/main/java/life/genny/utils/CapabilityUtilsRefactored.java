@@ -143,9 +143,9 @@ public class CapabilityUtilsRefactored implements Serializable {
 	 * @param capabilityCode
 	 * @param mode
 	 */
-	private JsonObject updateCachedRoleSet(final String roleCode, final String cleanCapabilityCode, final CapabilityMode... modes) {
+	private JsonObject updateCachedRoleSet(final String beCode, final String cleanCapabilityCode, final CapabilityMode... modes) {
 		GennyToken token = beUtils.getGennyToken();
-		String key = getCacheKey(token.getRealm(), roleCode, cleanCapabilityCode);
+		String key = getCacheKey(token.getRealm(), beCode, cleanCapabilityCode);
 		String modesString = getModeString(modes);
 		
 		log.info("updateCachedRoleSet test:: " + key);
@@ -311,12 +311,12 @@ public class CapabilityUtilsRefactored implements Serializable {
 			roleCodesArray = new JsonArray(LNK_ROLEOpt.get().getValueString());
 		} else {
 			roleCodesArray = new JsonArray("[]");
-			log.info("Could not find " + LNK_ROLE_CODE + " in user: " + user.getCode());
+			log.warn("Could not find " + LNK_ROLE_CODE + " in user: " + user.getCode());
 		}
 		
 		// Add keycloak roles
 		for (String role : userToken.getUserRoles()) {
-			roleCodesArray.add(role);
+			roleCodesArray.add(ROLE_BE_PREFIX + role.toUpperCase());
 		}
 
 		for(int i = 0; i < roleCodesArray.size(); i++) {
@@ -324,7 +324,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 
 			BaseEntity roleBE = VertxUtils.readFromDDT(userToken.getRealm(), roleBECode, userToken.getToken());
 			if(roleBE == null) {
-				log.info("facts: could not find roleBe: " + roleBECode + " in cache: " + userToken.getRealm());
+				log.warn("facts: could not find roleBe: " + roleBECode + " in cache: " + userToken.getRealm());
 				continue;
 			}
 			
@@ -398,20 +398,26 @@ public class CapabilityUtilsRefactored implements Serializable {
 		* 3. CODE
 		*/
 		if(components.length < 3) {
-			log.warn("Capability Code: " + rawCapabilityCode + " missing OWN/OTHER declaration.");
+			log.warn("facts Capability Code: " + rawCapabilityCode + " missing OWN/OTHER declaration.");
 		} else {
 			Boolean affectsOwn = "OWN".equals(components[1]);
 			Boolean affectsOther = "OTHER".equals(components[1]);
 
 			if(!affectsOwn && !affectsOther) {
-				log.warn("Capability Code: " + rawCapabilityCode + " has malformed OWN/OTHER declaration.");
+				log.warn("facts Capability Code: " + rawCapabilityCode + " has malformed OWN/OTHER declaration.");
 			}
+		}
+
+		// Check capability code doesn't have mode keywords
+		for(CapabilityMode mode : CapabilityMode.values()) {
+			if(cleanCapabilityCode.contains(mode.name()))
+				log.warn("facts CapabilityCode: " + rawCapabilityCode + " has CapabilityMode: " + mode.name() + " in its name! This is bad convention and should be removed");
 		}
 
 		return cleanCapabilityCode;
 	}
 
-	private static String getCacheKey(String realm, String keyCode, String capCode) {
-		return realm + ":" + keyCode + ":" + capCode;
+	private static String getCacheKey(String realm, String beCode, String capCode) {
+		return realm + ":" + beCode + ":" + capCode;
 	}
 }
