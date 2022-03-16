@@ -307,12 +307,19 @@ public class CapabilityUtilsRefactored implements Serializable {
 		if(LNK_ROLEOpt.isPresent()) {
 			JsonArray roleCodesArray = new JsonArray(LNK_ROLEOpt.get().getValueString());
 
+			// Add keycloak roles
+			for (String role : userToken.getUserRoles()) {
+				roleCodesArray.add(role);
+			}
+
 			for(int i = 0; i < roleCodesArray.size(); i++) {
 				String roleBECode = roleCodesArray.getString(i);
 
 				BaseEntity roleBE = VertxUtils.readFromDDT(userToken.getRealm(), roleBECode, userToken.getToken());
-				if(roleBE == null)
+				if(roleBE == null) {
+					log.info("facts: could not find roleBe: " + roleBECode + " in cache: " + userToken.getRealm());
 					continue;
+				}
 				
 				// Go through all the entity 
 				capabilities = roleBE.findPrefixEntityAttributes(CAP_CODE_PREFIX);
