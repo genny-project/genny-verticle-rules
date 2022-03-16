@@ -316,7 +316,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 		
 		// Add keycloak roles
 		for (String role : userToken.getUserRoles()) {
-			roleCodesArray.add(ROLE_BE_PREFIX + role);
+			roleCodesArray.add(role);
 		}
 
 		for(int i = 0; i < roleCodesArray.size(); i++) {
@@ -356,10 +356,10 @@ public class CapabilityUtilsRefactored implements Serializable {
 		}
 
 		/* now force the keycloak ones */
-		// for (String role : userToken.getUserRoles()) {
-		// 	allowables.add(
-		// 			new AllowedSafe(role.toUpperCase(), CapabilityMode.VIEW));
-		// }
+		for (String role : userToken.getUserRoles()) {
+			allowables.add(
+					new AllowedSafe(role.toUpperCase(), CapabilityMode.VIEW));
+		}
 
 		return allowables;
 	}
