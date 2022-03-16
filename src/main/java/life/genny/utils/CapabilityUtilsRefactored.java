@@ -304,56 +304,62 @@ public class CapabilityUtilsRefactored implements Serializable {
 		}
 
 		Optional<EntityAttribute> LNK_ROLEOpt = user.findEntityAttribute(LNK_ROLE_CODE);
+
+		JsonArray roleCodesArray = null;
+
 		if(LNK_ROLEOpt.isPresent()) {
-			JsonArray roleCodesArray = new JsonArray(LNK_ROLEOpt.get().getValueString());
+			roleCodesArray = new JsonArray(LNK_ROLEOpt.get().getValueString());
+		} else {
+			roleCodesArray = new JsonArray("[]");
+			log.info("Could not find " + LNK_ROLE_CODE + " in user: " + user.getCode());
+		}
+		
+		// Add keycloak roles
+		for (String role : userToken.getUserRoles()) {
+			roleCodesArray.add(ROLE_BE_PREFIX + role);
+		}
 
-			// Add keycloak roles
-			for (String role : userToken.getUserRoles()) {
-				roleCodesArray.add(role);
+		for(int i = 0; i < roleCodesArray.size(); i++) {
+			String roleBECode = roleCodesArray.getString(i);
+
+			BaseEntity roleBE = VertxUtils.readFromDDT(userToken.getRealm(), roleBECode, userToken.getToken());
+			if(roleBE == null) {
+				log.info("facts: could not find roleBe: " + roleBECode + " in cache: " + userToken.getRealm());
+				continue;
 			}
+			
+			// Go through all the entity 
+			capabilities = roleBE.findPrefixEntityAttributes(CAP_CODE_PREFIX);
+			for (EntityAttribute ea : capabilities) {
+				String modeString = null;
+				Boolean ignore = false;
 
-			for(int i = 0; i < roleCodesArray.size(); i++) {
-				String roleBECode = roleCodesArray.getString(i);
-
-				BaseEntity roleBE = VertxUtils.readFromDDT(userToken.getRealm(), roleBECode, userToken.getToken());
-				if(roleBE == null) {
-					log.info("facts: could not find roleBe: " + roleBECode + " in cache: " + userToken.getRealm());
-					continue;
-				}
-				
-				// Go through all the entity 
-				capabilities = roleBE.findPrefixEntityAttributes(CAP_CODE_PREFIX);
-				for (EntityAttribute ea : capabilities) {
-					String modeString = null;
-					Boolean ignore = false;
-
-					String cleanCapabilityCode = cleanCapabilityCode(ea.getAttributeCode());
-					try {
-						Object val = ea.getValue();
-						if (val instanceof Boolean) {
-							log.error("capability attributeCode=" + cleanCapabilityCode + " is BOOLEAN??????");
-							ignore = true;
-						} else {
-							modeString = ea.getValue();
-						}
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+				String cleanCapabilityCode = cleanCapabilityCode(ea.getAttributeCode());
+				try {
+					Object val = ea.getValue();
+					if (val instanceof Boolean) {
+						log.error("capability attributeCode=" + cleanCapabilityCode + " is BOOLEAN??????");
+						ignore = true;
+					} else {
+						modeString = ea.getValue();
 					}
-					if (!ignore) {
-						CapabilityMode[] modes = getCapModesFromString(modeString);
-						allowables.add(new AllowedSafe(cleanCapabilityCode, modes));
-					}
-
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
+				if (!ignore) {
+					CapabilityMode[] modes = getCapModesFromString(modeString);
+					allowables.add(new AllowedSafe(cleanCapabilityCode, modes));
+				}
+
 			}
-		} else log.info("Could not find " + LNK_ROLE_CODE + " in user: " + user.getCode());
+		}
 
 		/* now force the keycloak ones */
-		for (String role : userToken.getUserRoles()) {
-			allowables.add(
-					new AllowedSafe(role.toUpperCase(), CapabilityMode.VIEW));
-		}
+		// for (String role : userToken.getUserRoles()) {
+		// 	allowables.add(
+		// 			new AllowedSafe(role.toUpperCase(), CapabilityMode.VIEW));
+		// }
 
 		return allowables;
 	}
