@@ -108,13 +108,13 @@ public class CapabilityUtilsRefactored implements Serializable {
 	 * @param modes
 	 * @return
 	 */
-	public BaseEntity addCapabilityRoRole(BaseEntity role, final String rawCapabilityCode, final CapabilityMode... modes) {
+	public BaseEntity addCapabilityRole(BaseEntity role, final String rawCapabilityCode, final CapabilityMode... modes) {
 		return addCapabilityToBaseEntity(role, rawCapabilityCode, true, modes);
 		
 	}
 
 	public BaseEntity addCapabilityToBaseEntity(BaseEntity targetBe, final String rawCapabilityCode, final CapabilityMode... modeArray) {
-		return addCapabilityToBaseEntity(targetBe, rawCapabilityCode, false, modeArray);
+		return addCapabilityToBaseEntity(targetBe, rawCapabilityCode, true, modeArray);
 	}
 
 	public BaseEntity addCapabilityToBaseEntity(BaseEntity targetBe, final String rawCapabilityCode, final boolean cascade, final CapabilityMode... modeArray) {
@@ -128,6 +128,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 
 		// Convert array modes to a unique set of modes
 		Set<CapabilityMode> modes = Arrays.asList(modeArray).stream().collect(Collectors.toSet());
+		
 		if(cascade) {
 			CapabilityMode highestMode = getHighestPriorityCap(modeArray);
 			// Add all lesser modes to the mode list
@@ -424,14 +425,18 @@ public class CapabilityUtilsRefactored implements Serializable {
 		* 2. OWN or OTHER
 		* 3. CODE
 		*/
-		if(components.length < 3) {
-			log.warn("facts Capability Code: " + rawCapabilityCode + " missing OWN/OTHER declaration.");
-		} else {
-			Boolean affectsOwn = "OWN".equals(components[1]);
-			Boolean affectsOther = "OTHER".equals(components[1]);
 
-			if(!affectsOwn && !affectsOther) {
-				log.warn("facts Capability Code: " + rawCapabilityCode + " has malformed OWN/OTHER declaration.");
+		final boolean CHECK_OWN = false;
+		if(CHECK_OWN) {
+			if(components.length < 3) {
+				log.warn("facts Capability Code: " + rawCapabilityCode + " missing OWN/OTHER declaration.");
+			} else {
+				Boolean affectsOwn = "OWN".equals(components[1]);
+				Boolean affectsOther = "OTHER".equals(components[1]);
+
+				if(!affectsOwn && !affectsOther) {
+					log.warn("facts Capability Code: " + rawCapabilityCode + " has malformed OWN/OTHER declaration.");
+				}
 			}
 		}
 
