@@ -3,6 +3,10 @@ package life.genny.test.qwandautils.capabilties;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.Test;
 
 import life.genny.qwanda.datatype.CapabilityMode;
@@ -36,5 +40,21 @@ public class CapabilityUtilsTest {
         CapabilityMode[] capModeArray = {VIEW, ADD};
         String goodCapModeString1 = "[\"VIEW\",\"ADD\"]";
         assertEquals(goodCapModeString1, getModeString(capModeArray));
+    }
+
+    @Test
+    public void getHighestPriorityCapTest() {
+        CapabilityMode[] capModeArray = {EDIT, DELETE, ADD, VIEW};
+        CapabilityMode expected = DELETE;
+
+        assertEquals(expected, getHighestPriorityCap(capModeArray));
+    }
+    
+    @Test
+    public void getLesserModesTest() {
+        CapabilityMode testMode = DELETE;
+        CapabilityMode[] expected = {ADD, EDIT, VIEW, NONE};
+        CapabilityMode[] actual = CapabilityMode.getLesserModes(testMode).toArray(new CapabilityMode[0]);
+        assertArrayEquals(expected, actual);
     }
 }

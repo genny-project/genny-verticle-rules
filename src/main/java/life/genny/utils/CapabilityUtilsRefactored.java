@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import javax.persistence.Transient;
 
@@ -100,26 +102,37 @@ public class CapabilityUtilsRefactored implements Serializable {
 
 	@Deprecated
 	/**
-	 * Deprecated since 10.0.0. To be removed 10.1.0. Use {@link CapabilityUtilsRefactored#addCapabilityToBaseEntity(BaseEntity, String, CapabilityMode...)} instead
+	 * Deprecated since 10.0.0. To be removed 10.1.0. Use {@link CapabilityUtilsRefactored#addCapabilityToBaseEntity(BaseEntity, String, boolean, CapabilityMode...)} instead
 	 * @param role
 	 * @param rawCapabilityCode
 	 * @param modes
 	 * @return
 	 */
 	public BaseEntity addCapabilityRoRole(BaseEntity role, final String rawCapabilityCode, final CapabilityMode... modes) {
-		return addCapabilityToBaseEntity(role, rawCapabilityCode, modes);
+		return addCapabilityToBaseEntity(role, rawCapabilityCode, true, modes);
 		
 	}
 
-	public BaseEntity addCapabilityToBaseEntity(BaseEntity targetBe, final String rawCapabilityCode, final CapabilityMode... modes) {
+	public BaseEntity addCapabilityToBaseEntity(BaseEntity targetBe, final String rawCapabilityCode, final CapabilityMode... modeArray) {
+		return addCapabilityToBaseEntity(targetBe, rawCapabilityCode, false, modeArray);
+	}
+
+	public BaseEntity addCapabilityToBaseEntity(BaseEntity targetBe, final String rawCapabilityCode, final boolean cascade, final CapabilityMode... modeArray) {
 		// Ensure the capability is well defined
 		String cleanCapabilityCode = cleanCapabilityCode(rawCapabilityCode);
 		// Check the user token has required capabilities
-		if (!hasCapability(cleanCapabilityCode,modes)) {
+		if (!hasCapability(cleanCapabilityCode,modeArray)) {
 			log.error(beUtils.getGennyToken().getUserCode() + " is NOT ALLOWED TO ADD CAP: " + cleanCapabilityCode + " TO BASE ENTITITY: " + targetBe.getCode());
 			return targetBe;
 		}
 
+		// Convert array modes to a unique set of modes
+		Set<CapabilityMode> modes = Arrays.asList(modeArray).stream().collect(Collectors.toSet());
+		if(cascade) {
+			CapabilityMode highestMode = getHighestPriorityCap(modeArray);
+			// Add all lesser modes to the mode list
+			modes.addAll(CapabilityMode.getLesserModes(highestMode));
+		}
 
 		updateCachedRoleSet(targetBe.getCode(), cleanCapabilityCode, modes);
 		return targetBe;
@@ -136,6 +149,10 @@ public class CapabilityUtilsRefactored implements Serializable {
 
 		String modeString = object.getString("value");
 		return getCapModesFromString(modeString);
+	}
+
+	private JsonObject updateCachedRoleSet(final String beCode, final String cleanCapabilityCode, final Set<CapabilityMode> modes) {
+		return updateCachedRoleSet(beCode, cleanCapabilityCode, modes.toArray(new CapabilityMode[0]));
 	}
 
 	/**
@@ -364,6 +381,16 @@ public class CapabilityUtilsRefactored implements Serializable {
 		return allowables;
 	}
 
+	public static CapabilityMode getHighestPriorityCap(final CapabilityMode... modeArray) {
+		CapabilityMode highestMode = modeArray[0];
+		for(CapabilityMode mode : modeArray) {
+			if(mode.greaterThan(highestMode))
+				highestMode = mode;
+		}
+
+		return highestMode;
+	}
+	
 	public static String getModeString(CapabilityMode... modes) {
 		String modeString = "[";
 		for(CapabilityMode mode : modes) {

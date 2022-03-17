@@ -146,8 +146,6 @@ public class CapabilityUtils implements Serializable {
 			updateCachedRoleSet(role.getCode(), cCode, CapabilityMode.ADD);
 			updateCachedRoleSet(role.getCode(), cCode, CapabilityMode.DELETE);
 			break;
-
-
 		}
 		return role;
 	}
