@@ -21,6 +21,7 @@ import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import life.genny.models.GennyToken;
+import life.genny.qwanda.Answer;
 import life.genny.qwanda.attribute.Attribute;
 import life.genny.qwanda.attribute.AttributeText;
 import life.genny.qwanda.attribute.EntityAttribute;
@@ -134,6 +135,14 @@ public class CapabilityUtilsRefactored implements Serializable {
 			// Add all lesser modes to the mode list
 			modes.addAll(CapabilityMode.getLesserModes(highestMode));
 		}
+
+		String modeString = getModeString(modes);
+
+		/* Construct answer with Source, Target, Attribute Code, Value */
+		Answer answer = new Answer(beUtils.getServiceToken().getUserCode(), targetBe.getCode(), cleanCapabilityCode, );
+		Attribute capabilityAttribute = RulesUtils.getAttribute(cleanCapabilityCode, beUtils.getServiceToken().getToken());
+		answer.setAttribute(capabilityAttribute);
+		targetBe = beUtils.saveAnswer(answer);
 
 		updateCachedRoleSet(targetBe.getCode(), cleanCapabilityCode, modes);
 		return targetBe;
@@ -392,6 +401,10 @@ public class CapabilityUtilsRefactored implements Serializable {
 		return highestMode;
 	}
 	
+	public static String getModeString(Set<CapabilityMode> modes) {
+		return getModeString(modes.toArray(new CapabilityMode[0]));
+	}
+
 	public static String getModeString(CapabilityMode... modes) {
 		String modeString = "[";
 		for(CapabilityMode mode : modes) {
