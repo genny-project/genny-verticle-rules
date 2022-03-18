@@ -287,7 +287,7 @@ public class CapabilityUtils implements Serializable {
 		log.info("hasCapabilityThroughPriIs:: defBe.getCode " + defBe.getCode());
 
 		//// "HACK HACK HACK"
-		log.info("hasCapabilityThroughPriIs:: json.getString" + json.getString("status"));
+		log.info("hasCapabilityThroughPriIs:: json.getString " + json.getString("status"));
 		if ("error".equals(json.getString("status")) && "DEF_AGENT".equals(defBe.getCode()) ) {
 			log.info("hasCapabilityThroughPriIs:: Inside IF " );
 			if ("SBE_AVAILABLE_INTERNS".equals(capabilityCode)) {
@@ -308,7 +308,11 @@ public class CapabilityUtils implements Serializable {
 
 		// else get the list of roles associated with the key
 		String roleCodesString = json.getString("value");
-		
+		if (roleCodesString == null)  {
+			log.info("hasCapabilityThroughPriIs:: return false");
+			return false;
+		}
+
 		String roleCodes[] = roleCodesString.split(",");
 		log.info("hasCapabilityThroughPriIs:: roleCodesString " + roleCodesString);
 
