@@ -369,6 +369,11 @@ public class CapabilityUtilsRefactored implements Serializable {
 						ignore = true;
 					} else {
 						modeString = ea.getValue();
+						
+						// TODO: Make more elegant. Very dumb array check
+						if(!modeString.startsWith("[")) {
+							modeString = "[" + modeString + "]";
+						}
 					}
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
