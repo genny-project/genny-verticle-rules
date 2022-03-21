@@ -415,15 +415,13 @@ public class CapabilityUtilsRefactored implements Serializable {
 	}
 
 	public static CapabilityMode[] getCapModesFromString(String modeString) {
-
-		JsonArray array = new JsonArray();
-		// try catch in case it is not an array string
+		log.info("facts Getting array of: " + modeString);
+		JsonArray array = null;
 		try {
 			array = new JsonArray(modeString);
-		} catch (Exception e) {
-			array.add(modeString);
+		} catch(Exception e) {
+			return new CapabilityMode[0];
 		}
-
 		CapabilityMode[] modes = new CapabilityMode[array.size()];
 
 		for(int i = 0; i < array.size(); i++) {
