@@ -342,9 +342,9 @@ public class CapabilityUtilsRefactored implements Serializable {
 		}
 		
 		// Add keycloak roles
-		for (String role : userToken.getUserRoles()) {
-			roleCodesArray.add(ROLE_BE_PREFIX + role.toUpperCase());
-		}
+		// for (String role : userToken.getUserRoles()) {
+		// 	roleCodesArray.add(ROLE_BE_PREFIX + role.toUpperCase());
+		// }
 
 		for(int i = 0; i < roleCodesArray.size(); i++) {
 			String roleBECode = roleCodesArray.getString(i);
