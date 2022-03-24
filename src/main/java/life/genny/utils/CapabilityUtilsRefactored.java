@@ -175,7 +175,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 		String key = getCacheKey(token.getRealm(), beCode, cleanCapabilityCode);
 		String modesString = getModeString(modes);
 		
-		log.info("updateCachedRoleSet test:: " + key);
+		log.info("refactor updateCachedRoleSet test:: " + key);
 		// if no cache then create
 		return VertxUtils.writeCachedJson(token.getRealm(), key, modesString, token.getToken());
 	}
