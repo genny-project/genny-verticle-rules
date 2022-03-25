@@ -144,6 +144,11 @@ public class CapabilityUtilsRefactored implements Serializable {
 		answer.setAttribute(capabilityAttribute);
 		targetBe = beUtils.saveAnswer(answer);
 
+		String[] attributeCodes = targetBe.getBaseEntityAttributes().stream().map((entityAttribute) -> {
+			return entityAttribute.getAttributeCode();
+		}).collect(Collectors.toList()).toArray(new String[0]);
+		log.info(targetBe.getCode() + " attribs: " + attributeCodes);
+
 		updateCachedRoleSet(targetBe.getCode(), cleanCapabilityCode, modes);
 		return targetBe;
 	}
@@ -174,8 +179,6 @@ public class CapabilityUtilsRefactored implements Serializable {
 		GennyToken token = beUtils.getGennyToken();
 		String key = getCacheKey(token.getRealm(), beCode, cleanCapabilityCode);
 		String modesString = getModeString(modes);
-		
-		log.info("refactor updateCachedRoleSet test:: " + key);
 		// if no cache then create
 		return VertxUtils.writeCachedJson(token.getRealm(), key, modesString, token.getToken());
 	}
