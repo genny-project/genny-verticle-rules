@@ -78,6 +78,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 		String cleanCapabilityCode = cleanCapabilityCode(rawCapabilityCode);
 		log.info("Setting Capability : " + cleanCapabilityCode + " : " + name);
 		Attribute attribute = RulesUtils.realmAttributeMap.get(this.beUtils.getGennyToken().getRealm()).get(cleanCapabilityCode);
+		log.info("preexisting: " + (attribute != null));
 		if (attribute != null) {
 			capabilityManifest.add(attribute);
 			return attribute;
@@ -91,7 +92,8 @@ public class CapabilityUtilsRefactored implements Serializable {
 				// no roles would have this attribute yet
 				// return
 				capabilityManifest.add(attribute);
-				return attribute;
+				Attribute newAttrib = RulesUtils.realmAttributeMap.get(this.beUtils.getGennyToken().getRealm()).get(cleanCapabilityCode);
+				log.info("new attrib: " + (newAttrib != null));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
