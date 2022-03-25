@@ -128,7 +128,6 @@ public class CapabilityUtilsRefactored implements Serializable {
 			log.error(beUtils.getGennyToken().getUserCode() + " is NOT ALLOWED TO ADD CAP: " + cleanCapabilityCode + " TO BASE ENTITITY: " + targetBe.getCode());
 			return targetBe;
 		}
-
 		// Convert array modes to a unique set of modes
 		Set<CapabilityMode> modes = Arrays.asList(modeArray).stream().collect(Collectors.toSet());
 		
@@ -139,6 +138,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 		}
 
 		String modeString = getModeString(modes);
+		log.info("facts Adding: " + cleanCapabilityCode + " to " + targetBe.getCode() + " modes: " +  modeString);
 
 		/* Construct answer with Source, Target, Attribute Code, Value */
 		Answer answer = new Answer(beUtils.getServiceToken().getUserCode(), targetBe.getCode(), cleanCapabilityCode, modeString);
