@@ -374,11 +374,6 @@ public class CapabilityUtilsRefactored implements Serializable {
 						ignore = true;
 					} else {
 						modeString = ea.getValue();
-						
-						// TODO: Make more elegant. Very dumb array check
-						if(!modeString.startsWith("[")) {
-							modeString = "[" + modeString + "]";
-						}
 					}
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -425,6 +420,10 @@ public class CapabilityUtilsRefactored implements Serializable {
 	}
 
 	public static CapabilityMode[] getCapModesFromString(String modeString) {
+		if(!modeString.startsWith("["))
+			modeString = "[" + modeString;
+		if(!modeString.endsWith("]"))
+			modeString += "]";
 		log.info("facts Getting array of: " + modeString);
 		JsonArray array = null;
 		try {
