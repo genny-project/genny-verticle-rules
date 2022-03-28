@@ -482,6 +482,15 @@ public class CapabilityUtilsRefactored implements Serializable {
 	}
 
 	public JsonObject writeRoleToCache(BaseEntity role) {
+		log.info("facts writing role: " + role.getCode() + " to cache");
+		log.info("Capabilities:");
+		for(EntityAttribute attribute : role.getBaseEntityAttributes()) {
+			if(!attribute.getAttributeCode().startsWith(CAP_CODE_PREFIX)) {
+				continue;
+			}
+
+			log.info("facts Capability: " + attribute.getAttributeCode());
+		}
 		JsonObject response = VertxUtils.writeCachedJson(getBeUtils().getServiceToken().getRealm(), role.getCode(), JsonUtils.toJson(role), getBeUtils().getServiceToken().getToken());
         Boolean success = "ok".equalsIgnoreCase(response.getString("status"));
 		if(!success) {
