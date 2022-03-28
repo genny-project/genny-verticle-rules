@@ -480,4 +480,14 @@ public class CapabilityUtilsRefactored implements Serializable {
 	private static String getCacheKey(String realm, String beCode, String capCode) {
 		return realm + ":" + beCode + ":" + capCode;
 	}
+
+	public JsonObject writeRoleToCache(BaseEntity role) {
+		JsonObject response = VertxUtils.writeCachedJson(getBeUtils().getServiceToken().getRealm(), role.getCode(), JsonUtils.toJson(role), getBeUtils().getServiceToken().getToken());
+        Boolean success = "ok".equalsIgnoreCase(response.getString("status"));
+		if(!success) {
+			log.error("Error writing Role: " + role.getCode() + " to cache: " + getBeUtils().getServiceToken().getRealm());
+			log.error("Json: " + JsonUtils.toJson(role));
+		}
+		return response;
+	}
 }
