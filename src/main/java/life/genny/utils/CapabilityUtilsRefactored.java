@@ -500,4 +500,8 @@ public class CapabilityUtilsRefactored implements Serializable {
 		}
 		return response;
 	}
+
+	public BaseEntity setRoleWeight(BaseEntity role, double weight) {
+		return beUtils.saveAnswer(new Answer(getBeUtils().getServiceToken().getUserCode(), role.getCode(), "PRI_WEIGHT", weight,false,true));
+	}
 }
