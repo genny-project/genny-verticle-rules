@@ -261,7 +261,10 @@ public class CapabilityUtils implements Serializable {
 
 	// NOTE: This is temporary until ROL_ attributes are properly in place
 	@Deprecated
-	public boolean hasCapabilityThroughPriIs(final String capabilityCode, final CapabilityMode mode) {
+	public boolean hasCapabilityThroughPriIs(String capabilityCode, final CapabilityMode mode) {String cCode = capabilityCode;
+		if (!capabilityCode.startsWith("PRM_")) {
+			capabilityCode = "PRM_"+capabilityCode;
+		}
 		// allow keycloak admin and devcs to do anything
 		log.info("hasCapabilityThroughPriIs capabilityCode:: " + capabilityCode + "CapabilityMode" + mode.name());
 		
