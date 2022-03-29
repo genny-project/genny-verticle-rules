@@ -29,6 +29,13 @@ public class CapabilityUtilsTest {
     }
 
     @Test
+    public void getOldCapModeArrayTest() {
+        String capModeString = "EDIT";
+        CapabilityMode[] goodArray = {EDIT};
+        assertArrayEquals(goodArray, getCapModesFromString(capModeString));
+    }
+
+    @Test
     public void getCapModeArrayTest() {
         String capModeString1 = "[\"VIEW\",\"ADD\"]";
         CapabilityMode[] goodArray1 = {VIEW, ADD};
