@@ -22,6 +22,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import life.genny.models.GennyToken;
 import life.genny.qwanda.Answer;
+import life.genny.qwanda.Ask;
 import life.genny.qwanda.attribute.Attribute;
 import life.genny.qwanda.attribute.AttributeText;
 import life.genny.qwanda.attribute.EntityAttribute;
@@ -503,5 +504,23 @@ public class CapabilityUtilsRefactored implements Serializable {
 
 	public BaseEntity setRoleWeight(BaseEntity role, double weight) {
 		return beUtils.saveAnswer(new Answer(getBeUtils().getServiceToken().getUserCode(), role.getCode(), "PRI_WEIGHT", weight,false,true));
+	}
+
+	public void recursivelyCheckSidebarAskForCapability(Ask ask) {
+
+		ArrayList<Ask> askList = new ArrayList<>();
+
+		for (Ask childAsk : ask.getChildAsks()) {
+			String code = "SIDEBAR_" + childAsk.getQuestionCode();
+
+			if (hasCapability(code, CapabilityMode.VIEW)) {
+
+				recursivelyCheckSidebarAskForCapability(childAsk);
+				askList.add(childAsk);
+			}
+		}
+
+		Ask[] items = askList.toArray(new Ask[askList.size()]);
+		ask.setChildAsks(items);
 	}
 }
