@@ -23,6 +23,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import life.genny.models.GennyToken;
 import life.genny.qwanda.Answer;
+import life.genny.qwanda.Ask;
 import life.genny.qwanda.attribute.Attribute;
 import life.genny.qwanda.attribute.AttributeText;
 import life.genny.qwanda.attribute.EntityAttribute;
@@ -601,13 +602,33 @@ public class CapabilityUtilsRefactored implements Serializable {
 	 * @see {@link BaseEntity#getCode()}
 	 */
 	private static boolean isRole(BaseEntity baseEntity) {
-		return baseEntity.getCode().startsWith(ROLE_BE_PREFIX);
+		return isRole(baseEntity.getCode());
 	}
 
+	private static boolean isRole(String beCode) {
+		return beCode.startsWith(ROLE_BE_PREFIX);
+	}
+
+	/**
+	 * 
+	 * Check whether a base entity is allowed to have capabilities stored in the base entity
+	 * @param baseEntity BaseEntity to check
+	 * @return
+	 * 
+	 * @see {@link BaseEntity}
+	 * @see {@link CapabilityUtilsRefactored#ACCEPTED_CAP_PREFIXES}
+	 */
 	public static boolean isAllowedToHaveCapabilities(BaseEntity baseEntity) {
 		return isAllowedToHaveCapabilities(baseEntity.getCode());
 	}
 
+	/**
+	 * Check whether a base entity is allowed to have capabilities stored in the base entity
+	 * @param beCode BaseEntity code to check
+	 * @return
+	 * @see {@link BaseEntity#getCode()}
+	 * @see {@link CapabilityUtilsRefactored#ACCEPTED_CAP_PREFIXES}
+	 */
 	public static Boolean isAllowedToHaveCapabilities(String beCode) {
 		for( String prefix : ACCEPTED_CAP_PREFIXES ) {
 			if(beCode.startsWith(prefix))
@@ -615,6 +636,24 @@ public class CapabilityUtilsRefactored implements Serializable {
 		}
 
 		return false;
+	}
+
+	public void recursivelyCheckSidebarAskForCapability(Ask ask) {
+
+		ArrayList<Ask> askList = new ArrayList<>();
+
+		for (Ask childAsk : ask.getChildAsks()) {
+			String code = "SIDEBAR_" + childAsk.getQuestionCode();
+
+			if (hasCapability(code, CapabilityMode.VIEW)) {
+
+				recursivelyCheckSidebarAskForCapability(childAsk);
+				askList.add(childAsk);
+			}
+		}
+
+		Ask[] items = askList.toArray(new Ask[askList.size()]);
+		ask.setChildAsks(items);
 	}
 
 	@Override

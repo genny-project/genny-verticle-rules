@@ -19,6 +19,7 @@ import com.google.gson.annotations.Expose;
 import io.vertx.core.json.JsonObject;
 import life.genny.models.GennyToken;
 import life.genny.qwanda.Answer;
+import life.genny.qwanda.Ask;
 import life.genny.qwanda.attribute.Attribute;
 import life.genny.qwanda.attribute.AttributeText;
 import life.genny.qwanda.attribute.EntityAttribute;
@@ -477,5 +478,23 @@ public class CapabilityUtils implements Serializable {
 		}
 
 		return allowable;
+	}
+
+	public void recursivelyCheckSidebarAskForCapability(Ask ask) {
+
+		ArrayList<Ask> askList = new ArrayList<>();
+
+		for (Ask childAsk : ask.getChildAsks()) {
+			String code = "SIDEBAR_" + childAsk.getQuestionCode();
+
+			if (hasCapabilityThroughPriIs(code, CapabilityMode.VIEW)) {
+
+				recursivelyCheckSidebarAskForCapability(childAsk);
+				askList.add(childAsk);
+			}
+		}
+
+		Ask[] items = askList.toArray(new Ask[askList.size()]);
+		ask.setChildAsks(items);
 	}
 }
