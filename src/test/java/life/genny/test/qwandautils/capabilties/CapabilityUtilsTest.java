@@ -4,7 +4,6 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
@@ -15,53 +14,92 @@ import static life.genny.utils.CapabilityUtilsRefactored.*;
 import static life.genny.qwanda.datatype.CapabilityMode.*;
 
 public class CapabilityUtilsTest {
+    class TestCase<Input, Expected> {
+        public final Input input;
+        public final Expected expected;
+
+        public TestCase(Input input, Expected expected) {
+            this.input = input;
+            this.expected = expected;
+        }
+    }
     
     @Test
     public void cleanCapabilityCodeTest() {
-        String badCode1 = "prm_APPLE";
-        String goodCode1 = "PRM_APPLE";
+        List<TestCase<String, String>> tests = new ArrayList<>();
+        tests.add(new TestCase<String, String>("prm_APPLE", "PRM_APPLE"));
+        tests.add(new TestCase<String, String>("OWN_APPLE", "PRM_OWN_APPLE"));
 
-        String badCode2 = "OWN_APPLE";
-        String goodCode2 = "PRM_OWN_APPLE";
-
-        assertEquals(goodCode1, cleanCapabilityCode(badCode1));
-        assertEquals(goodCode2, cleanCapabilityCode(badCode2));
+        for(TestCase<String, String> test : tests) {
+            System.out.println("[!] cleanCapCode testing: " + test.input);
+            assertEquals(test.expected, cleanCapabilityCode(test.input));
+        }
     }
 
-    @Test
-    public void getOldCapModeArrayTest() {
-        String capModeString = "EDIT";
-        CapabilityMode[] goodArray = {EDIT};
-        assertArrayEquals(goodArray, getCapModesFromString(capModeString));
+    private TestCase<String, CapabilityMode[]> createCapModeTest(String input, CapabilityMode... expected) {
+        return new TestCase<String, CapabilityMode[]>(input, expected);
     }
 
     @Test
     public void getCapModeArrayTest() {
-        String capModeString1 = "[\"VIEW\",\"ADD\"]";
-        CapabilityMode[] goodArray1 = {VIEW, ADD};
-        assertArrayEquals(goodArray1, getCapModesFromString(capModeString1));
+        List<TestCase<String, CapabilityMode[]>> tests = new ArrayList<>();
+        tests.add(createCapModeTest("EDIT", EDIT));
+        tests.add(createCapModeTest("[\"VIEW\",\"ADD\"]", VIEW, ADD));
+
+        for(TestCase<String, CapabilityMode[]> test : tests) {
+            System.out.println("[!] getCapModeArrayFromString testing: " + test.input);
+            assertArrayEquals(test.expected, getCapModesFromString(test.input));
+        }
+    }
+
+    private TestCase<CapabilityMode[], String> createCapModeStringTest(String expected, CapabilityMode... input) {
+        return new TestCase<CapabilityMode[], String>(input, expected);
     }
 
     @Test
     public void getCapModeStringTest() {
-        CapabilityMode[] capModeArray = {VIEW, ADD};
-        String goodCapModeString1 = "[\"VIEW\",\"ADD\"]";
-        assertEquals(goodCapModeString1, getModeString(capModeArray));
+        List<TestCase<CapabilityMode[], String>> tests = new ArrayList<>();
+        tests.add(createCapModeStringTest("[\"EDIT\"]", EDIT));
+        tests.add(createCapModeStringTest("[\"VIEW\",\"ADD\"]", VIEW, ADD));
+
+        for(TestCase<CapabilityMode[], String> test : tests) {
+            System.out.println("[!] getModeString testing: " + test.expected);
+            assertEquals(test.expected, getModeString(test.input));
+        }
+    }
+
+    private TestCase<CapabilityMode[], CapabilityMode> createHighestPrioCapTest(CapabilityMode expected, CapabilityMode... input) {
+        return new TestCase<CapabilityMode[], CapabilityMode>(input, expected);
     }
 
     @Test
     public void getHighestPriorityCapTest() {
-        CapabilityMode[] capModeArray = {EDIT, DELETE, ADD, VIEW};
-        CapabilityMode expected = DELETE;
+        List<TestCase<CapabilityMode[], CapabilityMode>> tests = new ArrayList<>();
+        tests.add(createHighestPrioCapTest(DELETE, // expected delete
+                                    EDIT, DELETE, ADD, VIEW)); // input [EDIT, DELETE, ADD, VIEW]
 
-        assertEquals(expected, getHighestPriorityCap(capModeArray));
+        for(TestCase<CapabilityMode[], CapabilityMode> test : tests) {
+            System.out.println("[!] Highest Priority testing: " + getModeString(test.input));
+            assertEquals(test.expected, getHighestPriorityCap(test.input));
+        }
     }
     
+    private TestCase<CapabilityMode, CapabilityMode[]> createLesserModeTest(CapabilityMode input, CapabilityMode... expected) {
+        return new TestCase<CapabilityMode, CapabilityMode[]>(input, expected);
+    }
+
     @Test
     public void getLesserModesTest() {
-        CapabilityMode testMode = DELETE;
-        CapabilityMode[] expected = {ADD, EDIT, VIEW, NONE};
-        CapabilityMode[] actual = CapabilityMode.getLesserModes(testMode).toArray(new CapabilityMode[0]);
-        assertArrayEquals(expected, actual);
+        List<TestCase<CapabilityMode, CapabilityMode[]>> tests = new ArrayList<>();
+        tests.add(createLesserModeTest(DELETE, // input delete
+            ADD, EDIT, VIEW, NONE)); // expected [add, edit, view, none]
+
+        tests.add(createLesserModeTest(VIEW, // input delete
+            NONE)); // expected [none]
+
+        for(TestCase<CapabilityMode, CapabilityMode[]> test : tests) {
+            System.out.println("[!] Lesser modes testing: " + test.input.name());
+            assertArrayEquals(test.expected, CapabilityMode.getLesserModes(test.input).toArray(new CapabilityMode[0]));
+        }
     }
 }

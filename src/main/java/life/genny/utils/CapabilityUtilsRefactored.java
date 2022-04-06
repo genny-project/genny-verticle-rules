@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -105,7 +106,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 
 	@Deprecated
 	/**
-	 * Deprecated since 10.0.0. To be removed 10.1.0. Use {@link CapabilityUtilsRefactored#addCapabilityToBaseEntity(BaseEntity, String, boolean, CapabilityMode...)} instead
+	 * Deprecated since 10.0.0. To be removed 10.2.0. Use {@link CapabilityUtilsRefactored#addCapabilityToBaseEntity(BaseEntity, String, boolean, CapabilityMode...)} instead
 	 * @param role
 	 * @param rawCapabilityCode
 	 * @param modes
@@ -155,9 +156,12 @@ public class CapabilityUtilsRefactored implements Serializable {
 		return targetBe;
 	}
 
-	private CapabilityMode[] getCapabilitiesFromCache(final String roleCode, final String cleanCapabilityCode) {
+	private CapabilityMode[] getCapabilitiesFromCache(final String baseEntityCode, final String cleanCapabilityCode) {
+
+		// Check the base entity is allowed to have capabilities
+
 		GennyToken token = beUtils.getGennyToken();
-		String key = getCacheKey(token.getRealm(), roleCode, cleanCapabilityCode);
+		String key = getCacheKey(token.getRealm(), baseEntityCode, cleanCapabilityCode);
 		JsonObject object = VertxUtils.readCachedJson(token.getRealm(), key);
 		if("error".equals(object.getString("status"))) {
 			log.error("Error reading cache for realm: " + token.getRealm() + " with key: " + key);
@@ -187,13 +191,32 @@ public class CapabilityUtilsRefactored implements Serializable {
 
 	/**
 	 * Go through a list of capability modes and check that the token can manipulate the modes for the provided capabilityCode
-	 * @param capabilityCode capabilityCode to check against
+	 * @param rawCapabilityCode capabilityCode to check against (will be cleaned with clean capability function)
 	 * @param modes array of modes to check against
 	 * @return whether or not the token can manipulate all the supplied modes for the supplied capabilityCode
+	 * 
+	 * @see {@link CapabilityMode}
+	 * @see {@link CapabilityUtilsRefactored#cleanCapabilityCode(String)}
 	 */
 	public boolean hasCapability(final String rawCapabilityCode, final CapabilityMode... checkModes) {
-		// allow keycloak admin and devcs to do anything
+		return hasCapability(false, rawCapabilityCode, checkModes);
+	}
+
+	/**
+	 * Go through a list of CapabilityModes and check that the User BaseEntity has at least one or all (requiresAll depending) 
+	 * of the CapabilityModes in the aforementioned list for a given CapabilityCode.
+	 * @param requiresAll whether or not to check for every capability mode in the modes array for the capability code (Default <b>true</b>)
+	 * @param rawCapabilityCode capabilityCode to check against (will be cleaned with clean capability function)
+	 * @param modes array of modes to check against
+	 * @return whether or not the token can manipulate all the supplied modes for the supplied capabilityCode
+	 * 
+	 * @see {@link CapabilityMode}
+	 * @see {@link CapabilityUtilsRefactored#cleanCapabilityCode(String)}
+	 */
+	public boolean hasCapability(boolean requiresAll, final String rawCapabilityCode, final CapabilityMode... checkModes) {
+		// allow keycloak admin, service and devs to do anything
 		if (beUtils.getGennyToken().hasRole("admin")||beUtils.getGennyToken().hasRole("dev")||(beUtils.tokenIsServiceUser())) {
+			log.info("User is admin, dev or service user -> bypassing hasCap check");
 			return true;
 		}
 		final String cleanCapabilityCode = cleanCapabilityCode(rawCapabilityCode);
@@ -204,43 +227,75 @@ public class CapabilityUtilsRefactored implements Serializable {
 		
 		Optional<EntityAttribute> lnkRole = user.findEntityAttribute(LNK_ROLE_CODE);
 		
-		// Make a list for the modes that have been found in the user's various roles
-		// TODO: Potentially change this to a system that matches from multiple roles instead of a single role
-		// List<CapabilityMode> foundModes = new ArrayList<>();
+		// Make a list for the modes that have been found in the user's various roles. To be used if we require all
+		Set<CapabilityMode> foundModes = new HashSet<>();
+		Set<CapabilityMode> checkModeSet = Arrays.asList(checkModes).stream().collect(Collectors.toSet());
 
 		if(lnkRole.isPresent()) {
 			String rolesValue = lnkRole.get().getValueString();
 			try {
 				// Look through cache using each role
 				JsonArray roleArray = new JsonArray(rolesValue);
+
+				// 1. For each role, look for the target capability and check the modes associated with the capability
+				// 2. If there is a capability from the modes in the role that is one of the check modes, add it to foundModes
 				for(int i = 0; i < roleArray.size(); i++) {
 					String roleCode = roleArray.getString(i);
 					
 					CapabilityMode[] modes = getCapabilitiesFromCache(roleCode, cleanCapabilityCode);
 					List<CapabilityMode> modeList = Arrays.asList(modes);
-					for(CapabilityMode checkMode : checkModes) {
-						if(!modeList.contains(checkMode))
-							return false;
+					for(CapabilityMode mode : modeList) {
+						boolean modeInCheckSet = checkModeSet.contains(mode);
+						if(modeInCheckSet) {
+							if(requiresAll) {
+								foundModes.add(mode);
+							} else {
+								// We only require one mode to be found in the role so we can return true here
+								log.info("User: " + user.getCode() + " has role " + roleCode + " that has " + cleanCapabilityCode + ":" + mode.name());
+								return true;
+							}
+						}
+						// if(!checkModeSet.contains(mode))
+						// 	return false;
 					}
 				}
 
-			// There is a malformed LNK_ROLE Attribute, so we assume they don't have the capability
+			// There is a malformed LNK_ROLE Attribute, so we assume they don't have the capability in their roles
 			} catch(DecodeException exception) {
 				log.error("Error decoding LNK_ROLE for BaseEntity: " + user.getCode());
 				log.error("Value: " + rolesValue + ". Expected: a json array of roles");
-				return false;
 			}
 		}
 
-		// TODO: Implement user checking
-		// Set<EntityAttribute> entityAttributes = user.getBaseEntityAttributes();
-		// for(EntityAttribute eAttribute : entityAttributes) {
-		// 	if(!eAttribute.getAttributeCode().startsWith(CAP_CODE_PREFIX))
-		// 		continue;
-		// }
-		
-		// Since we are iterating through an array of modes to check, the above impl will have returned false if any of them were missing
-		return true;
+		Optional<EntityAttribute> targetCapabilityOptional = user.findEntityAttribute(cleanCapabilityCode);
+		if(targetCapabilityOptional.isPresent()) {
+			CapabilityMode[] modes = getCapModesFromString(targetCapabilityOptional.get().getValueString());
+			for(CapabilityMode mode : modes) {
+				boolean modeInCheckSet = checkModeSet.contains(mode);
+				if(modeInCheckSet) {
+					if(requiresAll) {
+						foundModes.add(mode);
+					} else {
+						// We only require one mode to be found in the person so we can return true here
+						log.info("User: " + user.getCode() + " has " + cleanCapabilityCode + ":" + mode.name() + " in attributes");
+						return true;
+					}
+				}
+			}
+		}
+
+		// if we found a mode earlier and we don't require all then we returned true
+		// if we require all then we require that the foundModes set is the same as the checkModeSet
+		boolean hasAll = foundModes.equals(checkModeSet);
+		if(requiresAll && !hasAll) {
+			Set<CapabilityMode> intersection = new HashSet<>(foundModes);
+			intersection.retainAll(checkModeSet);
+			for(CapabilityMode checkMode : checkModeSet) {
+				if(!intersection.contains(checkMode))
+					log.info("User: " + user.getCode() + " missing CapMode: " + cleanCapabilityCode + ":" + checkMode.name());
+			}
+		}
+		return hasAll;
 	}
 
 	public void process() {
@@ -301,19 +356,6 @@ public class CapabilityUtilsRefactored implements Serializable {
 	 */
 	public List<Attribute> getCapabilityManifest() {
 		return capabilityManifest;
-	}
-
-	/**
-	 * @param capabilityManifest the capabilityManifest to set
-	 */
-	public void setCapabilityManifest(List<Attribute> capabilityManifest) {
-		this.capabilityManifest = capabilityManifest;
-	}
-
-	@Override
-	public String toString() {
-		return "CapabilityUtils [" + (capabilityManifest != null ? "capabilityManifest=" + capabilityManifest : "")
-				+ "]";
 	}
 
 	/**
@@ -441,6 +483,16 @@ public class CapabilityUtilsRefactored implements Serializable {
 		return modes;
 	}
 
+	/**
+	 * Clean a given capability code. This will return the capability code after this process:
+	 * <ul>
+		* <li> prepends the capability code prefix if not already there</li>
+		* <li> checks whether or not the capability code has a capability mode in its name. If this is the 
+		*		case it will be reflected in the logs </li>
+	 * <ul>
+	 * @param rawCapabilityCode
+	 * @return
+	 */
 	public static String cleanCapabilityCode(final String rawCapabilityCode) {
 		String cleanCapabilityCode = rawCapabilityCode.toUpperCase();
 		if(!cleanCapabilityCode.startsWith(CAP_CODE_PREFIX)) {
@@ -478,12 +530,30 @@ public class CapabilityUtilsRefactored implements Serializable {
 		return cleanCapabilityCode;
 	}
 
+	/**
+	 * Get a cache key for a specified realm, base entity code (can be a role or a person) and capability code
+	 * @param realm
+	 * @param beCode
+	 * @param capCode
+	 * @return
+	 */
 	private static String getCacheKey(String realm, String beCode, String capCode) {
 		return realm + ":" + beCode + ":" + capCode;
 	}
 
+	/**
+	 * To be used in the drools to write a role base entity to cache
+	 * @param role the role base entity to write to the cache
+	 * 
+	 * @return returns the response given by the cache from writing the role BaseEntity to the cache
+	 * @see {@link VertxUtils#writeCachedJson(String, String, String, String)}
+	 * @see {@link BaseEntity}
+	 */
 	public JsonObject writeRoleToCache(BaseEntity role) {
 		log.info("facts writing role: " + role.getCode() + " to cache");
+
+
+		// Debug logging
 		log.info("Capabilities:");
 		for(EntityAttribute attribute : role.getBaseEntityAttributes()) {
 			if(!attribute.getAttributeCode().startsWith(CAP_CODE_PREFIX)) {
@@ -492,8 +562,12 @@ public class CapabilityUtilsRefactored implements Serializable {
 
 			log.info("facts Capability: " + attribute.getAttributeCode());
 		}
+
+		// Write the role to cache
 		JsonObject response = VertxUtils.writeCachedJson(getBeUtils().getServiceToken().getRealm(), role.getCode(), JsonUtils.toJson(role), getBeUtils().getServiceToken().getToken());
-        Boolean success = "ok".equalsIgnoreCase(response.getString("status"));
+        
+		// Check for success
+		Boolean success = "ok".equalsIgnoreCase(response.getString("status"));
 		if(!success) {
 			log.error("Error writing Role: " + role.getCode() + " to cache: " + getBeUtils().getServiceToken().getRealm());
 			log.error("Json: " + JsonUtils.toJson(role));
@@ -501,7 +575,51 @@ public class CapabilityUtilsRefactored implements Serializable {
 		return response;
 	}
 
+	/**
+	 * To be used to set the weight of a role base entity. Will not update the PRI_WEIGHT if the BE code does not start with ROL_
+	 * @param role role base entity to set the weight of
+	 * @param weight weight to set (higher weight holds higher priority in the heirarchy)
+	 * @return the response from {@link BaseEntityUtils#saveAnswer(Answer)} if the role is a role BaseEntity
+	 * (Starts with {@link CapabilityUtilsRefactored#ROLE_BE_PREFIX})
+	 */
 	public BaseEntity setRoleWeight(BaseEntity role, double weight) {
+		if(!isRole(role)) {
+			log.error("Attempted to set Role Weight of non role base entity!: " + role.getCode());
+			log.error("Not setting PRI_WEIGHT in " + role.getCode());
+			log.error("Check the relevant DROOLs to make sure this is accurate!");
+			return role;
+		}
 		return beUtils.saveAnswer(new Answer(getBeUtils().getServiceToken().getUserCode(), role.getCode(), "PRI_WEIGHT", weight,false,true));
+	}
+
+	/**
+	 * Determine whether or not the specified base entity is a role
+	 * @param baseEntity base entity to check
+	 * @return whether or not the base entity is a role
+	 * 
+	 * @see {@link CapabilityUtilsRefactored#ROLE_BE_PREFIX}
+	 * @see {@link BaseEntity#getCode()}
+	 */
+	private static boolean isRole(BaseEntity baseEntity) {
+		return baseEntity.getCode().startsWith(ROLE_BE_PREFIX);
+	}
+
+	public static boolean isAllowedToHaveCapabilities(BaseEntity baseEntity) {
+		return isAllowedToHaveCapabilities(baseEntity.getCode());
+	}
+
+	public static Boolean isAllowedToHaveCapabilities(String beCode) {
+		for( String prefix : ACCEPTED_CAP_PREFIXES ) {
+			if(beCode.startsWith(prefix))
+				return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public String toString() {
+		return "CapabilityUtils [" + (capabilityManifest != null ? "capabilityManifest=" + capabilityManifest : "")
+				+ "]";
 	}
 }
