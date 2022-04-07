@@ -23,7 +23,6 @@ public class CapabilityUtilsTest {
             this.expected = expected;
         }
     }
-    
     @Test
     public void cleanCapabilityCodeTest() {
         List<TestCase<String, String>> tests = new ArrayList<>();

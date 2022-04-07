@@ -522,10 +522,11 @@ public class CapabilityUtilsRefactored implements Serializable {
 			}
 		}
 
+		String subStringedCapCode = cleanCapabilityCode.substring(CAP_CODE_PREFIX.length());
 		// Check capability code doesn't have mode keywords
 		for(CapabilityMode mode : CapabilityMode.values()) {
-			if(cleanCapabilityCode.contains(mode.name()))
-				log.warn("facts CapabilityCode: " + rawCapabilityCode + " has CapabilityMode: " + mode.name() + " in its name! This is bad convention and should be removed");
+			if(subStringedCapCode.startsWith(mode.name()))
+				log.warn("facts CapabilityCode: " + rawCapabilityCode + " has CapabilityMode: " + mode.name() + " at the start of its name! This is bad convention and should be removed");
 		}
 
 		return cleanCapabilityCode;
