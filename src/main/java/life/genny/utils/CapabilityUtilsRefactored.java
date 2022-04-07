@@ -528,7 +528,11 @@ public class CapabilityUtilsRefactored implements Serializable {
 			if(subStringedCapCode.startsWith(mode.name()))
 				log.warn("facts CapabilityCode: " + rawCapabilityCode + " has CapabilityMode: " + mode.name() + " at the start of its name! This is bad convention and should be removed");
 		}
-
+		if(subStringedCapCode.startsWith("CREATE")) {
+			log.warn("facts CapabilityCode: " + rawCapabilityCode + " has CREATE at the start of its name! This is bad convention and should be removed");
+			log.warn("	- Replace with TYPE");
+		}
+		
 		return cleanCapabilityCode;
 	}
 
