@@ -260,7 +260,10 @@ public class CapabilityUtils implements Serializable {
 
 	// NOTE: This is temporary until ROL_ attributes are properly in place
 	@Deprecated
-	public boolean hasCapabilityThroughPriIs(final String capabilityCode, final CapabilityMode mode) {
+	public boolean hasCapabilityThroughPriIs(String capabilityCode, final CapabilityMode mode) {String cCode = capabilityCode;
+		if (!capabilityCode.startsWith("PRM_")) {
+			capabilityCode = "PRM_"+capabilityCode;
+		}
 		// allow keycloak admin and devcs to do anything
 		log.info("hasCapabilityThroughPriIs capabilityCode:: " + capabilityCode + "CapabilityMode" + mode.name());
 		
@@ -286,7 +289,7 @@ public class CapabilityUtils implements Serializable {
 		log.info("hasCapabilityThroughPriIs:: defBe.getCode " + defBe.getCode());
 
 		//// "HACK HACK HACK"
-		log.info("hasCapabilityThroughPriIs:: json.getString" + json.getString("status"));
+		log.info("hasCapabilityThroughPriIs:: json.getString " + json.getString("status"));
 		if ("error".equals(json.getString("status")) && "DEF_AGENT".equals(defBe.getCode()) ) {
 			log.info("hasCapabilityThroughPriIs:: Inside IF " );
 			if ("SBE_AVAILABLE_INTERNS".equals(capabilityCode)) {
@@ -307,7 +310,11 @@ public class CapabilityUtils implements Serializable {
 
 		// else get the list of roles associated with the key
 		String roleCodesString = json.getString("value");
-		
+		if (roleCodesString == null)  {
+			log.info("hasCapabilityThroughPriIs:: return false");
+			return false;
+		}
+
 		String roleCodes[] = roleCodesString.split(",");
 		log.info("hasCapabilityThroughPriIs:: roleCodesString " + roleCodesString);
 
