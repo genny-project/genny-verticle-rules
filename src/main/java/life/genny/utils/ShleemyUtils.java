@@ -1,14 +1,14 @@
 package life.genny.utils;
 
+import life.genny.models.GennyToken;
 import life.genny.qwanda.message.QEventMessage;
 import life.genny.qwanda.message.QScheduleMessage;
 import life.genny.qwandautils.GennySettings;
-import life.genny.qwanda.entity.BaseEntity;
-import life.genny.models.GennyToken;
-import life.genny.qwandautils.QwandaUtils;
 import life.genny.qwandautils.JsonUtils;
-import java.time.LocalDateTime;
+import life.genny.qwandautils.QwandaUtils;
+
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 public class ShleemyUtils {
 
@@ -18,6 +18,7 @@ public class ShleemyUtils {
 		System.out.println(" sending scheduler shleemyEndPoint " + shleemyEndPoint);
 		QEventMessage evtMsg = new QEventMessage("SCHEDULE_EVT", eventMsgCode);
 		evtMsg.setToken(userToken.getToken());
+		System.out.println("Scheduling eventMsgCode: "+ eventMsgCode);
 		
 		evtMsg.getData().setTargetCode(targetCode);
 
