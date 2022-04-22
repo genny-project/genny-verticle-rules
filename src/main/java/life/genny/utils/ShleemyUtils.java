@@ -19,6 +19,7 @@ public class ShleemyUtils {
 		QEventMessage evtMsg = new QEventMessage("SCHEDULE_EVT", eventMsgCode);
 		evtMsg.setToken(userToken.getToken());
 		System.out.println("Scheduling eventMsgCode: "+ eventMsgCode);
+		System.out.println("Scheduling scheduleMsgCode: "+ scheduleMsgCode);
 		
 		evtMsg.getData().setTargetCode(targetCode);
 
