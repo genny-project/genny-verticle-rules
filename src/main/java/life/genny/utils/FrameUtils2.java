@@ -341,6 +341,7 @@ public class FrameUtils2 {
 	private static QDataAskMessage getAsks(Ask ask, String questionCode, GennyToken token, String sourceAlias,
 			String targetAlias) {
 
+		String realm = System.getenv("GENNY_REALM");
 		String targetAliasCode = "PER_TARGET";
 
 		if (!(ask.getTargetCode().equals(token.getUserCode())) & !(ask.getTargetCode().startsWith("QUE_"))) {
@@ -357,7 +358,7 @@ public class FrameUtils2 {
 
 		try {
 
-			return QuestionUtils.getAsks(sourceAlias, targetAliasCode, questionCode, token.getToken());
+			return QuestionUtils.getAsks(realm,sourceAlias, targetAliasCode, questionCode, token.getToken());
 			// return QuestionUtils.getAsks(token.getUserCode(), targetAliasCode,
 			// questionCode,token.getToken());
 
@@ -721,7 +722,7 @@ public class FrameUtils2 {
 
 	static public Ask createVirtualAsk(final String questionCode, final String questionName, final String sourceAlias,
 			final String targetAlias, GennyToken serviceToken) {
-		Attribute attribute = RulesUtils.getAttribute(questionCode, serviceToken.getToken());
+		Attribute attribute = RulesUtils.getAttribute(questionCode, serviceToken);
 		if (attribute == null) {
 			attribute = new AttributeText(questionCode, questionName);
 			attribute.setRealm(serviceToken.getRealm());
@@ -845,7 +846,7 @@ public class FrameUtils2 {
 							log.info("themeAttribute code is null");
 						} else {
 							if (!VertxUtils.cachedEnabled) {
-								attribute = RulesUtils.getAttribute(themeAttribute.getCode(), gennyToken.getToken());
+								attribute = RulesUtils.getAttribute(themeAttribute.getCode(), gennyToken);
 							}
 						}
 

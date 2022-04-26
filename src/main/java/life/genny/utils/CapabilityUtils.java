@@ -115,7 +115,7 @@ public class CapabilityUtils implements Serializable {
 		Answer answer = new Answer(beUtils.getServiceToken().getUserCode(), role.getCode(), cCode,
 				mode.toString());
 		Attribute capabilityAttribute = RulesUtils.getAttribute(cCode,
-				beUtils.getServiceToken().getToken());
+				beUtils.getServiceToken());
 		answer.setAttribute(capabilityAttribute);
 		role = beUtils.saveAnswer(answer);
 

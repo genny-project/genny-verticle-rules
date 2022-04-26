@@ -144,7 +144,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 
 		/* Construct answer with Source, Target, Attribute Code, Value */
 		Answer answer = new Answer(beUtils.getServiceToken().getUserCode(), targetBe.getCode(), cleanCapabilityCode, modeString);
-		Attribute capabilityAttribute = RulesUtils.getAttribute(cleanCapabilityCode, beUtils.getServiceToken().getToken());
+		Attribute capabilityAttribute = RulesUtils.getAttribute(cleanCapabilityCode, beUtils.getServiceToken());
 		answer.setAttribute(capabilityAttribute);
 		targetBe = beUtils.saveAnswer(answer);
 
