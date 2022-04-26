@@ -44,7 +44,7 @@ public class ShleemyUtils {
 
 		try {
 			System.out.println("Attempting to delete scheduled message with code " + scheduleMsgCode);
-			QwandaUtils.apiDelete(deleteEndpoint + "/" + scheduleMsgCode, userToken.getToken());
+			QwandaUtils.apiDelete(deleteEndpoint + "/" + scheduleMsgCode, userToken);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}		

@@ -90,7 +90,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 			// save to database and cache
 
 			try {
-				beUtils.saveAttribute(attribute, beUtils.getServiceToken().getToken());
+				beUtils.saveAttribute(attribute, beUtils.getServiceToken());
 				// no roles would have this attribute yet
 				// return
 				capabilityManifest.add(attribute);
@@ -320,7 +320,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 				RulesUtils.realmAttributeMap.get(this.beUtils.getGennyToken().getRealm()).remove(toBeRemovedCapability.getCode()); // remove from cache
 				if (!VertxUtils.cachedEnabled) { // only post if not in junit
 					QwandaUtils.apiDelete(GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/attributes/"
-							+ toBeRemovedCapability.getCode(), beUtils.getServiceToken().getToken());
+							+ toBeRemovedCapability.getCode(), beUtils.getServiceToken());
 				}
 				/* update all the roles that use this attribute by reloading them into cache */
 				QDataBaseEntityMessage rolesMsg = VertxUtils.getObject(beUtils.getServiceToken().getRealm(), "ROLES",
