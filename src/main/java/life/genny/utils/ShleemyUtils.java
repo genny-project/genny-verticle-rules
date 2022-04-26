@@ -3,7 +3,6 @@ package life.genny.utils;
 import life.genny.qwanda.message.QEventMessage;
 import life.genny.qwanda.message.QScheduleMessage;
 import life.genny.qwandautils.GennySettings;
-import life.genny.qwanda.entity.BaseEntity;
 import life.genny.models.GennyToken;
 import life.genny.qwandautils.QwandaUtils;
 import life.genny.qwandautils.JsonUtils;
@@ -32,7 +31,7 @@ public class ShleemyUtils {
 		System.out.println("scheduleMessage = " + scheduleMessage);
 
 		try {
-			QwandaUtils.apiPostEntity2(shleemyEndPoint, JsonUtils.toJson(scheduleMessage), userToken.getToken(), null);
+			QwandaUtils.apiPostEntity2(shleemyEndPoint, JsonUtils.toJson(scheduleMessage), userToken, null);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}		

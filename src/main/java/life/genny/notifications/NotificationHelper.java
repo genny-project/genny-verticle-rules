@@ -63,7 +63,7 @@ public abstract class NotificationHelper {
 
     String recipient = null;
     BaseEntity recipientBeFromDDT =
-        VertxUtils.readFromDDT(userToken.getRealm(), arrRecipient[0], userToken.getToken());
+        VertxUtils.readFromDDT(userToken.getRealm(), arrRecipient[0], userToken);
     recipient =
         MergeUtil.getBaseEntityAttrValueAsString(recipientBeFromDDT, this.msgTargetAttribute);
 
@@ -107,7 +107,7 @@ public abstract class NotificationHelper {
        * User Token string is required
        */
       QBaseMSGMessageTemplate loadTemplate =
-          QwandaUtils.getTemplate(templateCode, userToken.getToken());
+          QwandaUtils.getTemplate(templateCode, userToken);
       /*
        * This block of code is to fetch email template from the github CDN by using http
        * If is SMS message, then will just load the template form the Database
@@ -131,7 +131,7 @@ public abstract class NotificationHelper {
        */
       BaseEntity recipientBeFromDDT =
           VertxUtils.readFromDDT(
-              userToken.getRealm(), arrNotificationRecipient[0], userToken.getToken());
+              userToken.getRealm(), arrNotificationRecipient[0], userToken);
       Map<String, Object> newMap = new HashMap<>();
       newMap = createBaseEntityContextMap(contextMap, userToken);
 
@@ -172,7 +172,7 @@ public abstract class NotificationHelper {
       BaseEntity be = null;
       if ((value != null) && (value.length() > 4)) {
         if (value.matches("[A-Z]{3}\\_.*")) { // MUST BE A BE CODE
-          be = VertxUtils.readFromDDT(userToken.getRealm(), value, userToken.getToken());
+          be = VertxUtils.readFromDDT(userToken.getRealm(), value, userToken);
         }
       }
 

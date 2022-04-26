@@ -72,7 +72,7 @@ public class RouterHandlers {
 						String key = payload.getString("key");
 						String value = payload.getString("json");
 						Long expirySecs = Long.decode(payload.getString("ttl"));
-						VertxUtils.writeCachedJson(userToken.getRealm(), key, value, userToken.getToken(), expirySecs);
+						VertxUtils.writeCachedJson(userToken.getRealm(), key, value, userToken, expirySecs);
 
 						JsonObject ret = new JsonObject().put("status", "ok");
 						context.request().response().headers().set("Content-Type", "application/json");
@@ -104,23 +104,22 @@ public class RouterHandlers {
 		final HttpServerRequest req = context.request();
 		String key = req.getParam("key");
 		String realm = req.getParam("realm");
-		String token = context.request().getParam("token");
+		String tokenStr = context.request().getParam("token");
 
-		if (token == null) {
+		if (tokenStr == null) {
 			MultiMap headerMap = context.request().headers();
-			token = headerMap.get("Authorization");
-			if (token == null) {
+			tokenStr = headerMap.get("Authorization");
+			if (tokenStr == null) {
 				log.error("NULL TOKEN!");
 			} else {
-				token = token.substring(7); // To remove initial [Bearer ]
+				tokenStr = tokenStr.substring(7); // To remove initial [Bearer ]
 			}
-
 		}
 
+		GennyToken token = new GennyToken(tokenStr);
 		if (token != null /* && TokenIntrospection.checkAuthForRoles(avertx,roles, token)*/ ) { // do not allow empty
 																								// tokens
-
-			if ("DUMMY".equals(token)) {
+			if ("DUMMY".equals(token.getToken())) {
 				realm = "jenny"; // force
 			} else {
 				JSONObject tokenJSON = KeycloakUtils.getDecodedToken(token);

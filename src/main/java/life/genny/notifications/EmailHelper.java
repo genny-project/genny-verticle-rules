@@ -339,7 +339,7 @@ public class EmailHelper extends NotificationHelper {
 			// save a 'sent' flag to cache after sending once
 			String key = templateId + ":" + templateData.get("intern") + ":" + to.getEmail();
 			JsonObject emailSentFlag = VertxUtils.readCachedJson(beUtils.getGennyToken().getRealm(), key,
-					beUtils.getServiceToken().getToken());
+					beUtils.getServiceToken());
 			Boolean sendAllowed = false;
 			if (emailSentFlag != null) {
 				if (emailSentFlag.containsKey("status")) {
@@ -347,7 +347,7 @@ public class EmailHelper extends NotificationHelper {
 						sendAllowed = true;
 						// Now set the flag to prevent sending this one again
 						VertxUtils.writeCachedJson(beUtils.getGennyToken().getRealm(), key,
-								"Sent " + LocalDateTime.now(), beUtils.getServiceToken().getToken());
+								"Sent " + LocalDateTime.now(), beUtils.getServiceToken());
 						log.warn("Setting "+key+" to prevent email sending more than once");
 					} else {
 						log.warn("FOUND "+key+" and prevented email sending more than once");

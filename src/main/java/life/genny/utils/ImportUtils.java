@@ -145,7 +145,7 @@ public class ImportUtils {
 			String prefixFilter, String linkAttributeCode, List<Answer> answers) {
 		if (attributeCodeValue._1.startsWith(importAttributeCode)) {
 			QDataBaseEntityMessage foundMsg = QwandaUtils.findBaseEntityByAttributeCodeLikeValue(
-					beUtils.getServiceToken().getRealm(), beUtils.getServiceToken().getToken(), matchAttributeCode,
+					beUtils.getServiceToken().getRealm(), beUtils.getServiceToken(), matchAttributeCode,
 					attributeCodeValue._2);
 
 			if (foundMsg != null) {
@@ -176,7 +176,7 @@ public class ImportUtils {
 			String prefixFilter, String linkAttributeCode, List<Answer> answers) {
 		if (attributeCodeValue._1.startsWith(importAttributeCode)) {
 			QDataBaseEntityMessage foundMsg = QwandaUtils.findBaseEntityByAttributeCodeLikeValue(
-					beUtils.getServiceToken().getRealm(), beUtils.getServiceToken().getToken(), matchAttributeCode,
+					beUtils.getServiceToken().getRealm(), beUtils.getServiceToken(), matchAttributeCode,
 					attributeCodeValue._2);
 
 			if (foundMsg != null) {
@@ -226,7 +226,7 @@ public class ImportUtils {
 		BaseEntity result = null;
 		try {
 			resultJson = QwandaUtils.apiPostEntity(GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/search",
-					jsonSearchBE, beUtils.getGennyToken().getToken());
+					jsonSearchBE, beUtils.getGennyToken());
 			QDataBaseEntityMessage resultMsg = JsonUtils.fromJson(resultJson, QDataBaseEntityMessage.class);
 			if (resultMsg != null) {
 				if (resultMsg.getItems() != null) {
@@ -263,7 +263,7 @@ public class ImportUtils {
 		BaseEntity result = null;
 		try {
 			resultJson = QwandaUtils.apiPostEntity(GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/search",
-					jsonSearchBE, beUtils.getGennyToken().getToken());
+					jsonSearchBE, beUtils.getGennyToken());
 			QDataBaseEntityMessage resultMsg = JsonUtils.fromJson(resultJson, QDataBaseEntityMessage.class);
 			if (resultMsg != null) {
 				if (resultMsg.getItems() != null) {

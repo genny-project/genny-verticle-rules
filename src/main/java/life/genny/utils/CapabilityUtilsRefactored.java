@@ -187,7 +187,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 		String key = getCacheKey(token.getRealm(), beCode, cleanCapabilityCode);
 		String modesString = getModeString(modes);
 		// if no cache then create
-		return VertxUtils.writeCachedJson(token.getRealm(), key, modesString, token.getToken());
+		return VertxUtils.writeCachedJson(token.getRealm(), key, modesString, token);
 	}
 
 	/**
@@ -332,7 +332,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 						/* Now update the db role to only have the attributes we want left */
 						if (!VertxUtils.cachedEnabled) { // only post if not in junit
 							QwandaUtils.apiPutEntity(GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/force",
-									JsonUtils.toJson(role), beUtils.getServiceToken().getToken());
+									JsonUtils.toJson(role), beUtils.getServiceToken());
 						}
 
 					}
@@ -397,7 +397,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 		for(int i = 0; i < roleCodesArray.size(); i++) {
 			String roleBECode = roleCodesArray.getString(i);
 
-			BaseEntity roleBE = VertxUtils.readFromDDT(userToken.getRealm(), roleBECode, userToken.getToken());
+			BaseEntity roleBE = VertxUtils.readFromDDT(userToken.getRealm(), roleBECode, userToken);
 			if(roleBE == null) {
 				log.warn("facts: could not find roleBe: " + roleBECode + " in cache: " + userToken.getRealm());
 				continue;
@@ -570,7 +570,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 		}
 
 		// Write the role to cache
-		JsonObject response = VertxUtils.writeCachedJson(getBeUtils().getServiceToken().getRealm(), role.getCode(), JsonUtils.toJson(role), getBeUtils().getServiceToken().getToken());
+		JsonObject response = VertxUtils.writeCachedJson(getBeUtils().getServiceToken().getRealm(), role.getCode(), JsonUtils.toJson(role), getBeUtils().getServiceToken());
         
 		// Check for success
 		Boolean success = "ok".equalsIgnoreCase(response.getString("status"));

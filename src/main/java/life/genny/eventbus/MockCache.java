@@ -1,17 +1,13 @@
 package life.genny.eventbus;
 
 import java.lang.invoke.MethodHandles;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-import life.genny.channel.DistMap;
+import life.genny.models.GennyToken;
 import life.genny.qwandautils.GennyCacheInterface;
-import life.genny.qwandautils.KeycloakUtils;
-import org.json.JSONObject;
 
 public class MockCache implements GennyCacheInterface {
 	
@@ -22,7 +18,7 @@ public class MockCache implements GennyCacheInterface {
 
 	@Override
 
-	public Object readCache(String realm, final String key, final String token) {
+	public Object readCache(String realm, final String key, final GennyToken token) {
 	//	log.info("MockCache read:"+realm+":"+key);
 
 		if (!realmCacheMap.containsKey(realm)) {
@@ -32,26 +28,20 @@ public class MockCache implements GennyCacheInterface {
 	}
 
 	@Override
-	public void writeCache(String realm, final String key, final String value, final String token,long ttl_seconds) {
+	public void writeCache(String realm, final String key, final String value, final GennyToken token,long ttl_seconds) {
 
 		if (!realmCacheMap.containsKey(realm)) {
 			realmCacheMap.put(realm, new ConcurrentHashMap<String,String>());
 		}
 
 		if (key == null) {
-			throw new IllegalArgumentException("Key is null");
+			throw new IllegalArgumentException("Key is null. Provided with value:[" + value + "]");
 		}
 		if (value == null) {
 			realmCacheMap.get(realm).remove(key);
 		} else {
-			if (key == null) {
-				log.error("Null Key provided! with value=["+value+"]");
-				
-			} else {
-				realmCacheMap.get(realm).put(key, value); // ignore expiry
-			}
+			realmCacheMap.get(realm).put(key, value); // ignore expiry
 		}
-
 	}
 
 	@Override

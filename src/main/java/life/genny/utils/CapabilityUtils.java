@@ -163,7 +163,7 @@ public class CapabilityUtils implements Serializable {
 		log.info("updateCachedRoleSet test:: " + key);
 		// Look up from cache
 		JsonObject json = VertxUtils.readCachedJson(beUtils.getGennyToken().getRealm(), key,
-				beUtils.getGennyToken().getToken());
+				beUtils.getGennyToken());
 		String roleCodesString = null;
 		// if no cache then create
 
@@ -177,7 +177,7 @@ public class CapabilityUtils implements Serializable {
 		if (!roleCodeSet.contains(roleCode)) {
 			roleCodesString += roleCode+",";
 			VertxUtils.writeCachedJson(beUtils.getGennyToken().getRealm(), key, roleCodesString,
-					beUtils.getGennyToken().getToken());
+					beUtils.getGennyToken());
 		}
 	}
 
@@ -191,7 +191,7 @@ public class CapabilityUtils implements Serializable {
 		log.info("updateCachedRoleSet test:: " + key);
 		// Look up from cache
 		JsonObject json = VertxUtils.readCachedJson(beUtils.getGennyToken().getRealm(), key,
-				beUtils.getGennyToken().getToken());
+				beUtils.getGennyToken());
 		String roleCodesString = null;
 		// if no cache then create
 
@@ -205,7 +205,7 @@ public class CapabilityUtils implements Serializable {
 		if (!roleCodeSet.contains(roleCode)) {
 			roleCodesString += roleCode+",";
 			VertxUtils.writeCachedJson(beUtils.getGennyToken().getRealm(), key, roleCodesString,
-					beUtils.getGennyToken().getToken());
+					beUtils.getGennyToken());
 		}
 	}
 
@@ -235,7 +235,7 @@ public class CapabilityUtils implements Serializable {
 		String key = beUtils.getGennyToken().getRealm() + ":" + capabilityCode + ":" + mode.name();
 		// Look up from cache
 		JsonObject json = VertxUtils.readCachedJson(beUtils.getGennyToken().getRealm(), key,
-				beUtils.getGennyToken().getToken());
+				beUtils.getGennyToken());
 		// if no cache then return false
 		if ("error".equals(json.getString("status"))) {
 			return false;
@@ -277,7 +277,7 @@ public class CapabilityUtils implements Serializable {
 
 		// Look up from cache
 		JsonObject json = VertxUtils.readCachedJson(beUtils.getGennyToken().getRealm(), key,
-				beUtils.getGennyToken().getToken());
+				beUtils.getGennyToken());
 		log.info("hasCapabilityThroughPriIs:: Json " + json.toString());
 		// check if the user has any of these roles
 		String userCode = beUtils.getGennyToken().getUserCode();
@@ -366,7 +366,7 @@ public class CapabilityUtils implements Serializable {
 						/* Now update the db role to only have the attributes we want left */
 						if (!VertxUtils.cachedEnabled) { // only post if not in junit
 							QwandaUtils.apiPutEntity(GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/force",
-									JsonUtils.toJson(role), beUtils.getServiceToken().getToken());
+									JsonUtils.toJson(role), beUtils.getServiceToken());
 						}
 
 					}
@@ -431,7 +431,7 @@ public class CapabilityUtils implements Serializable {
 			}
 			if (value) {
 				String roleBeCode = "ROL_" + role.getAttributeCode().substring("PRI_IS_".length());
-				BaseEntity roleBE = VertxUtils.readFromDDT(userToken.getRealm(), roleBeCode, userToken.getToken());
+				BaseEntity roleBE = VertxUtils.readFromDDT(userToken.getRealm(), roleBeCode, userToken);
 				if (roleBE == null) {
 					continue;
 				}

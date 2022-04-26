@@ -1,14 +1,12 @@
 package life.genny.eventbus;
 
 import java.lang.invoke.MethodHandles;
-import java.util.concurrent.TimeUnit;
 
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import life.genny.channel.DistMap;
+import life.genny.models.GennyToken;
 import life.genny.qwandautils.GennyCacheInterface;
-import life.genny.qwandautils.KeycloakUtils;
-import org.json.JSONObject;
 
 public class VertxCache implements GennyCacheInterface {
 	
@@ -18,27 +16,22 @@ public class VertxCache implements GennyCacheInterface {
 
 	@Override
 
-	public Object readCache(String realm, final String key, final String token) {
+	public Object readCache(String realm, final String key, final GennyToken token) {
 	//	log.info("VertxCache read:"+realm+":"+key);
 		return DistMap.getMapBaseEntitys(realm).get(key);
 	}
 
 	@Override
-	public void writeCache(String realm, final String key, final String value, final String token,long ttl_seconds) {
+	public void writeCache(String realm, final String key, final String value, final GennyToken token,long ttl_seconds) {
 
 		
 		if (key == null) {
-			throw new IllegalArgumentException("Key is null");
+			throw new IllegalArgumentException("Key is null. Provided with value:[" + value + "]");
 		}
 		if (value == null) {
 			DistMap.getMapBaseEntitys(realm).remove(key);
 		} else {
-			if (key == null) {
-				log.error("Null Key provided! with value=["+value+"]");
-				
-			} else {
-				DistMap.getMapBaseEntitys(realm).put(key, value);
-			}
+			DistMap.getMapBaseEntitys(realm).put(key, value);
 		}
 
 	}
@@ -50,8 +43,4 @@ public class VertxCache implements GennyCacheInterface {
 
 		
 	}
-
-
-
-
 }

@@ -103,13 +103,13 @@ public class FrameUtils2 {
 			// check that the MSG got saved
 
 			QDataBaseEntityMessage FRM_MSG = VertxUtils.getObject(serviceToken.getRealm(), "",
-					rootFrame.getCode() + "_MSG", QDataBaseEntityMessage.class, serviceToken.getToken());
+					rootFrame.getCode() + "_MSG", QDataBaseEntityMessage.class, serviceToken);
 //
 			if (FRM_MSG == null) {
 				log.info("ERROR: rootFrame:" + rootFrame.getCode() + " NOT CREATED");
 			}
 		}
-		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(), rootFrame, serviceToken.getToken());
+		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(), rootFrame, serviceToken);
 		ruleFires.put(serviceToken.getRealm() + ":" + rootFrame.getCode(), true);
 
 		if (!GennySettings.framesOnDemand) {
@@ -133,7 +133,7 @@ public class FrameUtils2 {
 		// check that the MSG got saved
 
 		QDataBaseEntityMessage FRM_MSG = VertxUtils.getObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG",
-				QDataBaseEntityMessage.class, serviceToken.getToken());
+				QDataBaseEntityMessage.class, serviceToken);
 
 		if (FRM_MSG == null) {
 			log.info("ERROR: rootFrame:" + rootFrame.getCode() + " NOT CREATED");
@@ -154,7 +154,7 @@ public class FrameUtils2 {
 		// check that the MSG got saved
 
 		QDataBaseEntityMessage FRM_MSG = VertxUtils.getObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG",
-				QDataBaseEntityMessage.class, serviceToken.getToken());
+				QDataBaseEntityMessage.class, serviceToken);
 
 		if (FRM_MSG == null) {
 			log.info("ERROR: rootFrame:" + rootFrame.getCode() + " NOT CREATED");
@@ -176,7 +176,7 @@ public class FrameUtils2 {
 		String askMsgsStr = JsonUtils.toJson(askMsgs);
 
 		// TODO, this is NOT needed, only enabled for testing
-		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(), rootFrame, serviceToken.getToken());
+		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(), rootFrame, serviceToken);
 		ruleFires.put(serviceToken.getRealm() + ":" + rootFrame.getCode(), true);
 		BaseEntity ruleEntity = null;
 
@@ -204,7 +204,7 @@ public class FrameUtils2 {
 		beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
 				"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_FRM", JsonUtils.toJson(rootFrame), false));
 
-		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG", msg, serviceToken.getToken());
+		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG", msg, serviceToken);
 		ruleFires.put(serviceToken.getRealm() + ":" + rootFrame.getCode() + "_MSG", true);
 		beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
 				"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_MSG", JsonUtils.toJson(msg), false));
@@ -220,7 +220,7 @@ public class FrameUtils2 {
 						"\"targetCode\": \"PER_TARGET\"");
 			}
 			VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode().toUpperCase() + "_ASKS", askMsgsStr,
-					serviceToken.getToken());
+					serviceToken);
 			beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
 					"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_ASKS", askMsgsStr, false));
 
@@ -358,7 +358,7 @@ public class FrameUtils2 {
 
 		try {
 
-			return QuestionUtils.getAsks(realm,sourceAlias, targetAliasCode, questionCode, token.getToken());
+			return QuestionUtils.getAsks(realm,sourceAlias, targetAliasCode, questionCode, token);
 			// return QuestionUtils.getAsks(token.getUserCode(), targetAliasCode,
 			// questionCode,token.getToken());
 
@@ -470,12 +470,12 @@ public class FrameUtils2 {
 					be.setRealm(serviceToken.getRealm());
 				} else {
 					be = QwandaUtils.createBaseEntityByCode(beCode, beName, GennySettings.qwandaServiceUrl,
-							serviceToken.getToken());
+							serviceToken);
 				}
 			} catch (Exception e) {
 				log.error("Got exception:" + e.getMessage() + ", try to create be for beCode:" + beCode);
 				be = QwandaUtils.createBaseEntityByCode(beCode, beName, GennySettings.qwandaServiceUrl,
-						serviceToken.getToken());
+						serviceToken);
 			}
 		}
 		be.setLinks(new HashSet<EntityEntity>()); // clear

@@ -49,7 +49,7 @@ public class QuestionUtils {
 	}
 
 	public static Boolean doesQuestionGroupExist(String realm,String sourceCode, String targetCode, final String questionCode,
-			String token) {
+			GennyToken token) {
 
 		/* we grab the question group using the questionCode */
 		QDataAskMessage questions = getAsks(realm,sourceCode, targetCode, questionCode, token);
@@ -79,7 +79,7 @@ public class QuestionUtils {
 		return false;
 	}
 
-	public static void setCachedQuestionsRecursively(Ask ask, String token) {
+	public static void setCachedQuestionsRecursively(Ask ask, GennyToken token) {
 //		if (((ask.getChildAsks() != null) && (ask.getChildAsks().length > 0)) 
 //		|| (ask.getAttributeCode().equals("QQQ_QUESTION_GROUP"))) {
 			
@@ -90,8 +90,8 @@ public class QuestionUtils {
 		} else {
 			Question question = ask.getQuestion();
 			String questionCode = question.getCode();
-			GennyToken gToken = new GennyToken(token);
-			JsonObject jsonQuestion = VertxUtils.readCachedJson(gToken.getRealm(), questionCode, token);
+			
+			JsonObject jsonQuestion = VertxUtils.readCachedJson(token.getRealm(), questionCode, token);
 			if ("ok".equalsIgnoreCase(jsonQuestion.getString("status"))) {
 				Question cachedQuestion = JsonUtils.fromJson(jsonQuestion.getString("value"), Question.class);
 				// Make sure we grab the icon too
@@ -106,7 +106,7 @@ public class QuestionUtils {
 		}
 	}
 
-	public static QDataAskMessage getAsks(String realm,String sourceCode, String targetCode, String questionCode, String token) {
+	public static QDataAskMessage getAsks(String realm,String sourceCode, String targetCode, String questionCode, GennyToken token) {
 
 		String json;
 		try {
@@ -129,15 +129,14 @@ public class QuestionUtils {
 						// Now fetch the set from cache and add it....
 						Type type = new TypeToken<Set<String>>() {
 						}.getType();
-						GennyToken gToken = new GennyToken(token);
-						Set<String> activeAttributesSet = VertxUtils.getObject(gToken.getRealm(), "",
+						Set<String> activeAttributesSet = VertxUtils.getObject(token.getRealm(), "",
 								"ACTIVE_ATTRIBUTES", type, token);
 						if (activeAttributesSet == null) {
 							activeAttributesSet = new HashSet<String>();
 						}
 						activeAttributesSet.addAll(activeAttributeCodes);
 
-						VertxUtils.putObject(gToken.getRealm(), "", "ACTIVE_ATTRIBUTES", activeAttributesSet, token);
+						VertxUtils.putObject(token.getRealm(), "", "ACTIVE_ATTRIBUTES", activeAttributesSet, token);
 
 						log.debug("Total Active AttributeCodes = " + activeAttributesSet.size());
 					}
@@ -164,24 +163,23 @@ public class QuestionUtils {
 		return activeCodes;
 	}
 
-	public static QwandaMessage getQuestions(String realm,String sourceCode, String targetCode, String questionCode, String token)
+	public static QwandaMessage getQuestions(String realm,String sourceCode, String targetCode, String questionCode, GennyToken token)
 			throws ClientProtocolException, IOException {
 		return getQuestions(realm,sourceCode, targetCode, questionCode, token, null, true);
 	}
 
-	public static QwandaMessage getQuestions(final String realm,String sourceCode, String targetCode, String questionCode, String token,
+	public static QwandaMessage getQuestions(final String realm,String sourceCode, String targetCode, String questionCode, GennyToken gennyToken,
 			String stakeholderCode, Boolean pushSelection) throws ClientProtocolException, IOException {
 
 		QBulkMessage bulk = new QBulkMessage();
 		QwandaMessage qwandaMessage = new QwandaMessage();
 		
-		GennyToken gennyToken = new GennyToken(token);
 		gennyToken.setProjectCode(realm);
 
 
 		long startTime2 = System.nanoTime();
 
-		QDataAskMessage questions = getAsks(realm,sourceCode, targetCode, questionCode, token);
+		QDataAskMessage questions = getAsks(realm,sourceCode, targetCode, questionCode, gennyToken);
 		long endTime2 = System.nanoTime();
 		double difference2 = (endTime2 - startTime2) / 1e6; // get ms
 		RulesUtils.println("getAsks fetch Time = " + difference2 + " ms");
@@ -195,7 +193,7 @@ public class QuestionUtils {
 			long startTime = System.nanoTime();
 			Ask[] asks = questions.getItems();
 			if (asks != null && pushSelection) {
-				QBulkMessage askData = sendAsksRequiredData(realm,asks, token, stakeholderCode);
+				QBulkMessage askData = sendAsksRequiredData(realm,asks, gennyToken, stakeholderCode);
 				for (QDataBaseEntityMessage message : askData.getMessages()) {
 					bulk.add(message);
 				}
@@ -217,12 +215,12 @@ public class QuestionUtils {
 	}
 
 	public static QwandaMessage askQuestions(final String realm,final String sourceCode, final String targetCode,
-			final String questionGroupCode, String token) {
+			final String questionGroupCode, GennyToken token) {
 		return askQuestions(realm,sourceCode, targetCode, questionGroupCode, token, null, true);
 	}
 
 	public static QwandaMessage askQuestions(final String realm,final String sourceCode, final String targetCode,
-			final String questionGroupCode, String token, String stakeholderCode) {
+			final String questionGroupCode, GennyToken token, String stakeholderCode) {
 		return askQuestions(realm,sourceCode, targetCode, questionGroupCode, token, stakeholderCode, true);
 	}
 
@@ -232,12 +230,12 @@ public class QuestionUtils {
 	}
 
 	public static QwandaMessage askQuestions(String realm,final String sourceCode, final String targetCode,
-			final String questionGroupCode, String token, Boolean pushSelection) {
+			final String questionGroupCode, GennyToken token, Boolean pushSelection) {
 		return askQuestions(realm,sourceCode, targetCode, questionGroupCode, token, null, pushSelection);
 	}
 
 	public static QwandaMessage askQuestions(final String realm,final String sourceCode, final String targetCode,
-			final String questionGroupCode, final String token, final String stakeholderCode,
+			final String questionGroupCode, final GennyToken token, final String stakeholderCode,
 			final Boolean pushSelection) {
 
 		try {
@@ -278,11 +276,10 @@ public class QuestionUtils {
 		return questions;
 	}
 
-	private static QBulkMessage sendAsksRequiredData(final String realm,Ask[] asks, String token, String stakeholderCode) {
+	private static QBulkMessage sendAsksRequiredData(final String realm,Ask[] asks, GennyToken token, String stakeholderCode) {
 
 		QBulkMessage bulk = new QBulkMessage();
-		GennyToken gennyToken = new GennyToken(token);
-		gennyToken.setProjectCode(realm);
+		token.setProjectCode(realm);
 
 		/* we loop through the asks and send the required data if necessary */
 		for (Ask ask : asks) {
@@ -296,7 +293,7 @@ public class QuestionUtils {
 			if (attributeCode != null && attributeCode.startsWith("LNK_")) {
 
 				/* we get the attribute validation to get the group code */
-				Attribute attribute = RulesUtils.getAttribute(attributeCode, gennyToken);
+				Attribute attribute = RulesUtils.getAttribute(attributeCode, token);
 				if (attribute != null) {
 
 					/* grab the group in the validation */
@@ -369,31 +366,32 @@ public class QuestionUtils {
 		return bulk;
 	}
 
-	public static Ask createQuestionForBaseEntity(BaseEntity be, Boolean isQuestionGroup, String token) {
+	// TODO: THIS IS A DUPLICATE METHOD WILL REVIEW LATER
+	// public static Ask createQuestionForBaseEntity(BaseEntity be, Boolean isQuestionGroup, GennyToken token) {
 
-		/* Get the service token */
-		GennyToken serviceToken = RulesUtils.generateServiceToken(be.getRealm(), token);
+	// 	/* Get the service token */
+	// 	GennyToken serviceToken = RulesUtils.generateServiceToken(be.getRealm(), token);
 
-		/* creating attribute code according to the value of isQuestionGroup */
-		String attributeCode = isQuestionGroup ? "QQQ_QUESTION_GROUP_INPUT" : "PRI_EVENT";
+	// 	/* creating attribute code according to the value of isQuestionGroup */
+	// 	String attributeCode = isQuestionGroup ? "QQQ_QUESTION_GROUP_INPUT" : "PRI_EVENT";
 
-		/* Get the on-the-fly question attribute */
-		Attribute attribute = RulesUtils.getAttribute(attributeCode, serviceToken);
-		log.debug("createQuestionForBaseEntity method, attribute ::" + JsonUtils.toJson(attribute));
+	// 	/* Get the on-the-fly question attribute */
+	// 	Attribute attribute = RulesUtils.getAttribute(attributeCode, serviceToken);
+	// 	log.debug("createQuestionForBaseEntity method, attribute ::" + JsonUtils.toJson(attribute));
 
-		/*
-		 * creating suffix according to value of isQuestionGroup. If it is a
-		 * question-group, suffix "_GRP" is required"
-		 */
-		String questionSuffix = isQuestionGroup ? "_GRP" : "";
+	// 	/*
+	// 	 * creating suffix according to value of isQuestionGroup. If it is a
+	// 	 * question-group, suffix "_GRP" is required"
+	// 	 */
+	// 	String questionSuffix = isQuestionGroup ? "_GRP" : "";
 
-		/* We generate the question */
-		Question newQuestion = new Question("QUE_" + be.getCode() + questionSuffix, be.getName(), attribute, false);
-		log.debug("createQuestionForBaseEntity method, newQuestion ::" + JsonUtils.toJson(newQuestion));
+	// 	/* We generate the question */
+	// 	Question newQuestion = new Question("QUE_" + be.getCode() + questionSuffix, be.getName(), attribute, false);
+	// 	log.debug("createQuestionForBaseEntity method, newQuestion ::" + JsonUtils.toJson(newQuestion));
 
-		/* We generate the ask */
-		return new Ask(newQuestion, be.getCode(), be.getCode(), false, 1.0, false, false, true);
-	}
+	// 	/* We generate the ask */
+	// 	return new Ask(newQuestion, be.getCode(), be.getCode(), false, 1.0, false, false, true);
+	// }
 
 	public static Ask createQuestionForBaseEntity(BaseEntity be, Boolean isQuestionGroup, GennyToken serviceToken) {
 
@@ -502,7 +500,7 @@ public class QuestionUtils {
 			String json = null;
 			try {
 				json = QwandaUtils.apiPostEntity(GennySettings.qwandaServiceUrl + "/qwanda/questions",
-						JsonUtils.toJson(question), token.getToken());
+						JsonUtils.toJson(question), token);
 			} catch (IOException e) {
 				log.info("Caught IOException trying to upsert question: " + question.getCode());
 			}
@@ -522,7 +520,7 @@ public class QuestionUtils {
 		Question q = null;
 		Integer retry = 2;
 		while (retry >= 0) { // Sometimes q is read properly from cache
-			JsonObject jsonQ = VertxUtils.readCachedJson(userToken.getRealm(), questionCode, userToken.getToken());
+			JsonObject jsonQ = VertxUtils.readCachedJson(userToken.getRealm(), questionCode, userToken);
 			q = JsonUtils.fromJson(jsonQ.getString("value"), Question.class);
 			if (q == null) {
 				retry--;
@@ -537,10 +535,10 @@ public class QuestionUtils {
 			log.warn("COULD NOT READ " + questionCode + " from cache!!! Aborting (after having tried 2 times");
 			String qJson;
 			try {
-				qJson = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl+"/qwanda/questioncodes/"+questionCode, userToken.getToken());
+				qJson = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl+"/qwanda/questioncodes/"+questionCode, userToken);
 				if (!StringUtils.isBlank(qJson)) {
 					q = JsonUtils.fromJson(qJson, Question.class);
-					VertxUtils.writeCachedJson(userToken.getRealm(), questionCode, JsonUtils.toJson(q),userToken.getToken());
+					VertxUtils.writeCachedJson(userToken.getRealm(), questionCode, JsonUtils.toJson(q),userToken);
 					log.info("WRITTEN " + questionCode + " tocache!!! Fetched from database");
 					return q;
 				} else {

@@ -191,7 +191,7 @@ public class QuestionGroup implements Serializable {
 		 * @throws Exception 
 		 */
 		public QuestionTheme.Builder addTheme(String themeCode,GennyToken serviceToken) throws Exception {
-			Theme theme = VertxUtils.getObject(serviceToken.getRealm(), "", themeCode, Theme.class, serviceToken.getToken());
+			Theme theme = VertxUtils.getObject(serviceToken.getRealm(), "", themeCode, Theme.class, serviceToken);
 			if (theme != null) {
 				if (managedInstance.questionThemes == null) {
 					managedInstance.questionThemes = new HashSet<QuestionTheme>();
