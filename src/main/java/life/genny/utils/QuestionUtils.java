@@ -111,7 +111,7 @@ public class QuestionUtils {
 		String json;
 		try {
 
-			json = QwandaUtils.apiGet(GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/" + sourceCode + "/asks2/"
+			json = QwandaUtils.apiGet(GennySettings.fyodorServiceUrl + "/qwanda/baseentitys/" + sourceCode + "/asks2/"
 					+ questionCode + "/" + targetCode, token);
 			if (json != null) {
 				if (!json.contains("<title>Error")) {
