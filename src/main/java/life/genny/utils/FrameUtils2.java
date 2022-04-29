@@ -358,7 +358,7 @@ public class FrameUtils2 {
 
 		try {
 
-			return QuestionUtils.getAsks(realm,sourceAlias, targetAliasCode, questionCode, token);
+			return QuestionUtils.getAsks(sourceAlias, targetAliasCode, questionCode, token);
 			// return QuestionUtils.getAsks(token.getUserCode(), targetAliasCode,
 			// questionCode,token.getToken());
 

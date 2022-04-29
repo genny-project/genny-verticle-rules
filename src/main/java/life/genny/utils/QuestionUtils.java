@@ -48,11 +48,11 @@ public class QuestionUtils {
 	private QuestionUtils() {
 	}
 
-	public static Boolean doesQuestionGroupExist(String realm,String sourceCode, String targetCode, final String questionCode,
+	public static Boolean doesQuestionGroupExist(String sourceCode, String targetCode, final String questionCode,
 			GennyToken token) {
 
 		/* we grab the question group using the questionCode */
-		QDataAskMessage questions = getAsks(realm,sourceCode, targetCode, questionCode, token);
+		QDataAskMessage questions = getAsks(sourceCode, targetCode, questionCode, token);
 
 		/* we check if the question payload is not empty */
 		if (questions != null) {
@@ -106,7 +106,7 @@ public class QuestionUtils {
 		}
 	}
 
-	public static QDataAskMessage getAsks(String realm,String sourceCode, String targetCode, String questionCode, GennyToken token) {
+	public static QDataAskMessage getAsks(String sourceCode, String targetCode, String questionCode, GennyToken token) {
 
 		String json;
 		try {
@@ -163,23 +163,20 @@ public class QuestionUtils {
 		return activeCodes;
 	}
 
-	public static QwandaMessage getQuestions(String realm,String sourceCode, String targetCode, String questionCode, GennyToken token)
+	public static QwandaMessage getQuestions(String sourceCode, String targetCode, String questionCode, GennyToken token)
 			throws ClientProtocolException, IOException {
-		return getQuestions(realm,sourceCode, targetCode, questionCode, token, null, true);
+		return getQuestions(sourceCode, targetCode, questionCode, token, null, true);
 	}
 
-	public static QwandaMessage getQuestions(final String realm,String sourceCode, String targetCode, String questionCode, GennyToken gennyToken,
+	public static QwandaMessage getQuestions(String sourceCode, String targetCode, String questionCode, GennyToken gennyToken,
 			String stakeholderCode, Boolean pushSelection) throws ClientProtocolException, IOException {
 
 		QBulkMessage bulk = new QBulkMessage();
 		QwandaMessage qwandaMessage = new QwandaMessage();
 		
-		gennyToken.setProjectCode(realm);
-
-
 		long startTime2 = System.nanoTime();
 
-		QDataAskMessage questions = getAsks(realm,sourceCode, targetCode, questionCode, gennyToken);
+		QDataAskMessage questions = getAsks(sourceCode, targetCode, questionCode, gennyToken);
 		long endTime2 = System.nanoTime();
 		double difference2 = (endTime2 - startTime2) / 1e6; // get ms
 		RulesUtils.println("getAsks fetch Time = " + difference2 + " ms");
@@ -193,7 +190,7 @@ public class QuestionUtils {
 			long startTime = System.nanoTime();
 			Ask[] asks = questions.getItems();
 			if (asks != null && pushSelection) {
-				QBulkMessage askData = sendAsksRequiredData(realm,asks, gennyToken, stakeholderCode);
+				QBulkMessage askData = sendAsksRequiredData(asks, gennyToken, stakeholderCode);
 				for (QDataBaseEntityMessage message : askData.getMessages()) {
 					bulk.add(message);
 				}
@@ -241,7 +238,7 @@ public class QuestionUtils {
 		try {
 
 			/* if sending the questions worked, we ask user */
-			return getQuestions(realm,sourceCode, targetCode, questionGroupCode, token, stakeholderCode, pushSelection);
+			return getQuestions(sourceCode, targetCode, questionGroupCode, token, stakeholderCode, pushSelection);
 
 		} catch (Exception e) {
 			log.info("Ask questions exception: ");
@@ -276,10 +273,9 @@ public class QuestionUtils {
 		return questions;
 	}
 
-	private static QBulkMessage sendAsksRequiredData(final String realm,Ask[] asks, GennyToken token, String stakeholderCode) {
+	private static QBulkMessage sendAsksRequiredData(Ask[] asks, GennyToken token, String stakeholderCode) {
 
 		QBulkMessage bulk = new QBulkMessage();
-		token.setProjectCode(realm);
 
 		/* we loop through the asks and send the required data if necessary */
 		for (Ask ask : asks) {
@@ -356,7 +352,7 @@ public class QuestionUtils {
 			Ask[] childAsks = ask.getChildAsks();
 			if (childAsks != null && childAsks.length > 0) {
 
-				QBulkMessage newBulk = sendAsksRequiredData(realm,childAsks, token, stakeholderCode);
+				QBulkMessage newBulk = sendAsksRequiredData(childAsks, token, stakeholderCode);
 				for (QDataBaseEntityMessage msg : newBulk.getMessages()) {
 					bulk.add(msg);
 				}
