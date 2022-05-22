@@ -353,8 +353,11 @@ public class CapabilityUtils implements Serializable {
 			try {
 				RulesUtils.realmAttributeMap.get(this.beUtils.getGennyToken().getRealm()).remove(toBeRemovedCapability.getCode()); // remove from cache
 				if (!VertxUtils.cachedEnabled) { // only post if not in junit
-					QwandaUtils.apiDelete(GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/attributes/"
+					log.info("Another API attributes delete!!!");
+					QwandaUtils.apiDelete(GennySettings.fyodorServiceUrl + "/attributes/"+beUtils.getServiceToken().getRealm()+"/"
 							+ toBeRemovedCapability.getCode(), beUtils.getServiceToken());
+				//	QwandaUtils.apiDelete(GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/attributes/"
+				//			+ toBeRemovedCapability.getCode(), beUtils.getServiceToken());
 				}
 				/* update all the roles that use this attribute by reloading them into cache */
 				QDataBaseEntityMessage rolesMsg = VertxUtils.getObject(beUtils.getServiceToken().getRealm(), "ROLES",

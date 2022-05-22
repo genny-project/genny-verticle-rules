@@ -319,6 +319,7 @@ public class CapabilityUtilsRefactored implements Serializable {
 			try {
 				RulesUtils.realmAttributeMap.get(this.beUtils.getGennyToken().getRealm()).remove(toBeRemovedCapability.getCode()); // remove from cache
 				if (!VertxUtils.cachedEnabled) { // only post if not in junit
+					log.info("API delete again !!!!!!");
 					QwandaUtils.apiDelete(GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/attributes/"
 							+ toBeRemovedCapability.getCode(), beUtils.getServiceToken());
 				}
