@@ -518,7 +518,8 @@ public class QuestionUtils {
 		Integer retry = 2;
 		while (retry >= 0) { // Sometimes q is read properly from cache
 			JsonObject jsonQ = VertxUtils.readCachedJson(userToken.getRealm(), questionCode, userToken);
-			q = JsonUtils.fromJson(jsonQ.getString("value"), Question.class);
+			q = JsonUtils.fromJson(jsonQ.getJsonObject("value").toString(), Question.class);
+			//q = JsonUtils.fromJson(jsonQ.getString("value"), Question.class);
 			if (q == null) {
 				retry--;
 
