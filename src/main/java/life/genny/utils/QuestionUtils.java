@@ -529,56 +529,6 @@ public class QuestionUtils {
 		}
 
 		return null;
-
-// 		Integer retry = 2;
-// 		while (retry >= 0) { // Sometimes q is read properly from cache
-// 			JsonObject jsonQ = VertxUtils.readCachedJson(userToken.getRealm(), questionCode, userToken);
-
-// 			log.info(jsonQ.toString());
-
-// 			// q = JsonUtils.fromJson(jsonQ.getJsonObject("value").toString(), Question.class);
-// 			if (jsonQ.getJsonObject("value") != null) {
-// 				q = JsonUtils.fromJson(jsonQ.getJsonObject("value").toString(), Question.class);
-// 			}
-
-// 			if (q == null) {
-// 				retry--;
-
-// 			} else {
-// 				break;
-// 			}
-
-// 		}
-
-// 		if (q == null) {
-// 			log.warn("COULD NOT READ " + questionCode + " from cache!!! Aborting (after having tried 2 times");
-// 			String qJson;
-// 			try {
-
-// 				String uri = GennySettings.fyodorServiceUrl+"/qwanda/questioncodes/"+questionCode;
-// 				qJson = QwandaUtils.apiGet(uri, userToken);
-
-// 				if (!StringUtils.isBlank(qJson)) {
-// 					q = JsonUtils.fromJson(qJson, Question.class);
-// 					VertxUtils.writeCachedJson(userToken.getRealm(), questionCode, JsonUtils.toJson(q),userToken);
-// 					log.info("WRITTEN " + questionCode + " tocache!!! Fetched from database");
-// 					return q;
-// 				} else {
-// 					log.error("Questionutils could not find question "+questionCode+" in database");
-// 				}
-
-// 			} catch (ClientProtocolException e) {
-// 				// TODO Auto-generated catch block
-// 				e.printStackTrace();
-// 			} catch (IOException e) {
-// 				// TODO Auto-generated catch block
-// 				e.printStackTrace();
-// 			}
-			
-// 			return null;
-// 		} else {
-// 			return q;
-// 		}
 	}
 
 	/**

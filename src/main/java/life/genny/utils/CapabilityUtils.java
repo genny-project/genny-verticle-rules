@@ -70,7 +70,7 @@ public class CapabilityUtils implements Serializable {
 	@Deprecated
 	public Attribute addCapability(final String capabilityCode, final String name) {
 		String fullCapabilityCode = "PRM_" + capabilityCode.toUpperCase();
-		log.info("Setting Capability : " + fullCapabilityCode + " : " + name);
+		log.debug("Setting Capability : " + fullCapabilityCode + " : " + name);
 		Attribute attribute = RulesUtils.realmAttributeMap.get(this.beUtils.getGennyToken().getRealm()).get(fullCapabilityCode);
 		if (attribute != null) {
 			capabilityManifest.add(attribute);
@@ -188,7 +188,7 @@ public class CapabilityUtils implements Serializable {
 	 */
 	private void updateCachedRoleSet(final String roleCode, final String capabilityCode, final CapabilityMode mode) {
 		String key = beUtils.getGennyToken().getRealm() + ":" + capabilityCode + ":" + mode.name();
-		log.info("updateCachedRoleSet test:: " + key);
+		log.debug("updateCachedRoleSet test:: " + key);
 		// Look up from cache
 		JsonObject json = VertxUtils.readCachedJson(beUtils.getGennyToken().getRealm(), key,
 				beUtils.getGennyToken());
@@ -265,10 +265,10 @@ public class CapabilityUtils implements Serializable {
 			capabilityCode = "PRM_"+capabilityCode;
 		}
 		// allow keycloak admin and devcs to do anything
-		log.info("hasCapabilityThroughPriIs capabilityCode:: " + capabilityCode + "CapabilityMode" + mode.name());
+		log.debug("hasCapabilityThroughPriIs capabilityCode:: " + capabilityCode + "CapabilityMode" + mode.name());
 		
 		if (beUtils.getGennyToken().hasRole("admin")||beUtils.getGennyToken().hasRole("dev")||("service".equals(beUtils.getGennyToken().getUsername()))) {
-			log.info("hasCapabilityThroughPriIs:: Inside IF " );
+			log.debug("hasCapabilityThroughPriIs:: Inside IF " );
 			return true;
 		}
 		// Create a capabilityCode and mode combined unique key
@@ -353,7 +353,7 @@ public class CapabilityUtils implements Serializable {
 			try {
 				RulesUtils.realmAttributeMap.get(this.beUtils.getGennyToken().getRealm()).remove(toBeRemovedCapability.getCode()); // remove from cache
 				if (!VertxUtils.cachedEnabled) { // only post if not in junit
-					log.info("Another API attributes delete!!!");
+					log.debug("Another API attributes delete!!! "+toBeRemovedCapability.getCode());
 					QwandaUtils.apiDelete(GennySettings.fyodorServiceUrl + "/attributes/"+beUtils.getServiceToken().getRealm()+"/"
 							+ toBeRemovedCapability.getCode(), beUtils.getServiceToken());
 				//	QwandaUtils.apiDelete(GennySettings.qwandaServiceUrl + "/qwanda/baseentitys/attributes/"
