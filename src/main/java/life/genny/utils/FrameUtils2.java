@@ -178,7 +178,9 @@ public class FrameUtils2 {
 		askMsgs.add(askMsgFromQuestions);
 		String askMsgsStr = JsonUtils.toJson(askMsgs);
 		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode().toUpperCase() + "_ASKS", askMsgsStr, serviceToken);
-		// QDataBaseEntityMessage msg = toMessage(rootFrame, serviceToken, askMsgs, contextListMap, sourceAlias, targetAlias, fetchAsks);
+
+		QDataBaseEntityMessage msg = toMessage(rootFrame, serviceToken, askMsgs, contextListMap, sourceAlias, targetAlias, fetchAsks);
+		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG", msg, serviceToken);
 
 		// TODO, this is NOT needed, only enabled for testing
 		// VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(), rootFrame, serviceToken);
@@ -209,7 +211,6 @@ public class FrameUtils2 {
 		// beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
 		// 		"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_FRM", JsonUtils.toJson(rootFrame), false));
 
-		// // VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG", msg, serviceToken);
 		// ruleFires.put(serviceToken.getRealm() + ":" + rootFrame.getCode() + "_MSG", true);
 		// // beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
 		// // 		"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_MSG", JsonUtils.toJson(msg), false));
