@@ -168,63 +168,71 @@ public class FrameUtils2 {
 			log.error("Null rootframe passed by " + serviceToken.getUserCode());
 			return;
 		}
-		BaseEntityUtils beUtils = new BaseEntityUtils(serviceToken);
+
+		// BaseEntityUtils beUtils = new BaseEntityUtils(serviceToken);
 
 		Set<QDataAskMessage> askMsgs = new HashSet<QDataAskMessage>();
-		QDataBaseEntityMessage msg = toMessage(rootFrame, serviceToken, askMsgs, contextListMap, sourceAlias,
-				targetAlias, fetchAsks);
+		log.info("About to run toMessage");
+		String questionCode = StringUtils.removeStart(rootFrame.getCode(), "FRM_");
+		QDataAskMessage askMsgFromQuestions = QuestionUtils.getAsks(null, null, questionCode, serviceToken);
+		askMsgs.add(askMsgFromQuestions);
 		String askMsgsStr = JsonUtils.toJson(askMsgs);
+		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode().toUpperCase() + "_ASKS", askMsgsStr, serviceToken);
+		// QDataBaseEntityMessage msg = toMessage(rootFrame, serviceToken, askMsgs, contextListMap, sourceAlias, targetAlias, fetchAsks);
 
 		// TODO, this is NOT needed, only enabled for testing
-		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(), rootFrame, serviceToken);
-		ruleFires.put(serviceToken.getRealm() + ":" + rootFrame.getCode(), true);
-		BaseEntity ruleEntity = null;
+		// VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode(), rootFrame, serviceToken);
+		// ruleFires.put(serviceToken.getRealm() + ":" + rootFrame.getCode(), true);
+		// BaseEntity ruleEntity = null;
 
-		try {
+		// try {
 
-			ruleEntity = beUtils.getBaseEntityByCode("RUL_" + rootFrame.getCode().toUpperCase());
-		} catch (Exception e) {
+		// 	ruleEntity = beUtils.getBaseEntityByCode("RUL_" + rootFrame.getCode().toUpperCase());
+		// } catch (Exception e) {
 
-			// TODO Auto-generated catch block
-			log.error("Error in getting rule " + e.getLocalizedMessage());
-			return;
-		}
-		if (ruleEntity == null) {
+		// 	// TODO Auto-generated catch block
+		// 	log.error("Error in getting rule " + e.getLocalizedMessage());
+		// 	return;
+		// }
+		// if (ruleEntity == null) {
 
-			BaseEntity defBE = beUtils.getDEFByCode("DEF_RULE");
-			try {
-				beUtils.create(defBE, "RUL_" + rootFrame.getCode().toUpperCase(),
-						"RUL_" + rootFrame.getCode().toUpperCase());
-			} catch (Exception e) {
-				log.error(e.getStackTrace().toString());
-			}
-			log.error("!!!!!!!!!!!!!!!!!!!!!!!! RUL_" + rootFrame.getCode().toUpperCase() + " WAS NOT IN DB????");
-		}
+		// 	BaseEntity defBE = beUtils.getDEFByCode("DEF_RULE");
+		// 	try {
+		// 		beUtils.create(defBE, "RUL_" + rootFrame.getCode().toUpperCase(),
+		// 				"RUL_" + rootFrame.getCode().toUpperCase());
+		// 	} catch (Exception e) {
+		// 		log.error(e.getStackTrace().toString());
+		// 	}
+		// 	log.error("!!!!!!!!!!!!!!!!!!!!!!!! RUL_" + rootFrame.getCode().toUpperCase() + " WAS NOT IN DB????");
+		// }
 
-		beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
-				"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_FRM", JsonUtils.toJson(rootFrame), false));
+		// beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
+		// 		"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_FRM", JsonUtils.toJson(rootFrame), false));
 
-		VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG", msg, serviceToken);
-		ruleFires.put(serviceToken.getRealm() + ":" + rootFrame.getCode() + "_MSG", true);
-		beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
-				"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_MSG", JsonUtils.toJson(msg), false));
+		// // VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode() + "_MSG", msg, serviceToken);
+		// ruleFires.put(serviceToken.getRealm() + ":" + rootFrame.getCode() + "_MSG", true);
+		// // beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
+		// // 		"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_MSG", JsonUtils.toJson(msg), false));
 
-		if (!askMsgs.isEmpty()) {
-			// This IF statement is really bad and is a terrible hack to stop teh source and
-			// target being saved with actual non template code if frames on demand
-			if (!("PER_SOURCE".equals(sourceAlias) && ("PER_TARGET".equals(targetAlias)))) {
-				log.info("FIXING PER_SOURCE and PER_TARGET ###############################");
-				askMsgsStr = askMsgsStr.replaceAll("\"sourceCode\": \"" + sourceAlias + "\"",
-						"\"sourceCode\": \"PER_SOURCE\"");
-				askMsgsStr = askMsgsStr.replaceAll("\"targetCode\": \"" + targetAlias + "\"",
-						"\"targetCode\": \"PER_TARGET\"");
-			}
-			VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode().toUpperCase() + "_ASKS", askMsgsStr,
-					serviceToken);
-			beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
-					"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_ASKS", askMsgsStr, false));
+		// if (!askMsgs.isEmpty()) {
+		// 	// This IF statement is really bad and is a terrible hack to stop teh source and
+		// 	// target being saved with actual non template code if frames on demand
+		// 	if (!("PER_SOURCE".equals(sourceAlias) && ("PER_TARGET".equals(targetAlias)))) {
+		// 		log.info("FIXING PER_SOURCE and PER_TARGET ###############################");
+		// 		askMsgsStr = askMsgsStr.replaceAll("\"sourceCode\": \"" + sourceAlias + "\"",
+		// 				"\"sourceCode\": \"PER_SOURCE\"");
+		// 		askMsgsStr = askMsgsStr.replaceAll("\"targetCode\": \"" + targetAlias + "\"",
+		// 				"\"targetCode\": \"PER_TARGET\"");
+		// 	}
+		// 	VertxUtils.putObject(serviceToken.getRealm(), "", rootFrame.getCode().toUpperCase() + "_ASKS", askMsgsStr,
+		// 			serviceToken);
+		// 	log.info("Saving PRI_ASKS for " + rootFrame.getCode());
+		// 	beUtils.saveAnswer(new Answer("RUL_" + rootFrame.getCode().toUpperCase(),
+		// 			"RUL_" + rootFrame.getCode().toUpperCase(), "PRI_ASKS", askMsgsStr, false));
 
-		}
+		// } else {
+		// 	log.info("Asks are empty for " + rootFrame.getCode());
+		// }
 	}
 
 	static public QDataBaseEntityMessage toMessage(final Frame3 rootFrame, GennyToken serviceToken,
@@ -282,6 +290,7 @@ public class FrameUtils2 {
 			Set<QDataAskMessage> asks, Map<String, ContextList> contextListMap,
 			Map<String, QDataAskMessage> virtualAskMap, String sourceAlias, String targetAlias, Boolean fetchAsks) {
 
+		log.info("running toMessage");
 		Set<BaseEntity> baseEntityList = new HashSet<BaseEntity>();
 		Set<Ask> askListFromFrames = new HashSet<>();
 
@@ -294,6 +303,8 @@ public class FrameUtils2 {
 		QDataBaseEntityMessage msg = new QDataBaseEntityMessage(new ArrayList<>(baseEntityList));
 		msg.setTotal(msg.getReturnCount());
 		msg.setReplace(true);
+
+		log.info("getting asks");
 
 		if ((!VertxUtils.cachedEnabled || virtualAskMap.isEmpty()) && fetchAsks) {
 
@@ -310,8 +321,14 @@ public class FrameUtils2 {
 
 				} else {
 
+					log.info("getting asks");
 					askMsgFromQuestions = getAsks(currentAskFromFrame, currentAskFromFrame.getQuestionCode(),
 							serviceToken, sourceAlias, targetAlias);
+					if (askMsgFromQuestions != null) {
+						log.info("Ask Msg is not null");
+					} else {
+						log.info("Ask Msg NULLLL");
+					}
 
 				}
 
@@ -356,6 +373,8 @@ public class FrameUtils2 {
 
 		/* Trying to fetch the asks from the cache */
 
+		log.info("About to run getAsks");
+
 		try {
 
 			return QuestionUtils.getAsks(sourceAlias, targetAliasCode, questionCode, token);
@@ -365,6 +384,7 @@ public class FrameUtils2 {
 		} catch (NullPointerException e) {
 
 			log.error("Null pointer in getAsks " + questionCode);
+			e.printStackTrace();
 			return new QDataAskMessage(new Ask[0]);
 		}
 	}

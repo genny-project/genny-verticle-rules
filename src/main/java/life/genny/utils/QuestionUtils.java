@@ -109,45 +109,26 @@ public class QuestionUtils {
 
 	public static QDataAskMessage getAsks(String sourceCode, String targetCode, String questionCode, GennyToken token) {
 
+		log.info("QuestionUtils getting asks");
 		String json;
 		try {
-
-			json = QwandaUtils.apiGet(GennySettings.fyodorServiceUrl + "/qwanda/baseentitys/" + sourceCode + "/asks2/"
-					+ questionCode + "/" + targetCode, token);
+			String uri = GennySettings.fyodorServiceUrl+"/qwanda/baseentitys/PER_SOURCE/asks2/"+questionCode+"/PER_TARGET";
+			json = QwandaUtils.apiGet(uri, token);
+			log.info("URI = " + uri);
+			// log.info("ASK JSON = " + json);
 			if (json != null) {
+				if (!json.isEmpty()) {
+					log.info("Not Empty");
+				}
 				if (!json.contains("<title>Error")) {
 					QDataAskMessage msg = JsonUtils.fromJson(json, QDataAskMessage.class);
-
-					if (false) {
-						// Identify all the attributeCodes and build up a working active Set
-						Set<String> activeAttributeCodes = new HashSet<String>();
-						for (Ask ask : msg.getItems()) {
-							activeAttributeCodes.addAll(getAttributeCodes(ask));
-
-							// Go down through the child asks and get cached questions
-							setCachedQuestionsRecursively(ask, token);
-						}
-						// Now fetch the set from cache and add it....
-						Type type = new TypeToken<Set<String>>() {
-						}.getType();
-						Set<String> activeAttributesSet = VertxUtils.getObject(token.getRealm(), "",
-								"ACTIVE_ATTRIBUTES", type, token);
-						if (activeAttributesSet == null) {
-							activeAttributesSet = new HashSet<String>();
-						}
-						activeAttributesSet.addAll(activeAttributeCodes);
-
-						VertxUtils.putObject(token.getRealm(), "", "ACTIVE_ATTRIBUTES", activeAttributesSet, token);
-
-						log.debug("Total Active AttributeCodes = " + activeAttributesSet.size());
-					}
 					return msg;
 				}
+			} else {
+				log.info("Nullll");
 			}
-		} catch (ClientProtocolException e) {
-			log.info(e.getMessage());
-		} catch (IOException e) {
-			log.info(e.getMessage());
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		return null;
